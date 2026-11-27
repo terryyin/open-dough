@@ -33,7 +33,7 @@ import {
   publishOnePygardonStory,
   pygardonRepository,
 } from "../../dashboard/test-support/pygardonProject.ts";
-import { pathsRead } from "../../dashboard/test-support/publishedOrigin.ts";
+import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
 import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { keyboardWithin } from "../../dashboard/test-support/pageShortcutsPage.ts";
 
@@ -122,9 +122,7 @@ test.describe("with two projects", () => {
         },
       ),
     ).toBe(pygardon.revisions.published);
-    expect(pathsRead(pygardon)).toContain(
-      `PRODUCT-BACKLOG.md?ref=${pygardon.revisions.published}`,
-    );
+    expect(restMembershipAsked(pygardon.requests)).toEqual([]);
 
     await test.step("System settings and back keeps it expanded", async () => {
       await settings(page).click();

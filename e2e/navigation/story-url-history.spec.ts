@@ -1,5 +1,6 @@
-// The published origin refuses the first story read. The built dashboard owns
-// Retry, reload and the history entries for the story and ordinary Board.
+// Git cannot reach the published origin for the first story read. The built
+// dashboard owns Retry, reload and the history entries for the story and
+// ordinary Board.
 import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { doughnutRepository } from "../../dashboard/test-support/doughnutProject.ts";
@@ -9,10 +10,8 @@ import {
   notifiedTitle,
   otherTitle,
 } from "../../dashboard/test-support/notificationStoryJourney.ts";
-import {
-  httpErrorAnswer,
-  pathsRead,
-} from "../../dashboard/test-support/publishedOrigin.ts";
+import { expectPublishedRevision } from "../../dashboard/test-support/dashboardPage.ts";
+import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
 import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
 import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { storyHistoryPage } from "./story-url-history-page.ts";
@@ -26,18 +25,9 @@ test("Retry, reload and Back restore a story URL while Forward keeps the ordinar
   dashboard,
   afterGitHubStops,
 }) => {
-  const { other, target, restore } =
-    await test.step("Given Doughnut's published work is temporarily unavailable", async () => {
-      const origins = await notificationOrigins(
-        page,
-        afterGitHubStops,
-        "Taken",
-      );
-      return {
-        ...origins,
-        restore: origins.target.answerWith("main", httpErrorAnswer(503)),
-      };
-    });
+  const { other, target } =
+    await test.step("Given Doughnut and Open Dough publish their work", () =>
+      notificationOrigins(page, afterGitHubStops, "Taken"));
   await test.step("Then the two published Boards have distinct Git routes", async () => {
     const routedTrunk = (repository: string) =>
       remoteBranchHead(gitHubRepositoryUrl(repository), "refs/heads/main", {
@@ -48,6 +38,9 @@ test("Retry, reload and Back restore a story URL while Forward keeps the ordinar
     expect(await routedTrunk(doughnutRepository)).toBe(target.revisions.target);
     expect(await routedTrunk(defaultRepository)).toBe(other.revisions.other);
   });
+  const restore =
+    await test.step("Given Git cannot reach Doughnut's published work for now", () =>
+      target.disconnectGit());
   const story = await test.step("When I open the story URL", () =>
     storyHistoryPage(page).open("doughnut", notifiedIdentity));
   await test.step("Then the destination reports a failed read", () =>
@@ -64,9 +57,8 @@ test("Retry, reload and Back restore a story URL while Forward keeps the ordinar
       notifiedTitle,
       notifiedIdentity,
     );
-    expect(pathsRead(target)).toContain(
-      `PRODUCT-BACKLOG.md?ref=${target.revisions.target}`,
-    );
+    await expectPublishedRevision(page, target.revisions.target);
+    expect(restMembershipAsked(target.requests)).toEqual([]);
   });
   const reloaded = await test.step("When I reload", () => retried.reload());
   await test.step("Then Doughnut's story is still the destination", () =>
@@ -75,9 +67,8 @@ test("Retry, reload and Back restore a story URL while Forward keeps the ordinar
     reloaded.choose("Open Dough"));
   await test.step("Then I see Open Dough's Board at an ordinary project URL", async () => {
     await chosen.showsBoard("Open Dough", otherTitle);
-    expect(pathsRead(other)).toContain(
-      `PRODUCT-BACKLOG.md?ref=${other.revisions.other}`,
-    );
+    await expectPublishedRevision(page, other.revisions.other);
+    expect(restMembershipAsked(other.requests)).toEqual([]);
   });
   const back = await test.step("When I go Back", () => chosen.back());
   await test.step("Then Doughnut's story takes focus and cues its return", () =>

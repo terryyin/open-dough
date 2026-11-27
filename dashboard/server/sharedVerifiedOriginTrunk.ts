@@ -7,9 +7,9 @@
 
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
-import { checkReuseMs } from "../src/revisionCheckSchedule.ts";
 import { githubGitCredentials, githubGitOrigin } from "./githubGitTransport.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
+import { revisionCheckReuseMs } from "./revisionChecks.ts";
 import { SharedObservation, type Demanded } from "./sharedObservation.ts";
 import {
   verifiedOriginTrunk,
@@ -26,20 +26,28 @@ const originTrunkKey = (source: PublishedSource): OriginTrunkKey => [
 
 const observationKey = (key: OriginTrunkKey) => JSON.stringify(key);
 
+// A check's outcome and when it started, by this server's clock: a demand
+// that joined a running check answers that start, not its own arrival.
+export type AskedOriginTrunk = {
+  readonly askedAt: string;
+  readonly trunk: VerifiedOriginTrunk;
+};
+
 export type SharedVerifiedOriginTrunkOptions = {
-  // How long a settled check serves a later demand. Defaults to checkReuseMs.
+  // How long a settled check serves a later demand. Defaults to the revision
+  // check window, including a test's `DOUGH_REVISION_CHECK_REUSE_MS`.
   readonly reuseMs?: () => number;
 };
 
 export class SharedVerifiedOriginTrunk {
   private readonly observations = new Map<
     string,
-    SharedObservation<VerifiedOriginTrunk, OriginTrunkKey>
+    SharedObservation<AskedOriginTrunk, OriginTrunkKey>
   >();
   private readonly reuseMs: () => number;
 
   constructor({
-    reuseMs = () => checkReuseMs,
+    reuseMs = revisionCheckReuseMs,
   }: SharedVerifiedOriginTrunkOptions = {}) {
     this.reuseMs = reuseMs;
   }
@@ -49,7 +57,7 @@ export class SharedVerifiedOriginTrunk {
     pinned: PinnedTexts,
     signal: AbortSignal,
     waitMs = readWaitLimitMs,
-  ): Promise<Demanded<VerifiedOriginTrunk>> {
+  ): Promise<Demanded<AskedOriginTrunk>> {
     return this.observationFor(source, pinned).demand(
       originTrunkKey(source),
       waitMs,
@@ -62,11 +70,11 @@ export class SharedVerifiedOriginTrunk {
   private observationFor(
     source: PublishedSource,
     pinned: PinnedTexts,
-  ): SharedObservation<VerifiedOriginTrunk, OriginTrunkKey> {
+  ): SharedObservation<AskedOriginTrunk, OriginTrunkKey> {
     const key = observationKey(originTrunkKey(source));
     const existing = this.observations.get(key);
     if (existing !== undefined) return existing;
-    const created = new SharedObservation<VerifiedOriginTrunk, OriginTrunkKey>(
+    const created = new SharedObservation<AskedOriginTrunk, OriginTrunkKey>(
       () => this.check(source, pinned),
       this.reuseMs,
     );
@@ -77,11 +85,13 @@ export class SharedVerifiedOriginTrunk {
   // The waiter's signal is not this controller's. Aborting one waiter leaves
   // the Git check running for the others. A thrown GhFailure rejects the
   // observation's waiters.
-  private check(
+  private async check(
     source: PublishedSource,
     pinned: PinnedTexts,
-  ): Promise<VerifiedOriginTrunk> {
+  ): Promise<AskedOriginTrunk> {
+    const askedAt = new Date().toISOString();
     const controller = new AbortController();
-    return verifiedOriginTrunk(source, pinned, controller.signal);
+    const trunk = await verifiedOriginTrunk(source, pinned, controller.signal);
+    return { askedAt, trunk };
   }
 }

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Eimi-chan",
-  "email": "eimi-chan@example.org",
-  "identity": "SEED-430#open-the-board-from-the-verified-git-trunk",
-  "mode": "story-branch",
-  "branch": "claude/open-the-board-from-the-verified-git-trunk",
-  "host": "claude"
-}

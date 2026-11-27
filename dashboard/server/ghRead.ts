@@ -97,21 +97,14 @@ export function requestOwnerScope(): Promise<string | undefined> {
   return github.scope();
 }
 
-// One `gh` answer's body, and when it was asked of GitHub.
-export async function askGh(
-  args: readonly string[],
-  signal: AbortSignal,
-): Promise<{ readonly stdout: string; readonly askedAt: string }> {
-  const { failure, body, askedAt } = await execGh(args, signal);
-  if (failure) {
-    throw new GhFailure(failure);
-  }
-  return { stdout: body, askedAt };
-}
-
+// One `gh` answer's body.
 export async function runGh(
   args: readonly string[],
   signal: AbortSignal,
 ): Promise<string> {
-  return (await askGh(args, signal)).stdout;
+  const { failure, body } = await execGh(args, signal);
+  if (failure) {
+    throw new GhFailure(failure);
+  }
+  return body;
 }

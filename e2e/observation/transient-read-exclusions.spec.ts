@@ -1,6 +1,7 @@
-// Access, missing, invalid, and unknown failures stay actionable without an
-// automatic recovery loop. Switching project cancels an unresolved empty-page
-// wait. Eligible recovery timing lives in ./transient-read-recovery.spec.ts.
+// Refusal, a missing trunk, an unreadable or invalid backlog stay actionable
+// without an automatic recovery loop or a REST membership read. Switching
+// project cancels an unresolved empty-page wait. Eligible recovery timing
+// lives in ./transient-read-recovery.spec.ts.
 
 import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 import { backlogPath } from "../../dashboard/test-support/publishedOriginBasics.ts";
@@ -23,93 +24,91 @@ import {
 import { describedBacklog } from "../../dashboard/test-support/describedRevisions.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
-  httpErrorAnswer,
   publishCommittedBacklog,
-  publishOrigin,
+  publishGitOriginFailure,
 } from "../../dashboard/test-support/publishedOrigin.ts";
+import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
 import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
-import { refreshHistory } from "../../dashboard/test-support/refreshJourney.ts";
 import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import {
-  mainReads,
+  noteColdOpens,
+  originUnreachable,
   transientRecovery,
 } from "../../dashboard/test-support/transientRecoveryPage.ts";
 
 const opened = new Date("2026-09-20T08:30:00.000Z");
-const unexplainedFailure = {
-  exitCode: 1,
-  stderr: "gh: unexplained failure\n",
-};
+const openDough = "open-dough";
+const checkAccess =
+  "Check that `gh auth status` succeeds and that this login can read terryyin/open-dough, then reload the page.";
 
-for (const { when, origin, problem } of [
+for (const { failure, problem } of [
   {
-    when: "an unmarked 403",
-    origin: {
-      ref: httpErrorAnswer(403, "Resource not accessible by integration"),
-    },
-    problem:
-      "GitHub answered HTTP 403 to the local GitHub CLI while reading main of terryyin/open-dough. Check that `gh auth status` succeeds and that this login can read terryyin/open-dough, then reload the page.",
+    failure: "refused 403",
+    problem: `GitHub answered HTTP 403 to the local GitHub CLI while reading main of terryyin/open-dough. ${checkAccess}`,
   },
   {
-    when: "HTTP 401",
-    origin: { ref: httpErrorAnswer(401) },
-    problem:
-      "GitHub answered HTTP 401 to the local GitHub CLI while reading main of terryyin/open-dough. Check that `gh auth status` succeeds and that this login can read terryyin/open-dough, then reload the page.",
+    failure: "refused 401",
+    problem: `GitHub answered HTTP 401 to the local GitHub CLI while reading main of terryyin/open-dough. ${checkAccess}`,
   },
   {
-    when: "HTTP 404",
-    origin: null,
+    failure: "missing trunk",
     problem:
-      "The published backlog (.planning/PRODUCT-BACKLOG.md) is missing or inaccessible in Open Dough (HTTP 404).",
+      "The published trunk is unavailable: origin has no branch for main of terryyin/open-dough.",
   },
-  {
-    when: "an unknown CLI failure",
-    origin: { ref: unexplainedFailure },
-    problem:
-      "The local authenticated read failed while reading main of terryyin/open-dough. Check that `gh auth status` succeeds and that this login can read terryyin/open-dough, then reload the page.",
-  },
-]) {
-  test(`access, missing, and unknown failures stay actionable without a loop when ${when}`, async ({
+] as const) {
+  test(`refusal and missing trunk stay actionable without a loop or REST membership when ${failure}`, async ({
     page,
   }) => {
     await pausePageClockAt(page, opened);
-    const requested =
-      origin === null
-        ? publishCommittedBacklog(page, null).requests
-        : await publishOrigin(page, origin);
+    publishGitOriginFailure(page, failure);
     await page.goto("/");
     await expectProblemAndNoSnapshot(page, problem);
     await untilPageReadsAnswered(page);
-    const asked = requested.length;
     await page.clock.runFor(20_000);
-    expect(requested).toHaveLength(asked);
     await expect(parts(page).problem).toContainText(
       "Reload the page to read again.",
     );
-    expect(
-      githubFor(page).calls.filter((call) => call.request.kind === "ref"),
-    ).toHaveLength(origin === null ? 1 : asked);
+    expect(restMembershipAsked(githubFor(page).calls)).toEqual([]);
   });
 }
+
+test("an unreadable backlog stays actionable without a loop or REST membership", async ({
+  page,
+}) => {
+  await pausePageClockAt(page, opened);
+  publishCommittedBacklog(page, null);
+  await page.goto("/");
+  await expectProblemAndNoSnapshot(
+    page,
+    "The published backlog (.planning/PRODUCT-BACKLOG.md) is unavailable at the verified trunk of Open Dough.",
+  );
+  await untilPageReadsAnswered(page);
+  await page.clock.runFor(20_000);
+  await expect(parts(page).problem).toContainText(
+    "Reload the page to read again.",
+  );
+  expect(restMembershipAsked(githubFor(page).calls)).toEqual([]);
+});
 
 test("a malformed backlog stays a reload problem and is not asked again", async ({
   page,
 }) => {
   await pausePageClockAt(page, opened);
   // An empty valid backlog followed by the literal malformed entry.
-  const origin = publishCommittedBacklog(
+  publishCommittedBacklog(
     page,
     `${describedBacklog(makeMe.aRepository.please())}- Queue trunk integration, without a link\n`,
   );
+  const opens = noteColdOpens(page, openDough);
   await page.goto("/");
   await expectProblemAndNoSnapshot(
     page,
     'Unsupported entry in "## Backlog list" at line 7',
   );
   await untilPageReadsAnswered(page);
-  const asked = mainReads(origin);
+  expect(opens).toHaveLength(1);
   await page.clock.runFor(20_000);
-  expect(mainReads(origin)).toBe(asked);
+  expect(opens).toHaveLength(1);
   await expect(parts(page).problem).toContainText(
     "Reload the page to read again.",
   );
@@ -131,25 +130,21 @@ test("switching project cancels the unresolved recovery wait", async ({
     afterGitHubStops,
     doughnutRepository,
   );
-  const origin = await publishMovingHistory(
-    page,
-    refreshHistory({ filesAtA: {} }),
-    "A",
-    afterGitHubStops,
-  );
-  origin.answerWith("main", httpErrorAnswer(503));
+  publishGitOriginFailure(page, "unreachable origin");
+  const openDoughOpens = noteColdOpens(page, openDough);
   await page.goto("/");
   await expectProblemAndNoSnapshot(
     page,
-    "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
+    originUnreachable(),
     transientRecovery,
   );
   await untilPageReadsAnswered(page);
-  expect(mainReads(origin)).toBe(1);
+  expect(openDoughOpens).toHaveLength(1);
 
   await projectTab(page, "Doughnut").check();
   await expectMembership(page, { taken: [], backlog: [doughnutSharedTitle] });
   await page.clock.runFor(20_000);
-  expect(mainReads(origin)).toBe(1);
+  expect(openDoughOpens).toHaveLength(1);
   await expect(parts(page).problem).toHaveCount(0);
+  expect(restMembershipAsked(githubFor(page).calls)).toEqual([]);
 });

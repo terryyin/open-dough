@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "agent": "Maki-chan",
-  "email": "maki-chan@example.org",
-  "identity": "SEED-448#ad-hoc-work",
+  "agent": "Yuma-chan",
+  "email": "yuma-chan@example.org",
+  "identity": "SEED-449#complete-closure-on-repaired-basis",
   "mode": "trunk",
   "branch": "origin/main",
   "host": "claude",

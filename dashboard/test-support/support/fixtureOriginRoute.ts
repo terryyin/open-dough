@@ -27,6 +27,27 @@ export function routeOriginThroughHome(
   ]);
 }
 
+// The origin `routeOriginThroughHome` routed `repository`'s URL to under
+// `home`.
+export function routedOrigin(home: string, repository: string): string {
+  const wanted = gitHubRepositoryUrl(repository);
+  const listed = execFileSync(
+    "git",
+    ["config", "--file", path.join(home, ".gitconfig"), "--list"],
+    { encoding: "utf8" },
+  );
+  const marker = ".insteadof=";
+  for (const line of listed.split("\n")) {
+    if (!line.startsWith("url.")) continue;
+    const at = line.lastIndexOf(marker);
+    if (at === -1) continue;
+    if (line.slice(at + marker.length) === wanted) {
+      return line.slice("url.".length, at);
+    }
+  }
+  throw new Error(`No Git origin is routed for ${repository}.`);
+}
+
 const unroutedGitHub = (home: string) => path.join(home, "unrouted-github");
 
 // Every GitHub URL no fixture routes resolves to a missing local repository
@@ -74,6 +95,10 @@ const served = (github: FakeGitHub): Served => {
   servedBy.set(github, known);
   return known;
 };
+
+// Every HOME a dashboard served by `github` runs under, so far.
+export const servedHomes = (github: FakeGitHub): readonly string[] =>
+  served(github).homes;
 
 // A dashboard HOME served by `github`: unrouted GitHub URLs fail locally and
 // each origin published through `github` is reachable.
@@ -183,4 +208,17 @@ export function expectServedHomesReach(
         `Git under ${home} finds ${repository} ${ref} at "${reached}", not the published ${revision}.`,
       );
   }
+}
+
+// Git under every HOME a dashboard served by `github` runs under cannot reach
+// `repository`'s `origin` until the returned reconnect routes it back.
+export function disconnectOriginThroughServedHomes(
+  github: FakeGitHub,
+  origin: string,
+  repository: string,
+): () => void {
+  routeOriginThroughServedHomes(github, `${origin}-unreachable`, repository);
+  return () => {
+    routeOriginThroughServedHomes(github, origin, repository);
+  };
 }

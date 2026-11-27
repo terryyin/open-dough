@@ -2,6 +2,7 @@
 import { mkdirSync, readFileSync } from "node:fs";
 import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
 import { projectConfigurationMachine } from "../../dashboard/test-support/support/projectConfigurationMachine.ts";
+import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
 import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
@@ -123,13 +124,7 @@ test("saved projects retain order and default selection across restart", async (
     await expect(
       page.getByRole("region", { name: "Recently done", exact: true }),
     ).toBeVisible();
-    expect(server.ghCalls()).toContainEqual([
-      "api",
-      "--include",
-      "repos/example/zebra/commits/trunk",
-      "--jq",
-      ".sha",
-    ]);
+    expect(restMembershipAsked(server.github.calls)).toEqual([]);
     expect(readFileSync(fixture.configurationFile("preview"), "utf8")).toBe(
       saved,
     );

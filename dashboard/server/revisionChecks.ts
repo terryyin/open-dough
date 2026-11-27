@@ -125,9 +125,11 @@ export class RevisionChecks {
       // with the next listing that succeeds. A failed listing keeps no
       // settled observation, so the next check asks GitHub again.
       return {
-        revision: (
-          await resolveRevisionViaGh(source.repository, source.ref, signal)
-        ).revision,
+        revision: await resolveRevisionViaGh(
+          source.repository,
+          source.ref,
+          signal,
+        ),
         heads: undefined,
       };
     }

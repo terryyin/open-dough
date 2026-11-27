@@ -6,6 +6,7 @@
 // scenario names every expected time, wait and request count.
 
 import type { Page } from "@playwright/test";
+import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import { expect } from "./dashboardTest.ts";
 import {
@@ -16,11 +17,16 @@ import {
 import { timeSaid } from "./limitNotice.ts";
 import type { OriginAnswer } from "./originAnswers.ts";
 import type { MovingOrigin } from "./publishedMovingOrigin.ts";
-import { pathsRead, type ObservedRequest } from "./publishedOrigin.ts";
+import { defaultRepository } from "./publishedOrigin.ts";
 
 // What the problem says while no published work is shown: when this page
 // reads it again.
 export const transientRecovery = "This page reads the published work at";
+
+// What the problem says when Git cannot read `repository`'s trunk from its
+// origin: the cold open's failure the page recovers from on its own.
+export const originUnreachable = (repository: string = defaultRepository) =>
+  `The published trunk is unavailable: Git could not read main of ${repository} from origin.`;
 
 // What the problem says while detail of the shown snapshot, still unread or
 // withheld by the limit, is labeled where it is shown and read again later.
@@ -29,10 +35,20 @@ export const detailRecovery = "this page reads it";
 // What the problem says while an earlier snapshot stays shown.
 const earlierSnapshot = "What is shown is the earlier snapshot, retrieved at";
 
-export function mainReads(origin: {
-  readonly requests: readonly ObservedRequest[];
-}): number {
-  return pathsRead(origin).filter((path) => path === "main").length;
+// The page's cold opens of project `source`, noted as they are sent: reads
+// naming only that source, before any revision of it is known.
+export function noteColdOpens(page: Page, source: string): readonly string[] {
+  const opens: string[] = [];
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (
+      url.pathname === authenticatedReadEndpoint &&
+      [...url.searchParams.keys()].join() === "source" &&
+      url.searchParams.get("source") === source
+    )
+      opens.push(request.url());
+  });
+  return opens;
 }
 
 // The page time the problem says this page next reads on its own: the

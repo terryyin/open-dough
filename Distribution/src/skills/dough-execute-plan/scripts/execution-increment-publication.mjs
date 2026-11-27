@@ -22,6 +22,7 @@ export async function publishExecutionIncrement({
   backlogPath = defaultBacklogPath,
   beforePush,
   landingContext: suppliedLandingContext,
+  landingAcceptedAt = /** @type {string | undefined} */ (undefined),
   onFetchedTarget,
 }) {
   const landingContext = await resolvePublicationLandingContext({
@@ -164,6 +165,7 @@ export async function publishExecutionIncrement({
           await retainLandingComparison(landingContext, comparison, {
             remote,
             targetRef,
+            acceptedAt: landingAcceptedAt,
           });
         await beforePush?.({ attempt: attemptNumber, ...comparison });
         return comparison;

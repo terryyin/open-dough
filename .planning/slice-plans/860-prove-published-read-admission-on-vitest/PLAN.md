@@ -1,71 +1,293 @@
 # Prove published read admission in Node Vitest
 
-**Status:** awaiting story refinement — not ready for slice-plan refinement or execution
-
 **Source:** [Prove published read admission in Node Vitest](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#published-read-admission-via-vitest)
 
 **Identity:** SEED-413#published-read-admission-via-vitest
 
 ## Goal and scope
 
-Give Board and Review maintainers fast proof that a configured project can read its published facts and receives the established refusal for unlisted paths, invalid source membership, or unavailable evidence.
+Give Board and Review maintainers fast, direct proof of what an admitted
+Dashboard read can return at the selected published revision and how the
+reader learns about refusal, missing evidence and upstream failure. The
+twelve observation specs below are the legacy selection. Every case needs
+a named observable replacement or a maintained proof owner before removal.
 
-Retain one wire proof for local-origin request admission wherever it supplies the behavior. Drive product cases through the typed published reader with configured sources, admitted pins, and real Git if reachability is in question. Reconcile cold ref reads with plans 856 and 858 and pinned reads with plan 823.
+The Board's verified Git open and the proof retargeting that preceded it
+were delivered in [plan 856](https://github.com/terryyin/open-dough/blob/e4faafbdb/.planning/slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md)
+and [plan 858](https://github.com/terryyin/open-dough/blob/bca2def1a/.planning/slice-plans/858-move-authenticated-read-proofs-off-the-board-ref-read/PLAN.md).
+[Plan 823](../823-follow-published-progress-from-local-git/PLAN.md) owns
+switching the remaining pinned Board reads and containment to local Git.
+Refresh lifecycle, GitHub request ownership, Review comparisons, and new
+provider behavior have separate owners.
 
-## Inherited proof and premises
+## Current decisions
 
-The [campaign coverage map](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#backend-vitest-replacement-coverage) classified 12 Playwright paths for this story at `43b6506e7`. The selector establishes runner membership. Refinement must inspect the cases, observe the decisive premises through the consuming operations, and confirm slice size before recording readiness.
+- [ADR 0002, Software development lifecycle principles](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md)
+  and the North Star topics [Make production code directly testable](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support)
+  and [Plain Vitest for unit tests](../../NORTH-STAR.md#plain-vitest-for-unit-tests-playwright-only-for-e2e)
+  govern the proof boundary. Exercise the production typed operation and its
+  real policy and state, with a substitute only at the upstream service
+  boundary or where a named fixture represents published input. Reuse the
+  existing MakeMe repository and record builders. A Node HTTP proof in one
+  focused spec keeps the real loopback, origin metadata, wire encoding, and
+  request-close checks. Keep browser workflows with their existing E2E owners.
+- [ADR 0008, Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+  and [Share one refresh for published Dashboard Git reads](../../NORTH-STAR.md#share-one-refresh-for-published-dashboard-git-reads)
+  keep origin authoritative and selected details pinned. The browser's
+  `publishedWorkRead` calls the authenticated boundary. `requestedRead`
+  chooses the typed read. `performedRead` routes its `PublishedSource` and
+  pin to `reachablePaths`, `branchReachability`, `recordsBesideBacklog`,
+  and the owning readers. Reuse those decisions and `PinnedTexts`,
+  `BranchHeads` and `AvatarImages` where their state is under observation.
+  Use the existing repository builder and real commits for bytes, history
+  and membership that depend on Git. Use the current provider boundary to
+  return those Git facts where the production operation still uses REST.
+  Keep source-specific provider arguments, failures and call counts only
+  where they witness an observable promise such as refusing before an
+  upstream call or reading only changed blobs.
+- Keep `performVerifiedTrunkRead` and the already-shared Git-open owner in
+  place. Expose a typed operation from the existing dispatcher only where
+  HTTP or unrelated collaborators obstruct direct proof. Narrow the
+  collaborator types to the methods the operation consumes. Request
+  tracking, error wording and response encoding keep their production
+  owners. Pass the tracked signal into typed reads and let the adapter own
+  request departure. Reuse each seam as slices reach it. Add no test-support
+  wrapper or parallel admission rule. The likely production edit locations,
+  including `authenticatedRead.ts` (243 lines), `performedRead.ts` (228),
+  `requestedRead.ts` (233) and `pinnedMemo.ts` (247), are within the current
+  250-line limit. Recheck before editing.
+- Preserve the existing scope of each operation. Local request admission
+  protects the launching user's authenticated credentials and processes.
+  A configured source and its pinned publication determine scope, including
+  which branch and path are eligible. Local object presence alone confers
+  no admission. An unavailable answer is distinguishable from empty or
+  absent published evidence. Profile attribution uses the published
+  allocation and avatar lookup uses the usable source named for the
+  matched account.
 
-Trace publishedWorkRead and authenticatedRead to reachablePaths, recordsBesideBacklog, and branchReachability. Compare plan 858’s retargeted proofs and the Board Git switch before declaring a cold ref assertion redundant.
+## Premises and baseline
 
-Use [direct production test seams](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support) and [plain Vitest for unit tests](../../NORTH-STAR.md#plain-vitest-for-unit-tests-playwright-only-for-e2e). For published Git readers follow [one project refresh](../../NORTH-STAR.md#share-one-refresh-for-published-dashboard-git-reads) and [ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md).
+The consuming operation was the maintained Dashboard Backend command in
+this isolated preparation workspace at `8a2de0fff` on 27 November 2026.
+Node 24.21.0, macOS on AC, one worker, default timeout, load about 28–31 on
+16 logical CPUs. The exact legacy selection passed 84 Chromium cases in
+31.49 s elapsed. The repeat below used the maintained proof reporter and
+added the real-Git Node witness. It passed on the first attempt for all
+90 cases, with 10.218 s summed legacy case time, 4.210 s summed Node case
+time, and 39.90 s elapsed for the combined selection. See the legacy
+counts below. The same command without `review/verified-origin-trunk\.spec\.ts$`
+selects only the legacy family.
 
-Follow [one project refresh for published Git reads](../../NORTH-STAR.md#share-one-refresh-for-published-dashboard-git-reads) and [ADR 0008, Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md) when choosing the surviving boundary.
+```sh
+caffeinate -s -i npm run test:dashboard:backend -- \
+  'observation/authenticated-(avatar|branch-read-boundary|read-(boundary|containment|listed-records|refusal|committed-last|done-catalog(-gaps|-refusal)?|profile-addition(-refusal)?))\.spec\.ts$' \
+  'review/verified-origin-trunk\.spec\.ts$' --workers=1
+```
 
-## Provisional ordered slices
+| Consuming operation | Observed result at the preparation revision | Plan consequence |
+| --- | --- | --- |
+| Board cold read and local Git proof | The canonical and branch specs opened the configured fixture origin, observed its revision and successfully read details. The six Node cases in `review/verified-origin-trunk.spec.ts` read exact backlog bytes, accepted a later probed commit, rejected a moved ref during transfer, and distinguished missing trunk, unreadable backlog, and refusal from unavailability. | Reuse Git origin/pin fixture setup and keep the named cold-open ownership. These Node cases cover the open itself. Later pinned record reads need their own proof. |
+| Retargeted revision check and pins | `authenticated-read-boundary` observed the actionable login failure and sanitized diagnostic from the revision check, then exercised successful pinned bytes and provider encoding. `authenticated-branch-read-boundary` refused an unresolved head with 409, read the resolved plan, then admitted a head through a watched revision check. | Keep those check and read assertions with the stated slices. A cold-open-only proof cannot replace them. |
+| Computation from pinned evidence | The refusal and commit-time specs distinguished unlisted paths from reachable files and their metadata. The containment group distinguished comparison direction, missing accepted commit, unavailable comparison and directed wait. Done reads distinguished an empty catalog, disagreement, a refused body and a failing or departed request. Profile and avatar cases distinguished repository selection, attribution, successful and failed image reads, reuse and refresh. | Convert the existing behavior, using each current spec's assertion as the starting obligation. Keep the checks for call avoidance, cancellation and caching where those are the behavior. |
+| Git migration boundary | The same passed cases actually observed upstream content, branch, commit-time and comparison calls for pinned variants after the Git open, including the two mixed cold/open-and-pinned specs. | Preserve the current typed operations and upstream contract in this plan. Recheck the baseline if plan 823 lands first or changes a consuming path. |
 
-### 1. Admit only reachable published revisions and paths
+## Ordered slices and outside-in proof
+
+Legacy paths are in `dashboard/backend-tests/observation/`. The parenthetical
+counts are cases selected at the baseline, with expanded table rows counted
+individually. Mixed files contribute to each named slice. Keep their remaining
+cases running until the last successor is green. Each slice budgets 15 active
+minutes or less and owns one proof loop. Keep any extraction within the
+slice that first uses it. Apply the execution clock and split rule on overrun.
+
+### 1. Admit an authenticated read from the local origin
 
 Type: Behavior
 Status: planned
 
-Project, branch, revision and literal path admission with success and refusal.
+A request to the installed authenticated boundary reaches a configured
+source only from its local origin and using the accepted method. Prove the
+real socket and headers, including same-origin Fetch Metadata without
+Origin, missing or foreign origin, an unknown source, and a rejected
+method. Check that refusals make no upstream call. On an admitted revision
+check that fails upstream, preserve no-store, actionable login guidance and
+the omission of raw diagnostics. Use the installed HTTP adapter and a
+controlled upstream failure only for these transport observations. Keep
+request-shape refusals with the typed read variant they constrain.
 
-Legacy selection in `dashboard/backend-tests/observation/`
+Proof owners are the wire cases in `authenticated-read-refusal.spec.ts`
+(22 across slices 1–3, 5–6) and the failure cases in
+`authenticated-read-boundary.spec.ts` (4 across slices 1–2).
+Reserve a single Node HTTP spec for genuine wire assertions. Move each
+remaining typed case when its owning slice has proof.
 
-- `authenticated-branch-read-boundary.spec.ts`
-- `authenticated-read-boundary.spec.ts`
-- `authenticated-read-containment.spec.ts`
-- `authenticated-read-listed-records.spec.ts`
-- `authenticated-read-refusal.spec.ts`
-
-### 2. Report the committed and Done evidence that the project publishes
-
-Type: Behavior
-Status: planned
-
-Committed source and exact Done catalog, including gaps and refusal.
-
-Legacy selection in `dashboard/backend-tests/observation/`
-
-- `authenticated-read-committed-last.spec.ts`
-- `authenticated-read-done-catalog-gaps.spec.ts`
-- `authenticated-read-done-catalog-refusal.spec.ts`
-- `authenticated-read-done-catalog.spec.ts`
-
-### 3. Keep authenticated profile additions and avatar reads scoped
+### 2. Read an admitted file and commit time at its pin
 
 Type: Behavior
 Status: planned
 
-Successful scoped profile or avatar read and refusal when the configured source cannot supply it.
+Given a configured source and a revision whose backlog identifies a story
+document, ask for the document or its last committed time. Return the exact
+bytes and time even when a later commit differs. Reject an unlisted path
+or a source whose own pin cannot reach it before fetching the path.
+Preserve literal text and spaces through the provider adapter and reuse
+pinned records or metadata at the same revision.
 
-Legacy selection in `dashboard/backend-tests/observation/`
+Proof uses the production file and commit-time read selected by
+`RequestedRead`, with a `PublishedSource`, signal, `PinnedTexts` and
+real MakeMe Git commits for the backlog, file and changed revision. Check
+the actual provider path encoding where it is emitted. Preserve the
+pinned cases in `authenticated-read-boundary.spec.ts` (slice 1 owns its
+failure cases), `authenticated-read-committed-last.spec.ts` (2), and the
+arbitrary-path case in `authenticated-read-refusal.spec.ts`.
 
-- `authenticated-avatar.spec.ts`
-- `authenticated-read-profile-addition-refusal.spec.ts`
-- `authenticated-read-profile-addition.spec.ts`
+### 3. Admit the recorded branch and its resolved head
 
-## Proof and local gate
+Type: Behavior
+Status: planned
 
-Measure the exact maintained one-worker selections before and after, mapping every prior case to its surviving observable owner. See the [campaign comparison requirements](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#backend-vitest-replacement-coverage). Use awake macOS on AC under `caffeinate -s -i` for long local checks per [AGENTS.md](../../../AGENTS.md). Keep default timeouts and follow the shared [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+At a pinned Taken entry, resolve the branch named by its recorded profile,
+then read its plan at the resolved head. Refuse unrelated branch and path
+choices and an unresolved head with the established meanings. A watched
+revision check may admit the head it actually resolves. Malformed or mixed
+branch and watch parameters stop at parsing before an upstream read.
+
+Proof drives `performBranchHeadRead`, `performOnBranch` and the watched
+`performRevisionCheck` through their production dispatch with a
+`PublishedSource`, `BranchHeads`, pinned backlog/profile/plan from real
+Git, and a controlled branch-head provider. Exercise the existing parser
+for the branch/watch refusals. Keep the one multi-step case in
+`authenticated-branch-read-boundary.spec.ts` and the branch/watch rows in
+`authenticated-read-refusal.spec.ts`.
+
+### 4. Answer accepted-publication containment
+
+Type: Behavior
+Status: planned
+
+An admitted source and two full revisions yield containment for equality
+and descendants and absence for behind, divergent and unknown accepted
+commits. Unavailable or malformed provider answers carry the appropriate
+failure and directed wait. Invalid request shape is refused before a compare.
+
+Proof uses the production containment read and parser, with the typed
+`ContainmentRead` and signal, published fixture history for the revision
+relationships and a comparison-provider answer for failures. Inspect the
+actual requested base, head and repository. Preserve all 3 cases in
+`authenticated-read-containment.spec.ts` and the reader contract consumed
+by `publicationContainment.ts` and `startupReconciliation.ts`.
+
+### 5. Distinguish an empty Done catalog from missing or inconsistent evidence
+
+Type: Behavior
+Status: planned
+
+A Done catalog at a source's pin describes exactly the listed filenames
+and blobs. No Done files yields an empty catalog. Missing, malformed, stale
+or mismatched catalog evidence returns a gap. A listed unreadable record
+remains listed. A request naming a record absent from the agreeing catalog
+is refused before any body read. Verify project isolation at one revision.
+
+Proof uses the `DoneCatalogRead` parser and `performDoneCatalogRead` with
+pinned listings and blobs derived from the case's published files. Reuse the
+shared Done catalog builder and agreement code. Preserve
+`authenticated-read-done-catalog-gaps.spec.ts` (7), catalog and membership
+cases in `authenticated-read-done-catalog.spec.ts` (4 across slices 5–6),
+the Done-only request-shape rows in `authenticated-read-done-catalog-refusal.spec.ts`
+(12 across slices 5–6), and the catalog rows in `authenticated-read-refusal.spec.ts`.
+
+### 6. Read listed bodies once and release a departed reader
+
+Type: Behavior
+Status: planned
+
+An accepted body read returns the named Done or profile records at the pin,
+with independent blobs read together, unchanged blobs reused and reads
+kept within the existing batch and concurrency bounds. When one
+read fails, identify its path. A departed reader releases its held request
+and a later read can retrieve the body again.
+
+Proof exercises `performListedRecordsRead` and the Done bodies variant of
+`performDoneCatalogRead` through their shared `readListedTexts` path, with
+the real pinned memo, named blobs, and a controlled upstream for ordering
+and failure. Move the request departure to the Node HTTP witness from
+slice 1, preserving observation of child exit and the later successful
+request. Prove the profile request shape at the parser. Account for
+`authenticated-read-listed-records.spec.ts` (4), body reuse in
+`authenticated-read-done-catalog.spec.ts`, the remaining two cases in
+`authenticated-read-done-catalog-refusal.spec.ts`, and the profile rows in
+`authenticated-read-refusal.spec.ts`.
+
+### 7. Attribute the currently allocated profile
+
+Type: Behavior
+Status: planned
+
+Given a listed profile at a pin, return the addition of its current
+allocation, the credited commit and its matched account. Distinguish
+changed history, the existing bounded walk, no addition and unlisted or
+foreign profile input. Reuse commit data when multiple profiles traverse it.
+
+Proof uses `parseAdditionRead` and `performAdditionRead` with the typed
+`AdditionRead`, configured source, pinned listings and history, and the
+real history walk and memo. Use Git fixture history where file changes and
+pinning determine the result. Supply provider account metadata at its
+boundary. Preserve `authenticated-read-profile-addition.spec.ts` (3) and
+`authenticated-read-profile-addition-refusal.spec.ts` (7).
+
+### 8. Serve the credited account's bounded avatar
+
+Type: Behavior
+Status: planned
+
+When the requested profile and pin resolve a usable matched-account avatar,
+serve the exact bounded image, share concurrent fetches, retain a successful
+image and fetch a changed source. No match or unusable source yields no
+avatar and no fetch. Failure reports unavailability and allows a later retry.
+
+Proof uses the typed source, revision and profile path from the existing
+avatar parser, the real avatar controller and `AvatarImages`, and controlled
+attribution and fetch answers. Preserve rejection of foreign input,
+unsupported, oversized or redirected images and failed fetches. The slice 1 HTTP witness
+keeps the image headers and cross-origin refusal. Maintain the visible
+[roster avatar journey](../../../e2e/stories/agent-roster-avatar.spec.ts)
+at its existing owner. Account for all 15 cases in `authenticated-avatar.spec.ts`.
+
+## Local gate and delivery
+
+- Apply [MakeMe](../../../.agents/skills/dough-makeme/SKILL.md) selection
+  to each changed or new test before writing it and
+  [page-object selection](../../../.agents/skills/dough-page-objects/SKILL.md)
+  if browser tests change. Follow [AGENTS.md](../../../AGENTS.md) for
+  default timeouts and awake macOS on AC under `caffeinate -s -i` for
+  long local checks. Apply the shared [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
+  to every check.
+- Run the focused maintained backend selection for each modified read and
+  `npm run typecheck:dashboard` when typed seams change. Apply
+  [consumer tracing](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
+  to changed types, handlers and removed support. Start with the Board
+  pinned details, branch observation and startup reconciliation readers,
+  the Done record readers shared with Review and follow-up, and the roster
+  profile/avatar readers. Run the affected readers at their existing test
+  boundaries. Keep the real Git cold witness in the affected selection if
+  shared dispatch or pin setup changes.
+- Recount on the execution starting revision and record the final exact
+  maintained one-worker command. Record runner counts, per-case times
+  against the campaign's roughly 100 ms target, summed case time, wall time,
+  conditions and any E2E proof owner/cost. Require zero legacy Chromium
+  cases for this family. For each retired case show the replacement setup,
+  observed result and a check that distinguishes the promised behavior
+  before deleting its only witness. Group equivalent assertions with
+  their owner. Observe host load before timing and use comparable
+  one-worker conditions. See the [campaign comparison](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#backend-vitest-replacement-coverage).
+
+## Plan review
+
+The provisional grouping was expanded during planning around the actual
+entry points and independent proof loops. A separate slice-plan refinement
+pass was unnecessary because the eight bounded slices carry the observed
+refusals and transitions and identify the mixed proof owners. The shared
+model is a configured source, a selected pinned operation and its typed
+outcome. Actual wire departure, commit-history comparison and image
+fetching use their own existing production boundaries. No slice-specific
+concern remains on the observed basis.

@@ -9,6 +9,7 @@ import { pressAt } from "../navigation/board-reading-page.ts";
 import { intentViewTab } from "./intent-candidates-page.ts";
 import { fullSha } from "./intent-ci-status-fixtures.ts";
 import { fileLayout } from "./intent-file-layout-page.ts";
+import { activateButton } from "../page-objects/activateButton.ts";
 
 export const workOf = (
   source: PublishedSource,
@@ -32,7 +33,7 @@ export const filesColumnVisible = () =>
 export async function activateChosenCiTab(how: "click" | "Enter" | "Space") {
   const tab = intentViewTab("CI status");
   if (how === "click") {
-    await userEvent.click(tab);
+    await activateButton(tab);
   } else {
     tab.element().focus();
     await userEvent.keyboard(how === "Enter" ? "{Enter}" : " ");
@@ -62,7 +63,7 @@ const rowToggle = (row: Element) =>
 
 async function disclose(toggle: HTMLButtonElement) {
   if (toggle.getAttribute("aria-expanded") === "false") {
-    await userEvent.click(page.elementLocator(toggle));
+    await activateButton(page.elementLocator(toggle));
     // Opening changes the accessible name used by elementLocator.
     await expect
       .element(page.elementLocator(toggle))

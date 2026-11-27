@@ -11,7 +11,7 @@
 // locations load, fail and recover: ./intent-ci-status-locations-recovery.spec.ts.
 
 import { expect, test } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { intentViews, intentViewTab } from "./intent-candidates-page.ts";
 import {
@@ -32,6 +32,7 @@ import {
   openDoughSource,
 } from "./intent-ci-status-fixtures.ts";
 import { intentCiStatus } from "./intent-ci-status-page.ts";
+import { activateButton } from "../page-objects/activateButton.ts";
 
 const login = judgedStatus("main", "pass", "a1b2c3d", "Add login");
 const browsed = "dashboard/tests/browse.spec.ts";
@@ -135,7 +136,7 @@ test.for([
     const ci = intentCiStatus();
     const locationToggle = await expandLocationAndFolders("dashboard/tests");
     const control = select();
-    await userEvent.click(control);
+    await activateButton(control);
     await expect.element(control).toHaveAttribute("aria-pressed", "true");
     await ci.isAbsent();
     await expect.element(reading).toBeVisible();

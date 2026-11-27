@@ -1,9 +1,9 @@
 // The local authenticated read boundary reading the backlog, tested directly
 // against real HTTP and the synthetic `gh`, not through the browser: at a
 // revision already resolved (`revision` without `path`,
-// ../../server/authenticatedRead.ts) it never resolves `main` again, and a
-// membership read asks anew which commit the ref names but reads the backlog
-// at that commit only once per dashboard process. Revision checks:
+// ../../server/authenticatedRead.ts) it never resolves `main` again. The cold
+// membership read is the verified Git trunk
+// (../review/verified-origin-trunk.spec.ts). Revision checks:
 // ./authenticated-read-revision-check.spec.ts.
 
 import { expect, test } from "../../test-support/support/pageTest.ts";
@@ -19,26 +19,15 @@ import {
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { describedBacklog } from "../../test-support/describedRevisions.ts";
-import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
-import { keepingOrigin } from "../../test-support/support/publishedRepository.ts";
 
 test.describe.configure({ mode: "serial" });
 
 const revisionB = "b2".repeat(20);
 // An empty project's backlog.
 const backlog = describedBacklog(makeMe.aRepository.please());
-const knownSourceId = "open-dough";
-const knownRepository = "terryyin/open-dough";
 
 test.describe("authenticated read boundary backlog (development environment)", () => {
   let server: DashboardServer;
-  // A membership read: the configured ref resolved, with its backlog.
-  const membershipRead = () =>
-    rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
-      headers: { Origin: server.origin },
-    });
-
   test.beforeAll(async () => {
     server = await startDashboardServer(developmentBoundary);
   });
@@ -78,119 +67,5 @@ test.describe("authenticated read boundary backlog (development environment)", (
     });
     expect(response.status).toBe(400);
     expect(server.ghCalls()).toHaveLength(callsBefore);
-  });
-
-  test("asks again which commit the ref names on each membership read, but not for a backlog already read at that commit, and reads a new commit's backlog", async () => {
-    const published = publishes({ backlog });
-    const { revision } = published;
-    const nextBacklog = describedBacklog(
-      makeMe.aRepository
-        .withRevision("next", {
-          backlog: {
-            queued: [
-              makeMe.aBacklogEntry
-                .with({
-                  title: "Next",
-                  identity: "SEED-next#next",
-                  href: "seeds/SEED-next.md#next",
-                })
-                .please(),
-            ],
-          },
-        })
-        .please(),
-    );
-    const refCall = [
-      "api",
-      "--include",
-      `repos/${knownRepository}/commits/main`,
-      "--jq",
-      ".sha",
-    ];
-    const backlogCall = (at: string) => [
-      "api",
-      "--include",
-      "-H",
-      "Accept: application/vnd.github.raw",
-      `repos/${knownRepository}/contents/.planning/PRODUCT-BACKLOG.md?ref=${at}`,
-    ];
-    const membership = async () => {
-      const response = await membershipRead();
-      expect(response.status).toBe(200);
-      return JSON.parse(response.body) as {
-        revision: string;
-        backlog: string;
-        askedAt: string;
-      };
-    };
-
-    server.github.serve(everyRepository, published);
-    expectServedHomesReach(server.github, knownRepository, revision);
-    let callsBefore = server.ghCalls().length;
-    const first = await membership();
-    const second = await membership();
-    expect(server.ghCalls().slice(callsBefore)).toEqual([
-      refCall,
-      backlogCall(revision),
-      refCall,
-    ]);
-    expect(first).toMatchObject({ revision, backlog });
-    expect(second).toMatchObject({ revision, backlog });
-    // Each answer carries when its own ref resolution asked GitHub.
-    expect(Date.parse(second.askedAt)).toBeGreaterThanOrEqual(
-      Date.parse(first.askedAt),
-    );
-
-    const next = publishes({ backlog: nextBacklog });
-    const nextRevision = next.revision;
-    server.github.serve(everyRepository, next);
-    expectServedHomesReach(server.github, knownRepository, nextRevision);
-    callsBefore = server.ghCalls().length;
-    expect(await membership()).toMatchObject({
-      revision: nextRevision,
-      backlog: nextBacklog,
-    });
-    // The new commit's backlog is read there directly, never first compared
-    // with the one whose backlog was read before.
-    expect(server.ghCalls().slice(callsBefore)).toEqual([
-      refCall,
-      backlogCall(nextRevision),
-    ]);
-  });
-
-  test("names the backlog at the resolved revision when its read fails, and asks for it again on the next membership read", async () => {
-    // A trunk of its own, so no backlog read earlier at that commit answers.
-    const published = publishes({ backlog });
-    const { revision } = published;
-    let refuse = true;
-    server.github.serve(
-      everyRepository,
-      keepingOrigin(
-        (call) =>
-          refuse && call.request.kind === "content"
-            ? Promise.resolve({
-                status: 500,
-                contentType: "application/json",
-                body: "{}",
-              })
-            : published(call),
-        published,
-      ),
-    );
-    expectServedHomesReach(server.github, knownRepository, revision);
-    const failed = await membershipRead();
-    expect(failed.status).toBe(502);
-    expect((JSON.parse(failed.body) as { error: string }).error).toContain(
-      `while reading .planning/PRODUCT-BACKLOG.md at ${revision}.`,
-    );
-
-    refuse = false;
-    const callsBefore = server.ghCalls().length;
-    const read = await membershipRead();
-    expect(read.status).toBe(200);
-    expect(JSON.parse(read.body)).toMatchObject({ revision, backlog });
-    // The ref and the backlog, never compared with the revision whose backlog
-    // was read before.
-    expect(server.ghCalls().slice(callsBefore)).toHaveLength(2);
   });
 });

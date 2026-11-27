@@ -44,7 +44,7 @@ function validate(submission) {
 export async function retainLandingComparison(
   contextFile,
   { candidate, suffixBase },
-  { remote, targetRef },
+  { remote, targetRef, acceptedAt = new Date().toISOString() },
 ) {
   const context = JSON.parse(await readFile(contextFile, "utf8"));
   if (context.remote !== remote || context.target !== targetRef)
@@ -62,10 +62,11 @@ export async function retainLandingComparison(
     flag: "wx",
     mode: 0o600,
   });
-  // Replace the current handoff only after its complete exact request is durable.
+  // Select the request and its local timestamp together. The request itself
+  // remains the wire body old and new reporting commands can retry.
   const current = path.join(directory, "landing-current.json");
   const temporary = `${current}.${submission.delivery}.tmp`;
-  await writeFile(temporary, `${JSON.stringify({ pending })}\n`, {
+  await writeFile(temporary, `${JSON.stringify({ pending, acceptedAt })}\n`, {
     flag: "wx",
     mode: 0o600,
   });
@@ -73,23 +74,16 @@ export async function retainLandingComparison(
   await submitLandingInput(pending, {}, true);
   return pending;
 }
-export async function currentLandingInput(contextFile) {
+async function currentLandingInput(contextFile) {
   return JSON.parse(
     await readFile(
       path.join(path.dirname(contextFile), "landing-current.json"),
       "utf8",
     ),
-  ).pending;
+  );
 }
-export async function readLandingInput(pending) {
-  return JSON.parse(await readFile(pending, "utf8"));
-}
-export async function submitLandingInput(
-  pending,
-  expected = {},
-  prepare = false,
-) {
-  const submission = await readLandingInput(pending);
+async function readLandingInput(pending, expected) {
+  const submission = JSON.parse(await readFile(pending, "utf8"));
   validate(submission);
   for (const name of [
     "origin",
@@ -104,6 +98,36 @@ export async function submitLandingInput(
   ])
     if (expected[name] !== undefined && expected[name] !== submission[name])
       throw new Error(`The retained landing does not match ${name}.`);
+  return submission;
+}
+
+export async function readRetainedLandingComparison(contextFile, context) {
+  let selection;
+  try {
+    selection = await currentLandingInput(contextFile);
+  } catch (error) {
+    if (error.code === "ENOENT") return undefined;
+    throw error;
+  }
+  const { pending, acceptedAt } = selection;
+  const { base, revision, delivery } = await readLandingInput(pending, context);
+  if (
+    path.resolve(pending) !==
+      path.resolve(path.dirname(contextFile), `landing-${delivery}.json`) ||
+    (acceptedAt !== undefined &&
+      (typeof acceptedAt !== "string" ||
+        !Number.isFinite(Date.parse(acceptedAt))))
+  )
+    throw new Error("The retained landing selection is malformed.");
+  return { base, candidate: revision, acceptedAt };
+}
+
+export async function submitLandingInput(
+  pending,
+  expected = {},
+  prepare = false,
+) {
+  const submission = await readLandingInput(pending, expected);
   return deliverRetainedReport(
     pending,
     submission,
@@ -134,7 +158,7 @@ export async function captureAcceptedLanding(
 ) {
   let receipt;
   try {
-    const pending = await currentLandingInput(contextFile);
+    const { pending } = await currentLandingInput(contextFile);
     receipt = await submitLandingInput(pending, {
       base,
       revision,

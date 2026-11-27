@@ -106,3 +106,26 @@
   cases on `mountStoryIntent` against the frame mount at comparable load, and
   a render profile showing whether the remaining cost is in test-only
   composition or in the product's first render.
+
+### frontend-development-react-render
+
+- **Affected test or fixture:** `dashboard/frontend.vitest.config.mts`, which
+  renders every mounted Dashboard Frontend case with React's development build.
+- **Observed cost and conditions:** In CPU profiles of the Intent cases
+  (local, 2026-11-27, load 10–19), React's development JSX runtime (`jsxDEV`,
+  which records a debug stack per element) took 20–77 ms per case and was the
+  largest JavaScript cost after in-page activation replaced trusted clicks.
+  With `NODE_ENV=production`, ten sampled cases fell by roughly 30–45%, for
+  example 350 → 189 ms and 319 → 180 ms.
+- **Unique protection:** `dashboard/frontend-tests/intent/intent-ci-comparison-strict-mode.spec.ts`
+  proves that comparison and proof reads reattach after StrictMode's
+  development-only effect cleanup. The production build drops StrictMode's
+  double effects, so that case failed. Other development-only React checks
+  would also stop running.
+- **Alternatives tried:** `NODE_ENV=production` for the whole frontend group
+  (2026-11-27): 933 of 937 cases passed. The StrictMode case failed for this
+  reason, and two others failed for causes fixed separately. The change was
+  undone.
+- **Decision or evidence needed:** whether StrictMode effect-cleanup proof can
+  move to its own development-build run (a separate Vitest instance or
+  project), letting the rest of the group render production React.

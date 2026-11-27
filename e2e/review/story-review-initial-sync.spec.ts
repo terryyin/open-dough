@@ -1,5 +1,3 @@
-import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
 import {
@@ -10,6 +8,7 @@ import {
 import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { doneCard } from "../../dashboard/test-support/doneStoryReviewPage.ts";
+import { holdLaterTrunkTransfers } from "../../dashboard/test-support/laterTrunkTransfers.ts";
 import {
   beginIntentReviewChanges,
   openIntentReviewChanges,
@@ -20,69 +19,42 @@ import {
   expect,
   test as base,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import {
-  fixtureReviewRepository,
-  renameExecutionCheckout,
-} from "../../dashboard/test-support/support/reviewRepositoryFixture.ts";
+import { renameExecutionCheckout } from "../../dashboard/test-support/support/reviewRepositoryFixture.ts";
 import { publishDeclaredTrunk } from "../../dashboard/test-support/support/storyCiComparisonBaseline.ts";
 
-function holdOrigin(machine: string, origin: string) {
-  const repository = fixtureReviewRepository(machine);
-  const started = path.join(machine, "first-review-transfer.log");
-  const release = path.join(machine, "release-review-transfer");
-  const gate = path.join(machine, "hold-review-upload-pack");
-  writeFileSync(started, "");
-  writeFileSync(
-    gate,
-    `#!/bin/sh
-printf 'fetch\\n' >> "${started}"
-while [ ! -f "${release}" ]; do sleep 0.02; done
-exec git upload-pack "$@"
-`,
-    { mode: 0o755 },
-  );
-  mkdirSync(repository, { recursive: true });
-  execFileSync("git", ["init", "--bare", "--quiet", repository]);
-  execFileSync("git", ["-C", repository, "remote", "add", "origin", origin]);
-  execFileSync("git", [
-    "-C",
-    repository,
-    "config",
-    "remote.origin.uploadpack",
-    gate,
-  ]);
-  return {
-    fetches: () => readFileSync(started, "utf8"),
-    release: () => {
-      writeFileSync(release, "");
-    },
-  };
-}
+// A second tab's Board reuses the first tab's trunk check, so the held
+// origin sees only the Review's own transfers.
+const boardCheckReuseMs = 10 * 60_000;
 
 const test = base.extend<{
   prepareColdReview: () => Promise<{
-    held: ReturnType<typeof holdOrigin>;
+    transfers: ReturnType<typeof holdLaterTrunkTransfers>;
     other: Page;
   }>;
 }>({
   prepareColdReview: async ({ page, origin }, use) => {
-    let held: ReturnType<typeof holdOrigin> | undefined;
+    let transfers: ReturnType<typeof holdLaterTrunkTransfers> | undefined;
     let moved: ReturnType<typeof renameExecutionCheckout> | undefined;
     let other: Page | undefined;
     try {
       await use(async () => {
-        held = holdOrigin(origin.machine, origin.origin);
+        transfers = holdLaterTrunkTransfers(
+          path.join(origin.machine, "home"),
+          "terryyin/open-dough",
+        );
         moved = renameExecutionCheckout(origin);
         other = await page.context().newPage();
-        return { held, other };
+        return { transfers, other };
       });
     } finally {
-      held?.release();
+      transfers?.release();
       moved?.restore();
       await other?.close();
     }
   },
 });
+
+test.use({ revisionCheckReuseMs: boardCheckReuseMs });
 
 function resumesReviewAt(requestUrl: string, revision: string) {
   const url = new URL(requestUrl);
@@ -115,10 +87,6 @@ test("cold review panes share initial sync and only the remaining pane opens the
       revision: latest,
       follows: true,
     }));
-  const { held, other } = await test.step(
-    "And the cold Review repository has a held origin and no execution checkout",
-    prepareColdReview,
-  );
   const departedResumes =
     await test.step("And I track review resumption in the first tab", () => {
       const requests: string[] = [];
@@ -137,12 +105,16 @@ test("cold review panes share initial sync and only the remaining pane opens the
       await showColumn(page, "Recently done");
       return doneCard(page, "Story A");
     });
+  const { transfers, other } = await test.step(
+    "And the cold Review repository has a held origin and no execution checkout",
+    prepareColdReview,
+  );
   const first = await test.step("And I open Review changes", () =>
     beginIntentReviewChanges(page, card));
   await test.step("Then the first tab shows initial sync and starts one fetch", async () => {
     expect(first.answer.kind).toBe("initial-sync-required");
     await first.expectFeedback("Running initial sync");
-    await expect.poll(held.fetches).toBe("fetch\n");
+    await expect.poll(transfers.held).toBe(1);
   });
 
   await test.step("Given I control the time in a second tab", async () => {
@@ -172,7 +144,7 @@ test("cold review panes share initial sync and only the remaining pane opens the
     const response = other.waitForResponse((response) =>
       resumesReviewAt(response.url(), latest),
     );
-    held.release();
+    transfers.release();
     return response;
   });
   await test.step("Then the comparison resumes at the published completion", async () => {
@@ -193,7 +165,7 @@ test("cold review panes share initial sync and only the remaining pane opens the
   await test.step("Then its source comes from the published completion", () =>
     remaining.expectHistoricalSource(kept, completion, "kept 11"));
   await test.step("And the tabs shared one fetch and only the second tab resumed", () => {
-    expect(held.fetches()).toBe("fetch\n");
+    expect(transfers.held()).toBe(1);
     expect(departedResumes).toEqual([]);
   });
 

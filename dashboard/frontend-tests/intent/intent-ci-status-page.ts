@@ -1,12 +1,13 @@
 // Colocated page object for Intent's CI status region.
 import { expect } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page } from "vitest/browser";
 import { ciReadingText } from "./intent-attempt-proof-page.ts";
 
 export {
   intentCiProof,
   type ExpectedProofRow,
 } from "./intent-attempt-proof-page.ts";
+import { activateButton } from "../page-objects/activateButton.ts";
 
 // The nearest ancestor of `element` that scrolls its content when it
 // overflows.
@@ -131,7 +132,7 @@ export function intentCiStatus() {
       return ci;
     },
     async checkAgain() {
-      await userEvent.click(checkAgainButton);
+      await activateButton(checkAgainButton);
       return ci;
     },
   };

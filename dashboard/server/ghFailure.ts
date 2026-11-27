@@ -10,9 +10,16 @@ import {
 
 // Why a `gh` call did not answer, as far as this boundary can say without
 // repeating anything `gh` printed: how the request itself failed
-// (`github-request-answer.mjs`), or -- `no-commit` -- an answer in which the
-// boundary found no commit.
-export type GhFailureReason = GhRequestFailure | { readonly kind: "no-commit" };
+// (`github-request-answer.mjs`), -- `no-commit` -- an answer in which the
+// boundary found no commit, or -- `unavailable` -- a verified-origin trunk
+// check (`./verifiedOriginTrunk.ts`) that could not establish the trunk:
+// origin unavailable, the trunk branch missing, or its backlog unreadable.
+export type GhFailureReason =
+  | GhRequestFailure
+  | { readonly kind: "no-commit" }
+  | { readonly kind: "unavailable"; readonly part: UnavailableTrunkPart };
+
+export type UnavailableTrunkPart = "origin" | "trunk" | "backlog";
 
 // The installed request source's one failure, carrying this boundary's
 // reasons: a request's wait ended with it is recognised there as well.

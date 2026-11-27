@@ -48,6 +48,7 @@ export async function resumeInterruptedPublication({
   remote = "origin",
   onFetchedTarget,
   landingContext: suppliedLandingContext,
+  landingAcceptedAt = /** @type {string | undefined} */ (undefined),
   branch,
   backlogPath,
 }) {
@@ -117,7 +118,7 @@ export async function resumeInterruptedPublication({
         await retainLandingComparison(
           landingContext,
           { candidate: candidateSha, suffixBase },
-          { remote, targetRef },
+          { remote, targetRef, acceptedAt: landingAcceptedAt },
         );
       return { candidate: candidateSha };
     },

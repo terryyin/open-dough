@@ -2,9 +2,9 @@
 // browses, its locations' folders and files, and the reading pane. Opening a
 // file hands over its reading (./intent-file-reading-page.ts).
 import { expect, vi } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page } from "vitest/browser";
 import { shortRevision } from "../../src/publishedWork.ts";
-import { activateButton } from "../page-objects/activateButton.ts";
+import { activateButton, pressButton } from "../page-objects/activateButton.ts";
 import {
   locationNameDrawn,
   revealLocationAncestors,
@@ -88,7 +88,7 @@ export function intentBrowser() {
         )
         .toBe(true);
       await revealLocationAncestors(path);
-      await userEvent.click(fileName(path));
+      await pressButton(fileName(path));
       return intentFileReading(path);
     },
     async showsFolderExpanded(path: string) {

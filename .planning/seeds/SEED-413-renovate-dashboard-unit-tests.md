@@ -179,6 +179,66 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
     after branch entry and before the launch flavors fold into MakeMe, so
     the fold covers the final builders.
 
+<a id="keep-full-frontend-runs-connected"></a>
+
+### Keep full Dashboard frontend runs connected to their browser
+
+**Identity:** SEED-413#keep-full-frontend-runs-connected
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/881-keep-full-frontend-runs-connected/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"89af4af2898b4b8fab4af25add78e184404c2cbd0ab42b0148c762454f4b4e9e","plan":"723862066a295ea4177d8fb7d70f5ebca0f3cf55a86057e542e294ded38d09b3"}}
+```
+
+- **Goal.** Developers and CI get a complete Dashboard frontend verdict from
+  every full `npm run test:dashboard:frontend` run. Today a run sometimes
+  stops early when a tester's browser connection closes. That turns a green
+  change red and costs a full rerun.
+- **Evidence (2026-11-27).** Locally on macOS with two workers at load 7–31,
+  five of eight full runs stopped after 201–300 of 331 files with
+  `VITEST_BROWSER_CONNECTION_CLOSED` (`[birpc] rpc is closed, cannot call
+  "createTesters"`), raised on an Intent file that never started. Baseline
+  `67d52b5fa` stopped in one of its two runs. Chromium stderr
+  (`DEBUG=pw:browser`) showed a freshly connected tester logging
+  `[vite] server connection lost` about 150 ms after `[vite] connected.`. It
+  was the same browser process, and no renderer crashed. A watcher log showed
+  no file events during a run. The largest renderer grew from ~480 MB to
+  ~1.3 GB over a run, under a 3.5 GB JS heap limit. CI shows the same closure.
+  Main run `45958801316` (`20c08633f`, job `140371568061`) reported
+  `330 passed (331)` with the same `createTesters` error from the WebSocket
+  close handler in `@vitest/browser`. It was one of two dashboard-frontend
+  failures in the last 40 main CI runs.
+- **Scope.**
+  - Find what closes the tester's server connection. The Vitest browser
+    orchestrator runs under `vitest.standalone()` in
+    `dashboard/test-support/support/groupVitest.mjs`, using the two Chromium
+    instances in `dashboard/frontend.vitest.config.mts`. Remove that cause so
+    full runs complete locally and in CI.
+  - Required restriction: rerunning dropped files or whole runs does not count
+    as the fix. The
+    [failure policy](../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
+    treats rerunning until green as no fix, and a hidden closure would still
+    cost the run its time.
+  - Required restriction: keep the run's two-worker parallelism and its
+    wall time within measured noise, compared under similar load. This
+    campaign exists to make frontend feedback fast. Cutting workers or
+    serializing instances to avoid the race needs the coordinator's
+    agreement.
+  - Keep today's honest failure. A connection that really closes still fails
+    the run and names the file that never ran.
+  - Scope limits: renderer memory growth is in scope only if the diagnosis
+    shows that it causes the closure. Test selection, spec content, and
+    the backend group stay unchanged.
+- **Key examples.**
+  - At two workers and the recorded load range, eight consecutive full local
+    runs each start and report all 331 files. The evidence baseline lost
+    five of eight.
+  - CI's single dashboard-frontend shard reports every file as it settles,
+    where run `45958801316` reported `330 passed (331)`.
+  - A file whose test fails is reported as failed. Every other file still
+    starts and reports.
+  - When a tester's browser connection truly drops, for example after a
+    killed renderer, the run fails and names the file that never ran. It does
+    not report a pass.
+
 <a id="renovate-remaining-backend-families-after-browser-reporter"></a>
 
 ### Prove machine-session reads through typed backend answers
@@ -208,14 +268,33 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Identity:** SEED-413#published-read-admission-via-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/860-prove-published-read-admission-on-vitest/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/860-prove-published-read-admission-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2a50a44e3e779136b4f0b005209a78aecbced4dae12a09ded5c37bf4b41113e8","plan":"cb4110e5774e547b2a3225be334518f0698c01c1495aa9ee99f842485dd9a788"}}
 ```
 
-- **For / why.** Give Board and Review maintainers fast proof that an admitted project can read its published records and that invalid source, revision, or path admission is refused.
-- **Evaluation.** Given a pinned project, a listed file at its requested revision is readable. A sibling project or unlisted path is refused. An absent Done record and an unavailable catalog retain their distinct answers.
-- **Boundary.** Reconcile cold ref triggers with plans 856 and 858 and pinned record reads with plan 823. Keep the wire admission proof and real Git for reachability.
-- **Effort hypothesis.** M, low confidence. Recount surviving proof and size the observed cases during refinement.
-- **Safe stopping point.** Every case for this outcome has a maintained owner or a recorded replacement.
+- **Goal.** Give Board and Review maintainers fast Node Vitest feedback on whether
+  a configured project can read its published records at the selected revision
+  and preserve the refusal and failure outcomes that callers rely on.
+- **Scope.** Account for all twelve named observation specs in plan 860.
+  Preserve local request and source admission, pinned text and commit time,
+  branch reachability, publication containment, listed records and Done catalog
+  semantics, and the scoped profile addition and avatar reads. Keep an HTTP
+  witness for behavior that depends on the wire and use real Git fixtures where
+  reachability or ancestry supplies the evidence. Measure the same maintained
+  selection before and after and account for each migrated, consolidated or
+  retained case. Plans 856 and 858 own the Board's cold open and its earlier
+  proof retargeting. Plan 823 owns moving the remaining Board readers to local
+  Git. Refresh lifecycle, Review comparison, and other GitHub observation proof
+  belong to their own stories.
+- **Key examples.** An admitted source and pin return the exact listed file and
+  its committed time. The same path absent from another configured source's
+  pinned records is refused there. A Taken story's recorded branch can supply
+  the plan at a resolved head. An unresolved head or an unrelated path is
+  refused. A shown revision ahead of an accepted publication contains it, while
+  an unavailable comparison remains a read failure. A revision without Done
+  records returns an empty catalog. A revision with records and a missing or
+  disagreeing catalog returns a gap and reads no body. A listed profile gets
+  attribution from the addition of its current allocation and an avatar only
+  from the matched account's usable source.
 - **Replacement trace.** [Published Dashboard reads and evidence before the split](https://github.com/terryyin/open-dough/blob/fb8983cb8eb62b38c79fbc293b491128f411bdb2/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest).
 
 **Plan.** [Prove published read admission in Node Vitest](../slice-plans/860-prove-published-read-admission-on-vitest/PLAN.md)

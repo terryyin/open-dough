@@ -26,7 +26,10 @@ import {
 } from "./publishedOriginBasics.ts";
 import { defaultPassingBaseCi } from "./support/baseCiActions.ts";
 import type { FakeGitHub, RepositoryAnswerer } from "./support/fakeGitHub.ts";
-import { routeOriginThroughServedHomes } from "./support/fixtureOriginRoute.ts";
+import {
+  disconnectOriginThroughServedHomes,
+  routeOriginThroughServedHomes,
+} from "./support/fixtureOriginRoute.ts";
 
 export type MovingOrigin = {
   readonly requests: ObservedRequest[];
@@ -53,6 +56,9 @@ export type MovingOrigin = {
 export type MovingHistory<Name extends string> = Omit<MovingOrigin, "push"> & {
   readonly revisions: Readonly<Record<Name, string>>;
   advanceTo(name: Name): void;
+  // Git cannot reach origin from now on, until the returned reconnect is
+  // called; GitHub REST keeps answering.
+  disconnectGit(): () => void;
 };
 
 // Run the raw REST controls against the same named history Git advertises.
@@ -83,7 +89,9 @@ export async function publishMovingHistory<Name extends string>(
   };
   advanceTo(first);
   routeOriginThroughServedHomes(github, origin, repository);
-  return { ...moving, revisions, advanceTo };
+  const disconnectGit = () =>
+    disconnectOriginThroughServedHomes(github, origin, repository);
+  return { ...moving, revisions, advanceTo, disconnectGit };
 }
 
 // Published to the page's dashboard, or to a fake GitHub a pageless test

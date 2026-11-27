@@ -4,7 +4,7 @@ import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
-import { pathsRead } from "../../dashboard/test-support/publishedOrigin.ts";
+import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
 import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import {
   shownProjectControl,
@@ -222,9 +222,7 @@ test("choosing another project before the entries before it are read shows that 
       },
     ),
   ).toBe(pygardon.revisions.published);
-  expect(pathsRead(pygardon)).toContain(
-    `PRODUCT-BACKLOG.md?ref=${pygardon.revisions.published}`,
-  );
+  expect(restMembershipAsked(pygardon.requests)).toEqual([]);
   view.release();
   await untilPageRests(page);
   await expect(shownProjectControl(page)).toBeFocused();

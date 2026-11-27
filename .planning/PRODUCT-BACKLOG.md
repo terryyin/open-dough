@@ -28,18 +28,18 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Open the Board from the verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-the-board-from-the-verified-git-trunk) — SEED-430#open-the-board-from-the-verified-git-trunk ([plan](slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md))
 - [Open session changes in Intent and retire the Side panel review](seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review) — SEED-418#select-a-story-session-for-review ([plan](slice-plans/876-open-session-changes-in-intent/PLAN.md))
-- [Reach Intent frontend cases without frame-bound input waits](seeds/SEED-448-ad-hoc-work.md#ad-hoc-work) — SEED-448#ad-hoc-work
 - [Remove leftover unbound recovery and overlapping story-linked session tests](seeds/SEED-447-clean-up-story-linked-session-tests.md#clean-up-story-linked-session-tests) — SEED-447#clean-up-story-linked-session-tests ([plan](slice-plans/878-clean-up-story-linked-session-tests/PLAN.md))
+- [Prove Dashboard runtime behavior in fast unit cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#fast-runtime-unit-cases) — SEED-413#fast-runtime-unit-cases ([plan](slice-plans/879-prove-runtime-in-fast-unit-cases/PLAN.md))
+- [Complete a planning-only closure once trunk repairs its failed basis](seeds/SEED-449-complete-closure-on-repaired-basis.md#complete-closure-on-repaired-basis) — SEED-449#complete-closure-on-repaired-basis
+- [Refresh the published Board in place](seeds/SEED-430-read-published-project-data-from-local-git.md#refresh-published-board-in-place) — SEED-430#refresh-published-board-in-place ([plan](slice-plans/853-refresh-published-board-in-place/PLAN.md))
+- [Keep full Dashboard frontend runs connected to their browser](seeds/SEED-413-renovate-dashboard-unit-tests.md#keep-full-frontend-runs-connected) — SEED-413#keep-full-frontend-runs-connected ([plan](slice-plans/881-keep-full-frontend-runs-connected/PLAN.md))
 
 ## Backlog list
 
-- [Read the blank Start handoff and admitted landing from Dashboard records](seeds/SEED-423-shrink-the-installed-distribution.md#read-handoff-and-admitted-landing-from-dashboard-records) — SEED-423#read-handoff-and-admitted-landing-from-dashboard-records
 - [Choose review scope from a compact dropdown](seeds/SEED-418-review-published-session-changes.md#review-scope-dropdown) — SEED-418#review-scope-dropdown
 - [Show the selected ad hoc session on Intent Home](seeds/SEED-418-review-published-session-changes.md#show-selected-session-in-review-home) — SEED-418#show-selected-session-in-review-home
 - [Track review status for each session](seeds/SEED-418-review-published-session-changes.md#track-review-state-per-session) — SEED-418#track-review-state-per-session
-- [Refresh the published Board in place](seeds/SEED-430-read-published-project-data-from-local-git.md#refresh-published-board-in-place) — SEED-430#refresh-published-board-in-place
 - [Follow published progress and read Board records from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git
 - [Read published Git inputs to CI from local Git](seeds/SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git) — SEED-435#read-published-ci-inputs-from-local-git
@@ -59,7 +59,6 @@ intent introduced or affected by a newly developed story.
 - [Prove published Intent evidence in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-intent-evidence-via-vitest) — SEED-413#published-intent-evidence-via-vitest
 - [Prove Dashboard launch attempts with typed machine state](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-attempts-with-typed-state) — SEED-413#prove-launch-attempts-with-typed-state
 - [Admit Dashboard launch requests as typed values](seeds/SEED-413-renovate-dashboard-unit-tests.md#admit-launch-requests-as-typed-values) — SEED-413#admit-launch-requests-as-typed-values
-- [Prove Dashboard runtime behavior in fast unit cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#fast-runtime-unit-cases) — SEED-413#fast-runtime-unit-cases
 - [Run the entire Dashboard backend unit suite on Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-backend-runner) — SEED-413#retire-legacy-dashboard-backend-runner
 - [Start Cursor slices from complete Task briefs](seeds/SEED-345-session-token-efficiency.md#start-cursor-slices-from-complete-task-briefs) — SEED-345#start-cursor-slices-from-complete-task-briefs
 - [Retire Cursor exit-file proof wait](seeds/SEED-441-retire-cursor-exit-file-proof-wait.md#retire-cursor-exit-file-proof-wait) — SEED-441#retire-cursor-exit-file-proof-wait

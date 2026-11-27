@@ -8,15 +8,15 @@
 import type { IncomingMessage } from "node:http";
 import type { AvatarImages } from "./avatarImages.ts";
 import type { BranchHeads } from "./branchHeads.ts";
-import { resolveRevisionViaGh } from "./ghRevision.ts";
 import {
   performBranchHeadRead,
   performOnBranch,
 } from "./performedBranchRead.ts";
+import { performVerifiedTrunkRead } from "./performedRefRead.ts";
 import { performRevisionCheck } from "./performedRevisionCheck.ts";
-import { observeProjectRevision } from "./observedSessionLandings.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import type { RevisionChecks } from "./revisionChecks.ts";
+import type { SharedVerifiedOriginTrunk } from "./sharedVerifiedOriginTrunk.ts";
 import { withTrackedGh } from "./trackedGh.ts";
 import {
   contextForAdmittedRead,
@@ -44,12 +44,12 @@ import { pathReachableFromRevision } from "./reachablePaths.ts";
 import { readingOf } from "./readingRequestedRead.ts";
 import type { RequestedRead } from "./requestedRead.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { readingPathAt } from "../src/authenticatedReadRules.ts";
 
 export type Boundary = {
   readonly tracked: Set<AbortController>;
   readonly pinned: PinnedTexts;
   readonly checks: RevisionChecks;
+  readonly trunks: SharedVerifiedOriginTrunk;
   readonly branches: BranchHeads;
   readonly avatars: AvatarImages;
 };
@@ -58,7 +58,7 @@ export type Boundary = {
 // failure for this source and what was being read when it failed.
 export async function perform(
   req: IncomingMessage,
-  { tracked, pinned, checks, branches }: Boundary,
+  { tracked, pinned, checks, branches, trunks }: Boundary,
   source: PublishedSource,
   read: RequestedRead,
 ): Promise<Outcome> {
@@ -209,24 +209,13 @@ export async function perform(
                     )(path),
                   });
             }
-            case "ref": {
-              // When the ref was asked, by this server's clock, as launch
-              // attempts settle by it: a resolution this request joined answers
-              // when it was asked, never when this request arrived.
-              const { revision, askedAt } = await resolveRevisionViaGh(
-                source.repository,
-                source.ref,
+            case "ref":
+              return await performVerifiedTrunkRead(
+                trunks,
+                pinned,
+                source,
                 signal,
               );
-              observeProjectRevision(pinned, source, revision);
-              reading = readingPathAt(source.backlogPath, revision);
-              // Only which commit the ref names can have changed.
-              return answered({
-                revision,
-                backlog: await backlogAt(revision),
-                askedAt,
-              });
-            }
           }
         }),
     );

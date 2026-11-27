@@ -76,13 +76,13 @@ export async function resolveLaunchLanding(request) {
   const { reference, identity: story } = JSON.parse(
     await readFile(landingContext, "utf8"),
   );
+  const note = await readSharedCheckoutNote(landingContext);
+  const acceptedAt = new Date().toISOString();
   return {
     landingContext,
+    acceptedAt,
     reference,
     story,
-    uncertainty: rangeUncertainty(
-      await readSharedCheckoutNote(landingContext),
-      new Date().toISOString(),
-    ),
+    uncertainty: rangeUncertainty(note, acceptedAt),
   };
 }

@@ -5,7 +5,7 @@
 // the uncommitted check and the range read), Story Home's evidence tabs,
 // the story's file browser (./intent-story-files-page.ts) and the diff.
 import { expect } from "vitest";
-import { page, userEvent, type Locator } from "vitest/browser";
+import { page, type Locator } from "vitest/browser";
 import "../page-objects/cssLocator.ts";
 import {
   intentReadingPane as readingPane,
@@ -13,6 +13,7 @@ import {
 } from "./intent-browser-page.ts";
 import { fileLayout } from "./intent-file-layout-page.ts";
 import { intentStoryFiles } from "./intent-story-files-page.ts";
+import { activateButton, pressButton } from "../page-objects/activateButton.ts";
 
 const textOf = (element: Element | null | undefined) =>
   element?.textContent ?? "";
@@ -85,7 +86,7 @@ export function intentStoryCompare() {
   const openDetails = async () => {
     await fileLayout().uncoverReader();
     const eye = detailsEye(false);
-    if (eye.query() !== null) await userEvent.click(eye);
+    if (eye.query() !== null) await activateButton(eye);
     await expect.element(details).toBeVisible();
   };
   return {
@@ -96,7 +97,7 @@ export function intentStoryCompare() {
     // A chosen comparison that cannot be read, with Retry after a failed read.
     alert,
     alertText: () => alert.query()?.textContent.trim(),
-    retry: () => userEvent.click(retryControl),
+    retry: () => activateButton(retryControl),
     retryControl,
     // The captured landed run chosen, offered with Landed runs.
     landingChoices,
@@ -183,7 +184,7 @@ export function intentStoryCompare() {
     refreshButton,
     refresh: async () => {
       await openDetails();
-      await userEvent.click(refreshButton);
+      await pressButton(refreshButton);
     },
     viewTab,
     chooseTab: async (name: View) => {

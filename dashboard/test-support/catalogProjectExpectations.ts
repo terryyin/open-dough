@@ -2,6 +2,7 @@
 // each project's revision is the one its publication commits.
 
 import { expect } from "./dashboardTest.ts";
+import { restMembershipAsked } from "./originObservation.ts";
 import type { ObservedRequest } from "./publishedOrigin.ts";
 
 export const catalogExpectations = {
@@ -62,20 +63,12 @@ export function expectPinnedGhCalls(
   calls: readonly ObservedRequest[],
   expected: CatalogExpectation & { readonly revision: string },
 ): void {
-  const refResolution = [
-    "api",
-    "--include",
-    `repos/${expected.repository}/commits/${expected.ref}`,
-    "--jq",
-    ".sha",
-  ];
-  // The ref is resolved before anything is read at its revision.
-  expect(calls[0]?.argv).toEqual(refResolution);
-  // The built preview opens with one read, so every call after the first
-  // reads at the resolved revision.
-  const reads = calls.slice(1);
+  // The Board opens from the verified Git trunk, so GitHub REST is never
+  // asked to resolve the ref or read the backlog; every call reads a
+  // reachable record at the resolved revision.
+  expect(restMembershipAsked(calls)).toEqual([]);
   // Files are read raw; the agent profile directory is read as a listing.
-  const contents = reads.map(({ argv, request }) => {
+  const contents = calls.map(({ argv, request }) => {
     expect(argv.slice(0, 4)).toEqual([
       "api",
       "--include",
@@ -95,7 +88,6 @@ export function expectPinnedGhCalls(
   });
   expect([...new Set(contents)].sort()).toEqual(
     [
-      ".planning/PRODUCT-BACKLOG.md",
       ".planning/agents",
       // The done-record and session directories are listed for Recently done.
       ".planning/done",

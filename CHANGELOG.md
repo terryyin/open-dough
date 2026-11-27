@@ -1,3 +1,15 @@
+## 0.3.117 - 2026-11-27
+
+- CI completion completes a Trunk Mode closure that changes only CI-ignored paths once trunk repairs another writer's failure on the run the closure borrowed: a later same-target green snapshot that contains the closure validates its integrated state. A failure on one of the execution's own registered revisions still blocks completion.
+- Story-linked session guidance drops the duplicate Cursor identity path from the landing handoff, the transitional storyless-record guard and the claim checks that compared two files written from one object. The handoff and claim-closure instructions are shorter.
+- The MakeMe convention documents continuing from a held value (`the<Shape>`) within its builder-use rules.
+
+The Promoted payload contains 370 files. Eleven paths changed, with no additions or retirements. Dashboard and test changes are in the source repository.
+
+Release-source and self-installation checks passed at `97c12c1ea`. [Hosted CI passed at `eeec1afb5`](https://github.com/terryyin/open-dough/actions/runs/45966948423); later commits change only planning records. A targeted Intent Coverage probe caught both ways of dropping the own-revision exclusion from the integrated-state change.
+
+Under [ADR 0005](docs/adrs/0005-cross-tool-validation-accepted.md), no host integration is new or materially changed. The landing handoff keeps the identity path that the 0.3.116 Codex, Claude Code and Cursor sessions verified; only a duplicate Cursor path was removed. No fresh native session was run, and no release exception was used.
+
 ## 0.3.116 - 2026-11-26
 
 - Dashboard starts open under a published Taken story. Follow-ups keep their source story, and published review uses each session’s recorded comparison.

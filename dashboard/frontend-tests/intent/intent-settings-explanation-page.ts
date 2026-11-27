@@ -2,6 +2,7 @@
 // the reading's place (../../src/IntentLocationsUnavailable.tsx).
 import { expect } from "vitest";
 import { page } from "vitest/browser";
+import { activateButton } from "../page-objects/activateButton.ts";
 
 export function intentSettingsExplanation() {
   const alert = page
@@ -29,7 +30,7 @@ export function intentSettingsExplanation() {
       return explanation;
     },
     async retry() {
-      await retryButton.click();
+      await activateButton(retryButton);
       return explanation;
     },
     async panelReads(text: string) {

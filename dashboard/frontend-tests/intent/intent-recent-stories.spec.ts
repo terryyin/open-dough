@@ -36,6 +36,7 @@ import {
   showsIntentBookmark,
   storyHeading,
 } from "./intent-recent-stories-page.ts";
+import { activateButton } from "../page-objects/activateButton.ts";
 
 const intentReads = {
   intent: makeMe.anIntentReadSource
@@ -85,7 +86,7 @@ test("Whole project from the Intent chooser clears the selected story and opens 
   await ci.judges(failingStory.branch);
   await recent.choose();
 
-  await userEvent.click(wholeProject);
+  await activateButton(wholeProject);
 
   await recent.intentStays();
   await showsIntentBookmark();
@@ -131,12 +132,15 @@ test("a recent story in another project switches the project and reads its story
   await expect.element(storyHeading).toHaveTextContent(otherStory.title);
   await showsIntentBookmark(otherStory.title);
 
-  await userEvent.click(projectRadio(openDoughSource.label));
+  await activateButton(projectRadio(openDoughSource.label));
   await expect
     .element(bookmark)
     .toHaveAccessibleName("Recent stories, Whole project");
 });
 
+// Accepted cost: trusted Tab presses and taps, each waiting on a rendered
+// frame, are the only proof that keyboard focus reaches and scrolls to the
+// last choice of the short touch chooser; in-page activation cannot move focus.
 test("the last recent choice stays reachable in the short touch chooser", async () => {
   const earlier = Array.from({ length: 9 }, (...[, index]) => ({
     project: openDoughSource.id,

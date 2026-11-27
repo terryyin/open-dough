@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "8c5e3700-0e79-4e51-8b05-887842fddda0",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-27T08:23:18.719Z",
+  "story": "SEED-413#published-read-admission-via-vitest",
+  "ranges": [
+    {
+      "base": "5592622cd7303f56c5ca6c45dfefeb04b04d30a4",
+      "candidate": "6ee2b32174a692b221caa765682b4800a082877e"
+    }
+  ]
+}

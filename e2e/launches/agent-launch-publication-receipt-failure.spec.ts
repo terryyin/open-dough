@@ -58,6 +58,9 @@ for (const workflow of ["execution", "refinement"] as const) {
       name: "Story A",
       exact: true,
     });
+    // The Board opens first: its Git read keeps its repository under the
+    // dashboard directory that the publication then makes unwritable.
+    await openUntilRead(page);
     const directory = path.join(dashboard.home, ".open-dough/dashboard");
     const hook = path.join(origin.origin, "hooks/post-receive");
     writeFileSync(hook, `#!/bin/sh\nchmod 0555 '${directory}'\n`);
@@ -76,7 +79,7 @@ for (const workflow of ["execution", "refinement"] as const) {
       expect(acceptance.kind).toBe("accepted");
       if (acceptance.kind !== "accepted")
         throw new Error("Launch not accepted");
-      await openUntilRead(page);
+      await reloadUntilRead(page);
       expect(
         (await settledOutcome(dashboard, acceptance.attempt.id)).kind,
       ).toBe("failed");

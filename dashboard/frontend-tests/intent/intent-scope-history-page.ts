@@ -16,6 +16,7 @@ import {
 } from "./intent-scope-history-chart-page.ts";
 import { priorReferenceIn } from "./intent-ci-prior-reference-page.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
+import { activateButton } from "../page-objects/activateButton.ts";
 
 const textsOf = (nodes: Iterable<Element>) => [...nodes].map(visibleText);
 
@@ -139,7 +140,7 @@ export async function openScopeChild(name: string, path?: string) {
     .getByRole("button", { name, exact: true })
     .first();
   await expect.element(child).toBeVisible();
-  await userEvent.click(child);
+  await activateButton(child);
   if (path !== undefined) await expect.poll(summaryPath).toBe(path);
 }
 

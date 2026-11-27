@@ -2,13 +2,14 @@
 // that serve it, and the Files column control the CI activation cases read it
 // through.
 import { expect } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentLocations } from "../../src/authenticatedIntentRead.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import { expandLocationAndFolders } from "./intent-ci-homepage-page.ts";
 import { intentCiStatus } from "./intent-ci-status-page.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
+import { activateButton } from "../page-objects/activateButton.ts";
 
 // Nested in a folder the reader opens under its location.
 export const browsed = "dashboard/tests/nested/browse.spec.ts";
@@ -59,7 +60,7 @@ export async function selectBrowsedFile(
   } else {
     await expandLocationAndFolders("dashboard/tests");
   }
-  await userEvent.click(fileControl());
+  await activateButton(fileControl());
   await expectFileRead();
 }
 

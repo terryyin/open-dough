@@ -3,7 +3,7 @@
 // at, says while it is being read, shows no failure, and one recorded entry
 // links and opens its source files in the reading (./intent-file-reading-page.ts).
 import { expect } from "vitest";
-import { page, userEvent, type Locator } from "vitest/browser";
+import { page, type Locator } from "vitest/browser";
 import { shortRevision } from "../../src/publishedWork.ts";
 import { activateButton } from "../page-objects/activateButton.ts";
 import {
@@ -32,12 +32,12 @@ export function intentCandidates() {
     entry,
     sourceLink,
     async choose() {
-      await userEvent.click(tab);
+      await activateButton(tab);
       return candidates.isChosen();
     },
     async leaveForCiStatus() {
       const ciStatus = intentViewTab("CI status");
-      await userEvent.click(ciStatus);
+      await activateButton(ciStatus);
       await expect.element(ciStatus).toHaveAttribute("aria-selected", "true");
     },
     async isChosen() {

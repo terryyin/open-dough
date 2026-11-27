@@ -133,14 +133,17 @@ export async function deliverManagedExecutionIncrement(request) {
 
   // The launch reference, when this publication carries one, names the
   // session whose evidence the accepted pair joins.
-  const { landingContext: resolvedLanding, ...sessionEvidence } =
-    await resolveLaunchLanding({
-      landingContext,
-      workspace,
-      branch,
-      remote,
-      targetRef,
-    });
+  const {
+    landingContext: resolvedLanding,
+    acceptedAt,
+    ...sessionEvidence
+  } = await resolveLaunchLanding({
+    landingContext,
+    workspace,
+    branch,
+    remote,
+    targetRef,
+  });
 
   // Observation attaches before the first applicable push when a live owner is
   // established. An unavailable bridge still preserves accepted publication.
@@ -156,6 +159,7 @@ export async function deliverManagedExecutionIncrement(request) {
     backlogPath,
     beforePush,
     landingContext: resolvedLanding,
+    landingAcceptedAt: acceptedAt,
     onFetchedTarget,
   });
 

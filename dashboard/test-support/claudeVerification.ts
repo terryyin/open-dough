@@ -35,7 +35,9 @@ export async function uncertainLaunch(
   origin: StartOrigin,
   { oneShot = false }: { oneShot?: boolean } = {},
 ) {
-  const board = await openInstalledStoryBoard(page, origin, { follows: false });
+  const board = await openInstalledStoryBoard(page, origin, {
+    keepsOpenedTrunk: true,
+  });
   const launch = await board.open(readyStory, "Execution");
   if (oneShot) await launch.chooseOneShot();
   const acceptance = nextAcceptedAttemptId(page);

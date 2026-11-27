@@ -22,6 +22,32 @@ const scripts = (folder: string, host: Host = "claude") =>
     "scripts",
   );
 
+export function readCodexHandoff(
+  home: string,
+  workspace: string,
+  id?: string,
+  ...args: string[]
+) {
+  return execFileSync(
+    process.execPath,
+    [
+      path.join(scripts(workspace, "codex"), "session-landing-handoff.mjs"),
+      ...args,
+    ],
+    {
+      cwd: workspace,
+      env: {
+        ...process.env,
+        HOME: home,
+        CODEX_THREAD_ID: id,
+        CLAUDE_CODE_SESSION_ID: undefined,
+        CURSOR_CONVERSATION_ID: undefined,
+      },
+      encoding: "utf8",
+    },
+  );
+}
+
 // The session a launch established and the landing context its reporting
 // context names, as the file holds it.
 export function landingHandoff(record: LaunchRecord) {

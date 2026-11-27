@@ -8,7 +8,8 @@
 // (../../test-support/support/sharedReads.ts). Each request's pinned reads before the shared
 // one are made first, so nothing but its handler runs before its `gh` call.
 // Leaving waiters and closing the server:
-// ./authenticated-read-shared-waiters.spec.ts.
+// ./authenticated-read-shared-waiters.spec.ts. Opens sharing one verified Git
+// trunk check: ./authenticated-read-shared-trunk.spec.ts.
 
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
@@ -88,37 +89,6 @@ test.describe("authenticated read boundary: simultaneous reads share one GitHub 
     const later = server.github.calls.length;
     expect((await readAt(server, sharedSeedRead(revision))).status).toBe(200);
     expect(askedSince(server, later)).toEqual([]);
-  });
-
-  test("two opens resolve the ref once, read the backlog once, and answer the same asked time; a later open asks again", async () => {
-    const revision = revisionOf("5b");
-    const holding = await servedHolding(
-      server,
-      revision,
-      ({ kind }) => kind === "ref",
-    );
-    const { answers, whileHeld } = await answeredTogether(
-      server,
-      holding,
-      ["", ""],
-      1,
-    );
-    const [one, two] = answers.map(
-      ({ body }) => JSON.parse(body) as { revision: string; askedAt: string },
-    );
-    expect(one).toMatchObject({ revision });
-    expect(two).toEqual(one);
-    expect(whileHeld).toEqual(["ref main"]);
-    // The newly named revision's backlog is read there once, never compared
-    // with the one this process read the backlog at before.
-    expect(askedSince(server, holding.before)).toEqual([
-      "ref main",
-      `content .planning/PRODUCT-BACKLOG.md@${revision}`,
-    ]);
-
-    const later = server.github.calls.length;
-    expect((await readAt(server, "")).status).toBe(200);
-    expect(askedSince(server, later)).toEqual(["ref main"]);
   });
 
   test("checks of different revisions and of different watched branches share one head listing, each learning its own answer; a later check asks again past the window", async () => {

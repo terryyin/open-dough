@@ -60,6 +60,7 @@ export const test = base.extend<
       serverMode,
       liveServer,
       launchTimeoutMs,
+      revisionCheckReuseMs,
     },
     use,
   ) => {
@@ -73,6 +74,7 @@ export const test = base.extend<
       launchTimeoutMs: launchTimeoutMs ?? launchWaitMs,
       liveServer,
       codexProtocol,
+      revisionCheckReuseMs,
       ...(pathPrefix === undefined ? {} : { pathPrefix }),
       extraEnv: fixtureExtraEnv(extraEnv, startTimeoutMs),
     });

@@ -1,14 +1,14 @@
 // A newly published commit that changes none of a project's planning records
-// costs the page only its backlog there and GitHub's account of that commit:
-// once the page showed revision A, the check that finds B has the local read
-// boundary read B's backlog, compare A with B, and read the one commit
-// between, and the page shows B with the same facts without any seed, plan,
-// profile, setting, or done-record text or listing, done catalog, profile
-// history, or last commit time being read again. A
-// second tab costs what a reload does, and a restarted dashboard process reads
-// B in full. The fake GitHub only publishes the commits (../../dashboard/test-support/publishedFiles.ts);
-// the local read boundary, its memo, and the page decide what is asked and
-// shown.
+// costs one verified trunk read and GitHub's account of that commit: once
+// the page showed revision A, the check that finds B compares A with B and
+// reads the one commit between. The backlog comes from that trunk read, and
+// the page shows B with the same facts without any seed, plan, profile,
+// setting, or done-record text or listing, done catalog, profile history, or
+// last commit time being read again. A second tab shows the verified commit
+// without a REST membership read, and a restarted dashboard process reads B
+// in full. The fake GitHub only publishes the commits
+// (../../dashboard/test-support/publishedFiles.ts); the local read boundary,
+// its memo, and the page decide what is asked and shown.
 
 import {
   expect,
@@ -67,7 +67,6 @@ test("a commit that changes no planning record is shown without reading the unch
   await expectSettledAt(page, revisionA);
   expect(recordsReadAt(readsBesideChecks(origin.requests), revisionA)).toEqual(
     expect.arrayContaining([
-      `content ${backlogPath}@${revisionA}`,
       `content ${seedPath}@${revisionA}`,
       `content ${planPath}@${revisionA}`,
       `listing .planning/agents@${revisionA}`,
@@ -108,14 +107,12 @@ test("a commit that changes no planning record is shown without reading the unch
     expect(asked.filter((call) => call.startsWith("commit-list "))).toEqual([]);
   });
 
-  await test.step("a second tab asks only which commit the ref names", async () => {
+  await test.step("a second tab shows the verified commit without a REST membership read", async () => {
     const before = origin.requests.length;
     const second = await page.context().newPage();
     await second.goto("/");
     await expectSettledAt(second, revisionB);
-    expect(readsBesideChecks(origin.requests.slice(before))).toEqual([
-      "ref main",
-    ]);
+    expect(readsBesideChecks(origin.requests.slice(before))).toEqual([]);
     await second.close();
   });
 
@@ -134,7 +131,6 @@ test("a commit that changes no planning record is shown without reading the unch
       expect(asked).not.toContain("compare");
       expect(recordsReadAt(asked, revisionB)).toEqual(
         expect.arrayContaining([
-          `content ${backlogPath}@${revisionB}`,
           `content ${seedPath}@${revisionB}`,
           `content ${planPath}@${revisionB}`,
           `listing .planning/agents@${revisionB}`,

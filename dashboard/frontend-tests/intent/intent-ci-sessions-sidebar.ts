@@ -9,6 +9,7 @@ import type { LaunchWithState, MachineAnswer } from "../../src/agentLaunch.ts";
 import type { SessionServices } from "../../src/sessionServices.ts";
 import { unmeasuredHostSessions } from "./intent-ci-page-mount.ts";
 import { failingStory, runningStory } from "./intent-ci-status-fixtures.ts";
+import { activateButton } from "../page-objects/activateButton.ts";
 
 export const adHocTitle = "Open Dough session";
 
@@ -75,7 +76,7 @@ export async function showSidebarSession(title: string) {
     await userEvent.keyboard("{Meta>}b{/Meta}");
   }
   await expect.element(sidebar).toBeVisible();
-  await userEvent.click(
+  await activateButton(
     sidebar.getByRole("button", { name: title, exact: true }),
   );
 }
