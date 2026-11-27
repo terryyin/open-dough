@@ -130,7 +130,7 @@ Proof: Move `agent-terminal-cursor-launch-wait.spec.ts` (3) and
 ### 3. Prove an exit before acceptance does not confirm
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 8–10 active minutes.
 
 Proof: Move `agent-terminal-cursor-exit.spec.ts` (2 cases) to Node Vitest.
@@ -140,6 +140,7 @@ Each case passes `60_000` as its own timeout.
   Repeating the launch adds no session.
 - Killing the client leaves the instruction unconfirmed. The next launch
   submits it in a new conversation.
+- Proof recorded (2026-11-27, Node Vitest, 1 worker): `npm run test:dashboard:backend -- 'terminals/agent-terminal-cursor-exit\.spec\.ts$' --workers=1` passed 2/2 on Vitest (11.79s summed case time, 13.09s elapsed; 0 on Playwright). Kept `{ timeout: 5_000 }` on `processRunning` poll to match Playwright's legacy 5s default. Refactor pass skipped (subject spec only, 115 lines, no refactor candidate).
 
 ### 4. Prove a detached screen leaves the client running
 
