@@ -34,7 +34,6 @@ intent introduced or affected by a newly developed story.
 - [Prove native session observation and alerts in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-observation-on-vitest) — SEED-413#prove-native-session-observation-on-vitest ([plan](slice-plans/869-prove-native-session-observation-on-vitest/PLAN.md))
 - [Prove terminal attach in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-terminal-attach-and-cursor-turns-on-vitest) — SEED-413#prove-terminal-attach-and-cursor-turns-on-vitest ([plan](slice-plans/871-prove-terminal-attach-on-vitest/PLAN.md))
 - [Open the Board from the verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-the-board-from-the-verified-git-trunk) — SEED-430#open-the-board-from-the-verified-git-trunk ([plan](slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md))
-- [Prove Cursor turns in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-cursor-turns-on-vitest) — SEED-413#prove-cursor-turns-on-vitest ([plan](slice-plans/872-prove-cursor-turns-on-vitest/PLAN.md))
 
 ## Backlog list
 

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_prove-cursor-turns-on-vitest.json",
+      "identity": "SEED-413#prove-cursor-turns-on-vitest",
+      "completedAt": "2026-11-27T02:31:37.737Z",
+      "blob": "56bf5241a7f42e2c1a2a41f66010b8d4b85d8332"
+    },
+    {
       "fileName": "SEED-413_prove-follow-up-context-on-vitest.json",
       "identity": "SEED-413#prove-follow-up-context-on-vitest",
       "completedAt": "2026-11-27T01:14:59.248Z",
