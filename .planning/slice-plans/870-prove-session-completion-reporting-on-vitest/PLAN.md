@@ -239,7 +239,7 @@ so far: `agent-completion-(identity|refusals|quiet-recovery|later-reports)`.
 ### 5. Close a launch whose story returned to the queue, and answer final report requests
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 13–15 active minutes.
 
 Proof: With tracked Cursor executions whose published backlog shows their
@@ -258,6 +258,15 @@ a completed story. Codex reads its native report through `installFakeCodex`.
 Convert `agent-completion-returned-closure.spec.ts` and
 `final-report-admission.spec.ts`; retire the latter's cross-site request
 (premise 4).
+
+Delivered: both specs are Node Vitest in place (returned-closure 2 cases,
+1.9 s and 0.3 s; final-report-admission 1 case, 0.2 s), and the exact
+read's POST refusal stays. Closure is read from the kept store; the
+sessions read route belongs to the session listing specs. Learnings: a
+Cursor `sessionId` that is not a UUID makes `agent-launches.json`
+unreadable; `bindRecord` closes a quiet-completed record when it binds it,
+so a quiet record's `receivedAt` is now, because MakeMe's fixed default
+falls outside the 30-day real-clock retention.
 
 ### 6. Hold an early report until its Claude Code session binds
 
