@@ -360,56 +360,13 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Plan.** [Prove published refresh lifecycle in Node Vitest](../slice-plans/861-prove-published-refresh-lifecycle-on-vitest/PLAN.md)
 
-<a id="authenticated-github-observation-via-vitest"></a>
-
-### Prove authenticated GitHub observation in Node Vitest
-
-**Identity:** SEED-413#authenticated-github-observation-via-vitest
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e7a8441f570fec0b5a49dd59ed5697daf396596e90f2bc394d77b7c6c51f4834","plan":"4716b0677c409b45bd8ec459d74b587a0635c8f9e4357c712cedf67e664cec6e"}}
-```
-
-- **Goal.** Give Dashboard maintainers fast Node Vitest feedback that
-  authenticated GitHub reads classify their failures, hold and resume work
-  under waits, and share matching requests within the available turns.
-- **Scope.** Account for the legacy observation paths that plan 862's three
-  slices retire: ten whole paths plus the shared refusal, later retry, and
-  turn admission cases of `authenticated-read-shared-failures.spec.ts` and
-  `authenticated-read-turns.spec.ts`. Preserve retry classification, the
-  output bound, cooldown and resumption, queue and sharing behavior, and
-  request timing. Use the surviving revision check for check-specific
-  outcomes and pinned reads when one upstream attempt is part of the proof.
-  Keep real subprocesses, Git, and HTTP where their behavior supplies the
-  observation. Measure the same maintained one-worker workload for those
-  paths before and after. Late-join bounds, subprocess and close lifetimes,
-  the shared owner across Dashboards and CI, diagnostics, and incident
-  evidence belong to
-  [GitHub request lifetime and failure evidence](#github-request-lifetime-and-evidence-via-vitest).
-  Board cold open and refresh routing, session and Review reads, browser
-  recovery, login isolation, and runner cutover have separate owners.
-- **Key examples.** An upstream 503 or the owned timeout can support
-  transient recovery, while access, missing, opaque, and oversized answers
-  keep their own classification. An oversized head listing falls back to
-  the ref alone without presenting unobserved branch heads. A directed
-  cooldown answers queued reads without dispatching them. After it expires,
-  one read goes first, and a renewed limit holds back the others. Concurrent
-  identical reads reach GitHub once, while different questions get their own
-  answers. At most eight calls reach GitHub at once, in arrival order, and
-  the response timing shows no upstream wait for cached or locally refused
-  answers.
-- **Replacement trace.** [Published Dashboard reads and evidence before the split](https://github.com/terryyin/open-dough/blob/fb8983cb8eb62b38c79fbc293b491128f411bdb2/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest).
-  Split after its third delivered slice; the remainder is
-  [GitHub request lifetime and failure evidence](#github-request-lifetime-and-evidence-via-vitest).
-
-**Plan.** [Prove authenticated GitHub observation in Node Vitest](../slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md)
-
 <a id="github-request-lifetime-and-evidence-via-vitest"></a>
 
 ### Prove GitHub request lifetime and failure evidence in Node Vitest
 
 **Identity:** SEED-413#github-request-lifetime-and-evidence-via-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"aa4b127e985f422c7d46c44693e6c2b47a1e45a581d906ca79d85bbe0f803a60","plan":"ca0fdc732126d1bea8cdcfa725365bc581b2c29e4d92736d085db2b8e6f7e75e"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8b1d24f833ad201939a2294dc686fcfd8474020c6d43cc8ae7e80e2cef251afc","plan":"38a3d3235a6382d8d9f697ac6830ec54de0fc6b8e71e5b13ada5109e437a3a5a"}}
 ```
 
 - **Goal.** Give Dashboard and CI maintainers fast Node Vitest feedback that
@@ -426,7 +383,7 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   supplies the observation. Measure the same maintained one-worker workload
   for those paths before and after. Failure classification, held and resumed
   reads, request sharing, and turn timing were delivered by
-  [authenticated GitHub observation](#authenticated-github-observation-via-vitest).
+  [authenticated GitHub observation](https://github.com/terryyin/open-dough/blob/71cc76188db2356fd0f4cd2f064cfd27be95c037/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#authenticated-github-observation-via-vitest).
   Board cold open and refresh routing, session and Review reads, browser
   recovery, login isolation, and runner cutover have separate owners.
 - **Key examples.** Two Dashboards and CI share the owner's eight available
@@ -741,7 +698,7 @@ or removed once its behavior or duplicate is accounted for.
 | Eleven Playwright Intent paths named in the [repeat proof selection](../slice-plans/607-close-landed-ci-repeat-check-gaps/proof-selection.txt) | [Automatic repeat correction](SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps), including its failure and load proof |
 | 12 observation Playwright paths | [Prove published read admission in Node Vitest](#published-read-admission-via-vitest) |
 | 15 observation Playwright paths | [Prove published refresh lifecycle in Node Vitest](#published-refresh-lifecycle-via-vitest) |
-| 23 observation Playwright paths | [Prove authenticated GitHub observation in Node Vitest](#authenticated-github-observation-via-vitest) for ten paths and the delivered cases of two shared paths; [Prove GitHub request lifetime and failure evidence in Node Vitest](#github-request-lifetime-and-evidence-via-vitest) for the other 13 |
+| 23 observation Playwright paths | [Authenticated GitHub observation in Node Vitest](https://github.com/terryyin/open-dough/blob/71cc76188db2356fd0f4cd2f064cfd27be95c037/.planning/slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md#local-gate-and-delivery) for ten paths and the delivered cases of two shared paths; [Prove GitHub request lifetime and failure evidence in Node Vitest](#github-request-lifetime-and-evidence-via-vitest) for the other 13 |
 | 21 review Playwright paths | [Prove published Review comparisons in Node Vitest](#published-review-comparisons-via-vitest) |
 | 12 review Playwright paths | [Prove retained landing capture in Node Vitest](#landing-capture-evidence-via-vitest) |
 | 6 intent Playwright paths | [Prove published Intent evidence in Node Vitest](#published-intent-evidence-via-vitest) |

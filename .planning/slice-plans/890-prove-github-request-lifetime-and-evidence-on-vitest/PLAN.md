@@ -6,7 +6,7 @@
 
 **Split from:** SEED-413#authenticated-github-observation-via-vitest at its
 delivered slice 3. Slices 1–5 here are that story's slices 4–8 of
-[plan 862](../862-prove-authenticated-github-observation-on-vitest/PLAN.md),
+[plan 862](https://github.com/terryyin/open-dough/blob/71cc76188db2356fd0f4cd2f064cfd27be95c037/.planning/slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md),
 mapped unchanged in order. Plan 862 keeps slices 1–3 (classified failures
 and the output bound, held and resumed reads, shared requests and turn
 timing). After its cleanup, recover it from Git history at the revision
