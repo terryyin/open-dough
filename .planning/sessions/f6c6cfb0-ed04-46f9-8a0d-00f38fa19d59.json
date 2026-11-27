@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "sessionId": "f6c6cfb0-ed04-46f9-8a0d-00f38fa19d59",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-27T10:55:22.805Z",
+  "story": "SEED-418#track-review-state-per-session",
+  "ranges": [
+    {
+      "base": "5e2e6e3553dfe051bf2856b34c5b12b7eb69c968",
+      "candidate": "320db5e966ec6496c50391b6ee694341816bd04f"
+    },
+    {
+      "base": "320db5e966ec6496c50391b6ee694341816bd04f",
+      "candidate": "1eb4f04ddd7e1b799b2ecbf593ae8cad32bafca8"
+    },
+    {
+      "base": "1eb4f04ddd7e1b799b2ecbf593ae8cad32bafca8",
+      "candidate": "22391b8da745004c6840e5af0ee5332886375485"
+    },
+    {
+      "base": "22391b8da745004c6840e5af0ee5332886375485",
+      "candidate": "6f49041127ce5cb723daa59e8d8b8db2283a9890"
+    }
+  ]
+}

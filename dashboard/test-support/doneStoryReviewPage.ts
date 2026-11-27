@@ -66,6 +66,31 @@ export async function unreviewStory(
   }
 }
 
+// One session entry's review control on a done card, by the session's title.
+export function sessionReview(card: Locator, title: string) {
+  const entry = card.getByRole("listitem").filter({ hasText: title });
+  const reviewed = entry.getByRole("button", { name: "Reviewed", exact: true });
+  return {
+    markAsReviewed: entry.getByRole("button", {
+      name: "Mark as reviewed",
+      exact: true,
+    }),
+    reviewed,
+    unreview: async () => {
+      await reviewed.click();
+      await confirmUnreview(
+        entry.getByRole("group", {
+          name: "Unreview this session?",
+          exact: true,
+        }),
+      ).click();
+    },
+  };
+}
+
+export const partiallyReviewed = (card: Locator) =>
+  storyActions(card).getByText("Partially reviewed", { exact: true });
+
 export const reviewSaveFailure = (card: Locator, message: string) =>
   card.getByRole("status").filter({ hasText: message });
 

@@ -121,7 +121,7 @@ test("a history answer adding a retained session's detail keeps its Needs review
     done,
     reading: reading(sessionListing(full)),
     machineReads: { readHistorySince },
-    reviewStates: () => Promise.resolve(new Set()),
+    reviewStates: () => Promise.resolve(new Map()),
   });
   await page.getByRole("button", { name: /^Sessions/ }).click();
   const region = page.getByRole("region", { name: "Recently done sessions" });

@@ -31,12 +31,6 @@ export type {
   IntentSettingsProblem,
 } from "./intentLocationsSettings.ts";
 
-export {
-  locationSelectsPath,
-  pathSelectedByIntentLocations,
-  pathSelectedByLocations,
-} from "./intentLocationSelection.ts";
-
 // Intent locations at a revision: null when the project has no configured
 // locations or the settings are unusable; otherwise each location and the
 // files its kind lists (or that location's problem). `settingsProblem`

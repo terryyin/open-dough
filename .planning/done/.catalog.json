@@ -2,6 +2,36 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-430_refresh-published-board-in-place.json",
+      "identity": "SEED-430#refresh-published-board-in-place",
+      "completedAt": "2026-11-27T12:45:06.596Z",
+      "blob": "1c5c404053e196a380de8d903651a647fb5c15b9"
+    },
+    {
+      "fileName": "SEED-413_published-read-admission-via-vitest.json",
+      "identity": "SEED-413#published-read-admission-via-vitest",
+      "completedAt": "2026-11-27T12:24:59.993Z",
+      "blob": "e98adb39b4db0279b0dd2b4e9c02906f42be98b7"
+    },
+    {
+      "fileName": "SEED-418_announce-compact-dropdown-choice.json",
+      "identity": "SEED-418#announce-compact-dropdown-choice",
+      "completedAt": "2026-11-27T11:59:17.278Z",
+      "blob": "e91ee0c8f4302cbfd63beff473dfcfba30a91f80"
+    },
+    {
+      "fileName": "SEED-418_review-scope-dropdown.json",
+      "identity": "SEED-418#review-scope-dropdown",
+      "completedAt": "2026-11-27T11:12:13.018Z",
+      "blob": "ec48012df4d70f4e6f98827689c7224625d6ac77"
+    },
+    {
+      "fileName": "SEED-418_track-review-state-per-session.json",
+      "identity": "SEED-418#track-review-state-per-session",
+      "completedAt": "2026-11-27T10:39:35.773Z",
+      "blob": "7f9e5e9d2ad4a5df2d9f7095c95bb39b1d3c29c9"
+    },
+    {
       "fileName": "SEED-418_select-a-story-session-for-review.json",
       "identity": "SEED-418#select-a-story-session-for-review",
       "completedAt": "2026-11-27T09:28:52.087Z",
@@ -3492,18 +3522,6 @@
       "identity": "SEED-162#keep-long-running-dashboard-sessions-responsive",
       "completedAt": "2026-10-28T14:31:57.357Z",
       "blob": "3fed9eb28222bb9436371c2f9ef2ebd987bb0802"
-    },
-    {
-      "fileName": "SEED-160_choose-cursor-session-effort.json",
-      "identity": "SEED-160#choose-cursor-session-effort",
-      "completedAt": "2026-10-28T10:15:30.309Z",
-      "blob": "fb420b319f894b2917eebdff68045a8916ddfe1e"
-    },
-    {
-      "fileName": "SEED-161_cursor-runner-keeps-its-terminal-helper.json",
-      "identity": "SEED-161#cursor-runner-keeps-its-terminal-helper",
-      "completedAt": "2026-10-28T09:33:20.860Z",
-      "blob": "c41fcfcde760dfdc42e49c6c87a362d798a255d9"
     }
   ],
   "unreadable": []

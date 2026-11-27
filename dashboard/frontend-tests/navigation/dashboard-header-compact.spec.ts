@@ -58,18 +58,22 @@ test("the phone banner keeps one row as touch picks a project and resizing keeps
   await expectBannerRow(compactProject);
 });
 
-test("compact project keyboard Escape keeps the choice and Enter accepts the active option", async () => {
+test("compact project keyboard Escape keeps the announced choice and Enter accepts the active option", async () => {
   await mountProjectCatalog("stories", portrait);
   await expect.element(compactProject).toHaveTextContent("Open Dough");
   focus(compactProject);
   await userEvent.keyboard("{ArrowDown}{ArrowDown}{Escape}");
   await expect.element(compactProject).toHaveFocus();
-  await expect.element(compactProject).toHaveTextContent("Open Dough");
+  await expect.element(compactProject).toMatchAriaInlineSnapshot(`
+    - combobox "Project": Open Dough
+  `);
   expect(list.query()).toBeNull();
   await readsProjectBoard(openDough);
 
   await userEvent.keyboard("{ArrowDown}{ArrowDown}{ArrowDown}{Enter}");
-  await expect.element(compactProject).toHaveTextContent("Pygardon");
+  await expect.element(compactProject).toMatchAriaInlineSnapshot(`
+    - combobox "Project": Pygardon
+  `);
   await expect.element(compactProject).toHaveFocus();
   await readsProjectBoard(pygardon);
 });

@@ -1,6 +1,6 @@
 // `file-at` admission of a path by the declared Intent locations
-// (`./intentLocationsSettings.ts`, `./performedRead.ts`): a safe repository
-// path one location selects by the shared location-selection rule
+// (`./intentLocationsSettings.ts`, `./performedPinnedFileRead.ts`): a safe
+// repository path one location selects by the shared location-selection rule
 // (`../src/intentLocationSelection.ts`), the rule listing also uses
 // (`./intentLocationsRead.ts`).
 
@@ -14,7 +14,7 @@ import { locationSelectsRepositoryPath } from "../src/intentLocationSelection.ts
 
 // Whether `path` is a file one of a declared location's source entries
 // selects, not merely a path under that location's folder.
-export function locationSelectsPath(
+function locationSelectsPath(
   filePath: string,
   location: DeclaredLocation,
 ): boolean {
@@ -23,7 +23,7 @@ export function locationSelectsPath(
 }
 
 // Whether `path` is selected by one of the declared locations.
-export function pathSelectedByLocations(
+function pathSelectedByLocations(
   filePath: string,
   locations: readonly DeclaredLocation[],
 ): boolean {

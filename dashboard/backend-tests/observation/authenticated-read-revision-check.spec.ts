@@ -8,9 +8,9 @@
 // does (./revisionCheckBoundary.ts). Failures and rate limits:
 // ./authenticated-read-revision-check-failures.spec.ts. Reading the backlog
 // at an already resolved revision:
-// ./authenticated-read-revision-backlog.spec.ts; other reads and refusals:
-// ./authenticated-read-boundary.spec.ts and
-// ./authenticated-read-refusal.spec.ts.
+// ./authenticated-read-revision-backlog.spec.ts. See
+// ./authenticated-read-boundary.spec.ts for typed pinned file reads and
+// ./authenticated-read-http.spec.ts for HTTP admission.
 
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import { commitAnswer } from "../../test-support/originAnswers.ts";

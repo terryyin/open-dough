@@ -1,6 +1,6 @@
-import { expect, onTestFinished, test } from "vitest";
+import { expect, test } from "vitest";
+import { scaleDevice } from "../../test-support/component-mount/deviceScale.ts";
 import { landscape } from "../navigation/board-touch-page.ts";
-import { browserSession } from "../review/browser-session.ts";
 import {
   conversationLine,
   heldOpening,
@@ -70,16 +70,6 @@ test("landscape Select keeps wider wrapped rows where the terminal shows them", 
 });
 
 test("Select places and copies the kept end of full scrollback at fractional device scale", async () => {
-  const browser = browserSession();
-  await browser.send("Emulation.setDeviceMetricsOverride", {
-    width: 0,
-    height: 0,
-    deviceScaleFactor: 2.625,
-    mobile: false,
-  });
-  onTestFinished(() =>
-    browser.send("Emulation.clearDeviceMetricsOverride").then(() => undefined),
-  );
-  await expect.poll(() => window.devicePixelRatio).toBeCloseTo(2.625);
+  await scaleDevice(2.625);
   await pausesAtTheEnd({ wide: false, lines: 1100, rowsOfWrapped: 3 });
 });

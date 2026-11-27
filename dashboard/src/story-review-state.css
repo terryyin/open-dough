@@ -1,4 +1,4 @@
-/* A done story card's review state (./StoryReviewStateAction.tsx): the red
+/* A review state control (./ReviewStateControl.tsx): the red
    Mark as reviewed action, quiet Reviewed action, and what it
    says when a change could not be saved; its touch height follows
    `.start-launch-button`'s. */
@@ -24,6 +24,12 @@
 .story-review-state .story-review-state-reviewed {
   color: var(--quiet);
   border-color: var(--line);
+}
+
+/* Some of the story's sessions are reviewed: a quiet badge beside the
+   outstanding action, read as text, not a control. */
+.story-review-state-partial {
+  color: var(--quiet);
 }
 
 /* The status lies outside the row of words and actions, adding no gap to it;

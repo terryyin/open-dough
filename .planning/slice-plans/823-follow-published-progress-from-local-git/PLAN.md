@@ -7,7 +7,7 @@
 **Identity:** SEED-430#follow-published-progress-from-local-git
 
 **Split from:** SEED-430#read-published-project-data-from-local-git, whose
-original slices 3–8 became slices 1–6 here. That story opens and refreshes
+original slices 3–8 became slices 3–8 here, after two correction slices from plan 853's retrospective. That story opens and refreshes
 the Board at verified trunk and moves Board-opening fixtures to real origins;
 this plan builds on its observation.
 
@@ -60,7 +60,7 @@ until the slice that moves them or the follow-up that owns them.
   or provider only where the case must control timing or failure. Keep
   browser proof at user-visible transitions.
 - Before editing [sourceRevisionStream.ts](../../../dashboard/server/sourceRevisionStream.ts)
-  (255 lines), slice 1 separates per-subscriber SSE delivery and teardown
+  (255 lines), slice 3 separates per-subscriber SSE delivery and teardown
   from demand for the project observation. The stream registry,
   authenticated read boundary, and HTTP fallback keep their current
   lifecycle and wire behavior. The stream boundary and browser journey
@@ -70,10 +70,11 @@ until the slice that moves them or the follow-up that owns them.
 
 | Consuming operation | Observation | Remainder |
 | --- | --- | --- |
-| Git advertisement, exact fetch, and local object check | In an isolated bare origin on Apple Git 2.50.1, `ls-remote --refs origin refs/heads/main refs/heads/story/watched` reported both heads. Advancing the branch after the probe caused the exact fetch to land the newer head. After deletion a successful probe returned trunk alone while the old tracking ref and object remained. The object was still readable after removing the tracking ref in that run. An unreachable origin and loopback HTTP 401, 403, 404, and 503 all exited 128. | The transport and failure classification are settled in the seed's transport evidence. Slices 2–3 exercise the race and retention through the Dashboard rather than relying on raw object persistence. |
-| Published comparison open and exact file admission | At `1c0272d6f`, `caffeinate -s -i npm run test:dashboard:backend -- story-review-completed-shared-fetch.spec.ts story-review-completed.spec.ts story-review-published-taken.spec.ts --workers=1 --reporter=line` passed 14 cases. Two Done opens shared a fetch. A renamed execution checkout still allowed the comparison and files, and Taken named file reads stayed local while origin moved. An unpublished local commit and an unlisted file remained refused. | Slice 5 exercises coalescing across Board and Review, including their different deadlines and branch demand. Slice 3 exercises deletion and rewrite through the new pin admission path. |
-| Board's live progress and recovery cues | At `1c0272d6f`, `caffeinate -s -i npm run test:e2e -- auto-refresh-branches.spec.ts auto-refresh-recovery.spec.ts --workers=1 --reporter=line` passed 3 cases. The REST fixture advanced branch progress with trunk fixed and displayed the branch deletion cue. The Board preserved the last good snapshot during a failed check and recovered. | These cases establish current UI meanings. Slices 1–3 replace the provider fixture, building on the real-origin Board fixtures the first story introduces, at the changed boundary and count Git operations against a real origin fixture. |
-| Existing wire admission and downstream consumers | At `1c0272d6f`, `caffeinate -s -i npm run test:dashboard:backend -- authenticated-read-containment.spec.ts authenticated-read-done-catalog.spec.ts authenticated-read-boundary.spec.ts published-session-listing.spec.ts authenticated-read-revision-stream.spec.ts agent-launch-follow-up-story.spec.ts --workers=1 --reporter=line` passed 30 cases. The endpoint refused cross-site, invalid, and unlisted reads, preserved project scoping and exact session pins, and shared one SSE listing. The follow-up refused a missing or unreadable Done record and accepted admissible facts. | Slices 1, 4, and 6 replace the GitHub dependent parts of these observations with real origin evidence. The existing session unit cases still own malformed sessions and ordered ranges. |
+| Git advertisement, exact fetch, and local object check | In an isolated bare origin on Apple Git 2.50.1, `ls-remote --refs origin refs/heads/main refs/heads/story/watched` reported both heads. Advancing the branch after the probe caused the exact fetch to land the newer head. After deletion a successful probe returned trunk alone while the old tracking ref and object remained. The object was still readable after removing the tracking ref in that run. An unreachable origin and loopback HTTP 401, 403, 404, and 503 all exited 128. | The transport and failure classification are settled in the seed's transport evidence. Slices 4–5 exercise the race and retention through the Dashboard rather than relying on raw object persistence. |
+| Published comparison open and exact file admission | At `1c0272d6f`, `caffeinate -s -i npm run test:dashboard:backend -- story-review-completed-shared-fetch.spec.ts story-review-completed.spec.ts story-review-published-taken.spec.ts --workers=1 --reporter=line` passed 14 cases. Two Done opens shared a fetch. A renamed execution checkout still allowed the comparison and files, and Taken named file reads stayed local while origin moved. An unpublished local commit and an unlisted file remained refused. | Slice 7 exercises coalescing across Board and Review, including their different deadlines and branch demand. Slice 5 exercises deletion and rewrite through the new pin admission path. |
+| Board's live progress and recovery cues | At `1c0272d6f`, `caffeinate -s -i npm run test:e2e -- auto-refresh-branches.spec.ts auto-refresh-recovery.spec.ts --workers=1 --reporter=line` passed 3 cases. The REST fixture advanced branch progress with trunk fixed and displayed the branch deletion cue. The Board preserved the last good snapshot during a failed check and recovered. | These cases establish current UI meanings. Slices 3–5 replace the provider fixture, building on the real-origin Board fixtures the first story introduces, at the changed boundary and count Git operations against a real origin fixture. |
+| Existing wire admission and downstream consumers | At `1c0272d6f`, `caffeinate -s -i npm run test:dashboard:backend -- authenticated-read-containment.spec.ts authenticated-read-done-catalog.spec.ts authenticated-read-boundary.spec.ts published-session-listing.spec.ts authenticated-read-revision-stream.spec.ts agent-launch-follow-up-story.spec.ts --workers=1 --reporter=line` passed 30 cases. The endpoint refused cross-site, invalid, and unlisted reads, preserved project scoping and exact session pins, and shared one SSE listing. The follow-up refused a missing or unreadable Done record and accepted admissible facts. | Slices 3, 6, and 8 replace the GitHub dependent parts of these observations with real origin evidence. The existing session unit cases still own malformed sessions and ordered ranges. |
+| Board check request count | Plan 853 slice 4 (2026-11-27, Apple Git against a local-file bare origin, load ~19): a cold Board check reached origin twice (`ls-remote` probe, fetch into `refs/open-dough/board/<branch>`), about 150 ms (69 ms probe + 80 ms fetch); a warm check whose confirmation record matched the advertised head reached it once (probe only, 39–67 ms). | Counting baseline for "one advertised check per covered demand"; local-file transport, not GitHub HTTPS, so timings are indicative only. |
 
 These observations are baseline proof. The slices below own discrimination
 for new behavior and the relevant unchanged consumers. Use the
@@ -85,7 +86,48 @@ a path.
 
 ## Ordered slices (provisional)
 
-### 1. Follow trunk automatically through the same check
+### 1. Report a failed confirmation whatever revision is shown
+
+Type: Behavior
+Status: planned
+Correction from the [plan 853 retrospective](https://github.com/terryyin/open-dough/blob/07e7c56a89041f123d48d79a5dba7ddd23e72f7b/.planning/slice-plans/853-refresh-published-board-in-place/PLAN.md#execution-complete)
+(SEED-430#refresh-published-board-in-place, `d56cd6957..e5fcbb39b`).
+Behavior: When a verified check cannot record its confirmation, the server
+answers the former confirmation marked `unrecorded`; the client raises the
+existing read failure beside the shown view whatever revision it shows.
+Today `dashboard/src/publishedWorkRead.ts` raises it only when the shown
+revision equals the answer's, so after an automatic advance to B (which
+records nothing on the server) a Refresh whose write fails silently moves
+the Board back to A with A's old time. Decide with the story whether a cold
+open with nothing shown also reports the failure beside the former view.
+
+Proof: `readPublishedWork` unit cases with an injected read source: shown B,
+answer `{revision: A, unrecorded}` keeps B and reports the failure (fails with
+the condition reverted); a later time at the same revision advances. Then
+narrow `e2e/observation/board-refresh-recovery.spec.ts`'s "cannot record its
+confirmation" step and `board-refresh-unchanged.spec.ts` to what only a
+browser journey proves, with the new unit and `board-confirmation.spec.ts`
+cases surviving.
+
+### 2. End stalled Review fetches through the owned transport
+
+Type: Behavior
+Status: planned
+Correction from the same retrospective (pre-existing weakness that plan 853
+slice 1 diagnosed for the Board check).
+Behavior: Review's quiet sync (`dashboard/server/reviewRepositoryStorage.ts`)
+and `fetchGitTarget` (`dashboard/server/gitTargetFetch.ts`) run remote
+transfers through `fetchGitTransport`, so an aborted or stalled fetch ends
+with its transport helpers and releases the repository's serialization slot.
+`runGitUntilClosed` stays for local mutations only.
+
+Proof: backend held-transfer cases for `syncedReviewRepository` and
+`fetchGitTarget`, mirroring `dashboard/backend-tests/review/verified-origin-trunk-deadline.spec.ts`:
+the gate process ends after the abort and the next sync starts; each fails
+before the change.
+
+
+### 3. Follow trunk automatically through the same check
 
 Type: Behavior
 Status: planned
@@ -100,7 +142,7 @@ Count project checks for overlapping subscribers and HTTP fallback. Exercise
 a fresh demand during an already-running check and verify that it joins
 the next eligible check within its own wait bound.
 
-### 2. Follow published story-branch progress
+### 4. Follow published story-branch progress
 
 Type: Behavior
 Status: planned
@@ -116,7 +158,7 @@ fetch and change the ref or withhold its objects. Inspect the observed
 revision and time and the remote operation count. Expect local reads of the
 admitted plan and time and refusal of an unrelated branch or path.
 
-### 3. Report confirmed branch deletion and preserve open pins
+### 5. Report confirmed branch deletion and preserve open pins
 
 Type: Behavior
 Status: planned
@@ -130,9 +172,9 @@ Proof: Check Board cues and the pinned file boundary under deletion,
 rewrite, and an ambiguous failure. A different revision merely present in
 the bare repo is refused. Exercise retained pins even across the storage
 cleanup the implementation permits. Use the same verified observation
-model as slice 2.
+model as slice 4.
 
-### 4. Open the Board's published records at their pins
+### 6. Open the Board's published records at their pins
 
 Type: Behavior
 Status: planned
@@ -152,7 +194,7 @@ calls for these records. Check refusals and timing at the same boundary.
 Keep provider calls for clients still using REST and remove only readers
 or caches whose final caller moved.
 
-### 5. Share a project refresh across Board and Review
+### 7. Share a project refresh across Board and Review
 
 Type: Behavior
 Status: planned
@@ -173,7 +215,16 @@ default under a full backend run at load 11–13, while passing alone in
 2.3–3.2 s per case. Make its Review syncs independent of machine load at
 this boundary without weakening its assertions.
 
-### 6. Confirm accepted publication at the shown revision
+From plan 853: the Board keeps `refs/open-dough/board/<branch>` plus its
+confirmation record (`dashboard/server/boardConfirmation.ts`) while Review
+keeps its tracking ref plus sync record; settle one record of what is
+current. Retire `holdLaterTrunkTransfers`' `reviewOnly` process-ancestry
+gate (`dashboard/test-support/laterTrunkTransfers.ts`) with the shared
+check, and publish automatic observation through the same confirmation
+record so the interim `confirmedAt ?? retrievedAt` in `publishedWorkRead.ts`
+retires.
+
+### 8. Confirm accepted publication at the shown revision
 
 Type: Behavior
 Status: planned

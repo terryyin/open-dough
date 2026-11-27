@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { constants, mkdirSync, writeFileSync } from "node:fs";
 import { open } from "node:fs/promises";
 import path from "node:path";
-import { onTestFinished, vi } from "vitest";
+import { expect, onTestFinished, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { RevisionMemo } from "../../server/revisionMemo.ts";
@@ -16,6 +16,41 @@ export const backlogPath = ".planning/PRODUCT-BACKLOG.md";
 export const git = (cwd: string, ...args: string[]) =>
   execFileSync("git", ["-C", cwd, ...args], { encoding: "utf8" }).trim();
 
+// The published backlog at origin's trunk.
+export const published = (backlog: string) =>
+  makeMe.aRepository
+    .withRevision("published", { files: { [backlogPath]: backlog } })
+    .please();
+
+// Pinned texts of one open, shared with no other.
+export const freshPin = () =>
+  new PinnedTexts(new RevisionMemo(new RetainedAnswers()));
+
+// A shared check's answer: origin verified `revision` with `backlog`.
+export const observedTrunk = (revision: string, backlog: string) => ({
+  kind: "observed",
+  value: {
+    askedAt: expect.any(String) as unknown,
+    trunk: {
+      kind: "verified",
+      revision,
+      backlog,
+      confirmedAt: expect.any(String) as unknown,
+    },
+  },
+});
+
+// Lets a held upload-pack through once the case ends and waits for `pending`.
+export function releaseWhenFinished(
+  releaseFifo: string,
+  pending: readonly Promise<unknown>[],
+) {
+  onTestFinished(async () => {
+    await signalFifo(releaseFifo, false);
+    await Promise.all(pending.map((demand) => demand.catch(() => undefined)));
+  });
+}
+
 export async function opened(
   description: Parameters<typeof materializeRepository>[0],
   source = makeMe.aPublishedSource.openDough.please(),
@@ -24,7 +59,7 @@ export async function opened(
   const home = path.join(repository.fixture, "home");
   mkdirSync(home);
   stubFixtureHome(home, repository.origin);
-  const pinned = new PinnedTexts(new RevisionMemo(new RetainedAnswers()));
+  const pinned = freshPin();
   const signal = new AbortController().signal;
   onTestFinished(async () => {
     vi.unstubAllEnvs();
@@ -42,10 +77,13 @@ export async function opened(
 // The fifo gate stays beside these cases. `dashboard/test-support/` holds
 // MakeMe builders and page objects only, so the gate is not lifted there.
 // `ls-remote` and fetch both run it when the remote name is `origin`.
+// Holds each upload-pack after the first (the probe), or from the first with
+// `heldFrom: 0`, until released.
 export function heldUploadPack(
   fixture: string,
   reviewDirectory: string,
   origin: string,
+  { heldFrom = 1 } = {},
 ) {
   const log = path.join(fixture, "upload-pack.log");
   const heldFifo = path.join(fixture, "held-upload-pack");
@@ -59,7 +97,7 @@ export function heldUploadPack(
     `#!/bin/sh
 n=$(wc -l < "${log}" | tr -d ' ')
 printf 'call\\n' >> "${log}"
-if [ "$n" != 0 ] && [ ! -f "${released}" ]; then
+if [ "$n" -ge ${heldFrom} ] && [ ! -f "${released}" ]; then
   printf 'held\\n' >> "${log}"
   printf 'held\\n' > "${heldFifo}"
   read -r _ < "${releaseFifo}"
@@ -70,7 +108,7 @@ exec git upload-pack "$@"
     { mode: 0o755 },
   );
   bareReview(reviewDirectory, origin, gate);
-  return { log, heldFifo, releaseFifo };
+  return { log, heldFifo, releaseFifo, gate };
 }
 
 export function bareReview(

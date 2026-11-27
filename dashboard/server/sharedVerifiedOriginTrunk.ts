@@ -2,11 +2,14 @@
 // project, origin URL and Git credential. A single SharedObservation waits
 // out a different key before starting it, so each key keeps its own
 // observation and a second project can proceed while another transfer is
-// held. The check uses the first demand's pinned texts and its own
-// controller: a waiter's signal ends only that wait.
+// held. The check uses the first demand's pinned texts and its own deadline:
+// a waiter's signal ends only that wait, and a transfer still running at the
+// Board's read deadline is ended so the next demand starts a new check. A
+// fresh demand is answered only by a check begun after it asked.
 
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
+import { GhFailure } from "./ghFailure.ts";
 import { githubGitCredentials, githubGitOrigin } from "./githubGitTransport.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import { revisionCheckReuseMs } from "./revisionChecks.ts";
@@ -37,6 +40,15 @@ export type SharedVerifiedOriginTrunkOptions = {
   // How long a settled check serves a later demand. Defaults to the revision
   // check window, including a test's `DOUGH_REVISION_CHECK_REUSE_MS`.
   readonly reuseMs?: () => number;
+  // Ends one check's Git calls when it aborts. Defaults to the Board's read
+  // wait limit from the check's start.
+  readonly deadline?: () => AbortSignal;
+};
+
+export type OriginTrunkDemand = {
+  readonly waitMs?: number;
+  // Answered only by a check begun after this demand.
+  readonly fresh?: boolean;
 };
 
 export class SharedVerifiedOriginTrunk {
@@ -45,23 +57,27 @@ export class SharedVerifiedOriginTrunk {
     SharedObservation<AskedOriginTrunk, OriginTrunkKey>
   >();
   private readonly reuseMs: () => number;
+  private readonly deadline: () => AbortSignal;
 
   constructor({
     reuseMs = revisionCheckReuseMs,
+    deadline = () => AbortSignal.timeout(readWaitLimitMs),
   }: SharedVerifiedOriginTrunkOptions = {}) {
     this.reuseMs = reuseMs;
+    this.deadline = deadline;
   }
 
   demand(
     source: PublishedSource,
     pinned: PinnedTexts,
     signal: AbortSignal,
-    waitMs = readWaitLimitMs,
+    { waitMs = readWaitLimitMs, fresh = false }: OriginTrunkDemand = {},
   ): Promise<Demanded<AskedOriginTrunk>> {
     return this.observationFor(source, pinned).demand(
       originTrunkKey(source),
       waitMs,
       signal,
+      fresh,
     );
   }
 
@@ -82,16 +98,21 @@ export class SharedVerifiedOriginTrunk {
     return created;
   }
 
-  // The waiter's signal is not this controller's. Aborting one waiter leaves
-  // the Git check running for the others. A thrown GhFailure rejects the
-  // observation's waiters.
+  // The waiter's signal is not the check's. Aborting one waiter leaves the
+  // Git check running for the others; only the deadline ends it, as a timed
+  // out read. A thrown GhFailure rejects the observation's waiters.
   private async check(
     source: PublishedSource,
     pinned: PinnedTexts,
   ): Promise<AskedOriginTrunk> {
     const askedAt = new Date().toISOString();
-    const controller = new AbortController();
-    const trunk = await verifiedOriginTrunk(source, pinned, controller.signal);
-    return { askedAt, trunk };
+    const deadline = this.deadline();
+    try {
+      const trunk = await verifiedOriginTrunk(source, pinned, deadline);
+      return { askedAt, trunk };
+    } catch (error) {
+      if (deadline.aborted) throw new GhFailure({ kind: "timed-out" });
+      throw error;
+    }
   }
 }

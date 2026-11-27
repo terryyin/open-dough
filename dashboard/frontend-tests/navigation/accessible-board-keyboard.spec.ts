@@ -59,6 +59,7 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
     direction,
     button("Start session in Open Dough").element(),
     button("Preparation badge legend").element(),
+    button("Refresh").element(),
   ];
   for (const name of ["Backlog", "Taken"] as const) {
     for (const entry of board.column(name).getByRole("article").elements()) {
@@ -100,7 +101,7 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
       }
     }
   }
-  expect(stops).toHaveLength(22);
+  expect(stops).toHaveLength(23);
   await expectTabOrder(stops);
   expect(
     document.querySelectorAll(".board[tabindex='-1'], .board [tabindex='-1']"),

@@ -3,7 +3,8 @@
 // Open Dough Done rows, a Pygardon Taken story row and a Doughnut ad hoc row,
 // over each project's review states and done catalog the case answers, holds
 // or fails.
-import { expect } from "vitest";
+import { expect, onTestFinished, vi } from "vitest";
+import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { minutesAgo } from "../../../Distribution/tests/support/testDataDefaults.mjs";
 import type { DoneCatalog } from "../../src/authenticatedDoneRead.ts";
@@ -107,14 +108,22 @@ export function openReviewCue({
   extra = [],
   reported = [],
   sessions,
+  openDoughMarkedAt,
 }: {
   extra?: ReturnType<typeof cueSession>[];
+  // When Open Dough's linked story was marked reviewed; now by default.
+  openDoughMarkedAt?: string;
   // Retained sessions whose Open reads their final report.
   reported?: ReturnType<typeof cueSession>[];
   // The shown session's final report, host status and terminal.
   sessions?: SessionServices;
 } = {}) {
-  const store = reviewStateStore({ "open-dough": [linked.identity] });
+  const store = reviewStateStore(
+    { "open-dough": [linked.identity] },
+    openDoughMarkedAt === undefined
+      ? {}
+      : { [linked.identity]: openDoughMarkedAt },
+  );
   const pygardonReview = steered(() => store.read("pygardon"));
   const reviewStates: StoryReviewStatesReadSource = (project, change) =>
     change === undefined && project === "pygardon"
@@ -187,3 +196,21 @@ export const cueIn = (row: HTMLElement | undefined) =>
 
 // Whether a shown row carries its Needs review cue.
 export const cueOf = (row: HTMLElement | undefined) => cueIn(row) !== undefined;
+
+// Operates the Board's cards with the Sessions sidebar closed, then reopens it.
+export async function onTheBoard(act: () => Promise<void>) {
+  const sessions = page.getByRole("button", { name: /^Sessions/ });
+  await sessions.click();
+  await act();
+  await sessions.click();
+}
+
+// Lets a case advance the machine's polls itself, for this case alone.
+export function pollWithFakeTimers() {
+  vi.useFakeTimers({
+    toFake: ["setTimeout", "clearTimeout", "setInterval", "clearInterval"],
+  });
+  onTestFinished(() => {
+    vi.useRealTimers();
+  });
+}
