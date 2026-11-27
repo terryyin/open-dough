@@ -19,6 +19,8 @@
 
 - Slice 3 accepted at `41ca3f16a6808c5db39c8e11f440b3c247687626`.
 
+- Slice 4 accepted at `7b8b2fd3ebe6eb8a6c5c9e232a032310c92b70f8`.
+
 ## Goal and scope
 
 Give Dashboard maintainers fast, typed Node Vitest proof of how the
@@ -218,7 +220,7 @@ Only the subject spec changed. The test uses the existing reporting, store, host
 ### 5. Mark a Codex session Done and end only its attachments
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 14–15 active minutes.
 
 Proof: With `installFakeCodex` and a kept Codex record, Mark as done of each
@@ -234,6 +236,10 @@ after deletion does not recreate the record. Convert
 `agent-launch-done-codex.spec.ts` (all eight cases; its combined refusal
 case keeps the unrecorded half), `agent-launch-done-codex-intent.spec.ts` and
 `agent-terminal-done-codex-boundary.spec.ts`.
+
+Accepted proof: `caffeinate -s -i npm run test:dashboard:backend -- 'sessions/(agent-launch-done-codex(-intent)?|agent-terminal-done-codex-boundary)\.spec\.ts$' --workers=1` ran 12 Node cases with zero Chromium cases or retries. Summed case time fell from 13.163 s to 1.132 s. Real Done, native traces and fresh reads cover the state matrix, exact turn, missing endpoint and late replies. Real attachments and stand-in sockets distinguish isolation by host and automatic reopening. The surviving unrecorded case and premise 4 account for the old combined refusal. Dashboard typecheck and whitespace check passed. See `slice5-return.md` and final run receipts.
+
+Codex-only fixtures create the full checkout path recursively and register teardown before that setup can fail. The typed attachment PID guard and separate endpoint diagnostics passed the same selection. Only the subject specs changed. Review found no new shared support or refactor candidate.
 
 ### 6. Keep Codex Done intent through late native answers
 
