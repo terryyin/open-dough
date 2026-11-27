@@ -1,27 +1,9 @@
 // Project and story views in Intent (../src/IntentPage.tsx), including the
 // Test Optimization Candidates record and the files column.
 
-import { expect, type Locator, type Page } from "@playwright/test";
+import { expect, type Locator } from "@playwright/test";
 import { shortRevision } from "./dashboardParts.ts";
-import { expectSettledPage, parts } from "./dashboardPage.ts";
 import { sidebarPlacement } from "./sidebarPlacement.ts";
-import { emptyArea, expectSelected } from "./storyCardSelection.ts";
-
-// Open the board, select the named card and enter its initial Intent view.
-export async function openStoryIntent(page: Page, title: string) {
-  await page.goto("/");
-  await expectSettledPage(page);
-  const card = parts(page).board.getByRole("article", {
-    name: title,
-    exact: true,
-  });
-  await emptyArea(card).click();
-  await expectSelected(card, true);
-  const { intentChoice, intent } = parts(page);
-  await intentChoice.click();
-  await expectStoryTab(intent, "CI comparison");
-  return { card, intent };
-}
 
 // The candidates record region Intent shows for the selected project.
 export function candidatesRecord(intent: Locator) {
@@ -55,12 +37,8 @@ export const filesColumn = (intent: Locator) =>
   intent.locator(".intent-locations");
 export const intentBrowser = (intent: Locator) =>
   intent.locator(".intent-browser");
-export const intentPageFrame = (intent: Locator) =>
-  intent.locator(".intent-page-frame");
 export const projectIntentFrame = (intent: Locator) =>
   intent.locator('.intent-page-frame[data-intent-context="project"]');
-export const storyIntentFrame = (intent: Locator) =>
-  intent.locator('.intent-page-frame[data-intent-context="story"]');
 export const intentModeViews = (intent: Locator) =>
   intent.getByRole("tablist", { name: "Project Intent views" });
 export const storyViews = (intent: Locator) =>

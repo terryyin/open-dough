@@ -1,3 +1,8 @@
+// The shared sidebar drawer (`../../src/SidebarDrawer.tsx`), proven once
+// through Sessions: over a phone page its backdrop takes the whole outside
+// click or tap, banner included; Escape returns focus to the toggle; Tab
+// stays within; docked beside a wide page it holds no boundary. Files adds
+// only its own placement and reading choices (./intent-files-drawer.spec.ts).
 import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import {
@@ -14,6 +19,10 @@ import { fileLayout } from "./intent-file-layout-page.ts";
 
 const sessionsSidebar = page.getByRole("complementary", {
   name: "Sessions sidebar",
+});
+
+const recentStoriesPopover = page.getByRole("dialog", {
+  name: "Recent stories",
 });
 
 type Files = ReturnType<typeof fileLayout>;
@@ -59,17 +68,19 @@ test("over a phone page, a click beyond the Sessions sidebar closes it without t
   await files.showsFiles(!shown);
 });
 
-test("over a phone page, a native tap beyond the Sessions sidebar closes it without toggling Files, and the next tap does", async () => {
+test("over a phone page, a native tap on a banner control beyond the Sessions sidebar closes it without opening that control, and the next tap does", async () => {
   await enableSettingsTouch();
   const files = await openFilesLayout({ width: 390, height: 844 });
   const shown = files.shown();
-  const target = await openSessionsOverFiles(files);
+  await openSessionsOverFiles(files);
+  const target = center(recentStories.element());
 
   await touchAt(target.x, target.y);
   await closedWithFilesUnchanged(files, shown);
+  await expect.element(recentStoriesPopover).not.toBeInTheDocument();
 
   await touchAt(target.x, target.y);
-  await files.showsFiles(!shown);
+  await expect.element(recentStoriesPopover).toBeVisible();
 });
 
 test("Escape closes the Sessions sidebar over the page and returns focus to the Sessions button, which reopens it", async () => {
@@ -96,29 +107,6 @@ test("beside a wide page, the Sessions sidebar stays open and keeps focus while 
   await files.showsFiles(false);
   await expect.element(sessionsSidebar).toBeVisible();
   await expect.element(files.toggle).toHaveFocus();
-});
-
-const recentStoriesPopover = page.getByRole("dialog", {
-  name: "Recent stories",
-});
-
-test("over a phone page, a click and then a native tap on another banner control close Sessions without opening that control", async () => {
-  await enableSettingsTouch();
-  const files = await openFilesLayout({ width: 390, height: 844 });
-  const shown = files.shown();
-
-  await openSessionsOverFiles(files);
-  await userEvent.click(page.elementLocator(document.body), {
-    position: center(recentStories.element()),
-  });
-  await closedWithFilesUnchanged(files, shown);
-  await expect.element(recentStoriesPopover).not.toBeInTheDocument();
-
-  await openSessionsOverFiles(files);
-  const target = center(recentStories.element());
-  await touchAt(target.x, target.y);
-  await closedWithFilesUnchanged(files, shown);
-  await expect.element(recentStoriesPopover).not.toBeInTheDocument();
 });
 
 test("over a phone page, Tab and Shift+Tab wrap within the open Sessions sidebar and its Sessions button", async () => {

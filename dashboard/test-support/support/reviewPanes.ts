@@ -38,17 +38,6 @@ export const diffHunk = (diff: Locator, hunk: string) =>
 export const hunkLines = (diff: Locator, hunk: string) =>
   diffLines(diffHunk(diff, hunk));
 
-// The hunk's lines exactly, each leading marker and its spacing included.
-export async function expectHunkLines(
-  diff: Locator,
-  hunk: string,
-  expected: readonly string[],
-) {
-  const shown = hunkLines(diff, hunk);
-  await expect(shown).toHaveCount(expected.length);
-  expect(await shown.allTextContents()).toEqual(expected);
-}
-
 export const diffHeading = (
   diff: Locator,
   options: { level?: number; name?: string | RegExp; exact?: boolean } = {},

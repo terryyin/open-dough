@@ -158,7 +158,6 @@ export function intentStoryCompare() {
     }),
     // The summary's eye and the details it reveals; opening shows the
     // details, holding Refresh.
-    detailsEye,
     openDetails,
     details,
     detailsText: () => textOf(details.query()),
