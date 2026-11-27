@@ -11,7 +11,6 @@ import { serverCloseLeavesCursorAndHangsUpOtherHosts } from "../../test-support/
 import {
   detachedPromptStaysWhileDashboardIsDown,
   stoppingRunnerResumesOnNextOpen,
-  twoServersLeaveOneRunner,
 } from "../../test-support/support/cursorRunnerLifetime.ts";
 import {
   restartedDashboardTypesSameClient,
@@ -35,10 +34,6 @@ test("a trust screen stays unconfirmed across a restart until that client is rea
 
 test("the runner keeps a detached follow-up prompt while the dashboard is down", async () => {
   await detachedPromptStaysWhileDashboardIsDown();
-});
-
-test("two development servers leave one runner in its own process group", async () => {
-  await twoServersLeaveOneRunner();
 });
 
 test("stopping the runner ends its clients and a new runner resumes the chat", async () => {

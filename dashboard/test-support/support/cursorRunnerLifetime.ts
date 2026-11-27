@@ -1,6 +1,5 @@
 // The runner's lifetime on one machine: a detached follow-up prompt stays
-// while the dashboard is down, one runner for two servers, and a new resume
-// after the runner is stopped.
+// while the dashboard is down, and a new resume after the runner is stopped.
 import { mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -14,12 +13,7 @@ import {
   stayedUp,
 } from "./keptCursorTurn.ts";
 import { developmentBoundary } from "./dashboardServer.ts";
-import {
-  instruction,
-  liveRunner,
-  processGroup,
-  runnersFor,
-} from "./cursorRunnerJourney.ts";
+import { instruction } from "./cursorRunnerJourney.ts";
 import { processRunning } from "./processGroup.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
@@ -55,40 +49,6 @@ export async function detachedPromptStaysWhileDashboardIsDown(): Promise<void> {
     await stayedUp(cursor, pid, 500);
     expect(readCursorRunnerAddress(path.join(machine, "home"))).toBeDefined();
   } finally {
-    await stopCursorRunner(path.join(machine, "home"));
-    cursor.cleanup();
-    rmSync(machine, { recursive: true, force: true });
-  }
-}
-
-export async function twoServersLeaveOneRunner(): Promise<void> {
-  const cursor = installFakeCursor();
-  const machine = path.join(
-    tmpdir(),
-    `dough-cursor-one-${process.pid.toString(36)}`,
-  );
-  mkdirSync(machine);
-  const [first, second] = await Promise.all([
-    startCursorDashboard(developmentBoundary, cursor, machine),
-    startCursorDashboard(developmentBoundary, cursor, machine),
-  ]);
-  try {
-    const runner = await liveRunner(first.home);
-    const runnerPid = runner.pid;
-    expect(readCursorRunnerAddress(second.home)?.pid).toBe(runnerPid);
-    expect(processGroup(runnerPid)).toBe(runnerPid);
-    expect(processGroup(first.pid)).not.toBe(processGroup(runnerPid));
-    expect(processGroup(second.pid)).not.toBe(processGroup(runnerPid));
-    await expect.poll(() => runnersFor(first.home)).toBe(1);
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    expect(runnersFor(first.home)).toBe(1);
-    expect(readCursorRunnerAddress(first.home)?.pid).toBe(runnerPid);
-    await first.close();
-    expect(processRunning(runnerPid)).toBe(true);
-    expect(processRunning(second.pid)).toBe(true);
-  } finally {
-    await first.close();
-    await second.close();
     await stopCursorRunner(path.join(machine, "home"));
     cursor.cleanup();
     rmSync(machine, { recursive: true, force: true });

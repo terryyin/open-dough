@@ -57,10 +57,11 @@ remains outside this deterministic proof.
   sequential within a file where fixtures change process environment,
   restore it in cleanup and use private homes. The legacy serial group
   setting can go. Keep the five-second test default for direct runner
-  cases and the two-server ownership case. Give the other seven terminal
-  cases individual 60-second timeouts because they include real boundary
-  process, launch, wait or reconnect operations. Those paths approach or
-  exceed five seconds in the observations below. Preserve the existing
+  cases. Give all eight terminal cases individual 60-second timeouts
+  because they include real boundary process, launch, wait or reconnect
+  operations. Those paths approach or exceed five seconds in the
+  observations below. Slice 4 found the two-server case at 4.7–7.0 s at
+  load about 20, failing three of five runs at the default. Preserve the existing
   separate operation and poll deadlines.
 
 ## Decisive premises
@@ -75,7 +76,7 @@ The repeat includes the updated terminal and environment fixtures.
 | --- | --- |
 | Existing runner proof selects the seven source specs | The backend command in the local gate selected 25 Playwright cases and all passed in both runs. The initial summed case and elapsed times were 53.098 s and 62.95 s. The repeat took 42.381 s and 45.07 s respectively. |
 | Node Vitest can consume the same runner, PTY, files, helper repair and process cleanup | The backend command with the scratch filter below selected only the seven disposable Vitest copies. All 25 passed in both runs, including helper restoration, stale and reused listeners, process shutdown, clean spawn environment, kept keys and reconnect. Initial summed case and elapsed times were 49.410 s and 53.85 s. The repeat took 60.141 s and 65.45 s respectively. All 17 direct runner cases took under 1.72 s with the default timeout. The scratch copies kept the executable paths, protocol, helpers, setups and assertions. |
-| Real boundary lifecycle proof needs time for process and launch waits | The seven terminal cases with the longer waits took 3.66–7.13 s across the full Vitest runs. At the default, the refusal timed out at 5000 ms. Its rerun with the individual timeout passed in 5.35 s. The detached prompt varied from 4.12 s to 6.98 s. The restart and waiting cases reached 6.09 s and 5.69 s in the repeat. The two-server ownership case passed with the default at 3.60 s, 4.24 s and 4.85 s. |
+| Real boundary lifecycle proof needs time for process and launch waits | The seven terminal cases with the longer waits took 3.66–7.13 s across the full Vitest runs. At the default, the refusal timed out at 5000 ms. Its rerun with the individual timeout passed in 5.35 s. The detached prompt varied from 4.12 s to 6.98 s. The restart and waiting cases reached 6.09 s and 5.69 s in the repeat. The two-server ownership case passed with the default at 3.60 s, 4.24 s and 4.85 s. At load about 20 in slice 4 it took 4.7–7.0 s and timed out three of five runs at the default. |
 | The real stale-build case distinguishes replacement under the lock | `npm run test:dashboard:backend -- 'zz-scratch-cursor-runner-build-proof\.spec\.ts$' --workers=1 --grep 'a real runner whose recorded proof turns stale'` failed when the stop and spawn branch under the lock was removed. The new exec returned `undefined`. The same case passed after restoration. |
 
 Scratch filter used in the backend command:
@@ -165,7 +166,7 @@ place, Vitest 3/3. They needed no scenario bodies from the shared modules.
 ### 4. Give one machine home ownership of its runner
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10 active minutes.
 
 Proof: Convert both `cursor-runner-discarded-start` cases and move the
@@ -176,6 +177,11 @@ whose starter directory is already gone exits cleanly. Removing the
 requested home after startup leaves no runner there or in the ambient
 home. Observe process groups, exit result and directories using the
 existing process primitives.
+
+Delivered: discarded-start cases converted in place; the two-server case
+moved to `cursor-runner-process-ownership` with a 60-second timeout
+(5.19–6.34 s at load about 21). Its scenario body left
+`cursorRunnerLifetime.ts`.
 
 ### 5. Start Cursor with the developer shell environment
 
