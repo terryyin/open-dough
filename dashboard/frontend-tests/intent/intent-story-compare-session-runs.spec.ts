@@ -61,6 +61,24 @@ test("a session that recorded two ranges offers both and shows the chosen one", 
   await expect.element(story.scope).toHaveTextContent(executionName);
 });
 
+test("a chosen session's range 2 stays chosen with its tree after Refresh", async () => {
+  const { opened, reads } = openWithExecution();
+  await opened;
+  const story = intentStoryCompare();
+  await story.chooseScope(executionName);
+  await expect.poll(story.treeText).toContain("range-1.txt");
+  await activateComparisonControl(story.choice("Published range 2 of 2"));
+  await expect.poll(story.treeText).toContain("range-2.txt");
+  const before = reads.length;
+
+  await story.refresh();
+  await expect.poll(() => reads.length).toBeGreaterThan(before);
+  await expect.element(story.choice("Published range 2 of 2")).toBeChecked();
+  await expect.poll(story.treeText).toContain("range-2.txt");
+  expect(story.treeText()).not.toContain("range-1.txt");
+  await expect.element(story.scope).toHaveTextContent(executionName);
+});
+
 test("a range that shared its checkout warns in the comparison details", async () => {
   const { opened } = openWithExecution();
   await opened;

@@ -193,7 +193,7 @@ card disclosures. Evidence:
 
 ### 4. Prove published sessions and the chosen run across a refresh
 Type: Structure
-Status: planned
+Status: done
 
 Change: Prove the `publishedSessions` carry through Intent: with a session
 chosen, a refresh that has not yet listed the new revision keeps the Sessions
@@ -202,6 +202,20 @@ stays chosen with its tree after Refresh.
 
 Proof: Both cases pass, and the first fails when `carriedFacts.ts` stops
 carrying `publishedSessions`.
+
+Accepted on `95fa1281f`.
+
+The case "a refresh keeps the opened session and its comparison until the new
+revision lists its sessions", in `intent-session-review-opening.spec.ts`, runs
+the real refresh read. It holds the new revision's session list through the
+Board frame supply's `listPublishedSessions` reader. With the carry removed,
+it fails at the held Sessions list.
+
+The case "a chosen session's range 2 stays chosen with its tree after Refresh",
+in `intent-story-compare-session-runs.spec.ts`, passes.
+
+Learning: for an opened session, only the Sessions list shows the carry. The
+scope label and the comparison survive without it.
 
 ### 5. Give the session list its own module and drop leftovers
 Type: Structure

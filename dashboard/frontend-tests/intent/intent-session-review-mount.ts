@@ -3,12 +3,18 @@
 // follow-up this machine retained, plus any further published `records`,
 // retained `launches` and Done `others`, read through CI as `ci` answers.
 // Each review read is recorded by its `published` UUID; a session's review
-// answers once `sessionsHeld` settles.
+// answers once `sessionsHeld` settles. `refreshTo` shows a new revision of
+// the same work as the page's revision stream does, once the page asks for
+// that revision's sessions, and returns `listing`, which answers that list
+// with the sessions plus any `further` records; until then it is pending.
 import { expect } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { minutesAgo } from "../../../Distribution/tests/support/testDataDefaults.mjs";
-import { publishedSessionRecordSchema } from "../../src/publishedSessionRecord.ts";
+import {
+  publishedSessionRecordSchema,
+  type PublishedSessionRecord,
+} from "../../src/publishedSessionRecord.ts";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
 import { unanswered } from "../../test-support/support/waitUntil.ts";
@@ -58,7 +64,10 @@ export const adHocFollowUp = (
     .please();
 export const retained = adHocFollowUp("Follow up here", retainedRecord, 20);
 
-export const publishedName = `Execution — ${new Date(published.closedAt).toLocaleString()}`;
+// An execution session is named by its close time.
+export const executionName = (record: PublishedSessionRecord) =>
+  `Execution — ${new Date(record.closedAt).toLocaleString()}`;
+export const publishedName = executionName(published);
 export const retainedName = "Follow up here";
 // An ad hoc option is named by its icon and then its title.
 export const adHocOption = (title: string) => `Ad hoc ${title}`;
@@ -71,6 +80,9 @@ export async function mountDoneStory({
   sessionsHeld = Promise.resolve(),
 } = {}) {
   const reads: (string | undefined)[] = [];
+  const sessions = [published, retainedRecord, ...records];
+  const listings = new Map<string, Promise<PublishedSessionRecord[]>>();
+  const listed: string[] = [];
   const review: ReviewSource = {
     fileDiff: unanswered,
     fileText: unanswered,
@@ -97,15 +109,16 @@ export async function mountDoneStory({
   const { done, doneBodies } = catalogs({ "open-dough": [source, ...others] });
   const sourceCatalog = done["open-dough"];
   if (sourceCatalog === undefined) throw new Error("No source catalog.");
-  await mountBoardFrame(
-    boardWork([], {
-      done: { ...sourceCatalog, revision: "a".repeat(40) },
-      publishedSessions: {
-        status: "listed",
-        revision: "a".repeat(40),
-        sessions: [published, retainedRecord, ...records],
-      },
-    }),
+  const work = boardWork([], {
+    done: { ...sourceCatalog, revision: "a".repeat(40) },
+    publishedSessions: {
+      status: "listed",
+      revision: "a".repeat(40),
+      sessions,
+    },
+  });
+  const frame = await mountBoardFrame(
+    work,
     { width: 1600, height: 900 },
     "stories",
     {
@@ -113,9 +126,34 @@ export async function mountDoneStory({
         .observingDone(retained, ...launches)
         .please(),
     },
-    { done: doneBodies, review, ...(ci === undefined ? {} : { ci }) },
+    {
+      done: doneBodies,
+      review,
+      ...(ci === undefined ? {} : { ci }),
+      listPublishedSessions: (...[, revision]) => {
+        listed.push(revision);
+        return listings.get(revision) ?? Promise.resolve(sessions);
+      },
+    },
   );
-  return reads;
+  return {
+    reads,
+    refreshTo: async (revision: string) => {
+      let listing: (...further: PublishedSessionRecord[]) => void = () => {};
+      listings.set(
+        revision,
+        new Promise((resolve) => {
+          listing = (...further) => {
+            resolve([...sessions, ...further]);
+          };
+        }),
+      );
+      frame.queueSnapshot({ ...work, revision });
+      frame.revisionChanged(revision);
+      await expect.poll(() => listed).toContain(revision);
+      return listing;
+    },
+  };
 }
 
 export const reviewSessionChanges = (entry: ReturnType<typeof doneCard>) =>

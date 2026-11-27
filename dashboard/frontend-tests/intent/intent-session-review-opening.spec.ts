@@ -5,11 +5,15 @@
 // and switches label and comparison together on a choice, also by touch on a
 // phone. While the session's review is still read, Proof measures nothing
 // rather than the story. The session applies to that opening only: the story
-// selected again starts at Whole story.
+// selected again starts at Whole story. A refresh keeps the opened session
+// and its comparison until the new revision lists its sessions.
 // The session's review is read by its UUID; the review answers, keyed by
 // `published`, own the Git judgment.
 import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { minutesAgo } from "../../../Distribution/tests/support/testDataDefaults.mjs";
+import { publishedSessionRecordSchema } from "../../src/publishedSessionRecord.ts";
 import {
   portrait,
   tapWhereShown,
@@ -23,6 +27,7 @@ import {
 import { heldSessions } from "../sessions/recently-done-column-page.ts";
 import {
   adHocOption,
+  executionName,
   expectIntentAt,
   fitsWithin,
   mountDoneStory,
@@ -41,7 +46,7 @@ import { intentRecentStories } from "./intent-recent-stories-page.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
 test("Review session changes on a session published from another machine opens Intent at that session", async () => {
-  const reads = await mountDoneStory();
+  const { reads } = await mountDoneStory();
   await reviewSessionChanges(publishedEntry()).click();
 
   await expectIntentAt(publishedName);
@@ -50,7 +55,7 @@ test("Review session changes on a session published from another machine opens I
 });
 
 test("Review session changes on a session retained here opens Intent at its key", async () => {
-  const reads = await mountDoneStory();
+  const { reads } = await mountDoneStory();
   await reviewSessionChanges(heldSessions(source.title).first()).click();
 
   await expectIntentAt(retainedName);
@@ -149,4 +154,25 @@ test("on a phone width the scope dropdown and its list fit and a tapped session 
   await expectIntentAt(retainedName, "1 changed file");
   expect(story.scopeList.query()).toBeNull();
   expect(fitsWithin(story.scope.element(), portrait.width)).toBe(true);
+});
+
+test("a refresh keeps the opened session and its comparison until the new revision lists its sessions", async () => {
+  const later = publishedSessionRecordSchema.parse(
+    makeMe.aSessionRecord
+      .forExecutionOf(source.identity)
+      .closedAt(minutesAgo(2))
+      .please(),
+  );
+  const { refreshTo } = await mountDoneStory();
+  await reviewSessionChanges(publishedEntry()).click();
+  await expectIntentAt(publishedName, "1 changed file");
+  const story = intentStoryCompare();
+
+  const listing = await refreshTo("b".repeat(40));
+  await expectIntentAt(publishedName, "1 changed file");
+  expect(await story.scopeNames()).toContain(publishedName);
+
+  listing(later);
+  await expect.poll(story.scopeNames).toContain(executionName(later));
+  await expectIntentAt(publishedName, "1 changed file");
 });
