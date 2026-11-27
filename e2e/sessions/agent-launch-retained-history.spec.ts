@@ -90,8 +90,9 @@ async function showRetained(
   dashboard: DashboardServer,
   origin: Parameters<typeof showPage>[1],
   records: readonly LaunchRecord[],
+  now: number,
 ) {
-  const opened = new Date("2026-10-28T10:00:00.000Z");
+  const opened = new Date(now);
   await origin.publishRevision({
     message: "Publish the retained sessions' story",
     files: doneStoryFiles(
@@ -118,13 +119,15 @@ test("one history read per opening, none while nothing retained is opened, and a
   dashboard,
   origin,
 }) => {
-  const now = Date.parse("2026-10-28T10:00:00.000Z");
+  // The server's real clock, which its launch retention measures Done marks by.
+  const now = Date.now();
   const first = retained(dashboard, now, "First retained session");
   const { passOnePace, asked, codings, onBoard } = await showRetained(
     page,
     dashboard,
     origin,
     [first],
+    now,
   );
   const entry = onBoard("First retained session");
   const details = sessionDetailsControl(entry);

@@ -86,6 +86,11 @@ repository, so tests sync it before Start. The shared receiving host lives in
 `dashboard/backend-tests/support/receivingHost.ts`; move `aDoneStoryStart()`
 beside it when slice 2 needs it.
 
+CI repair (run 45913441426): fixture times fixed before the server's
+real-clock 30-day retention window expired Done sessions and attempts; the
+Done-listing, retained-history and settled-attempt specs now derive them
+from the current clock.
+
 ### 2. Admit the file and line on the historical pair
 
 Type: Behavior
