@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "sessionId": "3c63ba04-a87e-4443-aed6-d61911101fba",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-27T02:12:36.791Z",
+  "story": "SEED-413#prove-terminal-attach-and-cursor-turns-on-vitest",
+  "ranges": [
+    {
+      "base": "f1a958083197ecaeae7e413bb703b11c092b0ec5",
+      "candidate": "7b59f055265c7a2025f49c9aef339daa468cd7a7"
+    },
+    {
+      "base": "7b59f055265c7a2025f49c9aef339daa468cd7a7",
+      "candidate": "8165ef19e30af0622efa8b49d7dd7f68aa4f3e95"
+    },
+    {
+      "base": "8165ef19e30af0622efa8b49d7dd7f68aa4f3e95",
+      "candidate": "d0e99fd7bc00b8c39f57f681b4c880bf4074ace3"
+    },
+    {
+      "base": "d0e99fd7bc00b8c39f57f681b4c880bf4074ace3",
+      "candidate": "ea2a293749f5cdff336949cf369f7419ade1811d"
+    },
+    {
+      "base": "ea2a293749f5cdff336949cf369f7419ade1811d",
+      "candidate": "d28ee46f1b4903aa99c5ec2378eff060116cd45f"
+    },
+    {
+      "base": "d28ee46f1b4903aa99c5ec2378eff060116cd45f",
+      "candidate": "4d6c77cadc8fd8b27ecc9f5fb2168f7710061bbc"
+    },
+    {
+      "base": "66d05a5eae9d44f78fde7b4c935ef467b2a5cd6a",
+      "candidate": "565aa93028c91b89e572e192e88977aa84425cf4"
+    },
+    {
+      "base": "0f91c70c84ffdbcd0d79126cdb741b4c2879f236",
+      "candidate": "e240fa8762d096c62372d78972f41ab04b4b7434"
+    }
+  ]
+}
