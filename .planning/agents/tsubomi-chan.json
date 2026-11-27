@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Tsubomi-chan",
+  "email": "tsubomi-chan@example.org",
+  "identity": "SEED-413#prove-cursor-turns-on-vitest",
+  "mode": "story-branch",
+  "branch": "cursor/prove-cursor-turns-in-node-vitest",
+  "host": "cursor",
+  "model": "auto"
+}

@@ -34,6 +34,7 @@ intent introduced or affected by a newly developed story.
 - [Prove native session observation and alerts in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-observation-on-vitest) — SEED-413#prove-native-session-observation-on-vitest ([plan](slice-plans/869-prove-native-session-observation-on-vitest/PLAN.md))
 - [Prove terminal attach in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-terminal-attach-and-cursor-turns-on-vitest) — SEED-413#prove-terminal-attach-and-cursor-turns-on-vitest ([plan](slice-plans/871-prove-terminal-attach-on-vitest/PLAN.md))
 - [Open the Board from the verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-the-board-from-the-verified-git-trunk) — SEED-430#open-the-board-from-the-verified-git-trunk ([plan](slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md))
+- [Prove Cursor turns in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-cursor-turns-on-vitest) — SEED-413#prove-cursor-turns-on-vitest ([plan](slice-plans/872-prove-cursor-turns-on-vitest/PLAN.md))
 
 ## Backlog list
 
@@ -42,7 +43,6 @@ intent introduced or affected by a newly developed story.
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git
 - [Read published Git inputs to CI from local Git](seeds/SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git) — SEED-435#read-published-ci-inputs-from-local-git
 - [Check the feedback maintenance watch list from local Git](seeds/SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git) — SEED-436#check-feedback-maintenance-from-local-git
-- [Prove Cursor turns in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-cursor-turns-on-vitest) — SEED-413#prove-cursor-turns-on-vitest
 - [Prove Cursor runner lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-cursor-runner-lifecycle-on-vitest) — SEED-413#prove-cursor-runner-lifecycle-on-vitest
 - [Prove session retention, one-shot starts and input in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-retention-and-input-on-vitest) — SEED-413#prove-session-retention-and-input-on-vitest
 - [Prove published read admission in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-read-admission-via-vitest) — SEED-413#published-read-admission-via-vitest
