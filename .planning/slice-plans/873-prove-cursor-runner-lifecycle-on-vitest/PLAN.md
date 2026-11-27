@@ -238,7 +238,7 @@ cases took about 17–24 s, matching an unrefactored baseline.
 ### 8. Resume after deliberately stopping the runner
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 9 active minutes.
 
 Proof: Move the final terminal runner case to
@@ -247,6 +247,16 @@ client, stopping the runner sends hangup, ends the old client and
 removes the address. Opening the terminal again resumes the same
 conversation in a fresh client. Remove the empty Playwright file,
 verify former wrapper callers are gone, and run the full focused gate.
+
+Delivered: the stop case moved to `cursor-runner-stop`; the legacy
+terminal file and `cursorRunnerLifetime.ts` are deleted with no callers
+left. Gate: all 25 legacy observations are accounted for. The gate selected
+28 Vitest cases (25 plus three direct decision cases) and zero Playwright
+cases, all passing. Elapsed time was 103.40 s, against 102.39 s for the
+legacy Playwright selection at the merge base in a comparable pair at load
+18–24. Absolute times were about twice the planning baseline under this
+load. The backend proof record carries no per-case times; read them from
+the Vitest log.
 
 ## Proof ownership and local gate
 
