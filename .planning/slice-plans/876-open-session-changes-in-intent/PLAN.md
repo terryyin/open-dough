@@ -1,0 +1,245 @@
+# Open session changes in Intent and retire the Side panel review
+
+**Identity:** SEED-418#select-a-story-session-for-review
+
+**Source:** [Open session changes in Intent and retire the Side panel review](../../seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review)
+
+## Goal and scope
+
+A developer reviewing one session's contribution lands on it in Intent, from
+any machine with the project repository, and moves between that session and
+the whole story in the same view. The Side panel keeps only terminals and
+final reports, as
+[ADR 0008](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
+already names it. The seed's Scope and Key examples are the acceptance source.
+
+Excluded: the compact scope dropdown, the selected session's details on
+Intent Home, per-session review status, combined sessions and expired-record
+recovery (later SEED-418 stories), and any phone-specific Intent layout to
+replace the Side panel review's touch panes.
+
+## Current findings
+
+Read at `0bff20a80`.
+
+- Only **Review session changes** still opens the Side panel review:
+  `PublishedSessionReviewAction` in `dashboard/src/PublishedSessionEntry.tsx`,
+  used for a retained session with a published record and for a published
+  session without a retained launch (`dashboard/src/RecentlyDoneEntry.tsx`).
+  It goes through `useOpenSessionReview` (`pageSessionReviews.ts`) to the
+  `session-review` kind of `pageSidePanel.ts` and `<StoryReview>` in
+  `PageFrame.tsx`. A Story card's **Review changes** already opens Intent
+  through `useOpenStoryChanges` (`pageStoryReviewOpening.tsx`).
+- Intent's comparison (`useIntentStoryLens.ts` → `useStoryComparison.ts`)
+  builds a `ReviewedStorySubject` only. The selection hook under it,
+  `useStoryReviewSelection.ts`, and `storyComparisonShown.ts` already accept
+  the published-session subject and its `published-session` review (with
+  `ranges`, `selectedRun` and `session.shared`). The review endpoint is
+  `GET /__agent-launch/review?…&published=<uuid>[&run=<n>]`
+  (`dashboard/server/publishedSessionReview.ts`).
+- A published record always has at least one range
+  (`publishedSessionRecord.ts`), so "a session without a recorded landing" is
+  a session known only from this machine's launches with no published record.
+  The record carries `workflow`, `story` and `closedAt` for naming.
+- `storyFollowUpSessions` (`followUpSessions.ts`) merges retained launches and
+  published records once per session by reporting reference, but skips ad hoc
+  follow-up launches because it lists follow-up targets. The page's published
+  records reach Intent through `RecentlyDoneLinkSources` (`PageFrame.tsx`),
+  as Intent's Follow up already reads them.
+- Intent's Proof takes a selected revision range through
+  `storyCiEvidenceOptionsOf` (`IntentStorySummary.tsx`) for a chosen landed
+  run of a completed story; `IntentCiEvidenceProvider` reads it for Done and
+  Taken comparison targets only.
+- Side-panel-only code: `StoryReview.tsx`, `StoryReviewBody.tsx`,
+  `StoryReviewHeading.tsx`, `StoryReviewSnapshotView.tsx`,
+  `StoryReviewWorkarea.tsx`, `ReviewFilesDrawer.tsx`,
+  `reviewFileSidebarWidth.ts`, `pageSessionReviews.ts`,
+  `story-review-touch.css`, `story-review-workarea.css` and part of
+  `story-review.css`. Its tests: 9 specs in `dashboard/frontend-tests/review/`
+  (`published-session-subject`, `story-review-details`,
+  `-diff-syntax-hint-reads`, `-files-divider`, `-files-divider-kept`,
+  `-files-drawer`, `-toolbar-truthful`, `-toolbar-truthful-gaps`,
+  `-touch-height`) with `story-review-panel-page.ts`,
+  `navigation/story-destination-repeat-cue.spec.ts`, and E2E
+  `review/story-review-panes`, `-touch`, `-narrow-files`, `-diff-context`
+  (through `support/reviewPanes.ts`), `intent/intent-published-range-source`,
+  `sessions/recently-done-published-sessions`, and parts of
+  `navigation/side-panel-content-switching`, `-replacement` and
+  `sessions/admitted-session-completion`. Page objects only it uses:
+  `storyReviewPages.ts`, `sessionRunSwitchPages.ts`, `reviewToolbarPages.ts`,
+  `support/reviewPanes.ts`, `support/storyReviewTouchJourney.ts`,
+  `support/storyReviewTouchContext.ts`, the Side panel half of
+  `reviewChangesPage.ts` (`assumeReviewChanges`, `reviewChangesAfter`,
+  `openPublishedSessionReviewChanges`, `publishedSessionReviewControl`) and
+  the story-review part of `sidePanelPages.ts`.
+
+## Current decisions
+
+- **One session model.** A session scope is the published-session subject
+  `{source, identity, published: <uuid>}`. Its comparison is the published
+  record's range; several ranges are the session's recorded runs, chosen by
+  the existing `PublishedRangeSwitch`. A retained session with no published
+  record stays chosen and says it published no comparison; it reads nothing.
+  No second local-launch session reader is added.
+- **Session list.** One function lists a story's completed sessions from this
+  machine's retained launches and the published records, once per session
+  (by reporting reference = published UUID), including ad hoc follow-ups and
+  sessions closed after completion, oldest first. Generalize from
+  `storyFollowUpSessions` rather than adding a parallel merge; Follow up
+  keeps its own exclusion of follow-up launches as a filter over that list.
+  Each session is named by its workflow name (`launchKindName`) and its
+  launch time when retained, otherwise its close time.
+- **Scope state.** The chosen scope belongs to the Selected story in its
+  project: a new Selected story, or an opening from a Story card, starts at
+  **Whole story**; an opening from **Review session changes** carries that
+  session. Carry it on the existing story-review opening
+  (`pageStoryReviewOpening.tsx`) and the comparison's keyed state, not a new
+  page context.
+- **Proof.** A chosen session's selected range feeds the existing selected
+  range evidence (`storyCiEvidenceOptionsOf`). Where Intent shows no CI
+  comparison for the story (a queued story), Proof stays as it is.
+- **Retirement.** After slice 5 no Dashboard action opens the Side panel
+  review. Slice 6 then deletes its code, styles, tests, page objects and
+  documentation, and removes shared review options that existed only for it
+  (for example the Side panel files drawer and toolbar `browser` option,
+  the `session-review` panel kind, and the published-session heading). The
+  shared components named under Current findings stay where Intent uses
+  them.
+- Story Branch Mode or Trunk Mode is chosen at Take; no slice acts from trunk.
+
+## Decisive premises
+
+| Premise | Consuming operation | Observation | Result |
+| --- | --- | --- | --- |
+| A published session is reviewed by UUID, with its ranges and shared-checkout warning, on a machine without its launch | The review endpoint read every session slice uses | `OPEN_DOUGH_E2E_PROOF_RECORD=<tmp> caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:e2e -- e2e/sessions/recently-done-published-sessions.spec.ts` at `0bff20a80`, 27 Nov 2026, load ~20–29 | Exit 0, proof record phase completed, 2/2 selected. Covers range 1 vs 2 exclusion, trunk moving on, de-duplication with a local launch, and the shared-checkout warning. The UI consuming it changes from Side panel to Intent in slices 1–2; the endpoint does not. |
+| Intent reads the page's published records for the Selected story's project | Slice 1's session list | Read: `PageFrame.tsx` wraps Intent in `RecentlyDoneLinkSources` with `stories.work`; Intent Follow up builds its candidates from it (`FollowUp.tsx`) | Same reader and context as Intent's existing Follow up candidate list; no new read. |
+| Intent's comparison shows a `published-session` review | Slices 1–2 | Read: `storyComparisonShown.ts` returns a shown comparison for that kind; the Side panel review renders it through the same shared file tree and diff | Implementation work owned by slice 1's proof, not an unobserved current-state claim. |
+
+## Ordered slices
+
+### 1. Choose one published session as Intent's review scope
+Type: Behavior
+Status: planned
+
+Behavior: A Done story has two refinements, an execution and an ad hoc
+follow-up published from another machine, and this machine has no launch of
+them → the developer selects the story, opens Intent and chooses the second
+refinement under **Sessions** → the comparison summary names that refinement
+and the diff lists only its files; choosing **Whole story** returns to the
+story comparison with its existing choices. Repeated refinements are named
+apart; a session also known from a local launch appears once.
+
+Proof: Frontend specs beside `intent-story-compare-done.spec.ts` with review
+answers keyed by `published`: the Sessions list (names, once per session,
+oldest first, ad hoc follow-ups included), choosing a session reads by UUID,
+Whole story returns, a new Selected story resets to Whole story. A new E2E
+`e2e/intent/intent-session-scope.spec.ts` publishes the four sessions on an
+origin with empty launch storage and asserts the second refinement's diff
+excludes the others' files.
+
+### 2. Show a session's recorded runs and shared-checkout warning in Intent
+Type: Behavior
+Status: planned
+
+Behavior: A chosen session recorded two ranges, or shared its checkout, or
+is known only from a retained launch → Intent offers both runs under the
+session and shows the chosen one; shows the shared-checkout warning in the
+comparison details; or keeps the session chosen and says it published no
+comparison, without falling back to the story.
+
+Proof: Frontend Intent compare specs for the range choice, the warning and
+the no-record explanation. Extend `intent-session-scope.spec.ts`, or move the
+two cases of `e2e/sessions/recently-done-published-sessions.spec.ts` into
+Intent journeys, so range 1 vs range 2 exclusion, trunk moving on, and the
+shared-checkout warning are observed in Intent.
+
+### 3. Proof follows the chosen session's range
+Type: Behavior
+Status: planned
+
+Behavior: A Done story's chosen session has a recorded range → Intent's CI
+comparison measures that range's base and candidate as its selected range;
+Whole story restores the story comparison.
+
+Proof: A frontend spec beside `intent-story-compare-evidence.spec.ts`
+asserting the selected range the CI evidence reads for a chosen session and
+its chosen run.
+
+### 4. Follow up from a session scope uses its exact comparison
+Type: Behavior
+Status: planned
+
+Behavior: A session is chosen in Intent on a second machine → file and line
+Follow up start with that session's published comparison and the chosen
+range; a stale line explains the unavailable source and returns to the file.
+
+Proof: Move `e2e/intent/intent-published-range-source.spec.ts` (two cases) to
+open the session through Intent's Sessions choice instead of the Side panel,
+keeping its composer and first-input assertions.
+
+### 5. Review session changes opens Intent at that session
+Type: Behavior
+Status: planned
+
+Behavior: A Done card shows **Review session changes** for a retained or
+published session → activating it selects the story, shows Intent and
+chooses that session; no Dashboard action opens a code review in the Side
+panel; a running session's terminal and a finished session's final report
+still open there.
+
+Proof: Point `openPublishedSessionReviewChanges` in `reviewChangesPage.ts`
+at Intent and run `e2e/sessions/recently-done-published-sessions.spec.ts`,
+`e2e/sessions/admitted-session-completion.spec.ts`,
+`e2e/navigation/side-panel-content-switching*.spec.ts` and
+`-replacement*.spec.ts`, with their Side panel review steps rewritten to the
+Intent destination and the terminal and report steps kept.
+
+### 6. Remove the retired Side panel review and its dual-UI options
+Type: Structure
+Status: planned
+
+Change: Delete the Side-panel-only code, styles, specs and page objects
+listed under Current findings, the `session-review` panel kind and its
+routing, and the Side panel review's mention in documentation. Then remove
+shared review options, branches and abstractions that served only the
+Side panel (search `StoryReview`, `SessionReviewsOnPage`, `session-review`,
+`ReviewFilesDrawer`, `reviewFileSidebarWidth`, `story-review-touch`,
+`assumeReviewChanges`, `reviewChangesAfter`, `publishedSessionReviewControl`
+across `dashboard/`, `e2e/`, `docs/`). Separated from slice 5 to keep its
+routing change recoverable; it completes slice 5's change with external
+behavior unchanged.
+
+Proof: Old symbols and paths are gone; `npm run typecheck:dashboard`,
+`npm run lint`, and the review family below stay green.
+
+## Proof ownership and local gate
+
+| Promise (seed) | Slice |
+| --- | --- |
+| Review session changes opens Intent at that session, without local history | 5 (with 1 for the scope) |
+| Sessions: Whole story default, each completed session once, repeated refinements named | 1 |
+| Session's recorded runs selectable; session without a landing stays chosen | 2 |
+| Source, diff use the selection | 1, 2 |
+| Proof uses the selection | 3 |
+| Shared-checkout warning; exact published ranges | 2 |
+| File and line Follow up | 4 |
+| Whole story keeps its choices | 1 (existing `intent-story-compare-*` specs stay green) |
+| Side panel review removed; terminal and report remain | 5, 6 |
+
+Apply the shared
+[failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+Run focused specs at each slice with
+`npm run test:dashboard:frontend -- <files>` and
+`OPEN_DOUGH_E2E_PROOF_RECORD=<tmp> caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:e2e -- <files>`,
+plus `npm run typecheck:dashboard`. Because slice 6 changes shared review
+code, run the review family before landing: frontend `review/` and `intent/`
+(`intent-story-*`), and E2E `e2e/review/`, `e2e/intent/`, `e2e/sessions/`
+and `e2e/navigation/side-panel-*`, on awake macOS on AC under
+`caffeinate -s -i` per [AGENTS.md](../../../AGENTS.md).
+
+## Plan review
+
+Slice-plan refinement was not needed: each slice owns one outcome and proof
+loop, and the six slices are within the limit. Concern evidence: none
+identified. Slice 6 is Structure that finishes slice 5's retirement rather
+than preparing a later Behavior; it is separated only for recovery.
