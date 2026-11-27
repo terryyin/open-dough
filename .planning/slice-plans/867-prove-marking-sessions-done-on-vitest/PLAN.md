@@ -25,6 +25,8 @@
 
 - Slice 6 accepted at `241bd5b577d36fd150b97ffbfd631e71f8406367`.
 
+- Slice 7 accepted at `82810a8f6adf0b9ed83c23315d9f6aa7f6a49a1f`.
+
 ## Goal and scope
 
 Give Dashboard maintainers fast, typed Node Vitest proof of how the
@@ -289,7 +291,7 @@ The independent refactor kept the host cleanup import inside successful post-del
 ### 8. Reopen a Done session through its terminal, and retire the legacy setup
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: A Done session is admitted by `attachableSession` as `markedDone` and
@@ -300,6 +302,22 @@ upgrade refused at `attachableSession` and stays Done. Convert
 `agent-terminal-reopen.spec.ts`. Delete the retired legacy specs. Remove the
 test-support exports or files that lost their last caller. Run the final
 comparison and the retained E2E journeys.
+
+Accepted proof: the two reopened-session cases passed on Node. The joined socket's forwarded output waits for the real reopen write. Fresh record reads verify that attaching clears the previous Done mark and a refused upgrade preserves it. The unchanged `agent-terminal-boundary.spec.ts` stopped-session case owns real socket-disconnect SIGHUP. The retained browser reopening case checks the mark across a page reload. `openStorySessionSetup.ts` lost its final live caller and was deleted. The other four named support modules still have live consumers.
+
+The paired comparison below ran sequentially on the same awake 16-core macOS host on AC, under Node 24.21.0 and one worker. The legacy run used a detached checkout at the Take with its own locked install. Backend load averages at the phase boundary were 12.44/9.69/8.33, down to 10.49/9.48/8.30 after the candidate. Concurrent external work was not controlled.
+
+| Gate | Selected | Retries | Above 100 ms | Summed case time | Wall time |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Legacy backend | 58 Chromium | 0 | 51 | 69.403 s | 90.71 s |
+| Migrated backend | 56 Node Vitest, zero Chromium | 0 | 33 | 22.445 s | 30.59 s |
+| Retained browser journeys | 6 Chromium | 0 | 6 | 36.332 s | 52.12 s |
+
+The backend selection saved 60.12 s wall time on this pair. Native CLI and PTY waits account for many cases above 100 ms. Both whole origin duplicates and the origin half of the combined Codex case reuse the launch admission owner. The maintained comparison and all retained E2E passed on the first attempt, and Dashboard typecheck and whitespace check passed. `slice8-return.md`, the absolute proof records and `slice8-case-times.tsv` in Git evidence carry every selected case, time and scope disposition.
+
+Trunk `a4557b22b` contains SEED-430's independent repair for the same fixed-date E2E listing failure, using `Date.now()` at module load. Our accepted repair binds the same timestamp to its fixture and browser clock inside the case. The overlap is in that separate repair only. At integration, keep one timestamp owner and verify the combined candidate's listing case.
+
+The final refactor reused the host-qualified `keptSession` reader over the same durable store and observed Done directly after attach, disconnect and refusal. Its two focused Node cases, Dashboard typecheck and whitespace check passed. The paired measurements above precede this assertion-only refactor. Retained browser, native-disconnect and 54 other backend observations were unaffected.
 
 ## Proof ownership and local gate
 
