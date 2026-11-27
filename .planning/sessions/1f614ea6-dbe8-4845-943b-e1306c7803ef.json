@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "sessionId": "1f614ea6-dbe8-4845-943b-e1306c7803ef",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-27T01:00:18.451Z",
+  "story": "SEED-430#move-authenticated-read-proofs-off-the-board-ref-read",
+  "ranges": [
+    {
+      "base": "7a61ef7056fa0c48346109deea03b8f7a94ae1f0",
+      "candidate": "d452f460247be4ef1bd4e3a30ceafbaf641fcb6c"
+    },
+    {
+      "base": "d452f460247be4ef1bd4e3a30ceafbaf641fcb6c",
+      "candidate": "da2f01a53449b6c7076e5737c5fa112e6130c1d6"
+    },
+    {
+      "base": "da2f01a53449b6c7076e5737c5fa112e6130c1d6",
+      "candidate": "d22f692e2315e2d940c605e464204b1ecb32d11e"
+    },
+    {
+      "base": "d22f692e2315e2d940c605e464204b1ecb32d11e",
+      "candidate": "ba362a2b23630a984aa74e45125d48ffe89291a4"
+    },
+    {
+      "base": "ba362a2b23630a984aa74e45125d48ffe89291a4",
+      "candidate": "bca2def1a3cccc0eef543e1f836a1452c345d445"
+    },
+    {
+      "base": "bca2def1a3cccc0eef543e1f836a1452c345d445",
+      "candidate": "113ec1b3bdaa6f616d5dfcdcffc2813f7ecda385"
+    },
+    {
+      "base": "b793f79ea8cbb22358728da893f907c1c362686c",
+      "candidate": "a4557b22b23feda8ceae23dc3f58058945516c1a"
+    }
+  ]
+}
