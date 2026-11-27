@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_published-read-admission-via-vitest.json",
+      "identity": "SEED-413#published-read-admission-via-vitest",
+      "completedAt": "2026-11-27T12:24:59.993Z",
+      "blob": "e98adb39b4db0279b0dd2b4e9c02906f42be98b7"
+    },
+    {
       "fileName": "SEED-418_announce-compact-dropdown-choice.json",
       "identity": "SEED-418#announce-compact-dropdown-choice",
       "completedAt": "2026-11-27T11:59:17.278Z",
