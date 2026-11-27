@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "sessionId": "627e2271-0fa2-412b-876e-646485134d96",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-27T09:14:58.911Z",
+  "story": "SEED-423#read-handoff-and-admitted-landing-from-dashboard-records",
+  "ranges": [
+    {
+      "base": "6ecdca66a761efe7046bedc9bb43a0eb1832e89b",
+      "candidate": "04ab521011f711d3628c88c81e597efb578b62b8"
+    },
+    {
+      "base": "04ab521011f711d3628c88c81e597efb578b62b8",
+      "candidate": "972db9e53881a2ce616b1158b7b9db35d45ea425"
+    },
+    {
+      "base": "972db9e53881a2ce616b1158b7b9db35d45ea425",
+      "candidate": "db58264f2e667d6ea4a6eb6bcab5468480b09ae0"
+    },
+    {
+      "base": "db58264f2e667d6ea4a6eb6bcab5468480b09ae0",
+      "candidate": "b4b55b9d43aa1a47f2d474a34d3d37c35975400d"
+    }
+  ]
+}
