@@ -2,20 +2,12 @@
 // receipt, whose replay answers it and changes nothing newer. The installed
 // reporting script runs in process; its one request reaches production
 // completion admission and delivery over a private machine home.
-import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import {
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import { submissionSchema } from "../../server/completionAdmission.ts";
 import { deliverCompletion } from "../../server/completionDelivery.ts";
 import { reportingContext } from "../../server/completionReporting.ts";
@@ -34,9 +26,11 @@ import {
   type CompletionReceipt,
 } from "../../src/completionReport.ts";
 import { queuedIdentity as identity } from "../../test-support/support/queuedStories.ts";
+import { plantTrackedClosureRepository } from "../../test-support/support/retainedReport.ts";
 import {
   installPublisherScripts,
   reportInstalled,
+  reportingInvocation,
 } from "../support/installedPublisher.ts";
 
 const origin = "http://127.0.0.1:4173";
@@ -67,15 +61,7 @@ async function afterOldReceipt() {
     ),
   );
   const repository = path.join(root, "closure-repository");
-  mkdirSync(repository);
-  const git = (...args: string[]) =>
-    execFileSync("git", args, { cwd: repository }).toString().trim();
-  git("init", "-b", "main");
-  writeRevisionFiles(repository, { backlog: {} });
-  git("add", ".");
-  git("-c", "user.email=a@b", "-c", "user.name=a", "commit", "-m", "closed");
-  const revision = git("rev-parse", "HEAD");
-  git("update-ref", "refs/remotes/origin/main", revision);
+  const { revision } = plantTrackedClosureRepository(repository);
 
   const accepted = makeMe.anAcceptedAttempt
     .executing({ identity, title, host: "codex" })
@@ -105,11 +91,7 @@ async function afterOldReceipt() {
   };
   await bindRecord("open-dough", record);
   rmSync(workspace, { recursive: true, force: true });
-  // `node <script> ...argv`, as the host's shell splits the reporting command.
-  const [, script = "", ...argv] = Array.from(
-    reporting.command.matchAll(/'((?:[^']|'\\'')*)'/g),
-    ([, part = ""]) => part.replaceAll("'\\''", "'"),
-  );
+  const { script, argv } = reportingInvocation(reporting.command);
   const reported = vi.fn();
   // Reports `outcome` with `text` from a file removed once it returns.
   const report = (outcome: string, text = "", { lostReceipt = false } = {}) => {

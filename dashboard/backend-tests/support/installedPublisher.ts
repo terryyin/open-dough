@@ -126,6 +126,37 @@ export async function publishInstalled(
   return { ...published, beforePush };
 }
 
+type Delivery = {
+  deliverManagedExecutionIncrement(request: object): Promise<unknown>;
+};
+type IncrementRequest = {
+  readIncrementCliRequest: (argv: string[]) => Promise<{ request: object }>;
+};
+
+// Delivers through the installed `command` under `workspace`'s skills, as its
+// CLI runs with `args`, answering the JSON it would print.
+export async function deliverInstalled(
+  workspace: string,
+  command: string,
+  args: string[],
+) {
+  bridgeToReceiver();
+  const script = path.join(workspace, ".agents/skills", command);
+  const request = path.join(
+    path.dirname(script),
+    "execution-increment-request.mjs",
+  );
+  const { readIncrementCliRequest } = (await import(
+    pathToFileURL(request).href
+  )) as IncrementRequest;
+  const delivery = (await import(pathToFileURL(script).href)) as Delivery;
+  return JSON.stringify(
+    await delivery.deliverManagedExecutionIncrement(
+      (await readIncrementCliRequest(args)).request,
+    ),
+  );
+}
+
 type Reporter = { reportCompletion(argv: string[]): Promise<unknown> };
 
 // Retries the landing input the sender's handoff retained beside
@@ -147,6 +178,16 @@ export async function retryInstalledLanding(landingContext: string) {
       pending,
     ]),
   );
+}
+
+// The installed reporting script and its arguments, as the host's shell
+// splits a launch's reporting command `node <script> ...argv`.
+export function reportingInvocation(command: string) {
+  const [, script = "", ...argv] = Array.from(
+    command.matchAll(/'((?:[^']|'\\'')*)'/g),
+    ([, part = ""]) => part.replaceAll("'\\''", "'"),
+  );
+  return { script, argv };
 }
 
 // Reports through the installed reporting script at `script`, as its

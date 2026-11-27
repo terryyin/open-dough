@@ -4,14 +4,12 @@
 // record writer imports before it is applied. The launch's installed
 // reporting script runs in process; its one request reaches production
 // completion admission and delivery over a private machine home.
-import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, onTestFinished, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import { reportingContext } from "../../server/completionReporting.ts";
 import { keepAttempt, keptAttempts } from "../../server/launchAttemptStore.ts";
 import { installedSkillPath } from "../../server/launchHosts.ts";
@@ -21,9 +19,11 @@ import { mountProjectConfiguration } from "../../server/projectConfiguration.ts"
 import { completionReceiptSchema } from "../../src/completionReport.ts";
 import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { queuedIdentity as identity } from "../../test-support/support/queuedStories.ts";
+import { plantTrackedClosureRepository } from "../../test-support/support/retainedReport.ts";
 import {
   installPublisherScripts,
   reportInstalled,
+  reportingInvocation,
 } from "../support/installedPublisher.ts";
 
 const origin = "http://127.0.0.1:4173";
@@ -56,22 +56,6 @@ function privateWorkspace() {
   return { root, workspace, dashboard };
 }
 
-// A published repository whose backlog no longer lists the story, with its
-// remote trunk at that revision: readable completed closure.
-function closureRepository(root: string) {
-  const repository = path.join(root, "closure-repository");
-  mkdirSync(repository);
-  const git = (...args: string[]) =>
-    execFileSync("git", args, { cwd: repository }).toString().trim();
-  git("init", "-b", "main");
-  writeRevisionFiles(repository, { backlog: {} });
-  git("add", ".");
-  git("-c", "user.email=a@b", "-c", "user.name=a", "commit", "-m", "closed");
-  const revision = git("rev-parse", "HEAD");
-  git("update-ref", "refs/remotes/origin/main", revision);
-  return { repository, revision };
-}
-
 // A kept tracked Codex execution whose workspace was retired after its
 // reporting script was installed; with `landed`, its record keeps the
 // launch's landing on the closure repository.
@@ -99,7 +83,10 @@ async function trackedLaunch(
     .reportingThrough(reporting)
     .withFirstInput({ state: "awaiting" })
     .please();
-  const { repository, revision } = closureRepository(home.root);
+  // A published backlog that no longer lists the story: readable completed
+  // closure.
+  const repository = path.join(home.root, "closure-repository");
+  const { revision } = plantTrackedClosureRepository(repository);
   const record: LaunchRecord = landed
     ? {
         ...claimed,
@@ -112,11 +99,7 @@ async function trackedLaunch(
     : claimed;
   await bindRecord("open-dough", record);
   rmSync(home.workspace, { recursive: true, force: true });
-  // `node <script> ...argv`, as the host's shell splits the reporting command.
-  const [, script = "", ...argv] = Array.from(
-    reporting.command.matchAll(/'((?:[^']|'\\'')*)'/g),
-    ([, part = ""]) => part.replaceAll("'\\''", "'"),
-  );
+  const { script, argv } = reportingInvocation(reporting.command);
   const kept = async () => {
     const session = await keptSession("open-dough", record.session);
     if (session === undefined) throw new Error("No kept session");

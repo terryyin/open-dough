@@ -30,6 +30,7 @@ import { completionReceiptSchema } from "../../src/completionReport.ts";
 import {
   installPublisherScripts,
   reportInstalled,
+  reportingInvocation,
 } from "../support/installedPublisher.ts";
 
 const origin = "http://127.0.0.1:4173";
@@ -88,11 +89,7 @@ async function keptLaunch(
     .reportingThrough(reporting)
     .please();
   await bindRecord("open-dough", record);
-  // `node <script> ...argv`, as the host's shell splits the reporting command.
-  const [, script = "", ...argv] = Array.from(
-    reporting.command.matchAll(/'((?:[^']|'\\'')*)'/g),
-    ([, part = ""]) => part.replaceAll("'\\''", "'"),
-  );
+  const { script, argv } = reportingInvocation(reporting.command);
   return {
     session: record.session,
     // The kept session's completion receipt and Done time.

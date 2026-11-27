@@ -35,7 +35,10 @@ import {
   type StartOrigin,
 } from "../../test-support/support/startOrigin.ts";
 import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
-import { reportInstalled } from "../support/installedPublisher.ts";
+import {
+  reportInstalled,
+  reportingInvocation,
+} from "../support/installedPublisher.ts";
 
 const source = makeMe.aPublishedSource.openDough.please();
 const repository = queuedReadyRepository().please();
@@ -129,11 +132,7 @@ type HeldLaunch = Awaited<ReturnType<typeof heldLaunch>>;
 async function reportEarly(launch: HeldLaunch, quiet: boolean) {
   const command = /^- reporting command: (.+)$/m.exec(launch.instruction)?.[1];
   if (command === undefined) throw new Error("No reporting command");
-  // `node <script> ...argv`, as the host's shell splits the command.
-  const [, script = "", ...argv] = Array.from(
-    command.matchAll(/'((?:[^']|'\\'')*)'/g),
-    ([, part = ""]) => part.replaceAll("'\\''", "'"),
-  );
+  const { script, argv } = reportingInvocation(command);
   const message = path.join(origin.machine, "early.txt");
   writeFileSync(message, "Work unfinished: a decision needs the maintainer.");
   const receipt = completionReceiptSchema.parse(

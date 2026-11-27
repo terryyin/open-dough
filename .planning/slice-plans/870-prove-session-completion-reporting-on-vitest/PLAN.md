@@ -331,7 +331,7 @@ specs still bound the same wait with a fixed poll:
 ### 8. Complete an admitted session from a borrowed or shared checkout, and retire the legacy setup
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 14–15 active minutes.
 
 Proof: Admit an ad hoc Codex launch through `attemptRun` on a real Git
@@ -348,6 +348,31 @@ accepted session range." and the workspace and trunk stay. Convert both
 `admitted-session-*-completion.spec.ts`. Delete the retired legacy specs,
 remove the test-support files and exports that lost their last caller, and
 run the final comparison and the retained E2E journeys.
+
+Delivered: both admitted specs are Node Vitest in place (no-change 1 case,
+shared-checkout 2 cases). They admit through `settleAttempt` and
+`attemptRun` over `installFakeCodex`, land through the new bridge export
+`deliverInstalled`, and override the timeout per test only (20–30 s), because
+two real-Git admissions, landings and closures took 5.8–13.4 s at load
+near 10. `plantedTrackedExecution.ts` is deleted. The remaining legacy
+support keeps live callers: E2E (`completionRecoveryFaults.ts`,
+`admitForCompletion`, `postCompletion`), review specs (`completionRecovery.ts`
+exports) and start-store specs (`serverFsHook.ts`). The refactor pass
+removed three repeated arrangements: `reportingInvocation` in
+`installedPublisher.ts` reads a launch's reporting command,
+`plantTrackedClosureRepository` serves both quiet specs, and
+`admittedCompletion` reads an admitted claim. The private HOME, kept launch
+and held `attemptRun` compositions stay per spec. They are the project-wide
+pattern, and no production operation bundles them.
+
+Final comparison at the slice 8 candidate (27 November 2026, one worker,
+`caffeinate -s -i`, load 8–11). The legacy selection plus
+`agent-completion-(refusals|quiet-recovery|later-reports)` ran 28 Node
+cases, zero Playwright, with zero retries, in 35.06 s wall and 25.5 s summed,
+against the baseline's 20 Chromium cases in 113.42 s and 103.3 s. Cases
+over 100 ms are those running real Git, a real host start or the in-process
+installed script; the longest takes 5.6 s. The retained E2E journeys passed
+11 Chromium cases with zero retries in 66.73 s wall and 57.2 s summed.
 
 ## Proof ownership and local gate
 

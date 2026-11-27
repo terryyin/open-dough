@@ -17,6 +17,7 @@ import { completionReceiptSchema } from "../../src/completionReport.ts";
 import {
   installPublisherScripts,
   reportInstalled,
+  reportingInvocation,
 } from "../support/installedPublisher.ts";
 
 const origin = "http://127.0.0.1:4173";
@@ -73,11 +74,7 @@ test("refused deliveries keep the earlier completion message", async () => {
   const earlier = "Publication finished. Reminder: inspect the migration.";
   const messageFile = path.join(root, "attention.txt");
   writeFileSync(messageFile, earlier);
-  // `node <script> ...argv`, as the host's shell splits the reporting command.
-  const [, script = "", ...argv] = Array.from(
-    reporting.command.matchAll(/'((?:[^']|'\\'')*)'/g),
-    ([, part = ""]) => part.replaceAll("'\\''", "'"),
-  );
+  const { script, argv } = reportingInvocation(reporting.command);
   const reported = vi.fn();
   const receipt = completionReceiptSchema.parse(
     await reportInstalled(

@@ -6,6 +6,7 @@ import { expect } from "@playwright/test";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { launchResultSchema } from "../../src/launchOutcome.ts";
 import { admittedClaimCheckoutSchema } from "../../src/launchLanding.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
 import { launch } from "../agentLaunchBoundary.ts";
 import { completionCi } from "./completionCi.ts";
 import {
@@ -38,33 +39,41 @@ export async function admitForCompletion(
   const response = await launch(dashboard, request);
   expect(response.status, response.body).toBe(200);
   const launched = launchResultSchema.parse(JSON.parse(response.body));
-  if (
-    launched.kind !== "launched" ||
-    launched.record.request.workflow !== "ad-hoc"
-  )
-    throw new Error(response.body);
-  const { storyIdentity: identity, reporting } = launched.record.request;
-  if (!identity || !reporting?.landingContext)
+  if (launched.kind !== "launched") throw new Error(response.body);
+  const admitted = admittedCompletion(launched.record.request, origin);
+  expect(admitted.claim.workspace).not.toBe(origin.project);
+  expect((await origin.originGit("rev-parse", "main")).trim()).toBe(
+    admitted.claim.publishedSha,
+  );
+  expect(
+    await origin.originGit("show", "main:.planning/PRODUCT-BACKLOG.md"),
+  ).toContain(admitted.identity);
+  return admitted;
+}
+
+// What an admitted ad hoc launch kept with `request`: its story, its
+// reporting context, and the claim its landing context's handoff holds.
+export function admittedCompletion(
+  request: LaunchRecord["request"] | undefined,
+  origin: StartOrigin,
+) {
+  if (request?.workflow !== "ad-hoc")
+    throw new Error("The admitted launch kept no ad hoc record.");
+  const { storyIdentity: identity, reporting } = request;
+  const landingContext = reporting?.landingContext;
+  if (!identity || !reporting || !landingContext)
     throw new Error("The admitted launch has no installed context.");
-  const landingContext = reporting.landingContext;
-  const handoff = JSON.parse(
+  const { admission } = JSON.parse(
     readFileSync(
       path.join(path.dirname(landingContext), "admitted-claim.json"),
       "utf8",
     ),
   ) as { admission: unknown };
-  const claim = admittedClaimCheckoutSchema.parse(handoff.admission);
-  expect(claim.workspace).not.toBe(origin.project);
-  expect((await origin.originGit("rev-parse", "main")).trim()).toBe(
-    claim.publishedSha,
-  );
-  expect(
-    await origin.originGit("show", "main:.planning/PRODUCT-BACKLOG.md"),
-  ).toContain(identity);
+  const claim = admittedClaimCheckoutSchema.parse(admission);
   return { claim, identity, reporting, landingContext, origin };
 }
 
-export type AdmittedCompletion = Awaited<ReturnType<typeof admitForCompletion>>;
+export type AdmittedCompletion = ReturnType<typeof admittedCompletion>;
 
 async function runSkill(
   workspace: string,
@@ -86,9 +95,17 @@ async function runSkill(
   }
 }
 
+// Runs an installed skill script with its CLI arguments, answering its stdout.
+export type InstalledRun = (
+  workspace: string,
+  command: string,
+  args: string[],
+) => Promise<string>;
+
 export async function landNativeWork(
   admitted: AdmittedCompletion,
   file: string,
+  deliver: InstalledRun = runSkill,
 ) {
   const native = admitted.origin.project;
   const { publishedSha } = admitted.claim;
@@ -96,7 +113,7 @@ export async function landNativeWork(
   writeAt(native, file, "Accepted native work\n");
   const candidate = commitAll(native, "Verify product behavior before cleanup");
   const result: unknown = JSON.parse(
-    await runSkill(
+    await deliver(
       native,
       "dough-execute-plan/scripts/execution-increment-delivery.mjs",
       [

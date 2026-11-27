@@ -29,7 +29,10 @@ import {
   type StartOrigin,
 } from "../../test-support/support/startOrigin.ts";
 import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
-import { reportInstalled } from "../support/installedPublisher.ts";
+import {
+  reportInstalled,
+  reportingInvocation,
+} from "../support/installedPublisher.ts";
 
 const source = makeMe.aPublishedSource.openDough.please();
 const repository = queuedReadyRepository().please();
@@ -108,11 +111,7 @@ test("a deleted early Claude Code binding cannot be resurrected before its attem
     claude.claudeLaunches()[0]?.instruction ?? "",
   )?.[1];
   if (command === undefined) throw new Error("No reporting command");
-  // `node <script> ...argv`, as the host's shell splits the command.
-  const [, script = "", ...argv] = Array.from(
-    command.matchAll(/'((?:[^']|'\\'')*)'/g),
-    ([, part = ""]) => part.replaceAll("'\\''", "'"),
-  );
+  const { script, argv } = reportingInvocation(command);
   const report = () =>
     reportInstalled(script, [...argv, "--outcome", "completed"], {
       reported: vi.fn(),
