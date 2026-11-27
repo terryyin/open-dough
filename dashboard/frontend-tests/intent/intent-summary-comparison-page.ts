@@ -126,9 +126,19 @@ export async function openComparedFileProof(summary: Locator, name: string) {
   const proofTab = page
     .getByRole("tablist", { name: "Purpose and Proof", exact: true })
     .getByRole("tab", { name: "Proof", exact: true });
-  await expect.element(proofTab).toBeVisible();
-  (proofTab.element() as HTMLElement).click();
-  return page.getByRole("region", { name: "Proof", exact: true });
+  // The page's file keeps Purpose selected until Proof is chosen. The
+  // comparison mount shows the file's Proof as soon as the file is opened.
+  if (proofTab.query() !== null) {
+    (proofTab.element() as HTMLElement).click();
+  }
+  // CI status also names a Proof region. The file's Proof is the section
+  // holding the file comparison.
+  await expect
+    .poll(() => document.querySelector(".intent-file-proof"))
+    .not.toBeNull();
+  const fileProof = document.querySelector(".intent-file-proof");
+  if (fileProof === null) throw new Error("The file Proof did not render");
+  return page.elementLocator(fileProof.closest("section") ?? fileProof);
 }
 
 export const fileProofTable = (proof: Locator, path: string) =>

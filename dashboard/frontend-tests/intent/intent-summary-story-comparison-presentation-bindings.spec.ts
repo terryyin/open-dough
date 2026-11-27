@@ -5,6 +5,7 @@ import { openSummaryComparison } from "./intent-summary-comparison-fixture.ts";
 import {
   expectSortedBy,
   openSummary,
+  press,
   scopeTable,
   sortButton,
 } from "./intent-summary-proof-page.ts";
@@ -16,7 +17,7 @@ test("Summary header bindings route Change, Baseline, Branch and Counts", async 
   const summary = await openSummary(entry);
   const table = scopeTable(summary, entry);
 
-  await sortButton(table, "Change").click();
+  press(sortButton(table, "Change"));
   await expectSortedBy(table, "Change", "ascending", [
     "added.spec.ts",
     "gone.spec.ts",
@@ -34,7 +35,7 @@ test("Summary header bindings route Change, Baseline, Branch and Counts", async 
     "folder/",
     "added.spec.ts",
   ]);
-  await sortButton(table, "Branch").click();
+  press(sortButton(table, "Branch"));
   await expectSortedBy(table, "Branch", "ascending", [
     "root.spec.ts",
     "folder/",

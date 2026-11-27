@@ -11,20 +11,34 @@ export const summaryRegion = () =>
   page.getByRole("region", { name: "Summary", exact: true });
 
 export async function showsSummaryPath(summary: Locator, path: string) {
-  await expect
-    .poll(() =>
-      ciReadingText(
-        summary.query()?.querySelector(".intent-summary-path")?.textContent,
-      ),
-    )
-    .toBe(path);
+  await expect.poll(() => summaryPath(summary)).toBe(path);
 }
 
-// The Summary of the location at PATH, opened by pressing its name and
-// uncovered where Files lies over it as a drawer.
+function summaryPath(summary: Locator) {
+  return ciReadingText(
+    summary.query()?.querySelector(".intent-summary-path")?.textContent,
+  );
+}
+
+// The Summary of the location at PATH. The comparison mount selects that
+// location in its file tree. The Intent page presses the location's name and
+// uncovers the Summary where Files lies over it as a drawer.
 export async function openSummary(path: string) {
-  await pressLocationName(path);
   const summary = summaryRegion();
+  const onIntentPage =
+    page.getByRole("main", { name: "Intent", exact: true }).query() !== null;
+  if (!onIntentPage) {
+    if (summaryPath(summary) !== path) {
+      const name = page
+        .getByRole("navigation", { name: "Intent files", exact: true })
+        .getByRole("button", { name: new RegExp(`^${path}([,\\s]|$)`) });
+      await expect.element(name).toBeVisible();
+      (name.element() as HTMLElement).click();
+    }
+    await showsSummaryPath(summary, path);
+    return summary;
+  }
+  await pressLocationName(path);
   await showsSummaryPath(summary, path);
   await fileLayout().uncoverReader();
   return summary;
@@ -152,6 +166,12 @@ const sortHeader = (table: Locator, name: string) =>
 
 export const sortButton = (table: Locator, name: string) =>
   sortHeader(table, name).getByRole("button", { name, exact: true });
+
+// The control's own click or change handler. These handlers are what the
+// comparison acts on; pointer travel is not part of that behavior.
+export function press(control: Locator) {
+  (control.element() as HTMLElement).click();
+}
 
 function rowNames(table: Locator) {
   return table

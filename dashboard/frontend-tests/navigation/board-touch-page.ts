@@ -52,7 +52,52 @@ async function drag(
   });
 }
 
-export async function swipe(
+// The Board reads the stroke's own touch coordinates (`boardSwipe.ts`).
+// An in-page stroke is that event. A native scroll still needs a real touch.
+function stroke(
+  from: { x: number; y: number },
+  dx: number,
+  dy: number,
+  { cancel = false, moves = [1] }: { cancel?: boolean; moves?: number[] } = {},
+) {
+  const area = boardReading.view();
+  const emit = (
+    type: "touchstart" | "touchmove" | "touchend" | "touchcancel",
+    at: { x: number; y: number } | undefined,
+  ) => {
+    const active = type === "touchstart" || type === "touchmove";
+    const touch =
+      at === undefined
+        ? undefined
+        : new Touch({
+            identifier: 1,
+            target: area,
+            clientX: at.x,
+            clientY: at.y,
+          });
+    area.dispatchEvent(
+      new TouchEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        touches: active && touch !== undefined ? [touch] : [],
+        targetTouches: active && touch !== undefined ? [touch] : [],
+        changedTouches: touch === undefined ? [] : [touch],
+      }),
+    );
+  };
+  emit("touchstart", from);
+  for (const fraction of moves)
+    emit("touchmove", {
+      x: from.x + dx * fraction,
+      y: from.y + dy * fraction,
+    });
+  emit(
+    cancel ? "touchcancel" : "touchend",
+    cancel ? undefined : { x: from.x + dx, y: from.y + dy },
+  );
+}
+
+export function swipe(
   direction: "left" | "right",
   options: { distance?: number; cancel?: boolean; target?: Element } = {},
 ) {
@@ -68,7 +113,7 @@ export async function swipe(
     );
   const available =
     direction === "left" ? from.x - room.left : room.right - from.x;
-  await drag(
+  stroke(
     from,
     (direction === "left" ? -1 : 1) * Math.min(distance, available - 2),
     0,
