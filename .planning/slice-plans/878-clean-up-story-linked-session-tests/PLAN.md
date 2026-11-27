@@ -302,6 +302,12 @@ Evidence (2026-11-27):
   `VITEST_BROWSER_CONNECTION_CLOSED`. That is the trunk defect owned by
   SEED-413#keep-full-frontend-runs-connected (plan 881, in progress), and
   main fails the same way. This branch takes that fix by merging trunk.
+- CI e2e on `8784a7c80` failed in `agent-launch-done-listing.spec.ts`. A
+  product defect caused it: `useShownDoneLinks` keyed links on whole records,
+  so the history read's retained detail dropped "Needs review" until a
+  re-read. It is repaired by keying on the linking facts. The mounted case in
+  `agent-launch-retained-history.spec.ts` failed before the fix and passes
+  after it; the E2E case passed `--repeat-each 5`.
 
 ### 4. Keep one admitted Start journey and host-specific E2E only
 Type: Structure
