@@ -132,7 +132,7 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
   // Read the published Preparing assignment and refresh native activity.
   await board.showPublished();
   await expect(sessionStateOf(codex)).toHaveText("Working");
-  await expect(openTerminalControl(codex)).toHaveCount(1);
+  await expect(openTerminalControl(codex)).toBeEnabled();
   await expect(await sessionAction(codex, "Mark as done")).toHaveCount(1);
   expectOneThreadStarted(native, checkout);
   const record = codexRecord();
