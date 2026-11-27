@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Tsukasa-chan",
-  "email": "tsukasa-chan@example.org",
-  "identity": "SEED-413#prove-cursor-runner-lifecycle-on-vitest",
-  "mode": "story-branch",
-  "branch": "claude/prove-cursor-runner-lifecycle-in-node-vitest",
-  "host": "claude"
-}

@@ -229,57 +229,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Plan.** [Share the completion reporting arrangement in Node Vitest](../slice-plans/875-share-completion-reporting-arrangement/PLAN.md)
 
-<a id="prove-cursor-runner-lifecycle-on-vitest"></a>
-
-### Prove Cursor runner lifecycle in Node Vitest
-
-**Identity:** SEED-413#prove-cursor-runner-lifecycle-on-vitest
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/873-prove-cursor-runner-lifecycle-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"c2598a48ac988eeacff5b65ead0df4b8b927a01a8cdf68592e3f6f7e95adedf3","plan":"36596227d00e80ef0f927f4ece7a089a8361b6e8072d3d4bc66183891f35df06"}}
-```
-
-- **Goal.** Developers changing the Dashboard's Cursor runner get fast Node
-  Vitest feedback on which runner starts, accepts work or stays running, and
-  on which clients and session evidence survive shutdown or restart. This
-  supplies the Cursor runner proof required for the backend runner cutover.
-- **Scope.** Account for all 25 observations in the seven legacy specs
-  `sessions/cursor-runner-{build-proof,discarded-start,environment,helper-repair-shapes,last-held,restart-shapes}.spec.ts`
-  and `terminals/agent-terminal-cursor-runner.spec.ts`. Prove build identity
-  and the current-build decision through typed production code. Keep real
-  OS processes, filesystem, runner protocol and PTYs for the cases that
-  observe those effects, and keep the existing Dashboard process where
-  its lifecycle is the trigger. Use the existing fake Cursor agent and
-  preserve product behavior. Cursor turn delivery, other hosts' terminal
-  attach, browser journeys and retiring the legacy backend runner have
-  their own owners. Real Cursor resumption after a runner kill or machine
-  reboot remains outside this deterministic proof.
-- **Key examples.**
-  - Given an accepting runner with missing or stale build proof, startup
-    leaves it running and the next real work replaces it once. A process
-    that accepts connections but gives no runner answer is left alone
-    and the launch starts no agent. Matching build proof with a deleted
-    terminal helper lets the next launch restore it and retain the held
-    client.
-  - Given a dead runner and its old address, even a new listener on that
-    port leaves the stale address unusable. A fresh current runner can
-    keep the same conversation. Keep publishes last-held keys, deliberate
-    hangup removes that client's key, and sudden death leaves the others
-    readable.
-  - Given two Dashboard servers on one home, startup leaves one runner
-    in its own process group. Removing the starter's home ends its
-    runner, and an older deployment's startup additions never reach
-    the runner's Cursor commands or kept clients.
-  - Given a held Cursor client, restarting the Dashboard rejoins the
-    same process and can type into it, including when the client was
-    waiting for an answer. A trust screen holds back the instruction
-    until that same client is ready. Closing the Dashboard leaves the
-    Cursor client running while Claude Code and Codex attachments hang
-    up. Deliberately stopping the runner ends its held client and the
-    next terminal open resumes the conversation on a fresh runner.
-- **Replacement trace.** Split from [native session and terminal lifecycle](https://github.com/terryyin/open-dough/blob/23c09d6e4d18b5113b45f3aed28f09e986083072/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-and-terminal-lifecycle-on-vitest).
-
-**Plan.** [Prove Cursor runner lifecycle in Node Vitest](../slice-plans/873-prove-cursor-runner-lifecycle-on-vitest/PLAN.md)
-
 <a id="published-read-admission-via-vitest"></a>
 
 ### Prove published read admission in Node Vitest
@@ -560,7 +509,7 @@ or removed once its behavior or duplicate is accounted for.
 | Nine observation, alert and replay specs | [Native session observation and alerts](https://github.com/terryyin/open-dough/blob/0e82130ff6693e0f9a7b936aa8871aacb6ebbfee/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-observation-on-vitest) |
 | Five Claude and Codex terminal attach specs | [Terminal attach](https://github.com/terryyin/open-dough/blob/0f91c70c84ffdbcd0d79126cdb741b4c2879f236/.planning/slice-plans/871-prove-terminal-attach-on-vitest/PLAN.md), completed on Node Vitest |
 | Six Cursor turn specs | [Cursor turns](https://github.com/terryyin/open-dough/blob/aa6ee4483c067e5ab32541ab8e76a7e4e9968c1f/.planning/slice-plans/872-prove-cursor-turns-on-vitest/PLAN.md), completed on Node Vitest |
-| Seven Cursor runner specs | [Cursor runner lifecycle](#prove-cursor-runner-lifecycle-on-vitest) |
+| Seven Cursor runner specs | [Cursor runner lifecycle](https://github.com/terryyin/open-dough/blob/4e89cf93f9664722e1ba16ef786cc6472c45c3d1/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-cursor-runner-lifecycle-on-vitest) |
 | Nine retention, one-shot start and input specs | [Session retention, one-shot starts and input](https://github.com/terryyin/open-dough/blob/6656107c8ab9b33e998f6393e5df4491bc74449d/.planning/slice-plans/874-prove-session-retention-and-input-on-vitest/PLAN.md), completed on Node Vitest with browser gestures, voice capture and visible Done retained in E2E |
 | Eleven Playwright Intent paths named in the [repeat proof selection](../slice-plans/607-close-landed-ci-repeat-check-gaps/proof-selection.txt) | [Automatic repeat correction](SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps), including its failure and load proof |
 | 12 observation Playwright paths | [Prove published read admission in Node Vitest](#published-read-admission-via-vitest) |

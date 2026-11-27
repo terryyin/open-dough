@@ -2,14 +2,13 @@
 // The runner spends its module load before it watches that directory. A test
 // that owns the home can remove it in that window (the server is already
 // gone, and the exit fallback has been withdrawn). The runner must exit
-// instead of creating the directory again and staying up for the rest of the
-// run, where worker exit only SIGTERMs a runner it still knows and the run's
-// settle then finds this one still alive.
+// instead of creating the directory again and staying up as an orphan that
+// nothing stops after the test process ends.
 import { spawn } from "node:child_process";
 import { existsSync, mkdtempSync, mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import {
   ensureCursorRunner,
   stopCursorRunner,

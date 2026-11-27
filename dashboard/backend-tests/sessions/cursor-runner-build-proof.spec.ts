@@ -5,17 +5,19 @@
 // that does not answer the protocol at all is left alone and the work
 // fails unreachable. The build identity is computed from the runner code
 // itself: a reached sibling module moves it in source mode, and the
-// bundled entry's content moves it in bundled mode.
+// bundled entry's content moves it in bundled mode. The build-proof
+// decision itself and start-if-absent beside it are
+// ./cursor-runner-current-proof.spec.ts. Cases run in order: the fixture
+// sets HOME and PATH for the runner client.
 import { spawn } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import net from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { computeRunnerBuildId } from "../../server/hosts/cursor/runnerBuild.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 import {
-  bridgedProofTerminal,
   createChatOnRunner,
   keepWorkingClient,
   startRunnerProofFixture,
@@ -38,7 +40,9 @@ for (const mode of ["wrong", "missing"] as const) {
         failed: false,
         stdout: `${fixture.cursor.sessionId}\n`,
       });
-      await expect.poll(() => processRunning(standIn.pid)).toBe(false);
+      await expect
+        .poll(() => processRunning(standIn.pid), { timeout: 5_000 })
+        .toBe(false);
       const address = readCursorRunnerAddress(fixture.home);
       expect(address?.pid).not.toBe(standIn.pid);
       expect(address?.buildId).toBe(computeRunnerBuildId());
@@ -70,8 +74,12 @@ test("a real runner whose recorded proof turns stale while holding a client is r
     const after = readCursorRunnerAddress(fixture.home);
     expect(after?.pid).not.toBe(before?.pid);
     expect(after?.buildId).toBe(computeRunnerBuildId());
-    await expect.poll(() => processRunning(before?.pid)).toBe(false);
-    await expect.poll(() => processRunning(heldPid)).toBe(false);
+    await expect
+      .poll(() => processRunning(before?.pid), { timeout: 5_000 })
+      .toBe(false);
+    await expect
+      .poll(() => processRunning(heldPid), { timeout: 5_000 })
+      .toBe(false);
     const again = await createChatOnRunner(fixture);
     expect(again).toMatchObject({ failed: false });
     expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(after?.pid);
@@ -155,36 +163,5 @@ test("build identity moves with a reached sibling in source mode and with the bu
     ).toBe(computeRunnerBuildId());
   } finally {
     rmSync(root, { recursive: true, force: true });
-  }
-});
-
-test("terminal bridge joins a held client on a stale runner but resumes a not-held session on a current runner", async () => {
-  const fixture = startRunnerProofFixture();
-  let heldBridge: Awaited<ReturnType<typeof bridgedProofTerminal>> | undefined;
-  let resumedBridge:
-    Awaited<ReturnType<typeof bridgedProofTerminal>> | undefined;
-  try {
-    await keepWorkingClient(fixture);
-    const stalePid = readCursorRunnerAddress(fixture.home)?.pid;
-    tamperRecordedProof(fixture);
-    heldBridge = await bridgedProofTerminal(fixture, fixture.cursor.sessionId);
-    await expect.poll(() => heldBridge?.output()).toContain("ctrl+c to stop");
-    expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(stalePid);
-    expect(fixture.cursor.attaches()).toHaveLength(1);
-    await heldBridge.close();
-    heldBridge = undefined;
-
-    const otherId = "7f1e8c2a-9b34-4d5e-8f70-1a2b3c4d5e6f";
-    resumedBridge = await bridgedProofTerminal(fixture, otherId);
-    await expect
-      .poll(() => readCursorRunnerAddress(fixture.home)?.buildId)
-      .toBe(computeRunnerBuildId());
-    expect(readCursorRunnerAddress(fixture.home)?.pid).not.toBe(stalePid);
-    await expect.poll(() => fixture.cursor.attaches().length).toBe(2);
-    expect(fixture.cursor.attaches().at(-1)?.sessionId).toBe(otherId);
-  } finally {
-    await heldBridge?.close().catch(() => undefined);
-    await resumedBridge?.close().catch(() => undefined);
-    await fixture.restore();
   }
 });

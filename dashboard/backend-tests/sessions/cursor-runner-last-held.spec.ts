@@ -1,7 +1,7 @@
 // Last-held session keys under the runner directory: keep publishes a
 // key, deliberate /hangup removes it, and killing the runner while
 // leaving its address does not clear keys for sessions it held.
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { hangupCursorClient } from "../../server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerLastHeld } from "../../server/hosts/cursor/runnerPaths.ts";
 import { sessionKey } from "../../src/sessionReference.ts";
@@ -22,7 +22,9 @@ test("keep publishes last-held keys; hangup removes one; kill-leaving-address re
     const firstKey = sessionKey({ host: "cursor", sessionId: firstId });
     const secondKey = sessionKey({ host: "cursor", sessionId: secondId });
     await expect
-      .poll(() => [...readCursorRunnerLastHeld(fixture.home)].sort())
+      .poll(() => [...readCursorRunnerLastHeld(fixture.home)].sort(), {
+        timeout: 5_000,
+      })
       .toEqual([firstKey, secondKey].sort());
 
     await hangupCursorClient(
@@ -30,7 +32,7 @@ test("keep publishes last-held keys; hangup removes one; kill-leaving-address re
       fixture.home,
     );
     await expect
-      .poll(() => readCursorRunnerLastHeld(fixture.home))
+      .poll(() => readCursorRunnerLastHeld(fixture.home), { timeout: 5_000 })
       .toEqual([secondKey]);
 
     await killCursorRunnerLeavingAddress(fixture.home);

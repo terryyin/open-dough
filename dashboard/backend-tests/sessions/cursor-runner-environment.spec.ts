@@ -9,7 +9,7 @@ import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import {
   execOnRunner,
   keepCursorClient,
@@ -64,7 +64,7 @@ test("a runner started with a deployment's start-up additions starts cursor-agen
   runner.stderr.resume();
   try {
     await expect
-      .poll(() => readCursorRunnerAddress(home)?.pid)
+      .poll(() => readCursorRunnerAddress(home)?.pid, { timeout: 5_000 })
       .toBe(runner.pid);
 
     const created = await execOnRunner(
@@ -100,7 +100,9 @@ test("a runner started with a deployment's start-up additions starts cursor-agen
       home,
     );
     expect(kept).toMatchObject({ kind: "kept" });
-    await expect.poll(() => cursor.attaches()).toHaveLength(1);
+    await expect
+      .poll(() => cursor.attaches(), { timeout: 5_000 })
+      .toHaveLength(1);
     expect(
       developerShellViolations(cursor.attaches()[0]?.env, fakeCursorHost),
     ).toEqual([]);
