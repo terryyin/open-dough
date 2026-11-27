@@ -8,6 +8,12 @@
       "blob": "d5af21b77a79b3cb24c8bfe1d84f90e557223308"
     },
     {
+      "fileName": "SEED-413_prove-cursor-runner-lifecycle-on-vitest.json",
+      "identity": "SEED-413#prove-cursor-runner-lifecycle-on-vitest",
+      "completedAt": "2026-11-27T04:20:40.010Z",
+      "blob": "27c968c7b8e2982a8b0f18706bd714557f4be9e1"
+    },
+    {
       "fileName": "SEED-413_prove-dashboard-configuration-and-serving-on-vitest.json",
       "identity": "SEED-413#prove-dashboard-configuration-and-serving-on-vitest",
       "completedAt": "2026-11-27T03:47:06.812Z",

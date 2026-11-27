@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Open the Board from the verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-the-board-from-the-verified-git-trunk) — SEED-430#open-the-board-from-the-verified-git-trunk ([plan](slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md))
-- [Prove Cursor runner lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-cursor-runner-lifecycle-on-vitest) — SEED-413#prove-cursor-runner-lifecycle-on-vitest ([plan](slice-plans/873-prove-cursor-runner-lifecycle-on-vitest/PLAN.md))
 - [Share the completion reporting arrangement in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#share-completion-reporting-arrangement) — SEED-413#share-completion-reporting-arrangement ([plan](slice-plans/875-share-completion-reporting-arrangement/PLAN.md))
 - [Open session changes in Intent and retire the Side panel review](seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review) — SEED-418#select-a-story-session-for-review ([plan](slice-plans/876-open-session-changes-in-intent/PLAN.md))
 
