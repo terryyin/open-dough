@@ -283,6 +283,15 @@ directed wait of 1 s reads "wait 1 seconds" in the boundary error.
 
 CI on `8263886d` met the plan 881 frontend closure again.
 
+## Execution complete
+
+Product advice: the campaign evidence supports continuing SEED-413 as
+queued. This story replaced 47 Chromium cases (about 80 s summed) with 49
+Node cases (13.5 s summed, 19.8 s wall) and kept the real CLI, HTTP and Git
+witnesses. Run plan 890 next without changing priorities. Treat the
+stale-show window after a project removal as a candidate bug story only
+after it is reproduced.
+
 ## Local gate and delivery
 
 - Apply [MakeMe](../../../.agents/skills/dough-makeme/SKILL.md) for selected
