@@ -215,6 +215,18 @@ CI on `c1b14609` met the frontend `VITEST_BROWSER_CONNECTION_CLOSED`
 closure, which [plan 881](../881-keep-full-frontend-runs-connected/PLAN.md)
 owns and is diagnosing; this branch changes no frontend path.
 
+CI repair (run 46007204594, `project-remove-selection.spec.ts`): after a
+removal, a stale read of the removed project could land after the selection
+cleared. Because fixtures publish every repository at one revision, the
+new project's read kept that snapshot and asked its details for the wrong
+project. `shownAtRevision` in `dashboard/src/publishedWork.ts` now requires
+the same project and revision for both the read and the observation, and
+`published-read-of-another-project.spec.ts` reproduces it. At integration,
+trunk's `snapshot.unrecorded && shown?.revision === revision` check in
+`publishedWorkRead.ts` needs the same `shownAtRevision` test, and its
+`sameRevision` block conflicts. Follow-up: the stale read can still show
+briefly before the new project's membership replaces it.
+
 ### 3. Share matching questions and report the cost of a turn
 
 Type: Behavior

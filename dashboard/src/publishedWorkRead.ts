@@ -3,7 +3,11 @@
 // (`./observationOutcomes.ts`) are recorded as each detail validates its
 // answer or projects a typed gap.
 
-import type { PublishedWork, PublishedWorkProgress } from "./publishedWork.ts";
+import {
+  shownAtRevision,
+  type PublishedWork,
+  type PublishedWorkProgress,
+} from "./publishedWork.ts";
 import { interpretPublishedBacklog } from "./publishedBacklog.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedObservationReadSource } from "./publishedObservationReadSource.ts";
@@ -70,13 +74,14 @@ export async function readPublishedWork(
       );
       const { revision, backlog: markdown, askedAt } = snapshot;
       outcomes.pinRevision(revision);
-      const sameRevision = shown !== undefined && shown.revision === revision;
+      const kept = shownAtRevision(shown, { source, revision });
+      const sameRevision = kept !== undefined;
       // Membership first, then preparation enrichment through the same
       // boundary's reachability-checked path reads at that revision. Same-
       // revision recovery keeps already shown facts instead of loading.
       const work: PublishedWork = sameRevision
         ? {
-            ...shown,
+            ...kept,
             retrievedAt: new Date(),
             ...(askedAt === undefined ? {} : { refAskedAt: askedAt }),
           }

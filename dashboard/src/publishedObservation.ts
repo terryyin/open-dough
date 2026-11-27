@@ -30,6 +30,7 @@ import { useTransientRecoverySchedule } from "./transientRecovery.ts";
 import { useObservationRecoveryWait } from "./observationRecoveryWait.ts";
 import { useSnapshotRetrieval } from "./snapshotRetrieval.ts";
 import { shownSnapshotOf } from "./startupReconciliation.ts";
+import { shownAtRevision } from "./publishedWork.ts";
 import { useObservationAttempt } from "./observationAttempt.ts";
 import { useObservedRevisionDelivery } from "./observedRevisionDelivery.ts";
 import {
@@ -115,8 +116,7 @@ export function usePublishedObservation(
           // recovery keeps shown facts while unanswered detail is asked again.
           const replacing =
             firstMembership &&
-            (shownWork.current === undefined ||
-              shownWork.current.revision !== next.revision);
+            shownAtRevision(shownWork.current, next) === undefined;
           show(next, replacing ? unlistedNotice(held, next) : undefined);
         },
         acceptMembership,
