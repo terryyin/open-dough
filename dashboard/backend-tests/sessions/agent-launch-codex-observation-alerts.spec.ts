@@ -1,180 +1,222 @@
-// Actual background polling and notifier boundary with recorded native answers.
-import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
-import { messages, notices } from "../../test-support/support/sessionAlerts.ts";
-import { notRefinedStory } from "../../test-support/launchJourney.ts";
-import { test, expect } from "../../test-support/support/codexLaunch.ts";
+// Native Codex readings drive the real alert loop and a typed notification sink.
+import { expect, onTestFinished, test, vi } from "vitest";
+import { withStates } from "../../server/launchStates.ts";
+import { machineFolder } from "../../server/localFolder.ts";
+import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import {
-  observationRecord as record,
-  saveObservations as save,
-  observed,
-  afterFurtherReads,
-  passive,
-} from "../../test-support/support/codexObservation.ts";
-// No page: the local boundaries alone answer these requests.
-test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
+  SessionAlerts,
+  type SessionAlertNotifier,
+} from "../../server/sessionAlerts.ts";
+import type { TerminalNotificationContent } from "../../server/terminalNotifier.ts";
+import type { LaunchRecord } from "../../src/agentLaunch.ts";
+import { expectPassiveCodexReads } from "../../test-support/support/codexPassiveProtocol.ts";
+import {
+  codexEndpoint,
+  type FakeCodexObservation,
+} from "../../test-support/support/fakeCodex.ts";
+import {
+  codexRecord,
+  privateHome,
+  startNativeCodexEndpoint,
+  story,
+} from "../support/codexObservationFixture.ts";
 
-// Alerts run without an open page: actual store/server polling and notifier boundary.
-test("native transition alerts unrecognized states once and stays quiet for incomplete reads", async ({
-  machine,
-  codexProtocol,
-  dashboard,
-}) => {
-  const native = codexProtocol;
-  if (native === undefined) throw new Error("Missing native fixture");
-  observed(native, "alert", { type: "notLoaded" }, "completed");
-  save(dashboard, [record(dashboard, native, "alert")]);
-  await dashboard.close();
-  const server = await startDashboardServer({
-    mode: "boundary",
-    machine,
-    projectFolders: ["open-dough"],
-    codexProtocol: native,
-    alertCheckMs: 50,
+const working: FakeCodexObservation = {
+  status: { type: "active", activeFlags: [] },
+  turns: [],
+};
+const waiting: FakeCodexObservation = {
+  status: { type: "active", activeFlags: ["waitingOnUserInput"] },
+  turns: [],
+};
+const completed: FakeCodexObservation = {
+  status: { type: "idle" },
+  turns: [{ id: "completed-turn", status: "completed" }],
+};
+const incomplete: FakeCodexObservation = {
+  ...completed,
+  status: { type: "active" },
+};
+const historyUnavailable: FakeCodexObservation = {
+  status: { type: "idle" },
+  turns: [],
+  historyError: { code: -32601, message: "History unavailable" },
+};
+
+const needsInput = "Needs input: Codex is waiting for your input";
+const unrecognized = "State not recognized";
+const readyForReview = "Ready for review";
+
+function observeAlerts(records: () => readonly LaunchRecord[]) {
+  vi.stubEnv("DOUGH_ALERT_CHECK_MS", "20");
+  let pollsStarted = 0;
+  const sent: TerminalNotificationContent[] = [];
+  const notifier: SessionAlertNotifier = {
+    probe: () => Promise.resolve(undefined),
+    send(content) {
+      sent.push(content);
+      return Promise.resolve(undefined);
+    },
+  };
+  const alerts = new SessionAlerts(
+    {
+      machineSessions() {
+        pollsStarted++;
+        return withStates(machineFolder(), records(), "recurring");
+      },
+    },
+    () => "http://127.0.0.1:49175",
+    notifier,
+  );
+  onTestFinished(() => {
+    alerts.close();
   });
-  const further = () => afterFurtherReads(native, "alert");
-  try {
-    await further();
-    expect(server.notifierCalls()).toEqual([]);
-    observed(native, "alert", { type: "active", activeFlags: [] });
-    await further();
-    observed(native, "alert", {
-      type: "active",
-      activeFlags: ["waitingOnUserInput"],
-    });
-    await expect.poll(() => server.notifierCalls().length).toBe(1);
-    expect(notices(server)).toEqual([
-      {
-        message: "Needs input: Codex is waiting for your input",
-        title: `Open Dough · ${notRefinedStory}`,
-        sound: "Glass",
-      },
-    ]);
-    await further();
-    expect(server.notifierCalls()).toHaveLength(1);
-    native.observations.set("alert", {
+  return {
+    sent,
+    messages: () => sent.map(({ message }) => message),
+    async further() {
+      // The loop never overlaps polls. Two more starts mean that at least
+      // one whole poll has finished since the test supplied a new reading.
+      const next = pollsStarted + 2;
+      await expect
+        .poll(() => pollsStarted, { interval: 5 })
+        .toBeGreaterThanOrEqual(next);
+    },
+  };
+}
+
+test("native transition alerts unrecognized states once and stays quiet for incomplete reads", async () => {
+  const native = await startNativeCodexEndpoint(privateHome());
+  onTestFinished(mountProjectConfiguration("production"));
+  const kept = codexRecord("alert", codexEndpoint(native));
+  const become = (observation: FakeCodexObservation) => {
+    native.observations.set(kept.session.sessionId, observation);
+  };
+  become({ ...completed, status: { type: "notLoaded" } });
+  const alerts = observeAlerts(() => [kept]);
+  await alerts.further();
+  expect(alerts.sent).toEqual([]);
+
+  become(working);
+  await alerts.further();
+  become(waiting);
+  await alerts.further();
+  expect(alerts.sent[0]).toMatchObject({
+    message: needsInput,
+    title: `Open Dough · ${story.title}`,
+  });
+  expect(alerts.messages()).toEqual([needsInput]);
+
+  become({
+    status: { type: "idle" },
+    turns: [],
+    metadataError: { code: -32600, message: "Native read refused" },
+  });
+  await alerts.further();
+  expect(alerts.messages()).toEqual([needsInput]);
+
+  const unexpected = [
+    { status: { type: "futureNativeStatus" }, turns: [] },
+    { status: { type: "active", activeFlags: ["futureFlag"] }, turns: [] },
+    {
       status: { type: "idle" },
-      turns: [],
-      metadataError: { code: -32600, message: "Native read refused" },
-    });
-    await further();
-    expect(server.notifierCalls()).toHaveLength(1);
-    const unexpected = [
-      [{ type: "futureNativeStatus" }, undefined],
-      [{ type: "active", activeFlags: ["futureFlag"] }, undefined],
-      [{ type: "idle" }, "futureTurnStatus"],
-    ] as const;
-    for (const [index, [status, turn]] of unexpected.entries()) {
-      observed(native, "alert", status, turn);
-      await expect.poll(() => server.notifierCalls().length).toBe(index + 2);
-      expect(messages(server).at(-1)).toBe("State not recognized");
-      await further();
-      expect(server.notifierCalls()).toHaveLength(index + 2);
-      observed(native, "alert", { type: "active", activeFlags: [] });
-      await further();
-    }
-    // Re-entering the same reading after working alerts again.
-    observed(native, "alert", { type: "idle" }, "futureTurnStatus");
-    await expect.poll(() => server.notifierCalls().length).toBe(5);
-    observed(native, "alert", { type: "active" });
-    await further();
-    expect(server.notifierCalls()).toHaveLength(5);
-    native.observations.set("alert", {
-      status: { type: "idle" },
-      turns: [],
-      historyError: {
-        code: -32601,
-        message: "list_turns is not supported yet",
-      },
-    });
-    await further();
-    expect(server.notifierCalls()).toHaveLength(5);
-    observed(native, "alert", { type: "idle" }, "completed");
-    await expect.poll(() => server.notifierCalls().length).toBe(6);
-    await further();
-    expect(messages(server).at(-1)).toBe("Ready for review");
-    passive(native.calls);
-  } finally {
-    await server.close();
+      turns: [{ id: "future-turn", status: "futureTurnStatus" }],
+    },
+  ] satisfies FakeCodexObservation[];
+  const expected = [needsInput];
+  for (const observation of unexpected) {
+    become(observation);
+    await alerts.further();
+    expected.push(unrecognized);
+    expect(alerts.messages()).toEqual(expected);
+    await alerts.further();
+    expect(alerts.messages()).toEqual(expected);
+    become(working);
+    await alerts.further();
   }
+
+  become({
+    status: { type: "idle" },
+    turns: [{ id: "future-turn", status: "futureTurnStatus" }],
+  });
+  await alerts.further();
+  expected.push(unrecognized);
+  expect(alerts.messages()).toEqual(expected);
+
+  for (const gap of [incomplete, historyUnavailable]) {
+    become(gap);
+    await alerts.further();
+    expect(alerts.messages()).toEqual(expected);
+  }
+
+  become(completed);
+  await alerts.further();
+  expect(alerts.messages()).toEqual([...expected, readyForReview]);
+  expectPassiveCodexReads(native.calls, expect);
 });
 
-test("review baselines and notifications survive failed, incomplete and omitted observations until confirmed activity changes", async ({
-  machine,
-  codexProtocol: native,
-  dashboard,
-}) => {
-  if (native === undefined) throw new Error("Missing native fixture");
-  observed(native, "review", { type: "idle" }, "completed");
-  observed(native, "sentinel", { type: "active", activeFlags: [] });
-  const reviewed = record(dashboard, native, "review");
-  const sentinel = record(dashboard, native, "sentinel");
-  save(dashboard, [reviewed, sentinel]);
-  await dashboard.close();
-  const server = await startDashboardServer({
-    mode: "boundary",
-    machine,
-    projectFolders: ["open-dough"],
-    codexProtocol: native,
-    alertCheckMs: 50,
-  });
-  const further = () => afterFurtherReads(native, "sentinel");
-  const reviews = () =>
-    messages(server).filter((message) => message === "Ready for review");
-  try {
-    await further();
-    expect(reviews()).toHaveLength(0);
-    for (const expected of [0, 1]) {
-      for (const gap of [
-        "failed",
-        "incomplete",
-        "history",
-        "omitted",
-      ] as const) {
-        if (gap === "failed")
-          // Each gap keeps the completed turn real history retains, so a
-          // swap landing between one read's status and turns calls cannot
-          // fabricate a session that never finished a turn.
-          native.observations.set("review", {
-            status: { type: "idle" },
-            turns: [{ id: "review-turn", status: "completed" }],
-            metadataError: {
-              code: -32001,
-              message: "Server overloaded; retry later.",
-            },
-          });
-        if (gap === "incomplete")
-          observed(native, "review", { type: "active" }, "completed");
-        if (gap === "history")
-          native.observations.set("review", {
-            status: { type: "idle" },
-            turns: [],
-            historyError: { code: -32601, message: "History unavailable" },
-          });
-        if (gap === "omitted") save(server, [sentinel]);
-        await further();
-        observed(native, "review", { type: "idle" }, "completed");
-        save(server, [reviewed, sentinel]);
-        await further();
-        expect(reviews(), `gap ${gap}, round ${expected}`).toHaveLength(
-          expected,
-        );
-      }
-      if (expected === 0) {
-        observed(native, "review", { type: "active", activeFlags: [] });
-        await further();
-        observed(native, "review", { type: "idle" }, "completed");
-        await expect.poll(() => reviews().length).toBe(1);
-      }
+test("review baselines and notifications survive failed, incomplete and omitted observations until confirmed activity changes", async () => {
+  const native = await startNativeCodexEndpoint(privateHome());
+  onTestFinished(mountProjectConfiguration("production"));
+  const endpoint = codexEndpoint(native);
+  const reviewed = codexRecord("review", endpoint);
+  const sentinel = codexRecord("sentinel", endpoint);
+  const listed = [reviewed, sentinel];
+  let kept = listed;
+  const become = (observation: FakeCodexObservation) => {
+    native.observations.set(reviewed.session.sessionId, observation);
+  };
+  become(completed);
+  native.observations.set(sentinel.session.sessionId, working);
+  const alerts = observeAlerts(() => kept);
+  await alerts.further();
+  expect(alerts.messages()).toEqual([]);
+
+  const gaps = [
+    [
+      "metadata refusal",
+      {
+        ...completed,
+        metadataError: {
+          code: -32001,
+          message: "Server overloaded; retry later.",
+        },
+      },
+    ],
+    ["incomplete status", incomplete],
+    ["unreadable history", historyUnavailable],
+    ["omitted record", undefined],
+  ] satisfies [string, FakeCodexObservation | undefined][];
+
+  async function staysQuietAcrossGaps(prior: readonly string[]) {
+    for (const [gap, observation] of gaps) {
+      if (observation === undefined) kept = [sentinel];
+      else become(observation);
+      await alerts.further();
+
+      become(completed);
+      kept = listed;
+      await alerts.further();
+      expect(alerts.messages(), gap).toEqual(prior);
     }
-    observed(native, "review", {
-      type: "active",
-      activeFlags: ["waitingOnUserInput"],
-    });
-    await further();
-    observed(native, "review", { type: "idle" }, "completed");
-    await expect.poll(() => reviews().length).toBe(2);
-    passive(native.calls);
-  } finally {
-    await server.close();
   }
+
+  await staysQuietAcrossGaps([]);
+  become(working);
+  await alerts.further();
+  become(completed);
+  await alerts.further();
+  expect(alerts.messages()).toEqual([readyForReview]);
+
+  await staysQuietAcrossGaps([readyForReview]);
+  become(waiting);
+  await alerts.further();
+  become(completed);
+  await alerts.further();
+  expect(alerts.messages()).toEqual([
+    readyForReview,
+    needsInput,
+    readyForReview,
+  ]);
+  expectPassiveCodexReads(native.calls, expect);
 });

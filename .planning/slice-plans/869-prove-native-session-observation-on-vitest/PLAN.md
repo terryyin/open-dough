@@ -181,7 +181,7 @@ accepted proof.
 ### 3. Prove Codex native-transition alerts and review gap continuity on Node Vitest
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–12 active minutes.
 
 Proof: Convert `agent-launch-codex-observation-alerts.spec.ts` (2 cases) to
@@ -199,6 +199,12 @@ subprocess):
 - Review baselines and notifications survive `metadataError`, incomplete
   `active`, `historyError`, and omitted-record gaps until confirmed `active []`
   or `waitingOnUserInput` re-arms review.
+
+Accepted proof: both Node cases passed with no retries or Playwright
+selections (`slice3-backend.json` in Git evidence), and Dashboard typecheck
+passed. The retained `session-alerts` E2E journey owns the unchanged
+platform notifier's `Glass` sound argument. The direct tests cover the
+six ordered alerts and the silent baseline and gap transitions.
 
 ### 4. Prove Cursor session observation and alerts on Node Vitest
 
