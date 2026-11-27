@@ -1,10 +1,5 @@
-// Done catalog and done record reads the local authenticated read boundary
-// (../../server/doneCatalogRead.ts) refuses, fails, or ends: a read naming
-// anything but a pinned revision and record file names is refused before any
-// `gh` call; a failing record read names that record; and a record read its
-// request leaves is ended, to be asked again later. Tested directly against
-// real HTTP and a synthetic `gh` answering from the fake GitHub, observing the
-// `gh` calls that reach it (../../test-support/support/doneCatalogReads.ts).
+// A failing record read names its path and a departed reader releases its
+// request, observed through real HTTP and a controlled upstream process.
 
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
@@ -29,17 +24,9 @@ import {
   identityOf,
   pathOf,
   publishedDone,
-  revisionOf,
 } from "../../test-support/support/doneCatalogReads.ts";
-import { doneCatalogFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-catalog.mjs";
 
 test.describe.configure({ mode: "serial" });
-
-const bodiesRefusal =
-  "A done record read names only a pinned revision and the catalogued record files.";
-const catalogRefusal = "A done catalog read names only a pinned revision.";
-const doneRefusal =
-  "A done read names the done catalog or the catalogued record files.";
 
 test.describe("authenticated done catalog refusal (development environment)", () => {
   let server: DashboardServer;
@@ -55,69 +42,7 @@ test.describe("authenticated done catalog refusal (development environment)", ()
     await server.close();
   });
 
-  const { readAt, catalogAt, bodiesAt, contentAsked } = doneCatalogReads(
-    () => server,
-  );
-
-  // A done record read names only a pinned revision and record file names:
-  // refused before any `gh` call otherwise.
-  for (const { read, query, error, revision } of [
-    {
-      read: "naming a path",
-      query: `done=bodies&file=SEED-001_x.json&path=${encodeURIComponent(".planning/secrets.json")}`,
-      error: bodiesRefusal,
-    },
-    {
-      read: "naming a file that is no record",
-      query: `done=bodies&file=${encodeURIComponent("../secrets.json")}`,
-      error: bodiesRefusal,
-    },
-    {
-      read: "naming the catalog as a record",
-      query: `done=bodies&file=${encodeURIComponent(doneCatalogFileName)}`,
-      error: bodiesRefusal,
-    },
-    { read: "naming no record", query: "done=bodies", error: bodiesRefusal },
-    {
-      read: "naming too many records",
-      query: `done=bodies${[...Array(101).keys()].map((index) => `&file=SEED-${String(index)}_x.json`).join("")}`,
-      error: "A done record read names too many records.",
-    },
-    {
-      read: "of the catalog naming a record",
-      query: "done=catalog&file=SEED-001_x.json",
-      error: catalogRefusal,
-    },
-    {
-      read: "of the catalog with an agent profile read",
-      query: "done=catalog&agents=profiles",
-      error: catalogRefusal,
-    },
-    {
-      read: "of every record at once",
-      query: "done=records",
-      error: doneRefusal,
-    },
-    {
-      read: "of another kind naming a record",
-      query: "done=records&file=SEED-001_x.json",
-      error: doneRefusal,
-    },
-    {
-      read: "of the catalog at a revision that is not a commit sha",
-      query: "done=catalog",
-      error: "The pinned revision is not a commit sha.",
-      revision: "main",
-    },
-  ]) {
-    test(`refuses a done read ${read} before launching gh`, async () => {
-      const before = server.ghCalls().length;
-      const response = await readAt(revision ?? revisionOf("9b"), query);
-      expect(response.status).toBe(400);
-      expect(answerOf(response)).toMatchObject({ error });
-      expect(server.ghCalls()).toHaveLength(before);
-    });
-  }
+  const { catalogAt, bodiesAt, contentAsked } = doneCatalogReads(() => server);
 
   test("a failing record read names that record", async () => {
     const files = publishedDone({ doneRecords: doneRecords("failing", 3) });

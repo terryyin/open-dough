@@ -3,7 +3,7 @@
 // (../../server/doneCatalogRead.ts) reads them at a pinned revision: the catalog
 // is answered without reading a record, and only records that catalog lists
 // are read, each only when named and once per blob, at the revision and in
-// the project named. Gaps are in ./authenticated-read-done-catalog-gaps.spec.ts,
+// the project named. Catalog agreement is in ./authenticated-read-done-catalog-gaps.spec.ts,
 // refused, failing, and abandoned reads in
 // ./authenticated-read-done-catalog-refusal.spec.ts. Tested directly against
 // real HTTP and a synthetic `gh` answering from the fake GitHub, observing the
@@ -31,7 +31,6 @@ import {
   identityOf,
   pathOf,
   publishedDone,
-  revisionOf,
 } from "../../test-support/support/doneCatalogReads.ts";
 import { parseDoneRecordFile } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 
@@ -176,25 +175,6 @@ test.describe("authenticated done catalog read (development environment)", () =>
       ],
     });
     expect(contentAsked(before)).toEqual([]);
-  });
-
-  test("another project at the same revision is answered from its own catalog", async () => {
-    const revision = revisionOf("d4");
-    const ours = publishedDone({ doneRecords: doneRecords("ours", 2) });
-    const theirs = publishedDone({ doneRecords: doneRecords("theirs", 3) });
-    server.github.serve(everyRepository, publishes({ revision, files: ours }));
-    server.github.serve(
-      "nerds-odd-e/doughnut",
-      publishes({ revision, files: theirs }),
-    );
-    expect(answerOf(await catalogAt(revision))).toEqual({
-      revision,
-      catalog: ours[catalogPath],
-    });
-    expect(answerOf(await catalogAt(revision, "doughnut"))).toEqual({
-      revision,
-      catalog: theirs[catalogPath],
-    });
   });
 
   test("a record file the catalog could not read is listed by name and read as published", async () => {

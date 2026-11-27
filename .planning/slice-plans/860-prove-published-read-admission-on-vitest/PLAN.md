@@ -31,6 +31,14 @@ was quiescent when this ownership was confirmed and resumed in place.
 No duplicate repair publication was needed. The CI diagnostic and job log
 are retained under `ci-45982087565-*` in the checkout's Git proof directory.
 
+Slice 4's CI Codex action failure was reproduced and repaired in
+`abda7d2725059e5c18c61a9c7cdc0482dedd0fd9`. The
+[diagnosis](diagnosis-codex-launch-done-action.md) records the failed
+keypress during protected startup and the held-read before and after
+checks. Slice 5's six paths were restored after repair publication.
+The repair changes only a separate browser journey, so the focused
+catalog, Board and Review evidence still applies.
+
 ## Goal and scope
 
 Give Board and Review maintainers fast, direct proof of what an admitted
@@ -352,7 +360,7 @@ or fixture API, and the inspected implementation has no refactor candidate.
 ### 5. Distinguish an empty Done catalog from missing or inconsistent evidence
 
 Type: Behavior
-Status: planned
+Status: done
 
 A Done catalog at a source's pin describes exactly the listed filenames
 and blobs. No Done files yields an empty catalog. Missing, malformed, stale
@@ -367,6 +375,37 @@ shared Done catalog builder and agreement code. Preserve
 cases in `authenticated-read-done-catalog.spec.ts` (4 across slices 5–6),
 the Done-only request-shape rows in `authenticated-read-done-catalog-refusal.spec.ts`
 (12 across slices 5–6), and the catalog rows in `authenticated-read-refusal.spec.ts`.
+
+Accepted proof. [authenticated-read-done-catalog-gaps.spec.ts](../../../dashboard/backend-tests/observation/authenticated-read-done-catalog-gaps.spec.ts)
+drives the production parser and pinned memo with published listings and
+the shared Done catalog format. A missing directory and a stale catalog
+with no records each yield the exact empty catalog. Five gap variants
+assert their exact gap, refusal and no body fetch. An absent name, alone
+or beside a listed name, is refused before reading it. The agreed catalog
+keeps newest-first order and unreadable membership at the published blob
+without a raw body call. Independent projects at one SHA get their own
+catalogs. [authenticated-read-done-catalog-request.spec.ts](../../../dashboard/backend-tests/observation/authenticated-read-done-catalog-request.spec.ts)
+covers eleven parser outcomes, including two pairs of equivalent legacy
+rows. The replacements passed before case removal. The linked catalog
+location still owns the three mixed body journeys until slice 6.
+
+```sh
+caffeinate -s -i npm run test:dashboard:backend -- \
+  'observation/authenticated-read-(done-catalog(-[a-z]+)?|refusal|branch-request)\.spec\.ts$' --workers=1
+caffeinate -s -i npm run typecheck:dashboard
+caffeinate -s -i npm run test:e2e -- \
+  stories/recently-done-stories.spec.ts review/story-review-follow-up.spec.ts \
+  -g 'Recently done lists published Done stories|missing and malformed Done records|a Done story follows up its selected landed comparison' --workers=1
+```
+
+The focused 38 cases passed in 9.20 s (30 Node and eight Chromium retained
+for slice 6). The 21 replacement cases summed to 19.53 ms, maximum 3.99 ms.
+Typecheck and the ten affected catalog cases passed after narrowing a
+fixture lookup to its observed value. The three Board and Review E2E cases
+passed in 13.75 s. They check visible Done membership, gaps, and the
+selected retained comparison in follow-up. See `s5-return.md`,
+`s5-final-consumer-trace.md` and the retained runner records. The affected
+subject specs and their shared scenario rows introduce no refactor candidate.
 
 ### 6. Read listed bodies once and release a departed reader
 

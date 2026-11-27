@@ -1,4 +1,4 @@
-// Listed-record and Done catalog parameter refusals over HTTP.
+// Listed profile record parameter refusals over HTTP.
 
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
@@ -53,9 +53,7 @@ test.describe("authenticated read boundary refusal (development environment)", (
     expect(server.ghCalls()).toHaveLength(callsBefore);
   }
 
-  // A listed records read, or a done catalog read, names only the pinned
-  // revision: never another path, never with a revision check or the other
-  // listed read, and never a branch name it would resolve itself.
+  // A profile read names only the pinned revision.
   for (const {
     listed,
     named,

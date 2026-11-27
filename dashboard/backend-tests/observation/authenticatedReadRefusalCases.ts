@@ -16,17 +16,6 @@ export const listedReadRefusals = [
     },
     unpinnedRevision: "The pinned revision is not a commit sha.",
   },
-  {
-    listed: "a done catalog read",
-    named: "done=catalog",
-    onlyPinned: "A done catalog read names only a pinned revision.",
-    path: ".planning/done/SEED-001_x.json",
-    combined: {
-      read: "combined with an agent profile read",
-      query: `revision=${revision}&agents=profiles`,
-    },
-    unpinnedRevision: "The pinned revision is not a commit sha.",
-  },
 ] as const;
 
 export const branchReadRefusals = [
