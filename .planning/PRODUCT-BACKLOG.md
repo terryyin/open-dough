@@ -38,7 +38,6 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
-- [Announce the chosen value of a compact dropdown](seeds/SEED-418-review-published-session-changes.md#announce-compact-dropdown-choice) — SEED-418#announce-compact-dropdown-choice
 - [Show the selected ad hoc session on Intent Home](seeds/SEED-418-review-published-session-changes.md#show-selected-session-in-review-home) — SEED-418#show-selected-session-in-review-home
 - [Follow published progress and read Board records from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git

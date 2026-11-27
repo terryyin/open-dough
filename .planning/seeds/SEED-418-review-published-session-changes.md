@@ -40,37 +40,16 @@ kept across a refresh; the story's session list lives in Follow up's module; and
 test support and one E2E case are left over or redundant.
 [Plan](../slice-plans/883-keep-session-review-proof-after-retirement/PLAN.md).
 
-<a id="announce-compact-dropdown-choice"></a>
-
-### Announce the chosen value of a compact dropdown
-
-**Identity:** SEED-418#announce-compact-dropdown-choice
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/884-announce-compact-dropdown-choice/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"956705ef6fcb815d444b247b8cc13cf32aa87b704c10ccefcee932fe4b276a9f","plan":"55fe7ade46a8e68cf3f43497e740b802ac460be91a559e6071b64770110f6728"}}
-```
-
-**Goal.** A developer using a screen reader hears what a closed compact
-dropdown currently holds — the chosen project in **Project**, and the
-chosen scope, including its ad hoc identity, in Intent's **Review scope** —
-not only the control's name.
-
-**Scope.** Correct what the retrospective of SEED-418#review-scope-dropdown
-(Choose review scope from a compact dropdown) found: the shared compact dropdown names its closed control only by its
-label, so its chosen value and the ad hoc icon's name go unannounced. Expose
-the chosen value through the select-only combobox pattern for both
-dropdowns, keeping their behavior and layout.
-[Plan](../slice-plans/884-announce-compact-dropdown-choice/PLAN.md).
-
 <a id="show-selected-session-in-review-home"></a>
 
 ### Show the selected ad hoc session on Intent Home
 
 **Identity:** SEED-418#show-selected-session-in-review-home
 ```json dough-story-dependencies
-{"schemaVersion":1,"identity":"SEED-418#show-selected-session-in-review-home","dependencies":[{"supplier":{"identity":"SEED-418#select-a-story-session-for-review","href":"seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review"},"implementation":"Single-session review scope in Intent","rationale":"Intent currently selects a story only. This story adds information about a session already selected in Intent. It needs the supplier's session selection, including the Whole story reset and a selection that survives returning Home.","condition":"Intent can select an individually identifiable retained or published story session, keep that scope on Home, and return to Whole story.","state":"waiting","resolution":{"revision":"d60293a1adee86582e595aa450738616b4954f38","path":".planning/seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review","summary":"Still waiting. Delivered: Intent selects an individually identifiable retained or published session and returns to Whole story (intent-story-compare-sessions.spec.ts, intent-session-review-opening.spec.ts). Not verified: no observation shows the chosen scope kept when the reviewer goes to the story's Intent Home and back. Next action: observe that the session scope survives Home (supplier gap), or move that clause into this story's scope when it is prepared; SEED-418#keep-session-review-proof-after-retirement also changes when a session scope resets on reselection.\nCondition remains unresolved: Intent can select an individually identifiable retained or published story session, keep that scope on Home, and return to Whole story.\nAccepted integration: 01894a4f377ddc94c51a171b6c23cd652eac0e9d on origin/refs/heads/main."}}]}
+{"schemaVersion":1,"identity":"SEED-418#show-selected-session-in-review-home","dependencies":[{"supplier":{"identity":"SEED-418#select-a-story-session-for-review","href":"seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review"},"implementation":"Single-session review scope in Intent","rationale":"Intent currently selects a story only. This story adds information about a session already selected in Intent. It needs the supplier's session selection, including the Whole story reset.","condition":"Intent can select an individually identifiable retained or published story session and return to Whole story.","state":"satisfied","resolution":{"revision":"d60293a1adee86582e595aa450738616b4954f38","path":".planning/seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review","summary":"Still waiting. Delivered: Intent selects an individually identifiable retained or published session and returns to Whole story (intent-story-compare-sessions.spec.ts, intent-session-review-opening.spec.ts). Not verified: no observation shows the chosen scope kept when the reviewer goes to the story's Intent Home and back. Next action: observe that the session scope survives Home (supplier gap), or move that clause into this story's scope when it is prepared; SEED-418#keep-session-review-proof-after-retirement also changes when a session scope resets on reselection.\nCondition remains unresolved: Intent can select an individually identifiable retained or published story session, keep that scope on Home, and return to Whole story.\nAccepted integration: 01894a4f377ddc94c51a171b6c23cd652eac0e9d on origin/refs/heads/main.\nAgreement correction using d60293a1adee86582e595aa450738616b4954f38:.planning/seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review:\nSatisfied after correcting the agreement. Delivered: Intent selects an individually identifiable retained or published session and returns to Whole story (intent-story-compare-sessions.spec.ts, intent-session-review-opening.spec.ts); trunk since adds the compact Review scope dropdown naming ad hoc sessions by title (intent-session-scope-titles.spec.ts). Removed clause: keeping the chosen scope when the reviewer returns to the story's Intent Home is consumer work. This story's scope already promises 'Returning to Home from a file shows the details for the scope still selected', and plan 877 slice 1 proves it ('Home keeps the chosen scope across file reading').\nCondition satisfied: Intent can select an individually identifiable retained or published story session and return to Whole story.\nAccepted integration: 01894a4f377ddc94c51a171b6c23cd652eac0e9d on origin/refs/heads/main."}}]}
 ```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/877-show-selected-ad-hoc-session-on-intent-home/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ef0513b03d3fde6a1ed55d2c94b7413091a5102dc9ccb1c3b4c16588226f5e8f","plan":"413260afe0c544ccea7d402abd6a56de5cac0d7967bf88f37b8c85bd598d824b"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/877-show-selected-ad-hoc-session-on-intent-home/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"77b729aa19c7148727378c27bed2314795f6abbbb96b75e121c9173f9605f984","plan":"a1db225e676a9d4ad0d2044e2a84631b06a3dc0b4245b242a7de5cd1f6f57e39"}}
 ```
 
 **Goal.** A developer reviewing an ad hoc contribution can identify the

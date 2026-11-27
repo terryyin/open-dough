@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "sessionId": "a9b52db0-40ef-4189-9943-01fe1085351f",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-27T12:10:21.368Z",
+  "story": "SEED-418#announce-compact-dropdown-choice",
+  "ranges": [
+    {
+      "base": "69936bd361c21c03ca8b1055525925626d2b0ae8",
+      "candidate": "21266bd5346505ca58b8c51056302396492ff91b"
+    },
+    {
+      "base": "21266bd5346505ca58b8c51056302396492ff91b",
+      "candidate": "03468232bcacc57b15a4ea1302878801002a8bac"
+    },
+    {
+      "base": "03468232bcacc57b15a4ea1302878801002a8bac",
+      "candidate": "efa259f322d2e2a5aa61db8a0cb8ca6bc3905b97"
+    }
+  ]
+}

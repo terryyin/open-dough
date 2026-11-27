@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-418#announce-compact-dropdown-choice",
+  "title": "Announce the chosen value of a compact dropdown",
+  "completedAt": "2026-11-27T11:59:17.278Z",
+  "developer": "Terry Yin",
+  "agent": "Mihiro-chan",
+  "host": "claude"
+}

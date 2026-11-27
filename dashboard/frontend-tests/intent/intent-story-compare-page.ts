@@ -40,9 +40,12 @@ export function intentStoryCompare() {
     exact: true,
   });
   const compare = header.getByRole("group", { name: "Compare" });
-  // The review scope dropdown: its closed button names the chosen scope, and
-  // its open list offers Whole story and each session.
-  const scope = compare.getByRole("button", { name: "Review scope" });
+  // The review scope dropdown: its closed combobox announces the chosen
+  // scope, and its open list offers Whole story and each session.
+  const scope = compare.getByRole("combobox", {
+    name: "Review scope",
+    exact: true,
+  });
   const scopeList = compare.getByRole("listbox", { name: "Review scope" });
   const scopeOption = (name: string) =>
     scopeList.getByRole("option", { name, exact: true });
