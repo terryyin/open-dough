@@ -1,5 +1,5 @@
 // What the page's one Side panel shows (`./pageSidePanel.ts`): a session's
-// terminal, final report or comparison, and the story it shows.
+// terminal or final report, and the story it shows.
 import {
   launchSubject,
   type LaunchRecord,
@@ -8,26 +8,23 @@ import {
 import type { SessionAccess } from "./sessionAccess.ts";
 import { sessionKey } from "./sessionReference.ts";
 import type { SessionRequest } from "./pageSessions.ts";
-import type { SessionReviewRequest } from "./pageSessionReviews.ts";
 import type { SelectedStory } from "./pageStorySelection.tsx";
 
 // What the panel shows, and whether it takes the page column's room too.
 // Maximization belongs to the shown content, so new content starts split.
-export type SidePanel = (
-  | { readonly kind: SessionAccess; readonly request: SessionRequest }
-  | { readonly kind: "session-review"; readonly request: SessionReviewRequest }
-) & { readonly maximized?: boolean };
+export type SidePanel = {
+  readonly kind: SessionAccess;
+  readonly request: SessionRequest;
+  readonly maximized?: boolean;
+};
 export type Shown = SidePanel["request"];
 
 export const shownSessionOf = (sidePanel: SidePanel | undefined) =>
-  sidePanel === undefined || sidePanel.kind === "session-review"
-    ? undefined
-    : sidePanel.request;
+  sidePanel?.request;
 
 // The story the shown content belongs to; none for a session attached to no
 // story.
 export function shownStory(shown: Shown): SelectedStory | undefined {
-  if (!("record" in shown)) return shown.story;
   const { request } = shown.record;
   const identity = launchSubject(request).identity;
   return identity === undefined

@@ -164,9 +164,14 @@ Read at `0bff20a80`.
   read. `IntentReviewFiles.expectChangedFile` checks one file, even inside a
   collapsed folder, and waits for the chosen range. Refactor pass skipped:
   narrow helper reusing the existing check plus its one spec step.
-- Slice 7's shared-code audit decides the name of `followUpSessions.ts` and
-  `FollowUpSession`, which now hold a story's sessions in general (a rename
-  reaches `dashboard/server/followUpStory.ts`, `followUpAdmission.ts`).
+- Slice 7 kept the `followUpSessions.ts`/`FollowUpSession` names: they
+  have been broad since slice 1, and a rename reaches the server's Follow up
+  admission and about 25 files across subsystems. Its audit removed the
+  Side-panel-only options (`overPage`, divider `side`, toggle `icon`,
+  `headingId`) and callerless helpers. The E2E review family ran before the
+  refactor (`s7-e2e-b`, two load timeouts that passed alone in `s7-e2e-c`);
+  the refactor's runtime change is `ResizeDivider`'s arithmetic, proved by
+  the divider frontend specs (`r7-fe`).
 
 ## Decisive premises
 
@@ -278,7 +283,7 @@ Intent destination and the terminal and report steps kept.
 
 ### 7. Remove the retired Side panel review and its dual-UI options
 Type: Structure
-Status: planned
+Status: done
 
 Change: Delete the Side-panel-only code, styles, specs and page objects
 listed under Current findings, the `session-review` panel kind and its
@@ -345,6 +350,11 @@ Disposition: proved by slice 4: `e2e/intent/intent-published-range-source.spec.t
 Reported: slice 6 — "11 frontend cases now fail in specs that are not on slice 6's deletion list."
 Story clause: "The Side panel's terminal and final report stay as they are."
 Disposition: proved by slice 6: `dashboard/frontend-tests/navigation/side-panel-width*.spec.ts` and `board-scroll-side-panel.spec.ts` observe the frame on a running terminal (`s6-fe.log`); `e2e/navigation/side-panel-content-switching.spec.ts` and `side-panel-content-replacement.spec.ts` observe the terminal and final report still opening in the Side panel beside Intent (`s5-e2e-c.proof.json`); specs whose only subject was the Side panel review are deleted.
+
+### G6. Diff file-type hint at the comparison's revision loses its only spec
+Reported: slice 7 — "the deleted `story-review-diff-syntax-hint-reads` spec was the only check on a review diff reading its file-type hint from the project's Intent settings at the comparison's revision."
+Story clause: "Prove the session behavior that the removed specs covered through Intent instead"
+Disposition: proved by slice 7: `dashboard/frontend-tests/intent/intent-story-diff-syntax-hint.spec.ts` opens Intent on a story adding `scripts/setup.test` with a shell Intent location and observes shell styling read at the comparison's head revision (red-checked in `s7-g6-red.log`).
 
 ## Plan review
 

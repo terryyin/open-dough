@@ -54,7 +54,7 @@ export function FileDiff({
   readonly file: ReviewedFile;
   // Intent `syntax` hint when the path names no grammar (`./diffLineTokens.ts`).
   readonly syntaxHint?: string;
-  readonly readingArea?: RefObject<HTMLElement | null>;
+  readonly readingArea: RefObject<HTMLElement | null>;
 }) {
   const note = useDiffStoryNote(reviewed, from, tree, file);
   const query = reviewFileQuery(reviewed, from, tree, file);
@@ -100,7 +100,7 @@ export function FileDiff({
           {...(text === undefined ? {} : { text })}
           {...(syntaxHint === undefined ? {} : { syntaxHint })}
           {...(textProblem === undefined ? {} : { textProblem })}
-          {...(readingArea === undefined ? {} : { readingArea })}
+          readingArea={readingArea}
           contextReading={textRead.reading}
           onRetryText={() => {
             setTextRound((round) => round + 1);

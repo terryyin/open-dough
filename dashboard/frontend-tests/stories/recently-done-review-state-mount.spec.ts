@@ -35,7 +35,7 @@ type Card = ReturnType<typeof reviewCard>;
 
 const sidePanel = () =>
   page.getByRole("region", {
-    name: /^(Terminal|Final report|Story review|Session review)$/,
+    name: /^(Terminal|Final report)$/,
   });
 
 test("Mark as reviewed, Cancel and Escape keep the card, its order, count and selection, and announce once", async () => {

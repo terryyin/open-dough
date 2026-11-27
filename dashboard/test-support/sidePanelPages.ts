@@ -4,9 +4,8 @@
 // ../../e2e/navigation/side-panel-content-switching.spec.ts); and the phases those
 // journeys run them in, each with its own page-object set. The set is built
 // here, the one module that knows every class: the Board and its Story cards
-// (./storyCardPages.ts), the Side panel (./sidePanelFramePages.ts), its Story
-// review (./storyReviewPages.ts) and Final report (./finalReportPages.ts)
-// contents, and the Terminal and Sessions sidebar (./terminalPages.ts). Each
+// (./storyCardPages.ts), the Side panel (./sidePanelFramePages.ts), its Final
+// report (./finalReportPages.ts) content, and the Terminal and Sessions sidebar (./terminalPages.ts). Each
 // object shares the base (./fluentPageObject.ts) and hands off through the
 // set. Each method writes one named cue on the phase's cue sheet
 // (./support/cueSheet.ts) and returns the page object the reader is then at;
@@ -35,9 +34,6 @@ import { type CueSheet, phase } from "./support/cueSheet.ts";
 import { expect } from "./support/preparationPage.ts";
 import { sidePanelContents } from "./support/sidePanelContents.ts";
 import { Board } from "./storyCardPages.ts";
-import { StoryReview } from "./storyReviewPages.ts";
-import { SessionRunSwitch } from "./sessionRunSwitchPages.ts";
-import { ReviewToolbar } from "./reviewToolbarPages.ts";
 import { SessionsSidebar, Terminal } from "./terminalPages.ts";
 
 type Perspective = "Development" | "Intent";
@@ -143,9 +139,6 @@ export class SidePanelPages {
   readonly perspective = new PerspectiveChoice(this);
   readonly intent = new Intent(this);
   readonly sidePanel = new SidePanel(this);
-  readonly storyReview = new StoryReview(this);
-  readonly sessionRuns = new SessionRunSwitch(this);
-  readonly reviewToolbar = new ReviewToolbar(this);
   readonly finalReport = new FinalReport(this);
   readonly terminal = new Terminal(this);
   readonly sessionsSidebar = new SessionsSidebar(this);

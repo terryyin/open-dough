@@ -1,7 +1,7 @@
 // The page frame: the Sessions sidebar, the page column and one side panel,
 // kept above project selection together with the page's story selection,
-// Intent mode and reading place. The panel shows a session's terminal,
-// final report, or review (`./pageSidePanel.ts`, which also
+// Intent mode and reading place. The panel shows a session's terminal
+// or final report (`./pageSidePanel.ts`, which also
 // sets the selected story; width by `./sidePanelWidth.ts`). Sidebar
 // navigation reveals the chosen project or story without remounting the page.
 //
@@ -22,11 +22,6 @@ import {
 } from "./SessionsSidebar.tsx";
 import type { OpenSessionsSidebarSessionEntry } from "./SessionsSidebarSessionEntry.tsx";
 import { Terminal } from "./Terminal.tsx";
-import { StoryReview } from "./StoryReview.tsx";
-import {
-  SessionReviewsOnPage,
-  sessionReviewPanelKey,
-} from "./pageSessionReviews.ts";
 import { usePageSidePanel } from "./pageSidePanel.ts";
 import { shownRecord } from "./sidePanelContent.ts";
 import { SessionsOnPage, type SessionOperation } from "./pageSessions.ts";
@@ -104,8 +99,7 @@ export function PageFrame({
     range,
     selection: selection.api,
   });
-  const { terminal, finalReport, sessionReview, maximized, markSessionDone } =
-    sidePanel;
+  const { terminal, finalReport, maximized, markSessionDone } = sidePanel;
   const frame = useRef<HTMLDivElement>(null);
   // Covering uses the maximized layout without overwriting the stored choice.
   // Only while a panel is shown — otherwise a narrow window would hide the Board.
@@ -154,90 +148,76 @@ export function PageFrame({
     >
       <SessionsOnPage value={sidePanel.sessions}>
         <RetainedHistoryOnPage value={readHistory}>
-          <SessionReviewsOnPage value={sidePanel.openSessionReview}>
-            <StorySelectionProvider selection={selection}>
-              <StoryReviewOpeningProvider
-                showIntent={showIntent}
-                intentProject={intentProject}
-              >
-                <StoryInspectionProvider>
-                  <SessionsSidebarOnPage value={sidebar}>
-                    <PanelDividerOnPage
-                      value={shownMaximized ? undefined : divider}
+          <StorySelectionProvider selection={selection}>
+            <StoryReviewOpeningProvider
+              showIntent={showIntent}
+              intentProject={intentProject}
+            >
+              <StoryInspectionProvider>
+                <SessionsSidebarOnPage value={sidebar}>
+                  <PanelDividerOnPage
+                    value={shownMaximized ? undefined : divider}
+                  >
+                    <div
+                      ref={frame}
+                      {...pageFrameLayout({
+                        sidebarOpen: sidebar.open,
+                        panelOpen,
+                        covering,
+                        maximized: shownMaximized,
+                        divider,
+                      })}
                     >
-                      <div
-                        ref={frame}
-                        {...pageFrameLayout({
-                          sidebarOpen: sidebar.open,
-                          panelOpen,
-                          covering,
-                          maximized: shownMaximized,
-                          divider,
-                        })}
-                      >
-                        <SessionsSidebar
-                          {...sidebar}
-                          onOpen={goToSession}
-                          recentlyDone={recentlyDone.row}
+                      <SessionsSidebar
+                        {...sidebar}
+                        onOpen={goToSession}
+                        recentlyDone={recentlyDone.row}
+                      />
+                      <RecentlyDoneRangeOnPage value={range}>
+                        <div
+                          className="page-column"
+                          aria-hidden={shownMaximized ? true : undefined}
+                        >
+                          <IntentPageProviders project={stories.selected}>
+                            {children}
+                          </IntentPageProviders>
+                        </div>
+                      </RecentlyDoneRangeOnPage>
+                      {finalReport && (
+                        <FinalReport
+                          key={sessionKey(finalReport.record.session)}
+                          session={finalReport}
+                          current={shownRecord(records, finalReport)}
+                          onClose={() => {
+                            sidePanel.close(finalReport);
+                          }}
+                          onMarkDone={markSessionDone}
                         />
-                        <RecentlyDoneRangeOnPage value={range}>
-                          <div
-                            className="page-column"
-                            aria-hidden={shownMaximized ? true : undefined}
-                          >
-                            <IntentPageProviders project={stories.selected}>
-                              {children}
-                            </IntentPageProviders>
-                          </div>
-                        </RecentlyDoneRangeOnPage>
-                        {finalReport && (
-                          <FinalReport
-                            key={sessionKey(finalReport.record.session)}
-                            session={finalReport}
-                            current={shownRecord(records, finalReport)}
-                            onClose={() => {
-                              sidePanel.close(finalReport);
-                            }}
-                            onMarkDone={markSessionDone}
-                          />
-                        )}
-                        {terminal && (
-                          <Terminal
-                            key={sessionKey(terminal.record.session)}
-                            session={terminal}
-                            current={shownRecord(records, terminal)}
-                            onAttached={attached}
-                            maximized={maximized}
-                            onMaximize={sidePanel.maximize}
-                            offerMaximize={offerMaximize}
-                            onClose={() => {
-                              sidePanel.close(terminal);
-                            }}
-                            onMarkDone={markSessionDone}
-                            onWorkspaceUnavailable={
-                              sidePanel.unavailableWorkspace
-                            }
-                          />
-                        )}
-                        {sessionReview && (
-                          <StoryReview
-                            key={sessionReviewPanelKey(sessionReview)}
-                            request={sessionReview}
-                            maximized={maximized}
-                            onMaximize={sidePanel.maximize}
-                            offerMaximize={offerMaximize}
-                            onClose={() => {
-                              sidePanel.close(sessionReview);
-                            }}
-                          />
-                        )}
-                      </div>
-                    </PanelDividerOnPage>
-                  </SessionsSidebarOnPage>
-                </StoryInspectionProvider>
-              </StoryReviewOpeningProvider>
-            </StorySelectionProvider>
-          </SessionReviewsOnPage>
+                      )}
+                      {terminal && (
+                        <Terminal
+                          key={sessionKey(terminal.record.session)}
+                          session={terminal}
+                          current={shownRecord(records, terminal)}
+                          onAttached={attached}
+                          maximized={maximized}
+                          onMaximize={sidePanel.maximize}
+                          offerMaximize={offerMaximize}
+                          onClose={() => {
+                            sidePanel.close(terminal);
+                          }}
+                          onMarkDone={markSessionDone}
+                          onWorkspaceUnavailable={
+                            sidePanel.unavailableWorkspace
+                          }
+                        />
+                      )}
+                    </div>
+                  </PanelDividerOnPage>
+                </SessionsSidebarOnPage>
+              </StoryInspectionProvider>
+            </StoryReviewOpeningProvider>
+          </StorySelectionProvider>
         </RetainedHistoryOnPage>
       </SessionsOnPage>
     </RecentlyDoneLinkSources>

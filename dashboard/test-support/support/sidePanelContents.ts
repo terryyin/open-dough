@@ -87,7 +87,7 @@ export function storyReviewReads(page: Page) {
 // The panel's named items: whichever of them the page shows.
 export const sidePanelContents = (page: Page) =>
   page.getByRole("region", {
-    name: /^(Terminal|Final report|Story review|Session review)$/,
+    name: /^(Terminal|Final report)$/,
   });
 
 // What a session's kept record says of it: its state and whether it is done.

@@ -1,6 +1,6 @@
 // Page-level lookup of a Done story for review-anchored Follow up: the published
 // done record, the revision it was read at, and the sessions its card holds.
-// Review changes and Intent both reach it here (`./StoryAnchoredFollowUp.tsx`)
+// Intent's story changes reach it here (`./StoryAnchoredFollowUp.tsx`)
 // instead of threading the card's props through the diff.
 
 import { useContext } from "react";

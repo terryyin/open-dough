@@ -129,7 +129,4 @@ test("Review session changes on a session retained here opens Intent at its key"
   await expectIntentAt(retainedName);
   expect(reads).toContain(retainedRecord.sessionId);
   expect(reads).not.toContain(published.sessionId);
-  await expect
-    .element(page.getByRole("region", { name: "Session review" }))
-    .not.toBeInTheDocument();
 });

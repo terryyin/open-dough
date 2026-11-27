@@ -3,7 +3,7 @@
 // naming the active comparison and its recorded agent, with that agent's
 // portrait when the rotation knows it, or its reading, unavailable or failed state
 // with Retry, beside the eye that reveals the comparison details. The details
-// reuse Review changes' disclosure (`./StoryReviewDetailsSection.tsx`): they
+// use the review details' disclosure (`./StoryReviewDetailsSection.tsx`): they
 // start collapsed for each story, stay open across a new read, and hold
 // Refresh, which re-reads the comparison while keeping the choice.
 
@@ -14,9 +14,9 @@ import { IconButton } from "./Icon.tsx";
 import { comparisonName } from "./StoryReviewComparison.tsx";
 import {
   ReviewDetails,
+  ReviewDetailsEye,
   useReviewDetailsPlace,
 } from "./StoryReviewDetailsSection.tsx";
-import { ReviewDetailsEye } from "./StoryReviewToolbar.tsx";
 import { landedRunName, type StoryCompare } from "./IntentStoryCompare.tsx";
 import {
   CompactComparisonState,

@@ -1,5 +1,5 @@
 // Previous file and Next file beside a story review's diff heading
-// (`./StoryReviewSnapshotView.tsx`): icon controls that move the selection
+// (`./IntentSelectionReading.tsx`): icon controls that move the selection
 // one file up or down the browser's order (`reviewFileOrder` in
 // `./reviewFileTree.ts`). Previous file is unavailable on the first file and
 // Next file on the last, each still focusable so the keyboard stays on it.

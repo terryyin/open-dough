@@ -1,13 +1,17 @@
-// The session comparison choices, run pickers and context in review details.
-import { useRef, useState, type ReactNode } from "react";
-import { ReviewContext } from "./StoryReviewContext.tsx";
-import { PublishedRangeSwitch } from "./StoryReviewSessionRuns.tsx";
-import type { StoryReview } from "./storyReviewContract.ts";
-import type { ReviewDetailsPlace } from "./StoryReviewToolbar.tsx";
+// The review details: the eye that reveals them and the disclosure that holds
+// the comparison choices and context.
+import { useRef, useState, type ReactNode, type Ref } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { IconButton } from "./Icon.tsx";
 
-export function reviewHoldsDetails(review: StoryReview | undefined) {
-  return review?.kind === "landed" || review?.kind === "published-session";
-}
+// The review details as the review places them: the section's id, whether
+// the developer reveals them, and the eye that takes the keyboard back.
+export type ReviewDetailsPlace = {
+  readonly id: string;
+  readonly shown: boolean;
+  readonly eye: Ref<HTMLButtonElement>;
+  readonly onShow: (shown: boolean, focusEye?: boolean) => void;
+};
 
 // The review details' place under the given id: collapsed at first, and
 // hiding them on request returns the keyboard to their eye.
@@ -53,28 +57,22 @@ export function ReviewDetails({
   );
 }
 
-export function StoryReviewDetailsSection({
+// The eye that reveals or hides the review details it controls.
+export function ReviewDetailsEye({
   details,
-  review,
-  runKey,
-  onRun,
 }: {
   readonly details: ReviewDetailsPlace;
-  readonly review: StoryReview | undefined;
-  readonly runKey: string | undefined;
-  readonly onRun: (run: string) => void;
 }) {
-  if (!reviewHoldsDetails(review)) return undefined;
   return (
-    <ReviewDetails details={details}>
-      {review.kind === "published-session" && review.ranges !== undefined && (
-        <PublishedRangeSwitch
-          ranges={review.ranges}
-          selected={runKey}
-          onSelect={onRun}
-        />
-      )}
-      <ReviewContext review={review} />
-    </ReviewDetails>
+    <IconButton
+      ref={details.eye}
+      label={details.shown ? "Hide review details" : "Show review details"}
+      icon={details.shown ? EyeOff : Eye}
+      aria-controls={details.id}
+      aria-expanded={details.shown}
+      onClick={() => {
+        details.onShow(!details.shown);
+      }}
+    />
   );
 }
