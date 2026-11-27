@@ -19,6 +19,10 @@ import {
   publishes,
 } from "../../test-support/support/fakeGitHub.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import {
+  readUrl,
+  revisionCheck,
+} from "../../test-support/support/sharedReads.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { describedBacklog } from "../../test-support/describedRevisions.ts";
 import { defaultRepository } from "../../test-support/publishedOriginBasics.ts";
@@ -116,12 +120,15 @@ test.describe("authenticated read boundary refusal (development environment)", (
     expectServedHomesReach(server.github, defaultRepository, revision);
     const callsBefore = server.ghCalls().length;
     const response = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
+      url: readUrl(server.baseURL, {
+        source: knownSourceId,
+        query: revisionCheck,
+      }),
       headers: { "Sec-Fetch-Site": "same-origin" },
     });
     expect(response.status).toBe(200);
     expect(JSON.parse(response.body)).toMatchObject({ revision });
-    expect(server.ghCalls()).toHaveLength(callsBefore + 2);
+    expect(server.ghCalls()).toHaveLength(callsBefore + 1);
   });
 
   test("still refuses Sec-Fetch-Site: cross-site even without an Origin header", async () => {

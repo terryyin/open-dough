@@ -16,7 +16,7 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "../../test-support/support/dashboardServer.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { readAt } from "../../test-support/support/sharedReads.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   advanceReusePublication,
@@ -176,16 +176,17 @@ test("a dashboard process restarted on another machine home holds nothing, so B 
   const files = origin.labeled("restart").please().files;
   const published = reusePublication(files);
   const { revision: a } = published;
-  // What a membership read asked the GitHub behind `server`.
-  const membershipAsked = async (server: DashboardServer) => {
+  // What a read of the backlog pinned at `revision` asked the GitHub behind
+  // `server`.
+  const backlogAsked = async (server: DashboardServer, revision: string) => {
     serveReusePublication(server.github, published);
-    const response = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${origin.paths.sourceId}`,
-      headers: { Origin: server.origin },
+    const response = await readAt(server, {
+      source: origin.paths.sourceId,
+      query: `&revision=${revision}`,
     });
     expect(response.status).toBe(200);
     expect(JSON.parse(response.body)).toMatchObject({
-      revision: published.trunk.revision,
+      revision,
       backlog: files[origin.paths.backlog],
     });
     return server.github.calls.map(describedExactly);
@@ -193,8 +194,7 @@ test("a dashboard process restarted on another machine home holds nothing, so B 
 
   const first = await startDashboardServer(developmentBoundary);
   try {
-    expect(await membershipAsked(first)).toEqual([
-      "ref",
+    expect(await backlogAsked(first, a)).toEqual([
       `content ${origin.paths.backlog}@${a}`,
     ]);
   } finally {
@@ -205,8 +205,7 @@ test("a dashboard process restarted on another machine home holds nothing, so B 
   ]);
   const restarted = await startDashboardServer(developmentBoundary);
   try {
-    expect(await membershipAsked(restarted)).toEqual([
-      "ref",
+    expect(await backlogAsked(restarted, b)).toEqual([
       `content ${origin.paths.backlog}@${b}`,
     ]);
   } finally {

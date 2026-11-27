@@ -21,6 +21,7 @@ import {
 } from "../../test-support/originAnswers.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import {
+  pinnedAt,
   readAt,
   refusedMarker,
   servedHolding,
@@ -108,19 +109,14 @@ test.describe("authenticated read diagnostics (development environment)", () => 
         liveServer: "separate process",
       }),
     ]);
-    const read = (server: DashboardServer) =>
-      rawRequest({
-        url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
-        headers: { Origin: server.origin },
-      });
     try {
       short.github.serve(everyRepository, hangs);
-      expect((await read(short)).status).toBe(502);
+      expect((await pinnedAt(short)).status).toBe(502);
 
       answering.github.serve(everyRepository, () =>
         Promise.resolve(httpErrorAnswer(403, `forbidden body ${secretMarker}`)),
       );
-      expect((await read(answering)).status).toBe(502);
+      expect((await pinnedAt(answering)).status).toBe(502);
 
       const reset = Math.floor(Date.now() / 1000) + 90;
       answering.github.serve(everyRepository, () =>
@@ -136,7 +132,7 @@ test.describe("authenticated read diagnostics (development environment)", () => 
           }),
         ),
       );
-      expect((await read(answering)).status).toBe(502);
+      expect((await pinnedAt(answering)).status).toBe(502);
 
       const stalled = await inspect(short);
       expect(stalled.status).toBe(200);
@@ -145,7 +141,7 @@ test.describe("authenticated read diagnostics (development environment)", () => 
       ]);
       expect(stalled.failures[0]).toMatchObject({
         source: knownSourceId,
-        category: "ref",
+        category: "content",
         cause: "timed-out",
       });
       expect(stalled.failures[0]?.status).toBeUndefined();
@@ -164,7 +160,7 @@ test.describe("authenticated read diagnostics (development environment)", () => 
       ]);
       expect(seen.failures[0]).toMatchObject({
         source: knownSourceId,
-        category: "ref",
+        category: "content",
         cause: "http",
         status: 403,
       });
@@ -172,7 +168,7 @@ test.describe("authenticated read diagnostics (development environment)", () => 
 
       expect(seen.failures[1]).toMatchObject({
         source: knownSourceId,
-        category: "ref",
+        category: "content",
         cause: "rate-limited",
         status: 403,
         requestId: "ABCD:efgh:1234:5678",

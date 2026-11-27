@@ -14,10 +14,10 @@ import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
 import { httpErrorAnswer } from "../../test-support/originAnswers.ts";
 import { processRunning } from "../../test-support/support/processGroup.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { pinnedAt } from "../../test-support/support/sharedReads.ts";
 import {
   incidentEntries,
   inspect,
-  knownSourceId,
   developmentBoundary,
   startDashboardServer,
 } from "../../test-support/support/readDiagnostics.ts";
@@ -91,10 +91,7 @@ test("a clean close ends the record after its queued failure, and a successor re
       closed.github.serve(everyRepository, () =>
         Promise.resolve(httpErrorAnswer(503, "unavailable")),
       );
-      const failed = await rawRequest({
-        url: `${closed.baseURL}/__authenticated-read?source=${knownSourceId}`,
-        headers: { Origin: closed.origin },
-      });
+      const failed = await pinnedAt(closed);
       expect(failed.status).toBe(502);
     } finally {
       // Closed at once: the failure may still be queued for writing.

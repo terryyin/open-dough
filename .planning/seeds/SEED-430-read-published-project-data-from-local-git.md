@@ -38,60 +38,6 @@ and [scheduled feedback maintenance](SEED-436-check-feedback-maintenance-from-lo
 [Add Project](../../dashboard/server/projectAddition.ts) resolves the default branch
 from origin's symbolic `HEAD` when configuring a project.
 
-<a id="move-authenticated-read-proofs-off-the-board-ref-read"></a>
-
-### Move authenticated-read proofs off the Board's ref read
-
-**Identity:** SEED-430#move-authenticated-read-proofs-off-the-board-ref-read
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/858-move-authenticated-read-proofs-off-the-board-ref-read/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"da1a7484de2a63c4eead5a09c7ad7bfd737d7ab27a553da2edbb06c81dd20aff","plan":"b172e311c7c18a55ae3ae8036a737aa5af69d7a489a90a4c14e6d4733f569889"}}
-```
-
-Split on 2026-11-26 from the
-[Board open story](#open-the-board-from-the-verified-git-trunk) as its
-prerequisite. That story's slice 1 switch, held uncommitted in its
-workspace, failed about 31 spec files whose tests reach general
-authenticated-read behavior through the Board's REST `ref` read, which the
-Git open no longer asks.
-
-**Goal.** A maintainer can switch the Board's cold open to Git without
-losing proof of the authenticated-read behavior that other REST reads still
-depend on. Those proofs reach the behavior through a REST read that
-survives the switch, and both Dashboard suites stay green before and after it.
-
-**Scope.** Retarget tests whose subject is general authenticated-read,
-fake-gh or test-support behavior and that trigger it through the cold `ref`
-read (`?source=` with no revision, or an origin `ref` answer set before
-the first open). They trigger it through the revision check (`&since=`), a
-pinned read (`&revision=`), or a failed check after the Board has opened. The
-covered behaviors are failure classification, diagnostics and incident
-records, output and process bounds, held gh lifecycle, directed waits and
-cooldown, the shared request owner, retained-answer and reuse call
-accounting, project isolation counts, and transient recovery after a failed
-check. Assertions keep their promise and change only the read category or
-the gh call they name. Product code does not change.
-
-Cases whose promise is the Board's cold open through REST stay with the
-Board open story, which replaces them with Git failures: `read-failure`,
-`transient-read-exclusions`, `project-read-recovery`,
-`project-read-isolation`'s held first open, `authenticated-project-observation`,
-the cold-open cases of `transient-read-recovery`, the reload step shared by
-the `limited-reading-*` specs, `authenticated-read-revision-backlog`, and
-the logged-out cold-open case in `authenticated-read-retained-answers`.
-
-**Key examples.**
-
-- Given a fake gh that answers the revision check with HTTP 503, a read
-  with `&since=` reports the same "while reading main of" failure and
-  records an incident in the `revision-check` category.
-- Given retained answers across a restart, the compared call lists leave
-  out the Board's membership reads and still show every retained detail
-  read once.
-- Given an opened Board, a later check that loses its connection keeps the
-  shown snapshot, and the next successful check recovers it.
-- With the Board open story's switch applied, every retargeted spec passes
-  unchanged.
-
 <a id="open-the-board-from-the-verified-git-trunk"></a>
 
 ### Open the Board from the verified Git trunk
@@ -141,6 +87,23 @@ confirmation time, manual Refresh, durable confirmation and fetch elision.
 The [published-progress story](#follow-published-progress-from-local-git)
 owns automatic observation, watched branches, other published records and
 Review callers.
+
+The tests whose promise is the cold open through REST move with this story
+and are replaced with Git failures: `read-failure`,
+`transient-read-exclusions`, `project-read-recovery`,
+`project-read-isolation`'s held first open, `authenticated-project-observation`,
+the cold-open cases of `transient-read-recovery`, the hidden-page due-time
+and shared empty-page recovery cases of `transient-recovery-lifecycle`
+(recovery backoff arms only for an empty page, so a failed check after the
+Board opens cannot reach them), that an armed recovery wait stays
+project-local, the reload step shared by the `limited-reading-*` specs,
+`authenticated-read-revision-backlog`, the logged-out cold-open case in
+`authenticated-read-retained-answers`, the `askedAt` stamp of the cold read
+(no longer asserted by `serving-modes`), and the `ref main` expectations in
+`shared-observer-reads`, `unchanged-records-refresh` and
+`reopened-project-reads`. A failed revision check's listing falls back to
+`commits/main`, so it asks gh twice and records two failures; decide whether
+that remains right once the Board relies on checks.
 
 **Key examples.**
 

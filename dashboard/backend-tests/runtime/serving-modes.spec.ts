@@ -38,6 +38,11 @@ import {
   type RawResponse,
 } from "../../test-support/support/rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import {
+  checkedAt,
+  readUrl,
+  revisionCheck,
+} from "../../test-support/support/sharedReads.ts";
 import { describedBacklog } from "../../test-support/describedRevisions.ts";
 import {
   liveRunner,
@@ -52,14 +57,6 @@ const modes = ["dev", "preview"] as const;
 const backlog = describedBacklog(makeMe.aRepository.please());
 const published = publishes({ backlog });
 const { revision } = published;
-
-// The answer without the moment it was asked, which each server stamps
-// itself; both must stamp it.
-function timeless(answer: BoundaryAnswer): BoundaryAnswer {
-  const { askedAt, ...body } = answer.body as { askedAt?: unknown };
-  expect(typeof askedAt).toBe("string");
-  return { ...answer, body };
-}
 
 test.describe("serving modes mount the same boundaries", () => {
   test.describe.configure({ mode: "serial" });
@@ -144,27 +141,22 @@ test.describe("serving modes mount the same boundaries", () => {
   test("the authenticated read boundary answers the same published read and the same refusal in both", async () => {
     const read = await asked((server) => {
       expectServedHomesReach(server.github, defaultRepository, revision);
-      return rawRequest({
-        url: `${server.baseURL}/__authenticated-read?source=open-dough`,
-        headers: { Origin: server.origin },
-      });
+      return checkedAt(server);
     });
     expect(read.dev.status).toBe(200);
     expect(read.dev.body).toMatchObject({ revision });
-    expect(timeless(read.preview)).toEqual(timeless(read.dev));
+    expect(read.preview).toEqual(read.dev);
     for (const server of Object.values(servers)) {
       expect(server.ghCalls()[0]).toEqual([
         "api",
         "--include",
-        "repos/terryyin/open-dough/commits/main",
-        "--jq",
-        ".sha",
+        "repos/terryyin/open-dough/git/matching-refs/heads/",
       ]);
     }
 
     const refused = await asked((server) =>
       rawRequest({
-        url: `${server.baseURL}/__authenticated-read?source=open-dough`,
+        url: readUrl(server.baseURL, revisionCheck),
         headers: { Origin: "http://evil.example" },
       }),
     );

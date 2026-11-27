@@ -30,10 +30,14 @@ import {
   titlesOfA,
 } from "../../dashboard/test-support/refreshJourney.ts";
 import { failedAt } from "../../dashboard/test-support/limitNotice.ts";
-import { headsChecks } from "../../dashboard/test-support/autoRefreshJourney.ts";
+import {
+  headsChecks,
+  passTimeUntilChecked,
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   expectRecoversAfter,
   mainReads,
+  openThenFailCheck,
   transientRecovery,
 } from "../../dashboard/test-support/transientRecoveryPage.ts";
 
@@ -150,23 +154,24 @@ test("a pinned backlog's eligible failure recovers on its own; a later successfu
   });
 });
 
-test("a lost connection is recovered on its own at the first wait", async ({
+test("a lost connection is recovered on its own at the next check", async ({
   page,
   afterGitHubStops,
 }) => {
   await pausePageClockAt(page, opened);
   const origin = await publishMovingHistory(page, rawA, "A", afterGitHubStops);
   const { A: revisionA } = origin.revisions;
-  const reconnect = origin.answerWith("main", noConnection);
-  await page.goto("/");
-  await expectProblemAndNoSnapshot(
+  const reconnect = await openThenFailCheck(
     page,
+    origin,
+    titlesOfA,
+    noConnection,
     "The local GitHub CLI could not reach GitHub while reading main of terryyin/open-dough.",
-    transientRecovery,
   );
   reconnect();
-  await page.clock.runFor(15_250);
+  await passTimeUntilChecked(page);
   await untilPageReadsAnswered(page);
+  await expect(parts(page).problem).toHaveCount(0);
   await inspectDashboardStory(page);
   await expectWholeSnapshot(
     page,

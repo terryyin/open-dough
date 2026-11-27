@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Nana-chan",
-  "email": "nana-chan@example.org",
-  "identity": "SEED-430#move-authenticated-read-proofs-off-the-board-ref-read",
-  "mode": "story-branch",
-  "branch": "claude/move-authenticated-read-proofs-off-the-board-s-r",
-  "host": "claude"
-}

@@ -46,7 +46,9 @@ const backlogStoryTitle = "Story A";
 test.use({ projectFolders: ["open-dough"], cursorScreen: "working" });
 
 const minute = 60_000;
-const opened = Date.parse("2026-10-28T10:00:00.000Z");
+// The server keeps done sessions for their retention window by the real
+// clock, so the page opens now rather than on a fixed date.
+const opened = Date.now();
 const retainedStory = (index: number) => ({
   identity: `SEED-900#retained-${String(index)}`,
   title: `Retained story ${String(index + 1)}`,
