@@ -160,7 +160,7 @@ Each case passes `60_000` as its own timeout.
 ### 5. Prove a working client survives detach and server close
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: Move `agent-terminal-cursor.spec.ts` (1 case) to Node Vitest. The
@@ -176,6 +176,7 @@ Keep `admit` before the attached check.
   `keptCursorTurn.ts` once this spec is its only caller. Search
   `dashboard/` and `e2e/` before that removal.
 - Run `npm run typecheck:dashboard` and the focused backend selection below.
+- Proof recorded (2026-11-27, Node Vitest, 1 worker): `npm run typecheck:dashboard` exited 0; removed `workingKeptCursorTest`, `./pageTest.ts` import, and unused `installFakeCursor` value import from `dashboard/test-support/support/keptCursorTurn.ts` (228 lines; 0 callers across `dashboard/` and `e2e/`). Comparable 6-spec local gate (`--workers=1`): Before (Playwright) 18/18 passed, 0 Vitest, summed case time `75.60s` (`75603ms`), elapsed `78.78s` (real `80.28s`); After (Node Vitest) 18/18 passed, 0 Playwright (`Total: 0 tests in 0 files`), summed case time `74.04s` (`74039ms`, per-case `2.93s–7.45s`), elapsed `77.32s` (real `77.51s`). Independent post-change refactor pass (`dough-post-change-refactor`) returned `## REFACTOR COMPLETE` (`none — already clean`).
 
 ## Proof ownership and local gate
 
