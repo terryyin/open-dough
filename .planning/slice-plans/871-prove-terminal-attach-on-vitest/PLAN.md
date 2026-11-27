@@ -112,7 +112,7 @@ for the real attach, echo, resize and SIGHUP.
 ### 3. Prove an unavailable PTY resize ends only that attachment
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 8–10 active minutes.
 
 Proof: Move `agent-terminal-resize.spec.ts` (2 cases) to Node Vitest, driving
@@ -122,6 +122,13 @@ Proof: Move `agent-terminal-resize.spec.ts` (2 cases) to Node Vitest, driving
   that throws ends only that attachment, does not escape the socket handler,
   ignores later input on the closed socket, and leaves the next attachment
   able to take a resize and input.
+
+Accepted proof: converted in place; a `vi.mock` of `@lydell/node-pty` hands
+out the queued fake PTYs in place of the Playwright worker fixture. Before:
+Playwright 2 cases, 14 ms summed, 2.38 s wall (`s3-before`). After: Vitest
+4.7 ms summed, 1.78 s wall (`s3-after`). The refactor pass was skipped: the
+change touches only this subject spec, and the product search found no
+other representation of what it adds.
 
 ### 4. Prove closeServer ends the attachment while the server stays up
 
