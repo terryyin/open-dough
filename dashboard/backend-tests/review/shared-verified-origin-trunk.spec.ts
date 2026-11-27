@@ -196,6 +196,10 @@ test("a transfer held past the read deadline is ended and the next open starts a
   );
   releaseWhenFinished(releaseFifo, [reopened]);
   await expect(heldAgain).resolves.toBe("held\n");
+  await signalFifo(releaseFifo, true);
+  await expect(reopened).resolves.toEqual(
+    observedTrunk(repository.trunkSha, backlog),
+  );
 });
 
 test("within production reuse a fresh demand starts a new check while a staggered tab shares the settled one", async () => {

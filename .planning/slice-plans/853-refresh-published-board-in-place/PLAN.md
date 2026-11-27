@@ -100,6 +100,12 @@ backend cases (a wall-clock deadline raced the transfer hold under load);
 launch-timing specs that base `d56cd6957` failed equally at the same load
 (`agent-launch-{,codex-}duplicate`: base 10/13 and 2/13 failed, branch 10/13
 then 13/13 passed); CI decides the whole suite.
+CI repair (run 45983348006 on `f9cc29d`, `shared-verified-origin-trunk.spec.ts:167`
+hook timeout with the reopened probe left running): the case released the
+reopened probe only in its finish hook through a non-blocking fifo write,
+which an unopened fifo drops (`ENXIO`). The case now releases it with a
+blocking signal and asserts the new check's verified trunk; see
+[diagnosis](diagnosis-ci-held-transfer-deadline.md).
 
 ### 2. Keep the Board check's fetch apart from Review's
 
@@ -208,6 +214,11 @@ the Refresh after it and check the shown time stays the Refresh's. Budget
 ### G1. A failed confirmation write is not yet reported to the client
 Reported: slice 3 — "On a failed record write it answers A with no failure reported to the client."
 Story clause: "If B's fetch or confirmation write fails, A and its time stay and the failure is shown."
+Disposition: receiving slice 5
+
+### G2. A held probe's transport helpers are not proven ended (first reported in slice 1)
+Reported: slice 1 — "If the deadline fires while the probe is held, the check does end, because `execFile` rejects promptly. The transport helpers may outlive Git, though, so the promise that a stalled transfer "is ended" is not proven for the probe."
+Story clause: "A failed check keeps the earlier view and time and shows the problem beside them."
 Disposition: receiving slice 5
 
 ## Concern review
