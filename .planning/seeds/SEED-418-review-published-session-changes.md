@@ -17,28 +17,27 @@ the review destination and the Recent stories regression.
 owns story association at startup. This seed owns session attribution and session
 scope in Intent.
 
-<a id="keep-session-review-proof-after-retirement"></a>
+<a id="prove-or-retire-held-read-race-step"></a>
 
-### Keep Intent's session review and its proof whole after the retirement
+### Retire the held-read race step that cannot fail
 
-**Identity:** SEED-418#keep-session-review-proof-after-retirement
+**Identity:** SEED-418#prove-or-retire-held-read-race-step
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/883-keep-session-review-proof-after-retirement/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f602919ef9b7fe5c66379feace0e565dcb70489878a8a031bb0e82f8ef8f6e54","plan":"0168badd9a01c6193f7d70758e9df99f3f989c801477004f9751a33c80183b8e"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/890-prove-or-retire-held-read-race-step/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6ef6275af72f4a92172c9fb2314a2342885fdcea2f532b5e1b3d356b64c342f8","plan":"56e08a54f0a0f0cfbd70b7a13a742676bc08f7a747c79a2d5e4a5ce044ad1163"}}
 ```
 
-**Goal.** A developer reviewing a story in Intent gets the scope the story
-promised, and its maintainers keep the proof the retired Side panel review
-used to carry, so Intent's diff and session review cannot regress silently.
+**Goal.** Maintainers of Intent's session review keep only proof that can
+fail: the Side panel journey stops paying for a step that no break of the
+held-read race fails, while the stale-read guard it seemed to own stays
+proved where the race can happen.
 
 **Scope.** Correct what the retrospective of
-[Open session changes in Intent and retire the Side panel review](https://github.com/terryyin/open-dough/blob/d60293a1adee86582e595aa450738616b4954f38/.planning/seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review)
-found: a story selected again after **Review session changes** returns to
-that session instead of **Whole story**; Proof measures the whole story
-while a chosen session is first read; the retirement deleted the only proof
-of most of Intent's diff context expansion rules and of published sessions
-kept across a refresh; the story's session list lives in Follow up's module; and some
-test support and one E2E case are left over or redundant.
-[Plan](../slice-plans/883-keep-session-review-proof-after-retirement/PLAN.md).
+[Keep Intent's session review and its proof whole after the retirement](https://github.com/terryyin/open-dough/blob/6ff9df321cea812893c411e44b3ebcb3d074df66/.planning/seeds/SEED-418-review-published-session-changes.md#keep-session-review-proof-after-retirement)
+found: the step "a held read never answers a later session's changes" in
+`e2e/navigation/side-panel-content-replacement.spec.ts` was never shown to
+fail. Remove that step and the setup only it uses, keeping the journey's
+final-report frame. `useReviewRead.ts` and its staleness checks stay.
+[Plan](../slice-plans/890-prove-or-retire-held-read-race-step/PLAN.md).
 
 <a id="review-selected-sessions-together"></a>
 
@@ -65,6 +64,13 @@ Known limit to weigh when refining: the Recently done sessions sidebar reads
 published records only for the project whose work is shown, so a row from
 another project judges its review status from the local `doneAt` rather than
 the published `closedAt` until that project is shown.
+
+Also weigh when refining, from the retrospective of
+SEED-418#keep-session-review-proof-after-retirement:
+- Intent's `StorySummary` carries both `sessionChosen` and `session` from one
+  chosen-session key. Choosing several sessions should make that one value.
+- The Review scope dropdown is disabled while a read is pending, and choosing
+  several sessions may mean several reads.
 
 <a id="recover-expired-session-reviews"></a>
 

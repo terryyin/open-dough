@@ -17,14 +17,12 @@ import {
   takenStoryContext,
 } from "./followUpContext.ts";
 import type { FollowUpSource, FollowUpTarget } from "./followUpRequest.ts";
-import {
-  retainedFollowUpReference,
-  storyFollowUpSessions,
-} from "./followUpSessions.ts";
+import { storyFollowUpSessions } from "./followUpSessions.ts";
 import { usePageSessions } from "./pageSessions.ts";
 import { useCurrentPublishedSessions } from "./recentlyDoneShownLinks.ts";
 import { useReadRetainedHistory } from "./retainedHistory.ts";
 import { offersFollowUp } from "./sessionAccess.ts";
+import { retainedSessionReference } from "./storySessions.ts";
 import { StartSession, type AdHocLaunches } from "./StartSession.tsx";
 import type { WorkEntry } from "./publishedWork.ts";
 
@@ -114,7 +112,7 @@ export function SessionFollowUp({
 }: Launching & { readonly record: LaunchWithState }) {
   const { hostOperations, presentTerminal } = usePageSessions();
   if (!offersFollowUp([record], hostOperations)) return null;
-  const source: FollowUpSource = { session: retainedFollowUpReference(record) };
+  const source: FollowUpSource = { session: retainedSessionReference(record) };
   const context = sessionContext(record);
   return (
     <StartSession

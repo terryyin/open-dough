@@ -70,7 +70,8 @@ produces only every 50–80 ms under local load. Keep trusted input for the
 keys, taps and pointer moves that a case's own behavior is about. The Project
 Intent cases (`intent/`) are the example: activating in the page cut their
 summed time to about a third; a control that takes focus from a pointer
-press uses `pressButton`.
+press uses `pressButton`, and a disclosure opened only while collapsed uses
+`expandButton`, which reads its state in the same task as the click.
 
 Story Notes is the reference family:
 `stories/story-notes-dialog.spec.ts` mounts the dialog,

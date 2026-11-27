@@ -20,6 +20,16 @@ export async function activateButton(button: Locator) {
   (button.element() as HTMLButtonElement).click();
 }
 
+// Opens a visible disclosure unless it is open by then: the state is read in
+// the same task as the click, so an opening the page commits during the
+// yield is never toggled closed.
+export async function expandButton(button: Locator) {
+  await expect.element(button).toBeVisible();
+  await nextTask();
+  const element = button.element() as HTMLButtonElement;
+  if (element.getAttribute("aria-expanded") === "false") element.click();
+}
+
 // Presses a control as a pointer does: it takes focus, then activates.
 export async function pressButton(button: Locator) {
   await expect.element(button).toBeVisible();

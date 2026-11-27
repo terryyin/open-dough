@@ -64,6 +64,7 @@ function summaryOf(story: ComparedStory, completion: string): StorySummary {
       record: { state: "reading" },
     },
     comparison: { state: "compared", shown, review, defaultReview: review },
+    sessionChosen: false,
     onRetry() {},
   };
 }

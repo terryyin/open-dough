@@ -2,7 +2,7 @@
 // review: a session with a published record reads that record and offers its
 // recorded runs; one without reads nothing and says so.
 
-import { storySessionScopes } from "./followUpSessions.ts";
+import { storySessionScopes } from "./storySessions.ts";
 import type { LaunchRecord } from "./launchRecord.ts";
 import { useCurrentPublishedSessions } from "./recentlyDoneShownLinks.ts";
 import type { ReviewedWorkSubject } from "./reviewedWorkSubject.ts";

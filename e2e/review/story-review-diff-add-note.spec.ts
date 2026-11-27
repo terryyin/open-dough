@@ -6,7 +6,10 @@ import type { Page } from "@playwright/test";
 import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { expandContextAddNoteHistory } from "../../dashboard/test-support/support/completedFollowUpHistory.ts";
-import { contextExpansion } from "../../dashboard/test-support/support/expandContextDiff.ts";
+import {
+  contextExpansion,
+  gapBeforeNextChange,
+} from "../../dashboard/test-support/support/expandContextDiff.ts";
 import {
   expect,
   test,
@@ -57,7 +60,7 @@ test("Published diff file and line notes show and keep their immutable context",
   await notes.expectNoComposerLine();
   await notes.saveDiffNote("File observation");
   await contextExpansion(
-    diff.getByRole("list", { name: "Omitted lines before the next change" }),
+    gapBeforeNextChange(diff),
     /Show 20 preceding/,
   ).click();
   const lineNotes = [

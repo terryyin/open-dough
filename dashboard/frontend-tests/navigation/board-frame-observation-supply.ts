@@ -67,6 +67,7 @@ export function boardFrameObservationSupplying(
     machineRead,
     accept,
     doneCatalog,
+    listPublishedSessions,
   }: {
     initialSnapshot?: Error | Promise<PublishedWork>;
     detailFile?: PublishedObservationReadSource["readDetailFile"];
@@ -80,6 +81,8 @@ export function boardFrameObservationSupplying(
     ) => Promise<AcceptanceAnswer>;
     // A case-owned done catalog read, in place of each snapshot's catalog.
     doneCatalog?: PublishedObservationReadSource["readDoneCatalog"];
+    // A case-owned published sessions list, in place of each snapshot's list.
+    listPublishedSessions?: PublishedObservationReadSource["listPublishedSessions"];
   } = {},
 ): BoardFrameObservation {
   const bySource = new Map(snapshots.map((work) => [work.source.id, work]));
@@ -167,7 +170,9 @@ export function boardFrameObservationSupplying(
         unreadable: [],
       });
     },
-    listPublishedSessions: (...[source]) => {
+    listPublishedSessions: (...[source, ...rest]) => {
+      if (listPublishedSessions !== undefined)
+        return listPublishedSessions(source, ...rest);
       const work = bySource.get(source.id);
       const sessions = work?.publishedSessions;
       if (sessions?.status === "listed") {
