@@ -329,8 +329,8 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   migrated, consolidated, or retained case, and delete test-support wrappers
   whose last caller leaves. Plans 856 and 853 own the verified Git cold open
   and in-place Refresh; plan 823 owns moving automatic observation and pinned
-  reads to local Git; plans 860 and 862 own published read admission and
-  authenticated GitHub request ownership.
+  reads to local Git; plan 860 owns published read admission, and plans 862
+  and 890 own authenticated GitHub request ownership.
 - **Key examples.** After one process answers a project at revision A, a later
   process on the same machine home answers pinned reads from the retained store
   (asking only for the recorded branch head beside membership), while another
@@ -409,7 +409,7 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Identity:** SEED-413#github-request-lifetime-and-evidence-via-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"22efc2458bb5598f625f780f740893ce17ddae859342783ebd41518159a32455","plan":"ca0fdc732126d1bea8cdcfa725365bc581b2c29e4d92736d085db2b8e6f7e75e"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"aa4b127e985f422c7d46c44693e6c2b47a1e45a581d906ca79d85bbe0f803a60","plan":"ca0fdc732126d1bea8cdcfa725365bc581b2c29e4d92736d085db2b8e6f7e75e"}}
 ```
 
 - **Goal.** Give Dashboard and CI maintainers fast Node Vitest feedback that
@@ -440,7 +440,7 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   close from a lost process.
 - **Replacement trace.** Split at a delivered slice boundary from
   SEED-413#authenticated-github-observation-via-vitest (its slices 4–8 of
-  [plan 862](../slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md)).
+  [plan 862](https://github.com/terryyin/open-dough/blob/fa4d5c57608966483d829faae8feba252e6c22c8/.planning/slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md)).
 
 **Plan.** [Prove GitHub request lifetime and failure evidence in Node Vitest](../slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md)
 

@@ -26,10 +26,10 @@ Reconciliation with related work:
   moving automatic observation and pinned Board reads to local Git.
 - [Plan 860](../860-prove-published-read-admission-on-vitest/PLAN.md) owns
   published read admission, and
-  [plan 862](../862-prove-authenticated-github-observation-on-vitest/PLAN.md)
-  owns authenticated GitHub request ownership (retaining shared callers of
-  `revisionCheckBoundary.ts` such as `authenticated-read-turns.spec.ts` and
-  `authenticated-read-output-bound.spec.ts`).
+  [plan 890](../890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md)
+  owns authenticated GitHub request lifetime and failure evidence.
+  [Plan 862](https://github.com/terryyin/open-dough/blob/fa4d5c57608966483d829faae8feba252e6c22c8/.planning/slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md) moved `authenticated-read-turns.spec.ts` and
+  `authenticated-read-output-bound.spec.ts` off `revisionCheckBoundary.ts`.
 
 ## Current decisions
 
@@ -72,9 +72,8 @@ Reconciliation with related work:
   `dashboard/backend-tests/observation/listingTimeoutBoundary.ts`,
   `dashboard/backend-tests/observation/revisionStreamBoundary.ts`, and
   `dashboard/backend-tests/observation/controlledRevisionStream.ts`. Keep
-  `dashboard/backend-tests/observation/revisionCheckBoundary.ts` because
-  `authenticated-read-turns.spec.ts` and `authenticated-read-output-bound.spec.ts`
-  (owned by plan 862) still import it.
+  `dashboard/backend-tests/observation/revisionCheckBoundary.ts` while this
+  family's own specs still import it; since plan 862, no other spec does.
 
 ## Premises and baseline
 
@@ -277,8 +276,7 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
   [consumer tracing](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
   to every changed server seam and deleted test-support file, verifying
   unaffected callers (including `shared-observation.spec.ts`,
-  `shared-verified-origin-trunk.spec.ts`, and plan 862's specs that still use
-  `revisionCheckBoundary.ts`).
+  `shared-verified-origin-trunk.spec.ts`, and plan 890's specs).
 - Recount at the execution starting revision and record the final exact
   maintained one-worker command with runner counts, per-case times against the
   campaign's ~100 ms target, summed case time, elapsed time, host load, and
@@ -291,4 +289,4 @@ Refinement not needed: the six slices cover all 60 observed baseline cases
 across the 15 legacy specs with direct typed Node Vitest seams, minimal
 in-process HTTP witnesses for genuine wire/SSE/process behaviors, clear
 test-support deletions, and explicit reconciliation with plans 856, 853, 823,
-860, and 862. No slice-specific concern remains on the observed basis.
+860, 862 and 890. No slice-specific concern remains on the observed basis.
