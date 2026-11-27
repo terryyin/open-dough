@@ -210,6 +210,7 @@ export class IntentReviewFiles {
   ) {
     const control = this.moveControl(name);
     await (using === "keyboard" ? control.press("Enter") : control.click());
+    return this;
   }
 
   async expectMoveAtEnd(name: "Previous file" | "Next file") {

@@ -14,38 +14,50 @@ import {
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
 
+const guide = "docs/notes.md";
+
+// Trunk drops its Intent locations before the story is claimed.
+function publishWithoutLocations(project: string) {
+  writeRevisionFiles(
+    project,
+    makeMe.aRepository
+      .withRevision("without-locations", {
+        backlog: null,
+        remove: [".planning/open-dough.json"],
+      })
+      .please().revisions[0],
+  );
+  commitAll(project, "publish without Intent locations");
+  push(project);
+}
+
 test("a published story without Intent locations can browse unchanged source and its changed diff", async ({
   page,
   origin,
 }) => {
-  const noLocations = makeMe.aRepository
-    .withRevision("without-locations", {
-      backlog: null,
-      remove: [".planning/open-dough.json"],
-    })
-    .please().revisions[0];
-  const { intent, completion } = await selectCompletedStoryInIntent(
-    page,
-    origin,
-    {
-      beforeStory(project) {
-        writeRevisionFiles(project, noLocations);
-        commitAll(project, "publish without Intent locations");
-        push(project);
-      },
-    },
-  );
-  const story = intentStory(intent);
-  const path = "docs/notes.md";
-  await story.browseFiles();
-  await expect(story.files).toContainText("No Intent locations are configured");
-  await story.listRevision();
-  await story.expandFolderPath("docs");
-  await story.file(path).click();
-  await expect(purposeRegion(intent)).toContainText("notes 11");
-  await expect(sourceRevision(intent, path)).toContainText(
-    completion.slice(0, 7),
-  );
-  await story.expandFolderPath("dashboard/tests");
-  expect(await story.diff(completedChanges.modified)).toContain("completed");
+  const { intent, completion, story } =
+    await test.step("Given a Done story published without Intent locations", async () => {
+      const selected = await selectCompletedStoryInIntent(page, origin, {
+        beforeStory: publishWithoutLocations,
+      });
+      return { ...selected, story: intentStory(selected.intent) };
+    });
+  await test.step("When I browse the story's files", () => story.browseFiles());
+  await test.step("Then the inventory says no Intent locations are configured", () =>
+    expect(story.files).toContainText("No Intent locations are configured"));
+  await test.step("When I open the unchanged guide from the repository listing", async () => {
+    await story.listRevision();
+    await story.expandFolderPath("docs");
+    await story.file(guide).click();
+  });
+  await test.step("Then its Purpose reads the guide's source at the completion", async () => {
+    await expect(purposeRegion(intent)).toContainText("notes 11");
+    await expect(sourceRevision(intent, guide)).toContainText(
+      completion.slice(0, 7),
+    );
+  });
+  await test.step("And the changed test file's diff shows the completed change", async () => {
+    await story.expandFolderPath("dashboard/tests");
+    expect(await story.diff(completedChanges.modified)).toContain("completed");
+  });
 });
