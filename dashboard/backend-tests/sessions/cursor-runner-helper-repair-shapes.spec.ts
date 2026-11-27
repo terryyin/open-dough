@@ -1,8 +1,9 @@
 // Same-build helper repair at the runner boundary: a runner whose helper
 // proof drifted or whose wire helper file was deleted is left alone
 // through deployment ensures and the first real launch (helper restored
-// from this install). Machine-restart and stale-build shapes live in
-// ./cursor-runner-restart-shapes.spec.ts.
+// from this install). Machine-restart shapes live in
+// ./cursor-runner-restart-shapes.spec.ts; stale-build shapes live in
+// ./cursor-runner-current-proof.spec.ts.
 import { existsSync, rmSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../test-support/support/pageTest.ts";

@@ -5,13 +5,16 @@
 // that does not answer the protocol at all is left alone and the work
 // fails unreachable. The build identity is computed from the runner code
 // itself: a reached sibling module moves it in source mode, and the
-// bundled entry's content moves it in bundled mode.
+// bundled entry's content moves it in bundled mode. The build-proof
+// decision itself and start-if-absent beside it are
+// ./cursor-runner-current-proof.spec.ts. Cases run in order: the fixture
+// sets HOME and PATH for the runner client.
 import { spawn } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import net from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { computeRunnerBuildId } from "../../server/hosts/cursor/runnerBuild.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 import {

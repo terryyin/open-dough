@@ -1,33 +1,27 @@
 // Restart resumability in the restart shapes, at the runner boundary:
 // a runner killed with its address left stale (the machine-restart
 // shape) is started fresh and current before a recorded session is kept
-// again; a runner whose recorded build proof is stale is replaced only
-// on the first real launch. Same-build helper repair shapes live in
+// again, and a new listener on its old port does not stand in for it.
+// Build-proof replacement is ./cursor-runner-current-proof.spec.ts.
+// Same-build helper repair shapes live in
 // ./cursor-runner-helper-repair-shapes.spec.ts.
 // Deterministic fake-Cursor proof only: real `cursor-agent` resumption
 // after a real runner kill and after a real machine reboot, with a
 // scoped session, remains pending native verification under ADR 0005
 // and is claimed nowhere here.
 import { spawn } from "node:child_process";
-import http from "node:http";
-import { rmSync } from "node:fs";
 import net from "node:net";
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import { computeRunnerBuildId } from "../../server/hosts/cursor/runnerBuild.ts";
 import { ensureCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
+import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 import {
-  cursorRunnerAddressFile,
-  readCursorRunnerAddress,
-} from "../../server/hosts/cursor/runnerPaths.ts";
-import {
-  createChatOnRunner,
   keepWorkingClient,
   startRunnerProofFixture,
 } from "../../test-support/support/cursorRunnerProof.ts";
 import {
   killCursorRunnerLeavingAddress,
   listenOnReleasedRunnerPort,
-  tamperRecordedProof,
   writeRunnerAddress,
 } from "../../test-support/support/cursorRunnerRecordedAddress.ts";
 import { processRunning } from "../../test-support/support/processGroup.ts";
@@ -99,78 +93,6 @@ test("a port reused after the runner died does not revive its stale address", as
         resolve();
       });
     });
-    await fixture.restore();
-  }
-});
-
-test("an unrelated process reusing the recorded pid and port proves no current build: new work starts no agent and leaves it alone", async () => {
-  const fixture = startRunnerProofFixture();
-  // This test process itself is the unrelated process: it accepts on
-  // the recorded port and its own alive pid is recorded, so the
-  // start-if-absent acceptance checks (pid alive + port accepting) pass
-  // — but it answers no runner protocol, let alone a current build.
-  const unrelated = http.createServer((req, res) => {
-    req.resume();
-    res.end("not the Cursor runner");
-  });
-  try {
-    await new Promise<void>((resolve) => {
-      unrelated.listen(0, "127.0.0.1", () => {
-        resolve();
-      });
-    });
-    const address = unrelated.address();
-    if (address === null || typeof address === "string") {
-      throw new Error("No unrelated address.");
-    }
-    writeRunnerAddress(fixture, { port: address.port, pid: process.pid });
-
-    // Start-if-absent sees an accepting address and starts nothing;
-    // that alone never makes the unrelated process look current.
-    await expect(ensureCursorRunner(fixture.home)).resolves.toBe(true);
-    expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(process.pid);
-
-    const created = await createChatOnRunner(fixture);
-    expect(created).toBeUndefined();
-    expect(fixture.cursor.calls()).toEqual([]);
-    expect(unrelated.listening).toBe(true);
-    expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(process.pid);
-  } finally {
-    // restore stops the runner named by the address; clear the address
-    // naming this test process before it can be read that way.
-    rmSync(cursorRunnerAddressFile(fixture.home), { force: true });
-    await new Promise<void>((resolve) => {
-      unrelated.close(() => {
-        resolve();
-      });
-    });
-    await fixture.restore();
-  }
-});
-
-test("a runner whose recorded build proof is stale is left by start-if-absent and replaced before the next launch", async () => {
-  const fixture = startRunnerProofFixture();
-  try {
-    await keepWorkingClient(fixture);
-    const before = readCursorRunnerAddress(fixture.home);
-    const heldPid = fixture.cursor.attaches()[0]?.pid ?? 0;
-    tamperRecordedProof(fixture);
-
-    await expect(ensureCursorRunner(fixture.home)).resolves.toBe(true);
-    expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(before?.pid);
-    expect(processRunning(heldPid)).toBe(true);
-
-    const created = await createChatOnRunner(fixture);
-    expect(created).toMatchObject({
-      failed: false,
-      stdout: `${fixture.cursor.sessionId}\n`,
-    });
-    await expect.poll(() => processRunning(before?.pid)).toBe(false);
-    const replacement = readCursorRunnerAddress(fixture.home);
-    expect(replacement?.pid).not.toBe(before?.pid);
-    expect(replacement?.buildId).toBe(computeRunnerBuildId());
-    expect(processRunning(heldPid)).toBe(false);
-  } finally {
     await fixture.restore();
   }
 });

@@ -97,7 +97,7 @@ Remove each legacy case when its receiving proof passes.
 ### 1. New Cursor work requires current build proof
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 15 active minutes.
 
 Proof: Convert `cursor-runner-build-proof` with its source-closure and
@@ -114,6 +114,15 @@ answer and empty agent call/attach logs. An accepting process without a
 valid answer stays running. A wrong or absent proof on an answering
 runner requires one replacement before exec. Start-if-absent leaves it
 in place.
+
+Delivered: `runnerBuildProofDecision` in `runnerCurrentProof.ts` returns
+`leave-alone`, `replace` or `check-helper` with the recorded address and
+reported helper. Dispositions: six build-proof cases stay converted in
+place; restart-shapes unrelated-listener and stale-after-ensure moved to
+`cursor-runner-current-proof`; the refusal moved to
+`cursor-runner-start-admission` (6.35 s). Focused Vitest 12/12, remaining
+legacy Playwright 9/9, affected E2E 4/4. A mixed backend selection prints
+only Vitest output; read Playwright counts from the proof record.
 
 ### 2. Restore the terminal helper on the same runner
 

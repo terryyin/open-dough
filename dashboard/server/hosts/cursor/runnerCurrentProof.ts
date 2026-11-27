@@ -15,7 +15,7 @@ import {
 } from "./runnerPaths.ts";
 import { cursorRunnerSessionsResult } from "./runnerProtocol.ts";
 
-type RunnerProofProbe =
+export type RunnerProofProbe =
   | {
       readonly answered: true;
       readonly buildId: string | undefined;
@@ -114,6 +114,31 @@ function repairSpawnHelperProof(
   return spawnHelperReady(refreshed?.spawnHelper, reported);
 }
 
+// The one build-proof rule for new Cursor work on an accepting runner. A
+// probe without a protocol answer leaves the listener alone; an answer
+// whose build differs, or a recorded address without this build, takes
+// the replacement path; matching proofs go on to the helper check with
+// the recorded address and the helper the runner reported.
+export type RunnerBuildProofDecision =
+  | { readonly kind: "leave-alone" }
+  | { readonly kind: "replace" }
+  | {
+      readonly kind: "check-helper";
+      readonly recorded: CursorRunnerAddress;
+      readonly reportedHelper: string | undefined;
+    };
+
+export function runnerBuildProofDecision(
+  currentBuildId: string,
+  probe: RunnerProofProbe,
+  recorded: CursorRunnerAddress | undefined,
+): RunnerBuildProofDecision {
+  if (!probe.answered) return { kind: "leave-alone" };
+  if (probe.buildId !== currentBuildId) return { kind: "replace" };
+  if (recorded?.buildId !== currentBuildId) return { kind: "replace" };
+  return { kind: "check-helper", recorded, reportedHelper: probe.spawnHelper };
+}
+
 // True only for an accepting runner whose recorded and wire proof both
 // match the build this dashboard would start now, and whose terminal
 // helper is ready (or repaired from this install onto the path that
@@ -125,18 +150,19 @@ export async function acceptingRunnerIsCurrent(
 ): Promise<boolean | null> {
   const port = await acceptingCursorRunnerPort(home);
   if (port === undefined) return false;
-  const probe = await probeRunnerProof(port);
-  if (!probe.answered) return null;
-  if (probe.buildId !== currentBuildId) return false;
-  const address = readCursorRunnerAddress(home);
-  if (address === undefined || address.buildId !== currentBuildId) {
-    return false;
-  }
-  if (spawnHelperReady(address.spawnHelper, probe.spawnHelper)) return true;
+  const decision = runnerBuildProofDecision(
+    currentBuildId,
+    await probeRunnerProof(port),
+    readCursorRunnerAddress(home),
+  );
+  if (decision.kind === "leave-alone") return null;
+  if (decision.kind === "replace") return false;
+  const { recorded, reportedHelper } = decision;
+  if (spawnHelperReady(recorded.spawnHelper, reportedHelper)) return true;
   // Same build, helper proof missing or drifted: restore a usable helper
   // for this answering runner instead of stopping it and hanging up every
   // client it still holds.
-  return repairSpawnHelperProof(home, address, probe.spawnHelper);
+  return repairSpawnHelperProof(home, recorded, reportedHelper);
 }
 
 export function currentRunnerBuildId(): string {

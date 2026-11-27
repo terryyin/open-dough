@@ -12,7 +12,6 @@ import {
   detachedPromptStaysWhileDashboardIsDown,
   stoppingRunnerResumesOnNextOpen,
   twoServersLeaveOneRunner,
-  unreachableRunnerRefusesStart,
 } from "../../test-support/support/cursorRunnerLifetime.ts";
 import {
   restartedDashboardTypesSameClient,
@@ -40,10 +39,6 @@ test("the runner keeps a detached follow-up prompt while the dashboard is down",
 
 test("two development servers leave one runner in its own process group", async () => {
   await twoServersLeaveOneRunner();
-});
-
-test("an unreachable runner refuses a Cursor start", async () => {
-  await unreachableRunnerRefusesStart();
 });
 
 test("stopping the runner ends its clients and a new runner resumes the chat", async () => {

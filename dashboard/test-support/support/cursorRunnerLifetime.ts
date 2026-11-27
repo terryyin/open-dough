@@ -1,6 +1,6 @@
 // The runner's lifetime on one machine: a detached follow-up prompt stays
-// while the dashboard is down, one runner for two servers, refusal when the
-// address is occupied, and a new resume after the runner is stopped.
+// while the dashboard is down, one runner for two servers, and a new resume
+// after the runner is stopped.
 import { mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -17,16 +17,12 @@ import { developmentBoundary } from "./dashboardServer.ts";
 import {
   instruction,
   liveRunner,
-  occupyRunner,
   processGroup,
   runnersFor,
 } from "./cursorRunnerJourney.ts";
 import { processRunning } from "./processGroup.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
-import {
-  cursorRunnerAddressFile,
-  readCursorRunnerAddress,
-} from "../../server/hosts/cursor/runnerPaths.ts";
+import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 
 export async function detachedPromptStaysWhileDashboardIsDown(): Promise<void> {
   const cursor = installFakeCursor({ screen: "working", becomeReady: true });
@@ -94,40 +90,6 @@ export async function twoServersLeaveOneRunner(): Promise<void> {
     await first.close();
     await second.close();
     await stopCursorRunner(path.join(machine, "home"));
-    cursor.cleanup();
-    rmSync(machine, { recursive: true, force: true });
-  }
-}
-
-export async function unreachableRunnerRefusesStart(): Promise<void> {
-  const cursor = installFakeCursor();
-  const machine = path.join(
-    tmpdir(),
-    `dough-cursor-down-${process.pid.toString(36)}`,
-  );
-  mkdirSync(machine);
-  const home = path.join(machine, "home");
-  const release = await occupyRunner(home);
-  let server: Awaited<ReturnType<typeof startCursorDashboard>> | undefined;
-  try {
-    server = await startCursorDashboard(developmentBoundary, cursor, machine);
-    const launched = await launch(server, {
-      source: "open-dough",
-      workflow: "ad-hoc",
-      host: "cursor",
-      instruction,
-    });
-    expect(JSON.parse(launched.body)).toMatchObject({
-      kind: "failed",
-      reason: "unavailable",
-    });
-    expect(cursor.calls()).toEqual([]);
-    expect(cursor.attaches()).toEqual([]);
-    expect(runnersFor(home)).toBe(0);
-  } finally {
-    rmSync(cursorRunnerAddressFile(home), { force: true });
-    await release();
-    await server?.close();
     cursor.cleanup();
     rmSync(machine, { recursive: true, force: true });
   }
