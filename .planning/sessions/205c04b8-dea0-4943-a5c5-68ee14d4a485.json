@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "sessionId": "205c04b8-dea0-4943-a5c5-68ee14d4a485",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-27T23:53:47.654Z",
+  "story": "SEED-413#fast-runtime-unit-case-cleanup",
+  "ranges": [
+    {
+      "base": "3e5ebed61c025bfbb57fd2efe11f79bf52701786",
+      "candidate": "a7e3119ee203f05a537afc8358bcc67a4f5f6545"
+    },
+    {
+      "base": "a7e3119ee203f05a537afc8358bcc67a4f5f6545",
+      "candidate": "6a94187c24e39f4e524c61f8c55afdc690138e0a"
+    },
+    {
+      "base": "6a94187c24e39f4e524c61f8c55afdc690138e0a",
+      "candidate": "222cea979b93445870e6f3c75b107d38168bd65d"
+    },
+    {
+      "base": "222cea979b93445870e6f3c75b107d38168bd65d",
+      "candidate": "61b22d6aaf7f1cb6b8e3a20c840a1fc6f48314f3"
+    },
+    {
+      "base": "61b22d6aaf7f1cb6b8e3a20c840a1fc6f48314f3",
+      "candidate": "09eb9ddec3e64ac3c733303479c0e8469d516431"
+    },
+    {
+      "base": "09eb9ddec3e64ac3c733303479c0e8469d516431",
+      "candidate": "93c3776db5386531b7fa7bba5596738e52d90b1c"
+    },
+    {
+      "base": "93c3776db5386531b7fa7bba5596738e52d90b1c",
+      "candidate": "826ab2b862401804a52adb221d94e9a1c6f9d188"
+    }
+  ]
+}
