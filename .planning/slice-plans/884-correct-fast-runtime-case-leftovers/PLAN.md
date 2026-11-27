@@ -38,7 +38,24 @@ Findings, rechecked at `5b4c52038`:
 
 ## Ordered slices
 
-### 1. Prove the membership check's fail-fast rule as a unit case
+### 1. Prove staging refuses a checkout that is not the selected commit
+Type: Behavior
+Status: planned
+Estimate: 10–15 active minutes.
+Proof: a fast case drives `stageDeployment` (or `verifyPublishedCommit`
+wired to it) with a fetched HEAD that differs from the selected commit,
+through typed Git and command inputs, and observes the refusal "Fetched
+commit … did not match selected main commit …" with no `npm ci` or build
+run. Removing the `expectSelectedCommit` call fails it.
+
+Source: Intent Coverage at `b4e218f6b` confirmed this missing path — with
+the check removed, staging ran `npm ci` and the build in the unselected
+commit, while `production-deployment.spec.ts` (which calls
+`expectSelectedCommit` alone) and `e2e/runtime/production-watcher.spec.ts`
+(whose fetched HEAD always matches) still passed. Placed first because a
+delivered promise of plan 879 slice 1 lacks proof.
+
+### 2. Prove the membership check's fail-fast rule as a unit case
 Type: Behavior
 Status: planned
 Estimate: 10–15 active minutes.
@@ -47,7 +64,7 @@ published-work read and observes an immediate failure naming both titles,
 in about 100 ms or less. `transient-read-exclusions.spec.ts` passes without
 the appended block, and its run no longer includes the 5 s bound.
 
-### 2. Remove Git and restated cases from the runtime folder
+### 3. Remove Git and restated cases from the runtime folder
 Type: Structure
 Status: planned
 Estimate: 10–15 active minutes.

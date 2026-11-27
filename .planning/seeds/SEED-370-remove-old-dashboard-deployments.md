@@ -45,3 +45,22 @@ dashboard, watcher, preview or runner still uses, and the recent ones, stay.
 - Never remove a deployment that a running process uses.
 - Choose when removal runs (after a successful deployment switch is the likely
   point) and how a failed removal is reported.
+
+<a id="close-preview-incident-record-on-sighup"></a>
+
+### Close the preview's incident record when the watcher ends on SIGHUP
+
+**Identity:** SEED-370#close-preview-incident-record-on-sighup
+
+- **Goal.** A developer running the production dashboard sees an orderly
+  watcher shutdown as orderly: when the watcher ends on SIGHUP, the served
+  preview's incident record shows `process-ended` after its
+  `process-started`, so the dashboard does not read that preview as lost.
+- **Evidence.** Found 2026-11-27 while executing
+  `SEED-413#fast-runtime-unit-cases`: tying an assertion to the preview's own
+  process group in `e2e/runtime/production-watcher.spec.ts` "SIGHUP quietly
+  ends production and its checkouts…" showed `process-started` and no
+  `process-ended` for that preview. A preview replaced by the next published
+  main does record both.
+- **Key example.** The watcher serves a published commit and receives SIGHUP:
+  the preview's process entries are `process-started` then `process-ended`.

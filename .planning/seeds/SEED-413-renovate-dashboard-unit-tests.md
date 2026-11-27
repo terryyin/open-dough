@@ -459,14 +459,17 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 ### Correct the fast runtime cases' leftovers
 
 **Identity:** SEED-413#fast-runtime-unit-case-cleanup
+**Plan:** [Correct the fast runtime cases' leftovers](../slice-plans/884-correct-fast-runtime-case-leftovers/PLAN.md)
 
 - **Goal.** Correction of
-  [fast runtime unit cases](#fast-runtime-unit-cases) (plan 879, commits
+  fast runtime unit cases (`SEED-413#fast-runtime-unit-cases`, plan 879, commits
   `b7f5b8ff0`..`5b4c52038`). The fast runtime folder keeps its promise
   without leaving cost elsewhere: the membership check's fail-fast rule is
   proven by a unit case, so no E2E journey waits out a 5 s bound for it, and
   the folder starts no Git process.
 - **Scope.**
+  - Prove that staging refuses a fetched checkout that is not the selected
+    commit before install or build (Intent Coverage gap at `b4e218f6b`).
   - Prove that `expectMembership` fails at once, naming the titles, when the
     published-work read fails for good, in `page-read-waits.spec.ts`, and
     drop the block slice 8 appended to
