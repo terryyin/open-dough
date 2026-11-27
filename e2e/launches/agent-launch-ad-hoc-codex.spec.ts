@@ -18,14 +18,12 @@ import {
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import {
   chooseProject,
-  expandStoryCardDoneHistory,
+  shownDoneSessionEntriesOf,
   expectProjectChoice,
   parts,
   sessionEntriesIn,
   sessionStateOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
-import { showColumn } from "../../dashboard/test-support/boardPage.ts";
 import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import {
   openTerminalControl,
@@ -99,7 +97,6 @@ for (const text of ["why is the\nCI\t slow?", ""]) {
     if (saved?.session.host !== "codex")
       throw new Error("Missing saved Codex record.");
     const label = saved.request.title;
-    const card = storyCard(parts(page).taken, label);
     await expect(panel.getByRole("heading")).toHaveText(label);
     await expect(sidePanelNamesOf(panel).sessionName).toHaveText(
       "Ad hoc session",
@@ -203,8 +200,7 @@ for (const text of ["why is the\nCI\t slow?", ""]) {
       expect(stored(restarted.home)[0]?.doneAt).toBeDefined();
       await reloadUntilRead(page);
       await expect(sessionStateOf(recent)).toHaveText("Done");
-      await showColumn(page, "Taken");
-      await expandStoryCardDoneHistory(card);
+      await shownDoneSessionEntriesOf(page, label);
       await openTerminalControl(recent).click();
       await expect(terminalScreenParts(panel).rows).toContainText(
         "GPT-6.1-Sol default",

@@ -418,11 +418,21 @@ Evidence (2026-11-27):
 
 ### 7. Read session placement through one owner
 Type: Structure
-Status: planned
+Status: done
 Proof: no spec builds the `storyCard → showColumn → expandStoryCardDoneHistory`
 path by hand. Specs use the `dashboardParts.ts` readers (active and done),
 and `showDoneHistory` is gone. The touched E2E files pass, and the full E2E
 suite passes locally before landing.
+
+Evidence (2026-11-27):
+- At execution, 8 specs still built the path by hand; the earlier trims and
+  plan 876 had removed the rest. They now read Done sessions through
+  `doneSessionEntriesOf` / `shownDoneSessionEntriesOf` in `dashboardParts.ts`.
+- `expandStoryCardDoneHistory` and `showDoneHistory` are removed, and so is
+  `sessionFollowUpPage`'s unused `session` helper.
+- Active cards keep `storyCardSessions` / `storyCardSessionOf`.
+- The 8 specs and the 9 consumers selected by the trace pass, and both
+  typechecks are clean. The full E2E suite runs before landing.
 
 ### 8. Open an installed Board and read the reporting input through one owner each
 Type: Structure

@@ -6,7 +6,10 @@
 // ../../dashboard/frontend-tests/launches/follow-up-availability.spec.ts.
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
-import { sessionStateOf } from "../../dashboard/test-support/dashboardPage.ts";
+import {
+  sessionStateOf,
+  shownDoneSessionEntriesOf,
+} from "../../dashboard/test-support/dashboardPage.ts";
 import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import { listed } from "../../dashboard/test-support/recentlyDoneColumn.ts";
 import { stored } from "../../dashboard/test-support/support/codexLaunch.ts";
@@ -37,9 +40,8 @@ test("a Done session offers Follow up once its conversation is confirmed unavail
   const board = sessionFollowUpPage(page);
   const card = board.taken(takenStory);
   const source = `${takenIdentity} — ${takenStory}`;
-  const entry = board.session(
-    await board.showDoneHistory(card),
-    "Ad hoc session",
+  const entry = (await shownDoneSessionEntriesOf(page, takenStory)).and(
+    page.getByRole("article", { name: "Ad hoc session", exact: true }),
   );
 
   await test.step("the session that still opens its terminal offers no Follow up", async () => {
@@ -50,7 +52,7 @@ test("a Done session offers Follow up once its conversation is confirmed unavail
   await test.step("once its conversation is confirmed unavailable, Follow up replaces Open terminal", async () => {
     dashboard.claudeSessionBecomes(sessionId, "forgotten");
     await page.reload();
-    await board.showDoneHistory(card);
+    await shownDoneSessionEntriesOf(page, takenStory);
     await expect(board.followUp(entry, quietTitle)).toBeVisible();
     await expect(openTerminalControl(entry)).toHaveCount(0);
   });

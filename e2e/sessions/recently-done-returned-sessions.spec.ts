@@ -16,7 +16,7 @@ import {
 import { rem } from "../../dashboard/test-support/boardPage.ts";
 import {
   expectMembership,
-  expandStoryCardDoneHistory,
+  shownDoneSessionEntriesOf,
   parts,
   sessionEntryShowing,
   sessionStateOf,
@@ -119,7 +119,7 @@ test("a launch returned to the backlog reads Returned to backlog under the unfin
     const card = storyCard(column, queuedTitle);
     const disclosure = storyCardDoneDisclosure(card);
     await expect(disclosure).toContainText("1");
-    await expandStoryCardDoneHistory(card);
+    await shownDoneSessionEntriesOf(page, queuedTitle);
     const returned = sessionEntryShowing(card, returnedKey);
     await expect(sessionStateOf(returned)).toHaveText("Returned to backlog");
     const inCard = storyCardSessions(card);
@@ -186,7 +186,7 @@ test("a returned launch whose native session still works keeps that note under t
   const { backlog, recentlyDone: recent } = parts(page);
   const returnedKey = `claude:${returnedId}`;
   const card = storyCard(backlog, queuedTitle);
-  await expandStoryCardDoneHistory(card);
+  await shownDoneSessionEntriesOf(page, queuedTitle);
   const inCard = sessionEntryShowing(card, returnedKey);
   const inRecent = sessionEntryShowing(recent, returnedKey);
   const stillWorking = "Returned to backlog: Native session is still working";
