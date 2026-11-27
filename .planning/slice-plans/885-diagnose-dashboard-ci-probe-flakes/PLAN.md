@@ -117,7 +117,7 @@ untouched.
 ### 2. A blank start's terminal presentation is awaited, not raced
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Under any scheduling between the commit that re-enables Start and
 the effect that presents the terminal, the responsive startup cases observe
@@ -136,6 +136,13 @@ Proof:
   current spec, and with the repair the cases pass. Revert the hook.
 - One focused run of the unmodified repaired spec passes.
 - The publication's CI `dashboard-frontend` job passes.
+
+Accepted proof (2026-11-27, load averages 54–57): two cases now `await
+expect.poll(() => presentTerminal.mock.calls).toHaveLength(1)`. With the
+scratch commit hook, the focused spec passed 4/4, and the hook was then
+removed. The unmodified repaired spec also passed 4/4, and
+`typecheck:dashboard` passed. The consumer trace finds no consumers beyond
+the spec's own cases.
 
 Failure policy: [shared failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
 
