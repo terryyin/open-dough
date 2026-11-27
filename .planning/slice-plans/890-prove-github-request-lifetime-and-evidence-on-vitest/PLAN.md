@@ -8,7 +8,9 @@
 delivered slice 3. These slices continue that story's slices 4–8 of
 [plan 862](https://github.com/terryyin/open-dough/blob/71cc76188db2356fd0f4cd2f064cfd27be95c037/.planning/slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md).
 Plan 862's slice 4 is slices 1–3 here, split after the first execution
-overrun. Slices 4–7 here remain plan 862's slices 5–8 in that order.
+overrun. Plan 862's slice 5 is slice 4 here. Plan 862's slice 6 is
+slices 5–8 here, split after the second execution overrun. Slices 9–10
+remain plan 862's slices 7–8 in that order.
 Plan 862 keeps slices 1–3 (classified failures and the output bound, held
 and resumed reads, shared requests and turn timing). After its cleanup,
 recover it from Git history at the revision that lands it.
@@ -106,6 +108,26 @@ checks and the browser journeys retain their existing owners.
   0. Neither fact was executed. Later slices were left as they were: this
   assumption is about packing those lifetime observations together, not
   about the shared-owner, diagnostics, incident, or stall slices.
+- Slice 5 overran on 28 November 2026. The pause settled 15.2 active
+  minutes and `storyOverruns` became 2. Completed proof: none. No spec was
+  written. The story boundary stays. Slices 1–4 already give maintainers
+  the lifetime and shared-owner proof, and the remaining scope is still
+  this story's failure-evidence examples: one safe diagnostic, an oversized
+  incident record, evidence after restart, and folded stalls. The sizing
+  assumption that failed is that one slice can discover the diagnostic
+  observer and prove route admission, the in-memory failure list, and the
+  CLI incident-history record together. `recordFailedRead` in
+  `dashboard/server/readDiagnostics.ts` is the observer
+  `diagnosticsForSource` reads. `GitHubRequests` reports a failure once
+  per shared invocation and not for a held-back answer or an ordinary
+  departure. The in-memory history is one module-level list of 100, so an
+  empty read has to come before other cases in the same worker record
+  failures. G1 still has to admit a CLI read past the output cap and then
+  read the incident history; `authenticated-read-output-bound.spec.ts`
+  does not. The next slices use those seams and do not repeat the
+  discovery. Report:
+  `open-dough/evidence/slice-5-diagnostics-report.md` in this worktree's
+  Git directory.
 
 ## Premises and baseline
 
@@ -304,32 +326,86 @@ return 200 under the same owner. Command:
 (exit 0, 5.81 s). `npm run typecheck:dashboard` exited 0. Records:
 `slice-4-owner.log.run.json` and `slice-4-owner-typecheck.log.run.json`.
 
-### 5. Expose bounded local diagnostics for admitted readers
+### 5. Admit a diagnostic read before any upstream call
 
 Type: Behavior
 Status: planned
 
 Behavior: A fresh diagnostic read is empty and does no upstream work.
-Admitted failures show typed cause, safe metadata and request attribution,
-including a pinned revision, once per shared invocation. Keep the newest
-100 failures and filter to the requested source. Ordinary departure,
-held-back work, and malformed, oversized or secret-like optional metadata
-do not add misleading entries or leak data. An oversized answer leaves its
-incident-history record (G1).
+Unknown source, disallowed origin, and non-GET are refused before any
+GitHub call. The production environment mounts the same route and also
+asks GitHub nothing.
 
-Proof: Drive the production failure observer with an admitted context and
-controlled failed answers, and inspect through `diagnosticsForSource`.
-Use a shared failed read and a departure case to prove the observer fires
-at the invocation boundary. Mount production middleware with a small
-Node HTTP witness for route admission, zero upstream calls for inspection,
-and the matching dev/preview response. Exercise unknown source, disallowed
-origin and non-GET there. For G1, exceed the output cap with the CLI
-fixture and read the incident history.
+Proof: Use `startInProcessAuthenticatedRead` and
+`/__authenticated-read-diagnostics`. Assert an empty failure list and an
+unchanged upstream call count, then the three refusals, then the same
+empty route on the production environment. The in-memory history is one
+module-level list of 100, so this empty read runs before any case in the
+same worker records a failure.
 
-Legacy: `authenticated-read-diagnostics.spec.ts`,
-`authenticated-read-diagnostics-bounds.spec.ts`.
+Legacy: the empty-history, refusal, and production-environment cases of
+`authenticated-read-diagnostics.spec.ts`. That file also holds the
+shared-failure cases, so it stays until slice 6.
 
-### 6. Read bounded incident evidence after shutdown and restart
+### 6. Record one safe diagnostic for an admitted failure
+
+Type: Behavior
+Status: planned
+
+Behavior: An admitted failure shows its typed cause, safe metadata, and
+request attribution, including a pinned revision, once per shared
+invocation. Ordinary departure and a read held back before it fails do
+not add an entry.
+
+Proof: Drive `recordFailedRead` through an admitted shared read and
+inspect with `diagnosticsForSource`. One upstream call for two waiters
+leaves one entry carrying the admitted pin. A departing waiter and a
+held-back answer leave the failure list unchanged. A recorded rate-limit
+failure is not the held-back observation.
+
+Legacy: the shared timeout, 403, rate-limit, and one-entry cases of
+`authenticated-read-diagnostics.spec.ts`, plus the departure and
+pinned-failure cases of `authenticated-read-diagnostics-bounds.spec.ts`.
+Retire `authenticated-read-diagnostics.spec.ts` when this slice is green.
+The bounds file stays until slice 7.
+
+### 7. Keep only the newest safe diagnostic entries
+
+Type: Behavior
+Status: planned
+
+Behavior: The history keeps the newest 100 failures and filters to the
+requested source. Malformed, oversized, or secret-like optional metadata
+is omitted and does not leak.
+
+Proof: Drive the production observer with controlled failed answers and
+inspect through `diagnosticsForSource`. Assert length 100 for the
+admitted source, the oldest of 101 absent, the other source empty, and
+no secret, raw text, oversized request id, or rate-limit object from the
+bad optional fields.
+
+Legacy: the newest-100 and metadata cases of
+`authenticated-read-diagnostics-bounds.spec.ts`. Retire that file when
+this slice is green.
+
+### 8. Leave an incident-history record for an oversized answer
+
+Type: Behavior
+Status: planned
+
+Behavior: An oversized answer leaves an incident-history record with its
+source, category `content`, and cause `output-bound`, and with no status,
+rate limit, or secret. This is G1.
+
+Proof: Exceed the output cap with the CLI fixture in
+`authenticated-read-output-bound.spec.ts`, inside an admitted read, and
+read the incident history the production path writes. That spec's `runGh`
+classification is not this observation. Give the case its essential
+per-test timeout inside the individual test.
+
+Legacy: none.
+
+### 9. Read bounded incident evidence after shutdown and restart
 
 Type: Behavior
 Status: planned
@@ -354,7 +430,7 @@ Legacy: `authenticated-read-incident-record.spec.ts`,
 `authenticated-read-incident-record-restart.spec.ts`, and the process
 lifecycle case of `authenticated-read-incident-record-lifecycle.spec.ts`.
 
-### 7. Report measured stalls and fold excess stalls at close
+### 10. Report measured stalls and fold excess stalls at close
 
 Type: Behavior
 Status: planned
@@ -404,19 +480,20 @@ stall case of `authenticated-read-incident-record-lifecycle.spec.ts`.
 ### G1. Oversized-output incident record (first reported in slice 1 of plan 862)
 Reported: slice 1 — "The incident-history record check was not carried over: source, category `content`, cause `output-bound`, no status or rate limit, and no secret in the history."
 Story clause: "leave bounded, safe evidence of failures"
-Disposition: receiving slice 5
+Disposition: receiving slice 8
 
 ## Plan review
 
-Mapped from plan 862's reviewed slices 4–8. Execution then split that
-slice 4 into slices 1–3 after it overran; slices 4–7 keep the later
-boundaries. The cases that need a live child, a second Dashboard plus CI,
-or durable incident evidence use their own production boundaries.
-Splitting stall measurement from record persistence lets each close
-against its own observable result. G1 moved with the diagnostics slice
-that owns incident evidence. No current production seam needs a
-preparatory Structure slice, and no outcome of plan 862 must land first:
-its delivered slices share only test patterns with these slices.
+Mapped from plan 862's reviewed slices 4–8. Execution split that slice 4
+into slices 1–3 after the first overrun, then split the diagnostics slice
+into slices 5–8 after the second. Slices 1–4 are delivered. The remaining
+scope is still this story's failure evidence. Splitting the overrun slice
+takes the plan to ten slices, the execution allowance for the slice in
+progress. Route admission, the in-memory failure list, its bounds, and
+the CLI incident-history record each close on their own observable
+result. G1 is slice 8. No current production seam needs a preparatory
+Structure slice, and no outcome of plan 862 must land first: its
+delivered slices share only test patterns with these slices.
 
 ## Execution context
 
@@ -432,8 +509,8 @@ its delivered slices share only test patterns with these slices.
   Trunk: `origin/main`.
 - Published claim: `735c60a52ea2cd88e8746df5e06edfcb1d9f81b2` on that story
   branch. `pendingCi: unobserved` — the claim published before this observer
-  was armed. Slice 3 is published at
-  `9512f637b4e8a137a09113c390ab6c4f3b095272` on the same branch. That SHA is
+  was armed. Slice 4 is published at
+  `2950e48ddd61bfbe9fde0a130028b414651b1a6e` on the same branch. That SHA is
   the previously published base for the next increment. Unpublished
   candidate: none.
 - CI: GitHub Actions, workflow `ci.yml` (display name `CI`, id `351271804`),
@@ -452,5 +529,5 @@ its delivered slices share only test patterns with these slices.
   still matches these specs aside from a comment retarget in
   `authenticated-read-subprocess-lifecycle.spec.ts`; do not remeasure the
   whole 13-path family before the lifetime slices. The first attempt's
-  unproven specs were removed. The next lifetime slice starts from zero
-  with `--split-from 1`.
+  unproven specs were removed. Slice 5's second overrun left no specs.
+  The next diagnostics slice starts from zero with `--split-from 5`.
