@@ -1,8 +1,10 @@
 // One Board candidate at the Git boundary. Probe the configured ref, fetch
-// that branch (not the probed SHA), and admit the backlog only when
-// FETCH_HEAD is the probed commit. Review's tracking ref and sync record
-// stay Review's: `--refmap=` ignores `remote.origin.fetch`, including a
-// configured `+refs/heads/*:refs/remotes/origin/*`.
+// that branch (not the probed SHA) into the Board's own
+// `refs/open-dough/board/<branch>`, and admit the backlog only when that ref
+// is the probed commit. The ref keeps the confirmed objects reachable, and
+// Review's fetches, tracking ref and sync record stay Review's: `--refmap=`
+// ignores `remote.origin.fetch`, including a configured
+// `+refs/heads/*:refs/remotes/origin/*`, and no FETCH_HEAD is shared.
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { commitIdSchema } from "../src/launchLanding.ts";
 import { GhFailure } from "./ghFailure.ts";
@@ -71,6 +73,7 @@ export async function verifiedOriginTrunk(
   const repository = await ensureReviewRepository(source, signal);
   const call = reviewGitCall(repository, signal);
   const ref = `refs/heads/${source.ref}`;
+  const boardRef = `refs/open-dough/board/${source.ref}`;
   let probed: string;
   try {
     const head = await remoteBranchHead(
@@ -87,14 +90,24 @@ export async function verifiedOriginTrunk(
   try {
     // Owned through cancellation: the deadline ends Git and its transport.
     await fetchGitTransport(
-      [...githubGitCredentials, "fetch", "--quiet", "--refmap=", "origin", ref],
+      [
+        ...githubGitCredentials,
+        "fetch",
+        "--quiet",
+        "--no-write-fetch-head",
+        "--refmap=",
+        "origin",
+        `+${ref}:${boardRef}`,
+      ],
       call,
     );
   } catch (error) {
     return transportOutcome(error, signal);
   }
   const fetched = commitIdSchema.parse(
-    (await runGit(["rev-parse", "--verify", "FETCH_HEAD"], call)).stdout.trim(),
+    (
+      await runGit(["rev-parse", "--verify", `${boardRef}^{commit}`], call)
+    ).stdout.trim(),
   );
   if (fetched !== probed) return { kind: "rejected" };
   let backlog: string;

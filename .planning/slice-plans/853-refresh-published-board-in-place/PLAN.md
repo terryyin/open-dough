@@ -104,7 +104,7 @@ then 13/13 passed); CI decides the whole suite.
 ### 2. Keep the Board check's fetch apart from Review's
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: The Board's verified check and a Review sync on the same project
 never read each other's fetch or race creating the review repository; the
@@ -115,6 +115,17 @@ check leaves the check's verified revision intact; concurrent first use
 creates one repository. Drop the 10-minute reuse window
 `story-review-initial-sync.spec.ts` needed to keep the Board out of Review's
 upload-pack gate, and keep it green. Budget 13 active minutes.
+
+Delivered (5 active minutes): the check fetches
+`+refs/heads/<b>:refs/open-dough/board/<b>` with `--no-write-fetch-head`
+and verifies that ref; concurrent first uses share one local creation that
+no single caller's signal can abort. Both backend cases failed on base
+(`rejected` revision; `git init` config lock). Premise correction: the
+Board's own ref did not take it past Review's upload-pack gate, because the
+gate is the repository's `remote.origin.uploadpack`; the test gate gained a
+`reviewOnly` option that lets the Board's probe and fetch through by the
+calling Git client's command line, the only distinguishing signal (same
+remote, ref and wire request).
 
 ### 3. Open from a durable confirmation without fetching
 

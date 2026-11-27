@@ -16,8 +16,14 @@ import { homeReviewRepository } from "./support/reviewRepositoryFixture.ts";
 // until one waits; `held` counts those that waited; `fail` ends each waiting
 // and later transfer as an origin that hung up; `releaseAt` lets them through
 // to a copy of the origin whose trunk is still `revision`, and `release` to
-// the origin itself.
-export function holdLaterTrunkTransfers(home: string, repository: string) {
+// the origin itself. With `reviewOnly`, the Board check's probe and its fetch
+// into `refs/open-dough/board/*` reach the origin unheld, so only Review's
+// own fetches wait.
+export function holdLaterTrunkTransfers(
+  home: string,
+  repository: string,
+  { reviewOnly = false } = {},
+) {
   const origin = routedOrigin(home, repository);
   const at = (name: string) => path.join(home, `later-upload-pack-${name}`);
   const log = at("log");
@@ -29,7 +35,7 @@ export function holdLaterTrunkTransfers(home: string, repository: string) {
   writeFileSync(
     gate,
     `#!/bin/sh
-printf 'held\\n' >> "${log}"
+${reviewOnly ? boardPassesThrough : ""}printf 'held\\n' >> "${log}"
 while [ ! -f "${released}" ]; do
   if [ -f "${failing}" ]; then exit 1; fi
   sleep 0.05
@@ -68,6 +74,19 @@ exec git upload-pack "$@"
     },
   };
 }
+
+// The Board check and Review reach upload-pack with the same remote, ref and
+// wire request, so only the spawning Git client's command line tells them
+// apart: the check's probe (`ls-remote`) or its destination ref. Walk a few
+// ancestors past any shell between them.
+const boardPassesThrough = `pid=$PPID
+for _ in 1 2 3; do
+  case "$(ps -o args= -p "$pid" 2>/dev/null)" in
+    *ls-remote*|*refs/open-dough/board/*) exec git upload-pack "$@" ;;
+  esac
+  pid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
+done
+`;
 
 const git = (directory: string, ...args: string[]) =>
   execFileSync("git", ["-C", directory, ...args]);

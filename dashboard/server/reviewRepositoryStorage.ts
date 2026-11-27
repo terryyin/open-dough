@@ -53,12 +53,30 @@ export async function lastSync(
   }
 }
 
+// Concurrent first uses of one repository share its creation, so a Review
+// sync and the Board check never race `git init` or the origin config. The
+// creation is local and belongs to no one caller: a caller that departs
+// stops only its own wait, never another caller's creation.
+const creations = new Map<string, Promise<void>>();
+
 async function createIfMissing(
   repository: string,
   source: PublishedSource,
   signal: AbortSignal,
-) {
-  const call = { cwd: repository, signal, maxBuffer };
+): Promise<void> {
+  let creating = creations.get(repository);
+  if (creating === undefined) {
+    creating = create(repository, source).finally(() =>
+      creations.delete(repository),
+    );
+    creations.set(repository, creating);
+  }
+  await creating;
+  signal.throwIfAborted();
+}
+
+async function create(repository: string, source: PublishedSource) {
+  const call = { cwd: repository, maxBuffer };
   if (existsSync(path.join(repository, "HEAD"))) {
     try {
       await runGit(["config", "--local", "--get", "remote.origin.url"], call);
@@ -76,8 +94,9 @@ async function createIfMissing(
   );
 }
 
-// The verified-trunk check shares this bare repository. Review's tracking
-// fetch and sync record stay in `fetchPublishedRef`.
+// The verified-trunk check shares this bare repository but fetches into its
+// own refs. Review's tracking fetch and sync record stay in
+// `fetchPublishedRef`.
 export async function ensureReviewRepository(
   source: PublishedSource,
   signal: AbortSignal,
