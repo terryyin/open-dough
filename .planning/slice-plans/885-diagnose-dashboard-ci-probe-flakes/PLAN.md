@@ -13,10 +13,9 @@
 
 The maintainer observed these specific occurrences on probe branches only and
 reported both unresolved. The same disconnect signature has separately
-occurred on main. [Plan 881](../881-keep-full-frontend-runs-connected/PLAN.md)
-already owns the frontend browser-connection repair. Compare this occurrence
-with its evidence and give that owner any matching or distinguishing
-observations. A shared error code alone cannot establish a shared cause.
+occurred on main. Use the available CI evidence to establish what happened
+before the connection closed and record any gap in attribution. A shared
+error code alone cannot establish a shared cause.
 
 Keep the existing assertions and apply the shared
 [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
@@ -39,14 +38,14 @@ Proof:
 - Recover the probe job logs and retained browser output if available. Record
   the branch, revision, run/job, attempt, and relevant log excerpt. For the
   terminal case, compare the attempt observation, terminal callback, and
-  assertion order. For the Intent case, compare the last file-start and
-  browser/socket events with plan 881's findings.
+  assertion order. For the Intent case, correlate the last file-start event
+  with the browser and socket events in the available job evidence.
 - If the logs leave the terminal ordering unresolved, replay
   `npm run test:dashboard:frontend -- responsive-unattached-startup.spec.ts`
   on the matching revision and worker profile where possible. Use at most
   three focused diagnostic runs and capture the callback and assertion order.
-  For the disconnect, use the existing owner's full-run evidence and avoid
-  launching a duplicate full-suite reproduction.
+  For the disconnect, use the available CI evidence and record any missing
+  signal before considering a replay.
 - Record a conclusion and owner for each symptom, or the missing signal and
   next discriminating check when the evidence is inconclusive. A passing replay
   leaves the failure open. Identify retained proof for any subsequent repair
