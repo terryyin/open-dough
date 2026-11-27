@@ -54,6 +54,13 @@
   margin: 0;
 }
 
+/* When origin last confirmed the shown revision, beside its Refresh; on one
+   line where the row has room (narrow rows: below). */
+.project-actions-end .board-checked-at {
+  margin: 0;
+  white-space: nowrap;
+}
+
 /* Where the page shows one column (./board.css), as on a phone,
    the row has no room for an answer beside Start session: it reads whole
    beneath Start session and the help, as wide as the two, and takes none of
@@ -76,6 +83,11 @@
   .project-actions-end > p:not(:empty) {
     margin-top: var(--space-1);
   }
+
+  /* The confirmation note reads beneath on as many lines as it needs. */
+  .project-actions-end .board-checked-at {
+    white-space: normal;
+  }
 }
 
 .direction summary h2 {
@@ -96,10 +108,4 @@
 
 .direction-text {
   white-space: pre-line;
-}
-
-/* When origin last confirmed the shown revision, beside its Refresh. */
-.project-actions-end .board-checked-at {
-  margin: 0;
-  white-space: nowrap;
 }

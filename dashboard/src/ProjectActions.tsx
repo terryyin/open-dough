@@ -13,7 +13,7 @@ import { maintenanceRowText } from "./feedbackMaintenanceState.ts";
 // Actions for the selected project's stories, independent of a URL destination.
 // In the project feedback maintenance runs in, a line beside Start session
 // says when it is running or still due (`./feedbackMaintenanceState.ts`).
-// The row ends with when origin last confirmed the shown revision and a
+// Once origin confirmed the shown revision, the row ends with when, and a
 // Refresh that checks origin again, unavailable yet focusable meanwhile.
 export function ProjectActions({
   source,
@@ -60,18 +60,20 @@ export function ProjectActions({
         />
         {showsPreparation && <PreparationLegend />}
         {work?.confirmedAt !== undefined && (
-          <p className="quiet board-checked-at">
-            <CheckedAt at={work.confirmedAt} />
-          </p>
+          <>
+            <p className="quiet board-checked-at">
+              <CheckedAt at={work.confirmedAt} />
+            </p>
+            <IconButton
+              label="Refresh"
+              icon={RefreshCw}
+              aria-disabled={checking}
+              onClick={() => {
+                if (!checking) refresh();
+              }}
+            />
+          </>
         )}
-        <IconButton
-          label="Refresh"
-          icon={RefreshCw}
-          aria-disabled={checking}
-          onClick={() => {
-            if (!checking) refresh();
-          }}
-        />
       </div>
     </div>
   );

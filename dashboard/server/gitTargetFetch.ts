@@ -7,6 +7,7 @@ import { commonGitDirectory } from "./gitCommonDirectory.ts";
 import { commitIdSchema } from "../src/launchLanding.ts";
 import {
   GitFailure,
+  readGitTransport,
   runGit,
   runGitUntilClosed,
   type GitCall,
@@ -21,7 +22,8 @@ export async function remoteBranchHead(
   config: readonly string[] = [],
 ): Promise<string | undefined> {
   try {
-    const { stdout } = await runGit(
+    // Owned through cancellation: an abort ends Git and its transport.
+    const stdout = await readGitTransport(
       [...config, "ls-remote", "--exit-code", "--refs", "--", remote, ref],
       call,
     );

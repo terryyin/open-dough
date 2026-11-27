@@ -41,7 +41,7 @@ export function recordSettledOutcomes(
 
 // Asks `readAfresh` once recovery is due, says whether revision checks may
 // be scheduled, when the visible page next reads on its own, and whether an
-// outstanding recovery or standing limit blocks other fresh reads.
+// outstanding recovery or standing limit blocks another fresh read.
 export function useLimitRecovery({
   withheld,
   readSettled,
@@ -55,7 +55,7 @@ export function useLimitRecovery({
 }): {
   readonly checksMayRun: boolean;
   readonly recoversAt: Date | undefined;
-  readonly blocksFreshRead: boolean;
+  readonly blocksFreshRead: (by?: "refresh") => boolean;
   readonly limitedUntil: Date | undefined;
 } {
   const standingLimit = useStandingLimit();
@@ -80,9 +80,11 @@ export function useLimitRecovery({
     recoversAt:
       standingLimit ?? (transientPending ? transientUntil : undefined),
     // Launch reconciliation must not bypass an outstanding recovery wait or
-    // the login-wide standing limit; due recovery asks through `readAfresh`
-    // above, not this gate.
-    blocksFreshRead: withheld || transientPending || limitStands,
+    // the login-wide standing limit; Refresh skips only a pending transient
+    // recovery wait. Due recovery asks through `readAfresh` above, not this
+    // gate.
+    blocksFreshRead: (by) =>
+      withheld || limitStands || (transientPending && by !== "refresh"),
     limitedUntil: standingLimit,
   };
 }

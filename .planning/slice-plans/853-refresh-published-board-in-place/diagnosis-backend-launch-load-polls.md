@@ -38,3 +38,11 @@ Next discriminating experiment if continued: prototype option 1 in agent-launch-
 
 ## Round bookkeeping
 Round 1, ~3 cumulative active minutes (clock). Temporary probe spec and spawn hook removed; no edits remain in the tree from this round besides this record.
+
+## Later observation (2026-11-27, slice 5 refactor)
+
+`dashboard/backend-tests/launches/agent-launch-codex-lifetime.spec.ts` cases
+at lines 162 and 172 timed out at 5 s at load 21–27; cases take 2.6–6.3 s on
+both base `92ce464` and the branch (alternating runs: branch pass, base pass,
+branch pass, base fail at case 124 in 6261 ms). Same start-pipeline cost as
+the signature above; it joins this record's repair.

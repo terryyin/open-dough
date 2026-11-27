@@ -206,29 +206,58 @@ whole consumer trace before publishing a wire or rendered change.
 ### 5. Recover a Refresh after origin changes
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: With A shown and origin at B, Refresh keeps A and its time while
 B is checked; a failed fetch or confirmation keeps A and its time and shows
-the failure; a later Refresh publishes B and its time together; an earlier
-automatic read cannot replace that confirmation.
+the failure; a later Refresh publishes B and its time together.
 
 Proof: E2E: with A rendered, hold B and fail before publication; verify A
-and the failure, then recover to B; settle an automatic read begun before
-the Refresh after it and check the shown time stays the Refresh's. Budget
-14 active minutes.
+and the failure, then recover to B. Budget 14 active minutes.
+
+Delivered (13 active minutes): `board-refresh-recovery.spec.ts` holds B,
+fails the fetch and then the confirmation write, each keeping A and its time
+beside the read failure alert ("The check of <ref> of <repo> could not be
+saved."), then recovers to B with a later time. The answer gains an optional
+`unrecorded: true` (G1); a cold open with nothing shown shows the former
+confirmation without the failure. The probe runs through the process-owned
+`readGitTransport` (G2; the new held-probe case left its gate running before
+the fix). Refresh skips only a pending automatic transient-recovery wait.
+Checked and Refresh render only for shown work with a confirmation time, and
+an automatic advance confirms at its own read time (`retrievedAt`). CI
+repairs from run 45988393668 (no-snapshot controls, Refresh button count,
+phone rows past the window) are included; the narrow row wraps the note.
+Refined on 2026-11-27: the ordering promise moved to slice 6 because its
+case passed with both of `revisionCheckSchedule.ts`'s aborted-check guards
+removed and the check never aborted, so it did not observe the promise.
+
+### 6. Keep a Refresh's confirmation against an earlier automatic read
+
+Type: Behavior
+Status: planned
+
+Behavior: An automatic read begun before a Refresh and settled after it
+cannot replace the Refresh's revision or confirmation time.
+
+Proof: E2E: settle an automatic read begun before the Refresh after it and
+check the shown time stays the Refresh's. First find the path by which a
+late automatic result could reach the shown confirmation (the check's
+`onChanged`/read, or a read already started), make the case drive that path,
+and show it fails with the protecting guard removed. If no path can reach
+it, record that with the evidence instead of a vacuous case. Budget 10
+active minutes.
 
 ## Story obligations
 
 ### G1. A failed confirmation write is not yet reported to the client
 Reported: slice 3 — "On a failed record write it answers A with no failure reported to the client."
 Story clause: "If B's fetch or confirmation write fails, A and its time stay and the failure is shown."
-Disposition: receiving slice 5
+Disposition: proved by slice 5: `e2e/observation/board-refresh-recovery.spec.ts` step "Then A and its time stay beside that failure" (confirmation record blocked; alert names the unsaved check)
 
 ### G2. A held probe's transport helpers are not proven ended (first reported in slice 1)
 Reported: slice 1 — "If the deadline fires while the probe is held, the check does end, because `execFile` rejects promptly. The transport helpers may outlive Git, though, so the promise that a stalled transfer "is ended" is not proven for the probe."
 Story clause: "A failed check keeps the earlier view and time and shows the problem beside them."
-Disposition: receiving slice 5
+Disposition: proved by slice 5: `verified-origin-trunk-deadline.spec.ts` "a probe held past the read deadline is ended with its transport" (gate left running before the fix, `processesRunning(gate)` empty after)
 
 ## Concern review
 

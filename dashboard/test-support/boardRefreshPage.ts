@@ -41,3 +41,23 @@ export async function expectBoardConfirmedAfter(page: Page, earlier: string) {
     Date.parse(earlier),
   );
 }
+
+// A Refresh that failed keeps the shown confirmation time beside the read
+// failure alert, which names what stopped it, and Refresh is available again.
+export async function expectBoardRefreshFailed(
+  page: Page,
+  confirmedAt: string,
+  problemText: string,
+) {
+  const { problem } = parts(page);
+  await expect(problem).toContainText("Published work could not be read");
+  await expect(problem).toContainText(problemText);
+  await expect(problem).toContainText("What is shown is the earlier snapshot");
+  await expect(refreshButton(page)).toHaveAttribute("aria-disabled", "false");
+  await expect(checkedTime(page)).toHaveAttribute("datetime", confirmedAt);
+}
+
+// A Refresh that published leaves no read failure alert.
+export async function expectNoBoardFailure(page: Page) {
+  await expect(parts(page).problem).toHaveCount(0);
+}

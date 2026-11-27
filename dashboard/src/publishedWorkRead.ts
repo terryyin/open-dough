@@ -11,6 +11,7 @@ import {
   trackSettledAsk,
   type ObservationOutcomes,
 } from "./observationOutcomes.ts";
+import { readingRefOf } from "./authenticatedReadRules.ts";
 import { ReadProblem } from "./readProblem.ts";
 import { unansweredWithinReadWait, withinReadWait } from "./readWaitBound.ts";
 import { awaitingOwners } from "./assignmentPlacement.ts";
@@ -70,26 +71,37 @@ export async function readPublishedWork(
         },
       );
       const { revision, backlog: markdown, askedAt, confirmedAt } = snapshot;
+      // Origin's newer answer was not recorded, so the shown confirmation
+      // stands and this read adds nothing to it.
+      if (snapshot.unrecorded && shown?.revision === revision) {
+        throw new ReadProblem(
+          `The check of ${readingRefOf(source)} could not be saved.`,
+        );
+      }
       const resolved = {
         ...(askedAt === undefined ? {} : { refAskedAt: askedAt }),
         ...(confirmedAt === undefined ? {} : { confirmedAt }),
       };
       outcomes.pinRevision(revision);
       const sameRevision = shown !== undefined && shown.revision === revision;
+      const retrievedAt = new Date();
       // Membership first, then preparation enrichment through the same
       // boundary's reachability-checked path reads at that revision. Same-
       // revision recovery keeps already shown facts instead of loading.
       const work: PublishedWork = sameRevision
         ? {
             ...shown,
-            retrievedAt: new Date(),
+            retrievedAt,
             ...resolved,
           }
         : awaitingOwners({
             source,
             revision,
-            retrievedAt: new Date(),
+            retrievedAt,
             ...resolved,
+            // A revision an automatic check named carries no confirmation of
+            // its own; this read of it confirms it.
+            confirmedAt: confirmedAt ?? retrievedAt.toISOString(),
             ...interpretPublishedBacklog(markdown, revision, source),
             done: { status: "loading" },
           });

@@ -1,13 +1,11 @@
 // The selected project, last snapshot, latest attempt, and retained focus.
-// Reads happen on opening, on selecting a project,
-// when launch reconciliation asks to read afresh, and when a scheduled
-// revision check (`./revisionCheckSchedule.ts`) finds the selected ref naming
-// another commit; when it finds a story branch the shown progress is read from
-// at another head, only that progress is read again. Each read is carried
-// out by `./requestedRead.ts`. Rate-limit and transient recovery scheduling:
-// `./limitRecovery.ts`. Hide releasing a page-local recovery wait:
-// `./observationRecoveryWait.ts`. What is shown (`shown`) also says whether
-// every detail of it has been read.
+// Reads happen on opening, selecting a project, Refresh, launch
+// reconciliation's fresh ask, and a scheduled revision check
+// (`./revisionCheckSchedule.ts`) finding the selected ref naming another
+// commit, or only moved story-branch progress. Each read is carried out by
+// `./requestedRead.ts`. Rate-limit and transient recovery scheduling:
+// `./limitRecovery.ts`; hide releasing a recovery wait:
+// `./observationRecoveryWait.ts`. `shown` says if every detail was read.
 
 import {
   useCallback,
@@ -71,7 +69,7 @@ export function usePublishedObservation(
     restart,
   } = useObservationAttempt();
   // First read on open; later asks come from launch reconciliation, project
-  // selection (`source` below), or a check that names another commit.
+  // selection (`source` below), Refresh, or a check naming another commit.
   const [readRequest, setReadRequest] = useState<ReadRequest>({
     asked: 1,
     revision: undefined,
@@ -211,10 +209,10 @@ export function usePublishedObservation(
   }, [work]);
 
   const reading = attempt.status === "reading";
-  // Launch reconciliation's fresh read; an in-flight read stands for it.
-  // Outstanding recovery or a standing login limit is not bypassed.
-  const readAfresh = () => {
-    if (!reading && !blocksFreshRead) askRead(undefined, "fresh");
+  // Launch reconciliation's fresh ask, or Refresh; an in-flight read stands
+  // for either.
+  const readAfresh = (by?: "refresh") => {
+    if (!reading && !blocksFreshRead(by)) askRead(undefined, "fresh");
   };
 
   // Replace the observation whole for another project: clear local recovery

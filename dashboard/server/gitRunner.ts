@@ -93,9 +93,12 @@ export async function readGitTransport(
   const result = await running.exited;
   signal?.throwIfAborted();
   if (result.code !== 0 || bytes > maxBuffer) {
-    throw new Error("Git could not read the remote.", {
-      cause: running.output(),
-    });
+    throw transportFailure(
+      "Git could not read the remote.",
+      "git ls-remote",
+      result.code,
+      running.output(),
+    );
   }
   return Buffer.concat(chunks).toString("utf8");
 }
@@ -125,14 +128,29 @@ export async function fetchGitTransport(
     const errorLine = diagnostics
       .split("\n")
       .findLast((line) => /^(fatal|error): /.test(line));
-    throw new GitFailure(
-      Object.assign(new Error("Git could not fetch the published history."), {
-        cmd: "git fetch",
-        ...(result.code === null ? {} : { code: result.code }),
-      }),
-      { stdout: "", stderr: errorLine ?? diagnostics },
+    throw transportFailure(
+      "Git could not fetch the published history.",
+      "git fetch",
+      result.code,
+      errorLine ?? diagnostics,
     );
   }
+}
+
+// An owned transport's failed exit, shaped as `execFile` reports one.
+function transportFailure(
+  message: string,
+  cmd: string,
+  code: number | null,
+  stderr: string,
+) {
+  return new GitFailure(
+    Object.assign(new Error(message), {
+      cmd,
+      ...(code === null ? {} : { code }),
+    }),
+    { stdout: "", stderr },
+  );
 }
 
 async function gitOutput(
