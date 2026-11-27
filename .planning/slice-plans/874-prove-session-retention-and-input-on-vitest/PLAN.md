@@ -170,7 +170,7 @@ retain browser selection and launch behavior.
 ### 5. Continue the one-shot workspace kept after a refusal
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12 active minutes.
 
 Proof: Replace both `agent-launch-session-kept-start` cases. Through the
@@ -181,6 +181,8 @@ establishment record, origin and worktree count, native cwd and established
 first input. The accepted launch keeps the original context and policy
 and consumes the prior start entry. Count worktrees, read origin and inspect
 the actual native call to catch re-establishment or policy replacement.
+
+- Proof recorded (2026-11-27, Node Vitest, 1 worker): both `agent-launch-session-kept-start` cases run on Node Vitest through `withSessionPolicy` and `attemptRun` with `launchHost`, the real installed start and the fake Claude executable set to refuse, then accept. They keep every legacy observation: refusal text, kept start and its stored policy and establishment, later standard Start launched in the kept worktree with the one-shot first input, unchanged origin, two worktrees, the record's original policy and establishment, and empty `keptStarts()`. Passed 2/2 twice; typecheck exited 0. At load 14–20 the legacy rerun summed 7.726 s and Vitest 3.926 s. No support removed; each export this spec stopped using keeps other callers. Refactor pass skipped: subject spec only, same form as slice 4.
 
 ### 6. Save bounded images in the admitted session's own directory
 
