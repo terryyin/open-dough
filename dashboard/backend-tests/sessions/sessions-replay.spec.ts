@@ -5,7 +5,7 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { loadavg, tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import { installFakeCodex } from "../../test-support/support/fakeCodex.ts";
 import {
@@ -37,17 +37,15 @@ type Entry = { readonly session: { readonly sessionId: string } };
 const recordsOf = (body: string) =>
   (JSON.parse(body) as { records: readonly Entry[] }).records;
 
-test.skip(
-  process.env["DOUGH_SESSIONS_REPLAY"] !== "1",
-  "A measurement run only when asked: DOUGH_SESSIONS_REPLAY=1",
+// Reuse windows and quiet event-loop samples take about 45 seconds of live
+// server time, so the replay needs a longer per-case timeout.
+test.skipIf(process.env["DOUGH_SESSIONS_REPLAY"] !== "1")(
+  "the Sessions replay reports the baseline the story's targets measure",
+  { timeout: 120_000 },
+  replaySessions,
 );
 
-test("the Sessions replay reports the baseline the story's targets measure", async () => {
-  // Essential: the measurement spaces its asks past the server's real
-  // one-second reuse window and measures quiet seconds of the server's own
-  // event loop, about 45 s of server time a controlled clock cannot stand in
-  // for.
-  test.setTimeout(120_000);
+async function replaySessions() {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-sessions-replay-"));
   const codex = await installFakeCodex(
     machine,
@@ -243,4 +241,4 @@ test("the Sessions replay reports the baseline the story's targets measure", asy
     await codex.close();
     rmSync(machine, { recursive: true, force: true });
   }
-});
+}

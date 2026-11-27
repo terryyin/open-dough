@@ -107,6 +107,11 @@ one worker. It passed 19 and skipped the opt-in replay, with zero retries and
 88.84 s wall time. The case-level record is `baseline-backend.json` in the
 checkout's Git evidence directory.
 
+Story-branch CI exposed an expired fixed date in the retained Done-listing
+fixture. `main` carried the repair in `f1a95808`, and the story branch took
+it in `e1c08067` after the previously failing Chromium case passed locally
+on that merge (`retained-listing-merged.json` in Git evidence).
+
 ### 1. Prove Codex read concurrency, abort cancellation, and status/failure isolation on Node Vitest
 
 Type: Behavior
@@ -270,7 +275,7 @@ working label, held ID, and reuse assertion over the real HTTP reader.
 ### 6. Convert the opt-in Sessions replay measurement to Node Vitest and retire unused support
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–12 active minutes.
 
 Proof: Convert `sessions-replay.spec.ts` (1 opt-in case) to plain Node Vitest
@@ -323,6 +328,35 @@ Use awake macOS on AC under `caffeinate -s -i` for long local checks per
 to every failure and repair handoff. Keep default test timeouts except the
 existing 120 s individual timeout on the opt-in `sessions-replay.spec.ts`
 measurement.
+
+The final one-worker backend run selected 19 cases on Node Vitest, including
+the skipped opt-in replay, and selected zero legacy Playwright cases. It passed
+all 18 active cases with zero retries in 7.38 s wall and 3.145 s summed case
+time. The matching baseline selected 20 Chromium cases and passed 19 in
+88.84 s wall and 79.392 s summed case time. The sole count change is the
+sharing consolidation in slice 5. Eleven of 18 active Node cases took under
+100 ms compared with zero of 19 baseline cases. These measurements use the
+same Mac, one worker, and independent proof paths under variable host load.
+
+| Case family | Legacy case times (ms) | Node case times (ms) |
+| --- | --- | --- |
+| Codex concurrency | 1098, 1174 | 68, 107 |
+| Codex status and lifetime | 1020, 1390, 1003, 9984 | 18, 14, 89, 11 |
+| Codex sharing | 2473, 2754, 1567 | 66, 17, 7 |
+| Codex wait | 4260 | 36 |
+| Codex alerts | 8213, 7163 | 748, 952 |
+| Cursor held read and sharing | 4601, 6924, 6304 | 122, 59 |
+| Cursor alerts | 3769, 6729, 4885, 4081 | 88, 406, 208, 128 |
+
+With `DOUGH_SESSIONS_REPLAY=1`, one Node case passed in 59.15 s wall and
+printed the measurement table for 1,005 records and 1,034 attempts. The
+retained E2E selection passed all 14 Chromium cases with zero retries in
+77.16 s wall and 68.263 s summed case time. Dashboard typecheck passed.
+The complete case-level records and commands are in Git evidence as
+`final-backend`, `final-replay-enabled`, `final-e2e`, and `slice6-types`.
+Four unused Codex exports and the unused Cursor state reader were removed
+after checking Dashboard and E2E consumers. Live standalone and browser
+fixtures remained available to their callers.
 
 ## Plan review
 
