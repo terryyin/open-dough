@@ -37,8 +37,8 @@ function pushExclusions(workflow, commit) {
 }
 
 /**
- * Every path changed between two trees, deletions and both rename endpoints
- * included, read NUL-separated so any file name survives.
+ * `git diff --name-only -z` output between two trees: every changed path,
+ * deletions and both rename endpoints included, NUL-separated.
  * @param {string} directory @param {string} from @param {string} to
  * @param {AbortSignal} [signal]
  */
@@ -53,7 +53,7 @@ async function changedPaths(directory, from, to, signal) {
       ...(signal ? { signal } : {}),
     },
   );
-  return stdout.split("\0").filter((file) => file !== "");
+  return stdout;
 }
 
 /**
@@ -85,6 +85,7 @@ export async function qualifyPublishedRange(options) {
       [baseline.commit, selected.commit],
       commandOptions,
     );
+    /** @type {string | Error} */
     let workflow;
     try {
       workflow = (
@@ -96,21 +97,35 @@ export async function qualifyPublishedRange(options) {
       ).stdout;
     } catch (error) {
       signal?.throwIfAborted();
-      throw new Error(
-        `Could not read ${ciWorkflowPath} at ${selected.commit}.`,
-        { cause: error },
-      );
+      workflow = /** @type {Error} */ (error);
     }
-    const excluded = pushExclusions(workflow, selected.commit);
-    const changed = await changedPaths(
+    const diff = await changedPaths(
       directory,
       baseline.commit,
       selected.commit,
       signal,
     );
-    const qualifying = changed.filter((file) => !isPathIgnored(file, excluded));
-    return { qualifies: qualifying.length > 0, changed, qualifying };
+    return qualifyChangedPaths({ commit: selected.commit, workflow, diff });
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
+}
+
+/**
+ * Qualifies when any path the NUL-separated diff names lies outside the push
+ * exclusions of the workflow published with the selected commit; throws when
+ * that workflow could not be read or its policy is unsupported.
+ * @param {{commit: string, workflow: string | Error, diff: string}} range
+ * @returns {{qualifies: boolean, changed: string[], qualifying: string[]}}
+ */
+export function qualifyChangedPaths({ commit, workflow, diff }) {
+  if (workflow instanceof Error) {
+    throw new Error(`Could not read ${ciWorkflowPath} at ${commit}.`, {
+      cause: workflow,
+    });
+  }
+  const excluded = pushExclusions(workflow, commit);
+  const changed = diff.split("\0").filter((file) => file !== "");
+  const qualifying = changed.filter((file) => !isPathIgnored(file, excluded));
+  return { qualifies: qualifying.length > 0, changed, qualifying };
 }

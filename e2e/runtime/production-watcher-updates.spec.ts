@@ -27,6 +27,7 @@ import { writeSharedLaunchRecord } from "../../dashboard/test-support/support/sh
 import {
   productionUpdateJourney,
   prefixesOf,
+  publishedPolicy,
 } from "./productionUpdateJourney.ts";
 import { launchRequest } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
@@ -34,7 +35,6 @@ import {
   waitForWatcherOutput,
 } from "../../dashboard/test-support/support/watcherEvents.ts";
 import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
-import { publishedPolicy } from "../../dashboard/test-support/support/productionQualificationFixture.ts";
 import { ciWorkflowPath } from "../../dashboard/server/productionQualification.mjs";
 import { replaceWhileStartDrains } from "./productionHeldUpdate.ts";
 

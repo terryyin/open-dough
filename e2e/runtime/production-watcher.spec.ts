@@ -25,6 +25,9 @@ import {
 } from "../../dashboard/test-support/support/productionWatcher.ts";
 import { productionDeployments } from "../../dashboard/test-support/support/machineRecordNames.ts";
 import {
+  expectPublishedAvatarsOnly,
+  previewServer,
+  processRecord,
   sourceMarker,
   ProductionWatcherMachine,
 } from "./productionWatcherMachine.ts";
@@ -102,6 +105,7 @@ test("npm watcher serves published main beside hot-reloaded uncommitted developm
   await expect(sourceMarker(fresh)).toHaveText("PINNED SOURCE");
   await fresh.close();
   await expectOwnOriginReadsOnly(served.url);
+  await expectPublishedAvatarsOnly(request, served.url);
   expect(
     (
       await request.post(`${served.url}/__agent-launch/accept`, {
@@ -137,8 +141,14 @@ test("the next published main replaces production at the same URL and leaves the
   test.setTimeout(realDeploymentTimeout);
   const watcher = machine.running();
   const { fixture, productionPage } = started();
+  const replacedServer = previewServer(fixture.root, served.pid);
   next = await fixture.publish(fixture.markerChanges("NEXT MAIN"), "Next main");
   const replaced = await productionReplacement(watcher, served, next);
+  // The replaced preview, stopped under npm, closed its incident record cleanly.
+  expect(processRecord(fixture.root, replacedServer)).toEqual([
+    "process-started",
+    "process-ended",
+  ]);
   await productionPage.reload();
   await expect(productionPage).toHaveTitle("NEXT MAIN");
   expect(processRunning(cursorClientPid)).toBe(true);

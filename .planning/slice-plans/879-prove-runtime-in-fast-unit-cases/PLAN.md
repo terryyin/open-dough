@@ -115,7 +115,7 @@ brackets.
 
 ### 1. Decide production deployments from typed origin and checkout state
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 15–20 active minutes.
 Proof: The slice's specs run every case in about 100 ms or less on Node
 Vitest, with fewer cases. The production watcher E2E journeys still pass.
@@ -129,6 +129,26 @@ baseline across excluded or rejected ranges. Stopping a process group with
 only an unreaped member succeeds. The pinned install, build and serve after
 main advances, and cancellation that ends an installing checkout, stay
 with the production watcher E2E journeys.
+
+Result: 12 cases → 7, each 0–9 ms; spec files 31.94 s → 2.05 s in Vitest
+(load 20.2 before, 18.1 after, back to back). The deployment, qualification,
+update-selection and process-group-stop operations now take typed readings
+(`publishedMainFrom`, `expectSelectedCommit`, `qualifyChangedPaths` over
+`git diff -z` output, `updateSelection`, `signalProcessGroup` with injected
+kill and `ps` reading). Added E2E case:
+`e2e/runtime/production-qualification-git.spec.ts` "qualification reads a
+published range with deletions, both rename ends and any file name from
+origin, and removes its inspection while Git maintenance writes". The pinned
+build's cartoon-only `image/webp` avatars and the replaced preview's
+start/end incident entries are asserted in existing
+`production-watcher.spec.ts` journeys. Install-time cancellation shares
+`stageDeployment`'s abort with the build cancellation journey.
+
+Learning: a preview ended by the watcher's SIGHUP records `process-started`
+but no `process-ended` in its incident record (observed when the assertion
+was tied to the preview's process group in "SIGHUP quietly ends production
+and its checkouts…"). Pre-existing product behavior outside this story;
+reported for a follow-up decision.
 
 ### 2. Refuse unusable watcher starts from typed state
 Type: Behavior
@@ -267,10 +287,6 @@ Prove each waiting rule as a unit over typed read states where the helper
 can take them. A rule that needs a real page moves to one named E2E case.
 This slice removes the folder's last Playwright use and records the folder
 result against the baseline.
-
-## Story obligations
-
-None.
 
 ## Concern evidence
 

@@ -29,6 +29,15 @@ export async function resolvePublishedMain(developmentRoot, env, signal) {
     ["ls-remote", "--", origin, "refs/heads/main"],
     options,
   );
+  return publishedMainFrom(origin, listed);
+}
+/**
+ * The commit origin's main names, from origin's ls-remote listing of
+ * refs/heads/main. Local refs and edits are not inputs.
+ * @param {string} origin @param {string} listed
+ * @returns {PublishedCommit}
+ */
+export function publishedMainFrom(origin, listed) {
   if (listed === "") {
     throw new Error(`Origin ${origin} has no published main branch.`);
   }
@@ -48,6 +57,13 @@ export async function verifyPublishedCommit(directory, published, env) {
     cwd: directory,
     ...(env ? { env } : {}),
   });
+  expectSelectedCommit(head, published);
+}
+/**
+ * Refuses a checkout whose HEAD is not the selected commit, before its code runs.
+ * @param {string} head @param {PublishedCommit} published
+ */
+export function expectSelectedCommit(head, published) {
   if (head !== published.commit) {
     throw new Error(
       `Fetched commit ${head} did not match selected main commit ${published.commit}.`,
