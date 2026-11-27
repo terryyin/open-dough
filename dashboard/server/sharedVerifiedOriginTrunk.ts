@@ -26,7 +26,7 @@ const originTrunkKey = (source: PublishedSource): OriginTrunkKey => [
 
 const observationKey = (key: OriginTrunkKey) => JSON.stringify(key);
 
-// A check's outcome and when it started, by the clock `askGh` uses: a demand
+// A check's outcome and when it started, by this server's clock: a demand
 // that joined a running check answers that start, not its own arrival.
 export type AskedOriginTrunk = {
   readonly askedAt: string;

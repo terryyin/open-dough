@@ -34,7 +34,8 @@ automatic observation, branches, other records, and Review callers
 - Slices 1–3 leave REST cold-open cases failing until slice 4 moves the
   last of them. Deliver slices 1–3 as local commits
   (`--authority local-only`) and publish them with slice 4 once its suites
-  pass, so no red revision is published.
+  pass, so no red revision is published. Slices 5–8 likewise stay local and
+  publish with slice 9, which repairs the failed CI of `4a2c3d3a5`.
 - The switch point is the `ref` case in
   [performed reads](../../../dashboard/server/performedRead.ts). It calls the
   shared verified-origin check and does not fall back to REST.
@@ -58,6 +59,7 @@ automatic observation, branches, other records, and Review callers
 | A pending cold open ends at the deadline and recovers | Slice 3 |
 | Cold opens stay isolated per project and journey | Slice 4 |
 | Superseded membership paths lose their last use | Slice 5 |
+| Every other journey opens the Board from Git and both suites pass | Slices 6–9 |
 
 ## Ordered slices
 
@@ -134,14 +136,71 @@ observation and runtime suites, all green. Budget 14 active minutes.
 ### 5. Retire the old membership-only support
 
 Type: Structure
-Status: planned
+Status: done
 
 Change: Remove orphaned Board-specific REST handling, helpers, test controls,
 and docs that no caller reaches after slice 1. Keep `resolveRevisionViaGh`
 at its three remaining callers and the `backlog-at` and reachability readers.
+The fake gh `ref` answers, `hold("main")`/`answerWith("main")` and the
+zero-REST-membership readers stay: revision checks, feedback maintenance and
+follow-up stories still reach them.
 
-Proof: Trace every deleted reference to its tests and docs; run the Dashboard
-Backend Test and E2E Test suites. Budget 13 active minutes.
+Proof: Trace every deleted reference to its tests and docs; typecheck and
+the consumers' specs. The full-suite run of this slice found no failure
+caused by its deletions. Budget 13 active minutes.
+
+### 6. Open configuration and navigation journeys from Git
+
+Type: Behavior
+Status: planned
+
+Behavior: Adding, configuring and removing a project, and story URL history,
+open the Board from the verified Git trunk.
+
+Proof: Move `e2e/configuration/project-add.spec.ts` (expects REST
+`commits/release%2Bstable`), `project-configuration.spec.ts`,
+`project-remove-selection.spec.ts` and `e2e/navigation/story-url-history.spec.ts`
+(its read problem must come from a Git origin failure) to Git-origin
+fixtures. Budget 14 active minutes.
+
+### 7. Gate launch reconciliation journeys on the Git open
+
+Type: Behavior
+Status: planned
+
+Behavior: Launch and responsive-session reconciliation journeys that gated
+or failed the Board's REST cold open gate it at the Git transfer instead.
+
+Proof: Move `e2e/launches/responsive-session-{reconciliation,reconciliation-completed,reconciliation-refusals,recovery}.spec.ts`
+and `agent-launch-{claude-verification,story-card,story-card-problems}.spec.ts`
+off `hold("main")`/`answerWith("main")` cold-open gates, using
+`heldTrunkTransfer.ts` or a Git origin failure. Budget 14 active minutes.
+
+### 8. Read session journeys' backlog from Git
+
+Type: Behavior
+Status: planned
+
+Behavior: Session sidebar, alerts and recently-done session journeys show
+the backlog read from the verified Git trunk.
+
+Proof: Move `e2e/sessions/{cursor-session-recovery,cursor-sessions-sidebar-navigation,recently-done-returned-sessions,recently-done-sessions-sidebar-reopen,session-alerts-navigation,sessions-sidebar-navigation-cases,sessions-sidebar-navigation}.spec.ts`
+off REST `PRODUCT-BACKLOG.md?ref=…` assertions and REST-only publishing.
+Budget 14 active minutes.
+
+### 9. Publish story and review journeys through Git
+
+Type: Behavior
+Status: planned
+
+Behavior: Story readiness, agent roster, recently-done navigation and
+review journeys open the Board from a published Git origin.
+
+Proof: Move `e2e/stories/{story-readiness,agent-roster,agent-roster-avatar,recently-done-progressive-navigation}.spec.ts`
+and `e2e/review/{story-review-initial-sync,recently-done-one-shot-review}.spec.ts`
+to Git-origin publishing; retire `contentPathsRead`'s `ref` branch if
+story-readiness was its last caller. Then run the Dashboard Backend Test and
+E2E Test full suites. Budget 14 active minutes.
 
 ## Learnings
 
@@ -196,9 +255,17 @@ on that targeted proof and the hosted CI verdict, which this execution owns.
 A Board opened from Git during an API limit still reads at the revision, so
 count Board-open requests only.
 
+Slice 5's full E2E run (2026-11-27, load 22→10) found 26 cases in 24 files
+outside `e2e/observation` that still assumed the REST cold open; slice 4 had
+proved only `e2e/observation`. Hosted CI for `4a2c3d3a5` failed on the same
+cases (run 45930629943, e2e shards 1, 2, 5, 6). Slice 5's proof was split
+into slices 6–9 by spec group, as allowed for splitting the slice in
+progress. Backend `agent-launch-duplicate.spec.ts:189` and
+`agent-launch-start-duplicate.spec.ts:79` fail at load 23–36 at the base too.
+
 ## Local gate
 
-Run focused checks and Dashboard typecheck for each changed boundary. Slice 5
+Run focused checks and Dashboard typecheck for each changed boundary. Slice 9
 runs both full Dashboard suites because it deletes shared fixture controls.
 Run long checks under `caffeinate -s -i` on AC power.
 Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).

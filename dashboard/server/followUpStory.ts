@@ -116,7 +116,7 @@ async function currentMembership(
   signal: AbortSignal,
 ) {
   try {
-    const { revision } = await resolveRevisionViaGh(
+    const revision = await resolveRevisionViaGh(
       source.repository,
       source.ref,
       signal,

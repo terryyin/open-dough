@@ -17,11 +17,7 @@ import {
 import { timeSaid } from "./limitNotice.ts";
 import type { OriginAnswer } from "./originAnswers.ts";
 import type { MovingOrigin } from "./publishedMovingOrigin.ts";
-import {
-  defaultRepository,
-  pathsRead,
-  type ObservedRequest,
-} from "./publishedOrigin.ts";
+import { defaultRepository } from "./publishedOrigin.ts";
 
 // What the problem says while no published work is shown: when this page
 // reads it again.
@@ -53,12 +49,6 @@ export function noteColdOpens(page: Page, source: string): readonly string[] {
       opens.push(request.url());
   });
   return opens;
-}
-
-export function mainReads(origin: {
-  readonly requests: readonly ObservedRequest[];
-}): number {
-  return pathsRead(origin).filter((path) => path === "main").length;
 }
 
 // The page time the problem says this page next reads on its own: the

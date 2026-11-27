@@ -63,20 +63,15 @@ export function observe(observed: ObservedRequest[], call: GhCall): void {
   }
 }
 
-// What origin was asked for, in order: the ref, or the file at a revision.
-// Revision checks are not among them (see `isHeadsCheck`).
+// The files origin was asked for, in order, each at its revision.
 export function pathsRead(origin: {
   readonly requests: readonly ObservedRequest[];
 }): string[] {
-  return origin.requests.map(({ request }) => {
-    if (request.kind === "ref") {
-      return request.ref;
-    }
-    if (request.kind === "content") {
-      return contentPathRead(request.path, request.revision);
-    }
-    return "unknown";
-  });
+  return origin.requests.flatMap(({ request }) =>
+    request.kind === "content"
+      ? [contentPathRead(request.path, request.revision)]
+      : [],
+  );
 }
 
 // Content paths among every `gh` call except the backlog membership read,
