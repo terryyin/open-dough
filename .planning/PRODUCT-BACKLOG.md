@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Prove retained follow-up context in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-follow-up-context-on-vitest) — SEED-413#prove-follow-up-context-on-vitest ([plan](slice-plans/850-prove-follow-up-context-on-vitest/PLAN.md))
 - [Move authenticated-read proofs off the Board's ref read](seeds/SEED-430-read-published-project-data-from-local-git.md#move-authenticated-read-proofs-off-the-board-ref-read) — SEED-430#move-authenticated-read-proofs-off-the-board-ref-read ([plan](slice-plans/858-move-authenticated-read-proofs-off-the-board-ref-read/PLAN.md))
 - [Prove published Follow up evidence in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest) — SEED-413#prove-published-dashboard-reads-on-vitest ([plan](slice-plans/859-prove-published-follow-up-evidence-on-vitest/PLAN.md))
-- [Prove marking sessions done, stopping, deleting and reopening in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-and-terminal-lifecycle-on-vitest) — SEED-413#prove-native-session-and-terminal-lifecycle-on-vitest ([plan](slice-plans/867-prove-marking-sessions-done-on-vitest/PLAN.md))
 
 ## Backlog list
 

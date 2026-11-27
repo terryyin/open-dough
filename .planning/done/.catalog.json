@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_prove-native-session-and-terminal-lifecycle-on-vitest.json",
+      "identity": "SEED-413#prove-native-session-and-terminal-lifecycle-on-vitest",
+      "completedAt": "2026-11-27T01:10:27.790Z",
+      "blob": "9ca00d06e5b667a63f5e1fd877b661e089089895"
+    },
+    {
       "fileName": "SEED-413_prove-launch-worker-recovery-on-vitest.json",
       "identity": "SEED-413#prove-launch-worker-recovery-on-vitest",
       "completedAt": "2026-11-26T16:35:23.416Z",
@@ -3402,12 +3408,6 @@
       "identity": "SEED-159#cursor-start-opens-the-session",
       "completedAt": "2026-10-28T07:48:54.651Z",
       "blob": "ea8e44305461c61f20a050cb9e407e1955bcf2e8"
-    },
-    {
-      "fileName": "SEED-156_recently-done-sessions-in-sidebar.json",
-      "identity": "SEED-156#recently-done-sessions-in-sidebar",
-      "completedAt": "2026-10-28T00:53:51.785Z",
-      "blob": "cb17d513e5426a571e8ade6861c999b37453f95d"
     }
   ],
   "unreadable": []
