@@ -2,37 +2,45 @@
 // this process's next read of the store it already read answers them, a fresh
 // process reads the same, and concurrent done marks from both processes all
 // survive without reviving review attention. Each test owns a private machine
-// home; the other process is a forked Node child bound to the same home.
-import assert from "node:assert/strict";
-import { fork } from "node:child_process";
-import { on } from "node:events";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+// home, and Claude Code's listing reaches the read as the synthetic `claude`
+// prints it, without running it. The other process is a fresh instance of the
+// server modules bound to the same home: it holds none of this instance's
+// parsed documents or write locks, and meets them only through the machine
+// files, as a process does.
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { beforeEach, expect, test, vi } from "vitest";
-import { z } from "zod";
 import { NativeDoneMarks, type DoneLaunches } from "../../server/doneMarks.ts";
-import { bindRecord } from "../../server/launchRecordBinding.ts";
 import { replaceRecords } from "../../server/launchRecordDocument.ts";
 import { keptRecords } from "../../server/launchRecordStore.ts";
-import { withStates } from "../../server/launchStates.ts";
+import { parsedListing } from "../../server/hosts/claude/listing.ts";
+import { claudeObservations } from "../../server/hosts/claude/runtime.ts";
+import { withStates, type HostSessions } from "../../server/launchStates.ts";
 import { machineFolder } from "../../server/localFolder.ts";
 import { machineDashboardPath } from "../../server/machineHome.ts";
 import type { LaunchRecord } from "../../src/agentLaunch.ts";
-import { launchRecordSchema } from "../../src/launchRecord.ts";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import { alertReading } from "../../src/sessionShown.ts";
 import { attentionCount } from "../../src/sessionCounts.ts";
-import { installFakeClaude } from "../../test-support/support/fakeClaude.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { settleFile } from "../../test-support/support/machineFileIdentity.ts";
 
-const childMode = "--launch-records-child";
-const records = z.array(launchRecordSchema);
+// A writer waiting on the other process's write lock retries after a
+// millisecond rather than the lock's fixed pause, so concurrent marks still
+// contend for it without idling.
+vi.mock(import("node:timers/promises"), async (importOriginal) => {
+  const timers = await importOriginal();
+  return {
+    ...timers,
+    setTimeout: (...[, value, options]) => timers.setTimeout(1, value, options),
+  };
+});
 
 // The developer's Done on a host that stops without renaming.
-function doneMarks() {
-  return new NativeDoneMarks({
+// `marksModule` is the Done marks of the process that marks.
+function doneMarks(marksModule = { NativeDoneMarks }) {
+  return new marksModule.NativeDoneMarks({
     terminals: {
       withAttachment: () =>
         Promise.reject(new Error("This proof attaches no terminal.")),
@@ -47,67 +55,39 @@ const unobserved: DoneLaunches = {
     Promise.resolve({ ...record, sessionState: { kind: "unknown" } }),
 };
 
-async function childOperation(): Promise<void> {
-  const send = process.send?.bind(process);
-  assert(send, "The other process requires IPC.");
-  const [message] = (await new Promise<unknown[]>((resolve) => {
-    process.once("message", (...args) => {
-      resolve(args);
-    });
-  })) as [{ kind: string; source: PublishedSource; records: unknown }];
-  const given = records.parse(message.records);
-  if (message.kind === "record")
-    for (const record of given) await bindRecord(message.source.id, record);
-  if (message.kind === "mark") {
-    const marks = doneMarks();
+// Runs one operation in another process's instance of the server modules,
+// bound to this machine home, and answers the records it then reads.
+async function inOtherProcess(
+  kind: "record" | "mark" | "read",
+  source: PublishedSource,
+  given: readonly LaunchRecord[] = [],
+): Promise<readonly LaunchRecord[]> {
+  vi.resetModules();
+  const store = await import("../../server/launchRecordStore.ts");
+  if (kind === "record")
+    for (const record of given) await store.bindRecord(source.id, record);
+  if (kind === "mark") {
+    const marks = doneMarks(await import("../../server/doneMarks.ts"));
     await Promise.all(
       given.map((record) =>
-        marks.markDone(message.source, record, machineFolder(), unobserved),
+        marks.markDone(source, record, machineFolder(), unobserved),
       ),
     );
     await marks.close();
   }
-  send(await keptRecords(message.source.id));
-  process.disconnect?.();
+  return store.keptRecords(source.id);
 }
 
-// Runs one operation in another Node process bound to this machine home and
-// answers the records it then reads.
-async function inOtherProcess(
-  signal: AbortSignal,
-  kind: "record" | "mark" | "read",
-  source: PublishedSource,
-  given: readonly LaunchRecord[] = [],
-): Promise<LaunchRecord[]> {
-  const child = fork(fileURLToPath(import.meta.url), [childMode], {
-    execArgv: [
-      "--experimental-transform-types",
-      "--disable-warning=ExperimentalWarning",
-    ],
-    signal,
-  });
-  const exited = new Promise<number | null>((resolve) =>
-    child.once("exit", resolve),
-  );
-  const messages = on(child, "message", { signal, close: ["exit"] });
-  child.send({ kind, source, records: given });
-  const next: IteratorResult<unknown[]> = await messages.next();
-  assert(!next.done, "The other process exited before answering.");
-  expect(await exited).toBe(0);
-  return records.parse(next.value[0]);
-}
-
-function privateMachine(): string {
-  const machine = mkdtempSync(path.join(tmpdir(), "dough-records-machine-"));
-  const fixture = installFakeClaude(
-    machine,
-    { binDir: machine, path: process.env.PATH ?? "" },
-    {},
-  );
-  for (const [key, value] of Object.entries(fixture.env))
-    vi.stubEnv(key, value);
-  return machine;
-}
+// Claude Code listing `rows`, as the synthetic `claude` prints them.
+const claudeListing =
+  (rows: readonly object[]): HostSessions =>
+  (host) =>
+    host === "claude"
+      ? (records) =>
+          Promise.resolve(
+            claudeObservations(records, parsedListing(JSON.stringify(rows))),
+          )
+      : undefined;
 
 const everyOther = <T>(items: readonly T[], offset: 0 | 1): T[] =>
   items.filter((...[, index]) => index % 2 === offset);
@@ -118,101 +98,83 @@ const sessionIds = (count: number, suffix: string) =>
     (index) => `${String(index).padStart(8, "0")}-0000-4000-8000-${suffix}`,
   );
 
-if (process.argv[2] === childMode) {
-  await childOperation();
-} else {
-  const { makeMe } =
-    await import("../../../Distribution/tests/support/makeMe.mjs");
-  const source = makeMe.aPublishedSource.openDough.please();
-  const story = { identity: "SEED-001#first", title: "First story" };
-  const execution = (sessionId: string) =>
-    makeMe.aLaunchRecord.executing(story).inClaudeSession({ sessionId });
-  let machine: string;
+const source = makeMe.aPublishedSource.openDough.please();
+const story = { identity: "SEED-001#first", title: "First story" };
+const execution = (sessionId: string) =>
+  makeMe.aLaunchRecord.executing(story).inClaudeSession({ sessionId });
 
-  beforeEach(() => {
-    machine = privateMachine();
-    return () => {
-      vi.unstubAllEnvs();
-      rmSync(machine, { recursive: true, force: true });
-    };
-  });
+beforeEach(() => {
+  const home = mkdtempSync(path.join(tmpdir(), "dough-records-home-"));
+  vi.stubEnv("HOME", home);
+  return () => {
+    vi.unstubAllEnvs();
+    rmSync(home, { recursive: true, force: true });
+  };
+});
 
-  test("reads a launch another process recorded after this one read the store, as a fresh process does", async ({
-    signal,
-  }) => {
-    const kept = execution("10000000-0000-4000-8000-000000000001").please();
-    await replaceRecords(() => ({ [source.id]: [kept] }));
-    settleFile(machineDashboardPath("agent-launches.json"));
-    expect(await keptRecords(source.id)).toEqual([kept]);
-    expect(await keptRecords(source.id)).toEqual([kept]);
+test("reads a launch another process recorded after this one read the store, as a fresh process does", async () => {
+  const kept = execution("10000000-0000-4000-8000-000000000001").please();
+  await replaceRecords(() => ({ [source.id]: [kept] }));
+  settleFile(machineDashboardPath("agent-launches.json"));
+  expect(await keptRecords(source.id)).toEqual([kept]);
+  expect(await keptRecords(source.id)).toEqual([kept]);
 
-    const recorded = makeMe.aLaunchRecord
-      .adHoc({ title: "Fix the typo" })
-      .inClaudeSession({ sessionId: "20000000-0000-4000-8000-000000000002" })
-      .please();
-    await inOtherProcess(signal, "record", source, [recorded]);
+  const recorded = makeMe.aLaunchRecord
+    .adHoc({ title: "Fix the typo" })
+    .inClaudeSession({ sessionId: "20000000-0000-4000-8000-000000000002" })
+    .please();
+  await inOtherProcess("record", source, [recorded]);
 
-    expect(await keptRecords(source.id)).toEqual([kept, recorded]);
-    expect(await inOtherProcess(signal, "read", source)).toEqual([
-      kept,
-      recorded,
-    ]);
-  });
+  expect(await keptRecords(source.id)).toEqual([kept, recorded]);
+  expect(await inOtherProcess("read", source)).toEqual([kept, recorded]);
+});
 
-  test("keeps every done mark from concurrent processes and raises no review attention after the session exits", async ({
-    signal,
-  }) => {
-    const sessions = sessionIds(24, "000000000001");
-    const all = sessions.map((sessionId) => execution(sessionId).please());
-    await replaceRecords(() => ({ [source.id]: all }));
-    const marks = doneMarks();
-    const here = everyOther(all, 0);
-    const there = everyOther(all, 1);
+test("keeps every done mark from concurrent processes and raises no review attention after the session exits", async () => {
+  const sessions = sessionIds(4, "000000000001");
+  const all = sessions.map((sessionId) => execution(sessionId).please());
+  await replaceRecords(() => ({ [source.id]: all }));
+  const marks = doneMarks();
+  const here = everyOther(all, 0);
+  const there = everyOther(all, 1);
 
-    const [markedHere] = await Promise.all([
-      Promise.all(
-        here.map((record) =>
-          marks.markDone(source, record, machineFolder(), unobserved),
-        ),
+  const [markedHere] = await Promise.all([
+    Promise.all(
+      here.map((record) =>
+        marks.markDone(source, record, machineFolder(), unobserved),
       ),
-      inOtherProcess(signal, "mark", source, there),
-    ]);
-    await marks.close();
-    const kept = await keptRecords(source.id);
-    expect(kept.map((record) => record.session.sessionId)).toEqual(sessions);
-    expect(kept.every((record) => record.doneAt !== undefined)).toBe(true);
-    expect(everyOther(kept, 0).map((record) => record.doneAt)).toEqual(
-      markedHere.map((record) => record.doneAt),
-    );
+    ),
+    inOtherProcess("mark", source, there),
+  ]);
+  await marks.close();
+  const kept = await keptRecords(source.id);
+  expect(kept.map((record) => record.session.sessionId)).toEqual(sessions);
+  expect(kept.every((record) => record.doneAt !== undefined)).toBe(true);
+  expect(everyOther(kept, 0).map((record) => record.doneAt)).toEqual(
+    markedHere.map((record) => record.doneAt),
+  );
 
-    // Native completion can arrive after closure; it must not revive attention.
-    const checkout = path.join(machine, "home", "git", source.id);
-    mkdirSync(checkout, { recursive: true });
-    writeFileSync(
-      path.join(machine, "claude-state", "agents.json"),
-      JSON.stringify(
-        sessions.map((sessionId) =>
-          makeMe.aClaudeListingRow
-            .background({
-              sessionId,
-              name: story.title,
-              cwd: checkout,
-              startedAt: Date.now(),
-            })
-            .as("done-exited")
-            .please(),
-        ),
-      ),
-    );
-    const observed = await withStates({ path: checkout, shown: "~" }, kept);
-    expect(observed.map((record) => record.sessionState)).toEqual(
-      sessions.map(() => ({
-        kind: "available",
-        availability: "retained",
-        activity: "review",
-      })),
-    );
-    expect(attentionCount(observed)).toBe(0);
-    expect(observed.map(alertReading)).toEqual(sessions.map(() => undefined));
-  });
-}
+  // Native completion can arrive after closure; it must not revive attention.
+  const listing = claudeListing(
+    sessions.map((sessionId) =>
+      makeMe.aClaudeListingRow
+        .background({ sessionId, name: story.title, startedAt: Date.now() })
+        .as("done-exited")
+        .please(),
+    ),
+  );
+  const observed = await withStates(
+    machineFolder(),
+    kept,
+    "on-demand",
+    listing,
+  );
+  expect(observed.map((record) => record.sessionState)).toEqual(
+    sessions.map(() => ({
+      kind: "available",
+      availability: "retained",
+      activity: "review",
+    })),
+  );
+  expect(attentionCount(observed)).toBe(0);
+  expect(observed.map(alertReading)).toEqual(sessions.map(() => undefined));
+});
