@@ -1,11 +1,18 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import "./compact-select.css";
 
 // One choice offered by a compact select: `id` is its stable identity and
-// `label` the text it shows.
+// `label` what it shows, whose text and image names are its accessible name.
 export type CompactSelectOption = {
   readonly id: string;
-  readonly label: string;
+  readonly label: ReactNode;
 };
 
 // A button showing the committed choice that opens a listbox. Arrow keys,
@@ -29,7 +36,7 @@ export function CompactSelect<Option extends CompactSelectOption>({
   readonly name: string;
   readonly options: readonly Option[];
   readonly value: string;
-  readonly current: string;
+  readonly current: ReactNode;
   readonly onCommit: (option: Option) => void;
   readonly rootClassName: string;
   readonly buttonClassName: string;

@@ -68,8 +68,8 @@ communicate its ad hoc identity through a simple icon with an accessible
 name. When the title is unavailable, say so and show the published close
 time if available so the reviewer can tell sessions apart.
 
-Multi-session selection, ad hoc details on Intent Home, and saving
-per-session review status belong to the following stories in this seed.
+Multi-session selection and ad hoc details on Intent Home belong to the
+following stories in this seed.
 
 **Key examples.**
 

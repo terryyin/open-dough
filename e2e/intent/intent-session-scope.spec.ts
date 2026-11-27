@@ -91,7 +91,7 @@ test("Intent reviews one published session of a Done story without its launch he
       "Refinement",
       "Execution",
       "Refinement",
-      "Ad hoc",
+      "Title unavailable",
     ]));
   await test.step("When it chooses the second refinement", () =>
     review.comparison.chooseSession(3));

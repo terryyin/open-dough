@@ -71,7 +71,7 @@ test("a Done story lists its published sessions once each, oldest first", async 
     `Refinement — ${closed(firstRefinement)}`,
     `Execution — ${closed(execution)}`,
     `Refinement — ${closed(secondRefinement)}`,
-    `Ad hoc — ${closed(followUp)}`,
+    `Title unavailable — ${closed(followUp)}`,
   ]);
   await expect
     .element(story.scopeOption("Whole story"))
@@ -137,11 +137,11 @@ test("a session also known from a launch here is listed once", async () => {
   );
   await opened;
 
-  expect(
-    (await intentStoryCompare().scopeNames()).filter((name) =>
-      name.startsWith("Ad hoc"),
-    ),
-  ).toEqual([`Ad hoc — ${new Date(kept.launchedAt).toLocaleString()}`]);
+  const names = await intentStoryCompare().scopeNames();
+  expect(names).toContain("Follow up here");
+  expect(names.filter((name) => name.startsWith("Title unavailable"))).toEqual(
+    [],
+  );
 });
 
 test("a newly selected story starts at Whole story", async () => {

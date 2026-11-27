@@ -143,7 +143,7 @@ E2E readers; typecheck.
 ### 3. Identify an ad hoc session by its own title
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–15 active minutes.
 
 An ad hoc option with a retained title shows that title and a simple icon
@@ -161,6 +161,16 @@ the same opening words. In the supplier's published-only case with no
 retained launch, verify the missing-title label and close time, select the
 option, and observe its recorded comparison. Adapt reached supplier
 assertions that relied on the former ad hoc name.
+
+Delivered: `SessionScope` carries `adHoc`. The session join labels an ad hoc
+session with its retained launch title, or **Title unavailable — close
+time** when only the published record is present. A compact option's
+`label` is a rendered node, and Intent prefixes ad hoc labels with an
+`img` named "Ad hoc". A retained launch always carries a non-empty title,
+which its request schema requires. Proof:
+`intent-session-scope-titles.spec.ts` (long titles sharing opening words,
+touch at phone width, published-only title unavailable), the `intent/`
+mounted group plus navigation (367 passed), and the reached E2E journeys.
 
 ## Proof ownership and local gate
 

@@ -22,3 +22,9 @@
 .intent-scope-select-list [role="option"] {
   overflow-wrap: anywhere;
 }
+
+/* An ad hoc session's icon; its name "Ad hoc" is the span's aria-label. */
+.intent-scope-ad-hoc::before {
+  content: "\2726" / "";
+  color: var(--muted);
+}
