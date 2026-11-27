@@ -23,8 +23,6 @@ import {
 } from "./launchJourney.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { optionsDefinitionSchema } from "../src/commandOptions.ts";
-import { hostName } from "../src/sessionCapabilities.ts";
-import type { SessionReference } from "../src/sessionReference.ts";
 import { launchWaitMs } from "./support/launchWait.ts";
 import { defaultRepository } from "./publishedOriginBasics.ts";
 import {
@@ -189,13 +187,9 @@ export async function showsRecordedRefinementOptions(
 export const startSession = (page: Page, project: string) =>
   page.getByRole("button", { name: `Start session in ${project}` });
 
-export const startSessionDialog = (
-  page: Page,
-  project: string,
-  host: SessionReference["host"] = "claude",
-) =>
+export const startSessionDialog = (page: Page, project: string) =>
   page.getByRole("dialog", {
-    name: `Start a session in ${project} in ${hostName(host)}`,
+    name: `Start a session in ${project} in Claude Code`,
   });
 
 export async function openStartSession(page: Page, project: string) {
