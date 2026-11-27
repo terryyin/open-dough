@@ -1,122 +1,184 @@
-// Closing the local launch boundary abandons a manual Claude Code rename wait,
-// waits for its retained failure, and still stops the fake session. The machine
-// directory survives shutdown so assertions read the resulting durable record.
-
-import { mkdtempSync, rmSync } from "node:fs";
-import { keptLaunchRecords } from "../../test-support/support/launchStore.ts";
+// Closing native Done abandons the rename wait, persists its cause, and
+// lets the developer's stop finish.
+import { mkdirSync, mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { beforeEach, expect, onTestFinished, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { AgentLaunches } from "../../server/agentLaunches.ts";
+import { AgentTerminals } from "../../server/agentTerminals.ts";
+import { NativeDoneMarks } from "../../server/doneMarks.ts";
+import { executionCheckout } from "../../server/executionCheckout.ts";
+import { launchHost } from "../../server/launchHosts.ts";
+import { bindRecord } from "../../server/launchRecordBinding.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
+import { machineFolder, type LocalFolder } from "../../server/localFolder.ts";
+import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import {
-  markDone,
-  openDoughFolder,
-  title,
-} from "../../test-support/agentLaunchBoundary.ts";
-import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
-import { machineHome } from "../../test-support/machineLaunchRecords.ts";
-import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+  installFakeClaude,
+  type FakeClaudeControls,
+} from "../../test-support/support/fakeClaude.ts";
 
-const launchName = `Open Dough · Execution · ${title}`;
+const source = makeMe.aPublishedSource.openDough.please();
+const sessionId = "588c4c19-0000-4000-8000-000000000005";
+const shortId = sessionId.slice(0, 8);
 
-test("a server closed while manual Done waits for a working session retains the rename cause and still stops it", async () => {
-  const machine = mkdtempSync(path.join(tmpdir(), "dough-done-close-"));
-  const server = await startDashboardServer({
-    mode: "boundary",
+let claude: FakeClaudeControls;
+let folder: LocalFolder;
+let marks: NativeDoneMarks;
+let launches: AgentLaunches;
+let terminals: AgentTerminals;
+
+beforeEach(() => {
+  const machine = realpathSync(
+    mkdtempSync(path.join(tmpdir(), "dough-done-close-")),
+  );
+  const fixture = installFakeClaude(
     machine,
-    projectFolders: ["open-dough"],
-    doneRenameWaitMs: 30_000,
+    { binDir: machine, path: process.env.PATH ?? "" },
+    { doneRenameWaitMs: 30_000 },
+  );
+  for (const [key, value] of Object.entries(fixture.env))
+    vi.stubEnv(key, value);
+  const unmount = mountProjectConfiguration("production");
+  claude = fixture.controls;
+  folder = executionCheckout(source);
+  mkdirSync(folder.path);
+  terminals = new AgentTerminals(null, () =>
+    Promise.reject(new Error("This test runs without terminal upgrades.")),
+  );
+  marks = new NativeDoneMarks({
+    terminals,
+    hostFor: launchHost,
+    reportingFolder: machineFolder,
   });
-  let closed = false;
-  try {
-    const session = await composeSession(server);
-    server.claudeSessionBecomes(session.sessionId, "working");
-    const listingsBefore = server
-      .claudeCalls()
-      .filter((call) => call.argv[0] === "agents").length;
-    const marking = markDone(server, {
-      source: "open-dough",
-      session: session.sessionId,
-    });
-    // Own the HTTP result even if shutdown ends the connection first.
-    const marked = marking.catch(() => undefined);
-    await expect
-      .poll(() => {
-        const [record] = keptLaunchRecords(machineHome(machine));
-        return record && "session" in record ? record.doneAt : undefined;
+  launches = new AgentLaunches(marks);
+  onTestFinished(async () => {
+    launches.close();
+    await marks.close();
+    terminals.close();
+    await launches.drain();
+    unmount();
+    vi.unstubAllEnvs();
+    rmSync(machine, { recursive: true, force: true });
+  });
+});
+
+async function keepSession(appearance: "working" | "working-idle") {
+  const record = makeMe.aLaunchRecord
+    .executing({
+      source: source.id,
+      identity: "SEED-867#native-done",
+      title: "Finish this session",
+    })
+    .inClaudeSession({ sessionId, shortId })
+    .please();
+  await bindRecord(source.id, record);
+  claude.claudeListingBecomes([
+    makeMe.aClaudeListingRow
+      .background({
+        sessionId,
+        name: record.session.name,
+        cwd: folder.path,
+        startedAt: Date.parse(record.launchedAt),
       })
+      .as(appearance)
+      .please(),
+  ]);
+  return record;
+}
+
+test("closing while manual Done waits for a working session retains the rename cause and still stops it", async () => {
+  const record = await keepSession("working");
+  const closeDuringWait = async () => {
+    await expect
+      .poll(async () => (await keptRecords(source.id))[0]?.doneAt)
       .toEqual(expect.any(String));
-    // Two rename listing reads, after the state read, establish that the
-    // wait has observed working and is polling rather than still starting.
+    // The state read and two rename reads show the wait is polling a
+    // working session before it is abandoned.
     await expect
       .poll(
         () =>
-          server.claudeCalls().filter((call) => call.argv[0] === "agents")
+          claude.claudeCalls().filter(({ argv }) => argv[0] === "agents")
             .length,
+        { timeout: 3_000 },
       )
-      .toBeGreaterThanOrEqual(listingsBefore + 3);
+      .toBeGreaterThanOrEqual(3);
+    await marks.close();
+    return keptRecords(source.id);
+  };
 
-    await server.close();
-    closed = true;
-    await marked;
-    const [record] = keptLaunchRecords(machineHome(machine));
-    expect(record).toMatchObject({
-      doneAt: expect.any(String),
+  const [marked, keptAtClose] = await Promise.all([
+    marks.markDone(source, record, folder, launches),
+    closeDuringWait(),
+  ]);
+
+  expect(Date.parse(marked.doneAt ?? "")).not.toBeNaN();
+  expect(keptAtClose).toMatchObject([
+    {
+      doneAt: marked.doneAt,
       doneProblem:
         "Local done mark retained. Claude Code rename failed: The session was still working when the wait ended.",
-      session: { sessionId: session.sessionId, name: launchName },
-    });
-    expect(server.claudeAttaches()).toEqual([]);
-    expect(server.claudeStopCalls()).toEqual([
-      { argv: ["stop", session.shortId], cwd: openDoughFolder(server) },
-    ]);
-    expect(
-      server.claudeListing().find((each) => each["id"] === session.shortId),
-    ).toMatchObject({ name: launchName, state: "stopped" });
-  } finally {
-    if (!closed) await server.close();
-    rmSync(machine, { recursive: true, force: true });
-  }
+      session: record.session,
+    },
+  ]);
+  expect(claude.claudeAttaches()).toEqual([]);
+  expect(claude.claudeStopCalls()).toEqual([
+    { argv: ["stop", shortId], cwd: folder.path },
+  ]);
+  expect(claude.claudeListing()).toMatchObject([
+    { sessionId, name: record.session.name, state: "stopped" },
+  ]);
 });
 
-test("a server closed before the private composer abandons manual rename without typing", async () => {
-  const machine = mkdtempSync(path.join(tmpdir(), "dough-done-prompt-close-"));
-  const server = await startDashboardServer({
-    mode: "boundary",
-    machine,
-    projectFolders: ["open-dough"],
-    doneRenameWaitMs: 30_000,
-  });
-  let closed = false;
-  try {
-    const session = await composeSession(server);
-    server.claudeSessionBecomes(session.sessionId, "working-idle");
-    server.claudeAttachPromptDelay(60_000);
-    const marked = markDone(server, {
-      source: "open-dough",
-      session: session.sessionId,
-    }).catch(() => undefined);
-    await expect.poll(() => server.claudeAttaches().length).toBe(1);
-    await server.close();
-    closed = true;
-    await marked;
-    expect(keptLaunchRecords(machineHome(machine))[0]).toMatchObject({
-      doneAt: expect.any(String),
+test("closing before the private composer abandons manual rename without typing", async () => {
+  const record = await keepSession("working-idle");
+  claude.claudeAttachPromptDelay(60_000);
+  let sawBanner = false;
+  const typed = vi.fn<(keys: string) => void>();
+  const withAttachment = terminals.withAttachment.bind(terminals);
+  vi.spyOn(terminals, "withAttachment").mockImplementation(
+    (session, at, use, signal, ready) =>
+      withAttachment(
+        session,
+        at,
+        (type) =>
+          use((keys) => {
+            typed(keys);
+            type(keys);
+          }),
+        signal,
+        (screen, cursorVisible) => {
+          sawBanner ||= screen.includes(`attached ${shortId}`);
+          return ready(screen, cursorVisible);
+        },
+      ),
+  );
+  const closeDuringAttach = async () => {
+    await expect.poll(() => sawBanner).toBe(true);
+    await marks.close();
+    return keptRecords(source.id);
+  };
+
+  const [marked, keptAtClose] = await Promise.all([
+    marks.markDone(source, record, folder, launches),
+    closeDuringAttach(),
+  ]);
+
+  expect(Date.parse(marked.doneAt ?? "")).not.toBeNaN();
+  expect(keptAtClose).toMatchObject([
+    {
+      doneAt: marked.doneAt,
       doneProblem:
         "Local done mark retained. Claude Code rename failed: The terminal attachment could not be opened.",
-      session: { name: launchName },
-    });
-    await expect
-      .poll(() => server.claudeAttaches())
-      .toEqual([
-        {
-          pid: expect.any(Number),
-          id: session.shortId,
-          lines: [],
-          endedBy: "SIGHUP",
-        },
-      ]);
-  } finally {
-    if (!closed) await server.close();
-    rmSync(machine, { recursive: true, force: true });
-  }
+      session: record.session,
+    },
+  ]);
+  expect(typed).not.toHaveBeenCalled();
+  await expect
+    .poll(() => claude.claudeAttaches())
+    .toMatchObject([{ id: shortId, lines: [], endedBy: "SIGHUP" }]);
+  expect(claude.claudeStopCalls()).toEqual([
+    { argv: ["stop", shortId], cwd: folder.path },
+  ]);
 });

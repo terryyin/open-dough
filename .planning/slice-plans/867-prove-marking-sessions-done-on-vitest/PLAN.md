@@ -15,6 +15,8 @@
 
 - CI repair accepted at `0ababc6ed7b054062072a420500d552a25c4c733`. [The repair record](diagnosis-done-listing-retention.md) retains the failing and passing browser observations.
 
+- Slice 2 accepted at `0a78f6038f543ce3d8e7ec0f72ed29b1e780c702`.
+
 ## Goal and scope
 
 Give Dashboard maintainers fast, typed Node Vitest proof of how the
@@ -173,7 +175,7 @@ The open-attachment spec passed again after its mock's unused parameter was omit
 ### 3. Wait for a private composer, and abandon a rename when the server closes
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: With the real `AgentTerminals` and the fake PTY's composer delay and
@@ -184,6 +186,10 @@ hang up. `NativeDoneMarks.close()` during manual Done's wait for a working
 session keeps the rename cause and still stops it. Closing before the
 private composer abandons the rename without typing. Convert
 `agent-launch-done-prompt.spec.ts` and `agent-launch-done-close.spec.ts`.
+
+Accepted proof: `caffeinate -s -i npm run test:dashboard:backend -- 'sessions/agent-launch-done-(prompt|close)\.spec\.ts$' --workers=1` ran six Node cases with zero Chromium cases or retries. Summed case time was 7.487 s versus 11.591 s in the legacy baseline. The terminal's screen and typed-key probe distinguish banner from composer. The fake's native trace and kept-record reads verify no late typing, hang-up, retained causes and stop on close. Dashboard typecheck and whitespace check passed. See `slice3-return.md` and terminal receipts in the Git evidence directory.
+
+Only the two subject specs changed. Review found the existing typed terminal, fake host and store owners sufficient, with no changes to shared support.
 
 ### 4. Let the developer's Done take over a reported rename
 
