@@ -1,153 +1,195 @@
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import type { PageReads } from "../../src/pageReads.tsx";
+import type { StoryReview } from "../../src/storyReviewContract.ts";
 import type { StoryReviewResult } from "../../src/storyReviewResult.ts";
+import { unanswered } from "../../test-support/support/waitUntil.ts";
 import { heldRead } from "./intent-ci-status-fixtures.ts";
 import { intentFileReading } from "./intent-file-reading-page.ts";
-import { intentStoryCompare } from "./intent-story-compare-page.ts";
+import { locationHeader } from "./intent-scope-tree-page.ts";
+import {
+  activateComparisonControl,
+  comparisonRead,
+  intentStoryCompare,
+} from "./intent-story-compare-page.ts";
 import {
   doneCompletion,
   openDoneStoryComparison,
-  publishedCompletion,
 } from "./intent-story-compare-stories.ts";
 
-const guide = "docs/guide.md";
-const currentTest = "checks/current.spec.ts";
+const guide = "guide.txt";
+const changed = "product/changed.txt";
+const publishedTest = "checks/current.spec.ts";
 const capturedTest = "previous/old.spec.ts";
 const capturedRevision = "e".repeat(40);
 const run = makeMe.aReviewRun
   .keyed("captured")
   .comparing("d".repeat(40), capturedRevision)
   .please();
-const captured = makeMe.aStoryReview.landed().onRun(run, [run]).please();
+const publishedCompletion = () =>
+  makeMe.aStoryReview.published(doneCompletion).adding(changed).please();
 
-const listed = (path: string) => {
-  const root = path.split("/")[0] ?? "";
-  return makeMe.anIntentLocation
-    .at(root)
-    .ofKind("typescript", ["**/*.spec.ts"])
-    .selecting(path)
-    .please();
+function inventory(revision: string, root: string, file: string) {
+  return {
+    kind: "inventory",
+    revision,
+    paths: [guide, file],
+    locations: [
+      makeMe.anIntentLocation
+        .at(root)
+        .ofKind("typescript", ["**/*.spec.ts"])
+        .selecting(file)
+        .please(),
+    ],
+  } satisfies StoryReviewResult;
+}
+
+const publishedInventory = inventory(doneCompletion, "checks", publishedTest);
+const capturedInventory = inventory(capturedRevision, "previous", capturedTest);
+const guideText = (revision: string, text: string): StoryReviewResult => ({
+  kind: "text",
+  revision,
+  path: guide,
+  text,
+});
+
+type HeldReply = (signal: AbortSignal) => Promise<StoryReviewResult>;
+type Reply = StoryReviewResult | HeldReply;
+type Result = {
+  readonly inventory: Reply;
+  readonly files?: Readonly<Record<string, Reply>>;
 };
 
-test("switching comparisons changes the inventory, settings and file's exact revision while an earlier text read is held", async () => {
-  const oldText = heldRead<StoryReviewResult>();
-  await openDoneStoryComparison({
-    review: (query) =>
-      Promise.resolve(
-        query.run === run.key
-          ? captured
-          : { ...publishedCompletion(), runs: [run] },
-      ),
-    storyResult: (query) => {
-      const revision =
-        query.reference === undefined ? doneCompletion : capturedRevision;
-      const path = revision === doneCompletion ? currentTest : capturedTest;
-      if (query.path !== undefined) {
-        if (revision === doneCompletion) return oldText.ask();
-        return Promise.resolve({
-          kind: "text",
-          revision,
-          path: query.path,
-          text: "captured guide",
-        });
-      }
-      return Promise.resolve({
-        kind: "inventory",
-        revision,
-        paths: [guide, path],
-        locations: [listed(path)],
-      });
+function resultReads(...answers: [string, Result][]): PageReads["storyResult"] {
+  const results = new Map(answers);
+  return async ({ completion, reference, path }, signal) => {
+    const result = results.get(reference ?? completion ?? "");
+    const reply =
+      path === undefined ? result?.inventory : result?.files?.[path];
+    if (reply === undefined)
+      throw new Error(
+        `Unexpected result read for ${reference ?? completion}: ${path ?? "inventory"}`,
+      );
+    return typeof reply === "function" ? reply(signal) : reply;
+  };
+}
+
+function heldResult() {
+  const held = heldRead<StoryReviewResult>();
+  let request: AbortSignal | undefined;
+  return {
+    read: (signal: AbortSignal) => {
+      request = signal;
+      return held.ask();
     },
+    async release(answer: StoryReviewResult) {
+      expect(request?.aborted).toBe(true);
+      held.resolve(answer);
+      await held.ask();
+    },
+    requested: held.asked,
+  };
+}
+
+async function openResults(
+  published: Result,
+  captured: Result,
+  landing: StoryReview = makeMe.aStoryReview.landed().onRun(run).please(),
+) {
+  if (landing.kind !== "landed") throw new Error("Expected a captured landing");
+  const completion = { ...publishedCompletion(), runs: [run] };
+  await openDoneStoryComparison({
+    ci: { readComparison: unanswered },
+    review: ({ run: selected }) =>
+      Promise.resolve(selected === run.key ? landing : completion),
+    storyResult: resultReads(
+      [doneCompletion, published],
+      [landing.landing.reference, captured],
+    ),
   });
-  const story = intentStoryCompare();
-  await story.listRevision();
-  await story.expandFolderPath("checks");
-  await expect.element(story.file(currentTest)).toBeVisible();
-  await story.expandFolderPath("docs");
-  await story.file(guide).click();
-  await expect.poll(oldText.asked).toBe(true);
-  await story.chooseLatestLanding();
-  await story.expandFolderPath("previous");
-  await expect.element(story.file(capturedTest)).toBeVisible();
-  await expect.element(story.file(currentTest)).not.toBeInTheDocument();
+  return intentStoryCompare();
+}
+
+test("switching comparisons changes the inventory, settings and file's exact revision while an earlier text read is held", async () => {
+  const oldText = heldResult();
+  const story = await openResults(
+    { inventory: publishedInventory, files: { [guide]: oldText.read } },
+    {
+      inventory: capturedInventory,
+      files: { [guide]: guideText(capturedRevision, "captured guide") },
+    },
+  );
+
+  await activateComparisonControl(story.changesOnly);
+  await activateComparisonControl(story.folderToggle("checks", false));
+  await expect
+    .element(story.file(publishedTest), { interval: 5 })
+    .toBeVisible();
+  expect(locationHeader("checks")).toHaveAttribute(
+    "data-intent-folder-cue",
+    "root",
+  );
+  await activateComparisonControl(story.file(guide));
+  await comparisonRead(oldText.requested).toBe(true);
+
+  await story.chooseRun(run.key);
+  await activateComparisonControl(story.folderToggle("previous", false));
+  await expect.element(story.file(capturedTest), { interval: 5 }).toBeVisible();
+  expect(locationHeader("previous")).toHaveAttribute(
+    "data-intent-folder-cue",
+    "root",
+  );
+  expect(story.folder("checks").query()).toBeNull();
   const reading = intentFileReading(guide);
-  await reading.shows("captured guide");
+  await comparisonRead(story.readingText).toContain("captured guide");
   await reading.isAt(capturedRevision);
 
-  oldText.resolve({
-    kind: "text",
-    path: guide,
-    revision: doneCompletion,
-    text: "late current guide",
-  });
+  await oldText.release(guideText(doneCompletion, "late current guide"));
   await reading.shows("captured guide");
   await reading.isAt(capturedRevision);
 });
 
 test("a late inventory from the prior comparison cannot replace a captured run's tree", async () => {
-  const oldInventory = heldRead<StoryReviewResult>();
-  await openDoneStoryComparison({
-    review: (query) =>
-      Promise.resolve(
-        query.run === run.key
-          ? captured
-          : { ...publishedCompletion(), runs: [run] },
-      ),
-    storyResult: (query) =>
-      query.reference === undefined
-        ? oldInventory.ask()
-        : Promise.resolve({
-            kind: "inventory",
-            revision: capturedRevision,
-            paths: [capturedTest],
-            locations: [listed(capturedTest)],
-          }),
-  });
-  const story = intentStoryCompare();
-  await story.listRevision();
-  await expect.poll(oldInventory.asked).toBe(true);
-  await story.chooseLatestLanding();
-  await story.expandFolderPath("previous");
-  await expect.element(story.file(capturedTest)).toBeVisible();
-  oldInventory.resolve({
-    kind: "inventory",
-    revision: doneCompletion,
-    paths: [currentTest],
-    locations: [listed(currentTest)],
-  });
-  await expect.element(story.file(currentTest)).not.toBeInTheDocument();
+  const oldInventory = heldResult();
+  const story = await openResults(
+    { inventory: oldInventory.read },
+    { inventory: capturedInventory },
+  );
+  await activateComparisonControl(story.changesOnly);
+  await comparisonRead(oldInventory.requested).toBe(true);
+
+  await story.chooseRun(run.key);
+  await activateComparisonControl(story.folderToggle("previous", false));
+  await expect.element(story.file(capturedTest), { interval: 5 }).toBeVisible();
+  await oldInventory.release(publishedInventory);
+  expect(story.folder("checks").query()).toBeNull();
   await expect.element(story.file(capturedTest)).toBeVisible();
 });
 
 test("an inventory failure keeps the changed diff available while Retry restores unchanged paths", async () => {
-  const changed = "dashboard/tests/folder/a.spec.ts";
-  let attempts = 0;
+  const readInventory = vi
+    .fn<HeldReply>()
+    .mockResolvedValueOnce({
+      kind: "unavailable",
+      revision: doneCompletion,
+      explanation: "The tree listing failed.",
+    })
+    .mockResolvedValue({
+      kind: "inventory",
+      revision: doneCompletion,
+      paths: [guide, changed],
+      locations: null,
+    });
   await openDoneStoryComparison({
+    ci: { readComparison: unanswered },
     review: () => Promise.resolve(publishedCompletion()),
-    storyResult: (query) => {
-      if (query.path !== undefined)
-        return Promise.resolve({
-          kind: "text",
-          revision: doneCompletion,
-          path: query.path,
-          text: "same guide",
-        });
-      attempts += 1;
-      return Promise.resolve(
-        attempts === 1
-          ? {
-              kind: "unavailable",
-              revision: doneCompletion,
-              explanation: "The tree listing failed.",
-            }
-          : {
-              kind: "inventory",
-              revision: doneCompletion,
-              paths: [guide, changed],
-              locations: null,
-            },
-      );
-    },
+    storyResult: resultReads([
+      doneCompletion,
+      {
+        inventory: readInventory,
+        files: { [guide]: guideText(doneCompletion, "same guide") },
+      },
+    ]),
     fileDiff: () =>
       Promise.resolve(
         makeMe.aReviewedFileDiff
@@ -156,59 +198,42 @@ test("an inventory failure keeps the changed diff available while Retry restores
       ),
   });
   const story = intentStoryCompare();
-  await story.listRevision();
-  const failure = story.sidebar
-    .getByRole("alert")
-    .filter({ hasText: "Repository inventory could not be read" });
-  await expect
-    .poll(() => failure.query()?.textContent)
-    .toContain("The tree listing failed.");
-  await story.file(`Added ${changed}`).click();
-  await expect.poll(story.diffCode).toContain("changed despite failure");
-  await failure.getByRole("button", { name: "Retry" }).click();
-  await story.expandFolderPath("docs");
-  await story.file(guide).click();
-  await intentFileReading(guide).shows("same guide");
-  await intentFileReading(guide).isAt(doneCompletion);
-  expect(attempts).toBe(2);
+  await activateComparisonControl(story.changesOnly);
+  const failure = story.sidebar.getByRole("alert").filter({
+    hasText: "Repository inventory could not be read",
+  });
+  await comparisonRead(() => failure.query()?.textContent).toContain(
+    "The tree listing failed.",
+  );
+  await activateComparisonControl(story.file(`Added ${changed}`));
+  await comparisonRead(story.diffCode).toContain("changed despite failure");
+
+  await activateComparisonControl(
+    failure.getByRole("button", { name: "Retry" }),
+  );
+  await activateComparisonControl(story.file(guide));
+  const reading = intentFileReading(guide);
+  await comparisonRead(story.readingText).toContain("same guide");
+  await reading.isAt(doneCompletion);
+  expect(readInventory).toHaveBeenCalledTimes(2);
 });
 
 test("with Changes only on, choosing a landed run lists that run's changed paths and keeps Changes only", async () => {
-  const landed = makeMe.aStoryReview
-    .landed()
-    .onRun(run, [run])
-    .modifying(capturedTest)
-    .please();
-  await openDoneStoryComparison({
-    review: (query) =>
-      Promise.resolve(
-        query.run === run.key
-          ? landed
-          : { ...publishedCompletion(), runs: [run] },
-      ),
-    storyResult: (query) => {
-      const revision =
-        query.reference === undefined ? doneCompletion : capturedRevision;
-      const path = revision === doneCompletion ? currentTest : capturedTest;
-      return Promise.resolve({
-        kind: "inventory",
-        revision,
-        paths: [guide, path],
-        locations: [listed(path)],
-      });
-    },
-  });
-  const story = intentStoryCompare();
-  await story.browseFiles();
-  await expect.element(story.changesOnly).toBeChecked();
+  const story = await openResults(
+    { inventory: publishedInventory },
+    { inventory: capturedInventory },
+    makeMe.aStoryReview.landed().onRun(run).modifying(capturedTest).please(),
+  );
   await expect
-    .element(story.file("Added dashboard/tests/folder/a.spec.ts"))
+    .element(story.file(`Added ${changed}`), { interval: 5 })
     .toBeVisible();
-  await story.chooseLatestLanding();
   await expect.element(story.changesOnly).toBeChecked();
-  await expect.element(story.file(`Modified ${capturedTest}`)).toBeVisible();
+
+  await story.chooseRun(run.key);
   await expect
-    .element(story.file("Added dashboard/tests/folder/a.spec.ts"))
-    .not.toBeInTheDocument();
-  await expect.element(story.file(guide)).not.toBeInTheDocument();
+    .element(story.file(`Modified ${capturedTest}`), { interval: 5 })
+    .toBeVisible();
+  await expect.element(story.changesOnly).toBeChecked();
+  expect(story.file(`Added ${changed}`).query()).toBeNull();
+  expect(story.file(guide).query()).toBeNull();
 });
