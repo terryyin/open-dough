@@ -84,10 +84,7 @@ test.describe("a story's card while its session is open", () => {
     };
 
     await test.step("an open session disables both Starts and leaves another story's Starts", async () => {
-      const launch = await board.open(readyStory, "Execution");
-      await launch.chooseOneShot();
-      await launch.submit();
-      await expect(storyCardSessions(card(readyStory))).toHaveCount(1);
+      await board.startOneShot(readyStory, "Execution");
       await expectStartsBlocked(action, [readyStory], openSessionNote);
       await expectOffered(notRefinedStory);
       expect(dashboard.claudeLaunchCalls()).toHaveLength(1);
@@ -205,12 +202,7 @@ test.describe("a story's card while its session is open", () => {
       await other.goto("/");
       await expectSettledPage(other);
       const otherBoard = installedStoryBoard(other);
-      const competing = await otherBoard.open(takenStory, "Execution");
-      await competing.chooseOneShot();
-      await competing.submit();
-      await expect(storyCardSessions(otherBoard.card(takenStory))).toHaveCount(
-        1,
-      );
+      await otherBoard.startOneShot(takenStory, "Execution");
       const launchesBefore = dashboard.claudeLaunchCalls().length;
 
       await dialog.submit();

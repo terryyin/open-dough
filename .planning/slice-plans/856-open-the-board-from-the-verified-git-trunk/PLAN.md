@@ -292,6 +292,12 @@ slice 5's full run); E2E 787 of 788, with `agent-launch-codex.spec.ts:73`
 passing alone. `agent-launch-claude-verification.spec.ts:176` passed in the
 full run. Hosted CI decides the load-classified cases.
 
+CI repair of `55b4be2bf` (run 45955001155, 2026-11-27): the Board's Git open
+creates its review repository under `~/.open-dough/dashboard`, so a journey
+that makes that directory read-only must open the Board first
+(`agent-launch-publication-receipt-failure`). `follows` is gone; the only pin
+is `keepsOpenedTrunk`, and `startOneShot` waits for a one-shot start to settle.
+
 ## Local gate
 
 Run focused checks and Dashboard typecheck for each changed boundary. Slice 9
