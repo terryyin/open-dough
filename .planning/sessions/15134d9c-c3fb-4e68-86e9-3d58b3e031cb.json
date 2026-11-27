@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "sessionId": "15134d9c-c3fb-4e68-86e9-3d58b3e031cb",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-27T08:03:19.764Z",
+  "story": "SEED-413#prove-cursor-runner-lifecycle-on-vitest",
+  "ranges": [
+    {
+      "base": "914835500b66512eaffb599a75314526ca238304",
+      "candidate": "1da54264697f47e8990d0a0c150add091aecd767"
+    },
+    {
+      "base": "a6acbb7c0c1d747b4e58dae3f80aacc6a0a0a527",
+      "candidate": "67d52b5fafa41a794d889c3c5ddd4806430e14a1"
+    }
+  ]
+}
