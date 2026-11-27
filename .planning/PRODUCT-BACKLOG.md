@@ -35,6 +35,10 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Open session changes in Intent and retire the Side panel review](seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review) — SEED-418#select-a-story-session-for-review
+- [Choose review scope from a compact dropdown](seeds/SEED-418-review-published-session-changes.md#review-scope-dropdown) — SEED-418#review-scope-dropdown
+- [Show the selected ad hoc session on Intent Home](seeds/SEED-418-review-published-session-changes.md#show-selected-session-in-review-home) — SEED-418#show-selected-session-in-review-home
+- [Track review status for each session](seeds/SEED-418-review-published-session-changes.md#track-review-state-per-session) — SEED-418#track-review-state-per-session
 - [Share the completion reporting arrangement in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#share-completion-reporting-arrangement) — SEED-413#share-completion-reporting-arrangement
 - [Refresh the published Board in place](seeds/SEED-430-read-published-project-data-from-local-git.md#refresh-published-board-in-place) — SEED-430#refresh-published-board-in-place
 - [Follow published progress and read Board records from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git
@@ -47,7 +51,6 @@ intent introduced or affected by a newly developed story.
 - [Prove published Review comparisons in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-review-comparisons-via-vitest) — SEED-413#published-review-comparisons-via-vitest
 - [Prove retained landing capture in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#landing-capture-evidence-via-vitest) — SEED-413#landing-capture-evidence-via-vitest
 - [Prove Dashboard machine observations in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#machine-observation-via-vitest) — SEED-413#machine-observation-via-vitest
-- [Choose a session in a story’s change review](seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review) — SEED-418#select-a-story-session-for-review
 - [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof
 - [Explain and repair an empty native admission substitute stream](seeds/SEED-349-native-admission-substitute-empty-stream.md#explain-native-admission-substitute-empty-stream) — SEED-349#explain-native-admission-substitute-empty-stream
 - [Continue a ready split story automatically after wrap-up](seeds/SEED-366-continue-split-stories-automatically.md#continue-a-ready-split-story-automatically) — SEED-366#continue-a-ready-split-story-automatically

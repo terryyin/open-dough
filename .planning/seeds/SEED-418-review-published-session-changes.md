@@ -4,7 +4,7 @@ status: active
 planted: 2026-11-20
 planted_during: Terry's review of cross-machine session attribution and follow-up context
 trigger_when: selected from the product backlog
-scope: seven stories
+scope: published session attribution and Intent review
 ---
 
 # SEED-418 — Review published changes by session
@@ -14,12 +14,12 @@ A developer should be able to find what a session contributed from any machine w
 The [unified Intent review seed](https://github.com/terryyin/open-dough/blob/683bdd7d57da7559f695373d3f8424fc70dbb4a4/.planning/seeds/SEED-420-unified-intent-review.md) owns
 the review destination and the Recent stories regression.
 [Ad hoc story admission](https://github.com/terryyin/open-dough/blob/1ee3eb03b59a2133fdb73dddaf28c9d44fef2de8/.planning/seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions)
-owns story association at startup. This seed owns session attribution and
-selection.
+owns story association at startup. This seed owns session attribution, session
+scope in Intent, and session review status.
 
 <a id="select-a-story-session-for-review"></a>
 
-### Choose a session in a story’s change review
+### Open session changes in Intent and retire the Side panel review
 
 **Identity:** SEED-418#select-a-story-session-for-review
 ```json dough-story-dependencies
@@ -29,7 +29,13 @@ selection.
 {"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
 ```
 
-In the shared Intent review, **Sessions** defaults to the whole story.
+From a completed session card, **Review session changes** opens the linked
+story's change review in Intent with that session as the only selected scope.
+A developer can inspect the session's attributed changes without having to
+find it again in the review. This also works from a published session on a
+machine without its local launch history.
+
+When opening Intent review from a Story card, **Sessions** defaults to the whole story.
 A developer can choose one completed session from the story's refinements,
 execution and linked follow-ups, including follow-ups after story completion.
 Name repeated refinements individually. With **All changes**, inspect the
@@ -38,7 +44,79 @@ under the same session and allow selection when it has several. A session
 without a landing stays selected with an explanation. Source, diff and Proof
 use that selection.
 
-Given two refinements, execution, and a follow-up on another machine, selecting the second refinement shows the changes attributed to that refinement. The whole-story comparison remains available.
+Remove the Side panel code review in the same story. Delete its entry points,
+components, state and routing, styles, documentation, tests and test support.
+Audit shared code and remove options, branches, and abstractions that existed
+solely to support both review UIs. Keep the shared behavior needed by Intent
+and cover session behavior through Intent, including exact published ranges,
+shared-checkout warnings, and file and line Follow up. Preserve the Side panel's
+terminal and report functions.
+
+Given two refinements, an execution, and an ad hoc follow-up published on
+another machine, opening **Review session changes** on the follow-up lands on
+its scope in Intent. Its diff excludes changes from the other sessions. Choosing
+the second refinement or the whole story updates the comparison in the same view.
+
+<a id="review-scope-dropdown"></a>
+
+### Choose review scope from a compact dropdown
+
+**Identity:** SEED-418#review-scope-dropdown
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+A developer can switch review scope from a compact dropdown in Intent, even
+at narrow widths where the radio buttons run out of room. The dropdown shows
+the current scope and offers the whole story and its available sessions.
+Label an ad hoc session with a simple icon with an accessible name and the
+session's own title in place of the generic Ad hoc label and timestamp.
+
+Given a story with several long session titles, the scope selector fits on a
+narrow screen, lets the reviewer choose the intended ad hoc session by title,
+and shows the selected scope after it closes.
+
+<a id="show-selected-session-in-review-home"></a>
+
+### Show the selected ad hoc session on Intent Home
+
+**Identity:** SEED-418#show-selected-session-in-review-home
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+A developer reviewing a selected ad hoc session can see what it was asked to
+do before interpreting the evidence. At the top of the story's Intent Home,
+above the CI comparison, show the selected session's title, ad hoc identity,
+and original instruction when available. Keep the CI comparison accessible
+on the same page and state when the instruction is unavailable.
+
+Given two follow-ups with different instructions, switching the review scope
+updates the details to the selected follow-up. Returning to whole-story scope
+restores the story Home view.
+
+<a id="track-review-state-per-session"></a>
+
+### Track review status for each session
+
+**Identity:** SEED-418#track-review-state-per-session
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+A developer can mark a completed session as reviewed or unreview it and see
+the saved status on its session card. The story card's **Mark as reviewed**
+action marks all of the story's current reviewable sessions as reviewed. The
+story card shows whether none, some, or all of those sessions are reviewed.
+
+Migrate saved story-level review status to per-session records, preserving
+the review credit for sessions covered by the old mark. Sessions completed
+after that mark start unreviewed.
+
+Given one reviewed session and one unreviewed session, the story shows
+**Partially reviewed** and each session card shows its own status. Marking the
+story as reviewed updates both sessions. A subsequent unreviewed follow-up
+returns the story to **Partially reviewed**.
 
 <a id="review-selected-sessions-together"></a>
 

@@ -9,9 +9,8 @@
 // `frame`. An operation that needs a control the details hold reveals them
 // first, so a scenario names what it chooses, never where the choice sits.
 //
-// Journeys reach it from the session entry: `openReviewChanges` presses its
-// Review changes, and `reviewChangesAfter` activates another control that opens or
-// rereads it, and `assumeReviewChanges` resumes a session review already open.
+// `openPublishedSessionReviewChanges` opens the review from a session entry.
+// `assumeReviewChanges` resumes a session review already open.
 
 import { expect, type Locator, type Page } from "@playwright/test";
 import {
@@ -20,7 +19,6 @@ import {
   type StoryReview,
 } from "../src/storyReviewContract.ts";
 import { closeSidePanel } from "./sidePanelFrame.ts";
-import { reviewChanges as reviewChangesAction } from "./storyCardControls.ts";
 import { reviewAfter } from "./support/launchLandingReview.ts";
 import {
   expectToggleLeadsToolbar,
@@ -209,15 +207,6 @@ class ReviewChanges {
 }
 
 export type { ReviewChanges };
-
-// Presses Review changes after the session entry settles (reading can move
-// the action), and answers the review it shows,
-// as the reader first meets it.
-export async function openReviewChanges(page: Page, card: Locator) {
-  await expect(card).not.toContainText(/Reading [^…]*…/);
-  const answer = await reviewAfter(page, reviewChangesAction(card));
-  return new ReviewChanges(page, answer);
-}
 
 // The review a control other than a card's Review changes opens or rereads,
 // such as a session entry's review action.
