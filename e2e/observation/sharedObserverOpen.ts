@@ -17,7 +17,7 @@ import {
   doughnutRepository,
 } from "../../dashboard/test-support/doughnutProject.ts";
 import {
-  readsBesideChecks,
+  readsOfRepository,
   restMembershipReads,
 } from "../../dashboard/test-support/originObservation.ts";
 import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
@@ -55,12 +55,7 @@ ${renderStorySection(story, { goal })}`,
   .please();
 
 export const askedOfOpenDough = (page: Page) =>
-  readsBesideChecks(
-    githubFor(page).calls.filter(
-      ({ request }) =>
-        "repository" in request && request.repository === repository,
-    ),
-  );
+  readsOfRepository(githubFor(page).calls, repository);
 
 export async function expectGoalShown(page: Page) {
   await expectSettledPage(page, titles);

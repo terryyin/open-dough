@@ -43,6 +43,20 @@ export function readsBesideChecks(calls: readonly GhCall[]): string[] {
     });
 }
 
+// What `repository` alone was asked besides the checks, named as
+// `readsBesideChecks` names them.
+export function readsOfRepository(
+  calls: readonly GhCall[],
+  repository: string,
+): string[] {
+  return readsBesideChecks(
+    calls.filter(
+      ({ request }) =>
+        "repository" in request && request.repository === repository,
+    ),
+  );
+}
+
 // The Board's REST membership reads among `readsBesideChecks` output: `main`
 // resolved, or the backlog read at a revision.
 export function restMembershipReads(reads: readonly string[]): string[] {

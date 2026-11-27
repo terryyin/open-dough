@@ -152,7 +152,7 @@ caused by its deletions. Budget 13 active minutes.
 ### 6. Open configuration and navigation journeys from Git
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Adding, configuring and removing a project, and story URL history,
 open the Board from the verified Git trunk.
@@ -262,6 +262,12 @@ cases (run 45930629943, e2e shards 1, 2, 5, 6). Slice 5's proof was split
 into slices 6–9 by spec group, as allowed for splitting the slice in
 progress. Backend `agent-launch-duplicate.spec.ts:189` and
 `agent-launch-start-duplicate.spec.ts:79` fail at load 23–36 at the base too.
+
+Slice 6 (2026-11-27) needed no new publishing: `projectAddMachine`,
+`projectConfigurationMachine` and `publishMovingHistory` already route the
+Board through Git, so only REST assertions changed. `MovingHistory.disconnectGit()`
+replaces `answerWith("main", 503)`; disconnect after any step that itself runs
+Git against the route. `readsOfRepository` names one repository's reads.
 
 ## Local gate
 

@@ -12,6 +12,7 @@ import {
   keepLaunchStore,
   launchStoreFile,
 } from "../../dashboard/test-support/support/launchStore.ts";
+import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
 import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
 import { git } from "../../dashboard/test-support/support/launchLanding.ts";
 import { addProjectOnPage } from "../../dashboard/test-support/support/projectAddPage.ts";
@@ -64,18 +65,7 @@ test("Add selects, reads the repository's default branch, launches in its execut
   expect(
     server.ghCalls().filter((call) => call.includes(".default_branch")),
   ).toEqual([]);
-  expect(server.ghCalls()).toContainEqual([
-    "api",
-    "--include",
-    `repos/${addedRepository}/commits/${encodeURIComponent(addedBranch)}`,
-    "--jq",
-    ".sha",
-  ]);
-  expect(
-    server
-      .ghCalls()
-      .some((call) => call.includes(`repos/${addedRepository}/commits/main`)),
-  ).toBe(false);
+  expect(restMembershipAsked(server.github.calls)).toEqual([]);
   const saved = readFileSync(fixture.configurationFile("preview"), "utf8");
   expect((JSON.parse(saved) as readonly unknown[]).at(-1)).toEqual({
     id: "sample-app",
@@ -117,13 +107,7 @@ test("Add selects, reads the repository's default branch, launches in its execut
   expect(readFileSync(fixture.configurationFile("preview"), "utf8")).toBe(
     saved,
   );
-  expect(server.ghCalls()).toContainEqual([
-    "api",
-    "--include",
-    `repos/${addedRepository}/commits/${encodeURIComponent(addedBranch)}`,
-    "--jq",
-    ".sha",
-  ]);
+  expect(restMembershipAsked(server.github.calls)).toEqual([]);
 });
 
 test("Add in empty development leaves the production list on the same machine unchanged", async ({
