@@ -208,7 +208,7 @@ owns the browser gesture and next terminal input.
 ### 7. Bound an instruction transcription request through completion
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 13 active minutes.
 
 Proof: Replace all three `session-instruction-voice-boundary` cases around
@@ -225,6 +225,8 @@ and service output. The
 [voice lifecycle](../../../e2e/terminals/session-terminal-voice-lifecycle.spec.ts)
 and [provider failure journey](../../../e2e/launches/session-instruction-voice-provider-failures.spec.ts)
 own browser capture and recovery observations.
+
+- Proof recorded (2026-11-27, Node Vitest, 1 worker): all three `session-instruction-voice-boundary` cases run on Node Vitest with production `installInstructionTranscriptionMiddleware` mounted on a plain loopback HTTP server, the existing `voiceProvider()` substitute (now also returning its `url`) and a private key under a stubbed HOME. They observe 403/405/415/400/413/413-chunked with `no-store` and zero provider contacts; one provider disconnect after the client leaves and a second after the boundary's own cleanup and server close, the way the Dashboard closes its boundaries; and every provider failure's public status and exact error with no key or diagnostics in replies or console output. Passed 3/3; typecheck exited 0. Summed case time 1.326 s (low-load baseline) → 0.773 s at load ~32. Shutdown is now observed in-process rather than by stopping a separate Dashboard process; the generic boundary shutdown stays with the Dashboard server. Learning: a boundary-mode `startDashboardServer` inside the Vitest worker exceeded 5 s under load, while mounting the install function directly is fast. Refactor pass skipped: subject spec plus a one-line support addition.
 
 ### 8. Refuse a terminal whose saved workspace disappears at startup
 
