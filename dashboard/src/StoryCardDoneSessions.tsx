@@ -2,7 +2,7 @@
 // that story's retained Done sessions, expanded with the shared Session entry
 // (`./SessionEntry.tsx`) and the Follow up its card supplies for each. The Board's one
 // placement rule (`./columnSessions.ts`) gives this card those sessions ahead
-// of a published done card or standalone Recently done entry. Expanding alone does not change story
+// of a published done card or a Recently done entry. Expanding alone does not change story
 // selection. Session navigation opens the disclosure to reveal a nested entry
 // (`./sessionNavigation.ts`).
 

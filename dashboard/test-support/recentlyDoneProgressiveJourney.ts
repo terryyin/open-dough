@@ -8,7 +8,7 @@ import { expect } from "./dashboardTest.ts";
 import {
   parts,
   doneSessionEntriesOf,
-  expandStoryCardDoneHistory,
+  shownDoneSessionEntriesOf,
   storyCardDoneDisclosure,
   storyCardSessions,
   sessionStateOf,
@@ -184,7 +184,7 @@ export async function openedWithTakenNativeSession(
       idleBetweenSteps(dashboard, sessionId);
       await markDoneAnyway(scope);
     },
-    showDoneHistory: () => expandStoryCardDoneHistory(card),
+    showDoneHistory: () => shownDoneSessionEntriesOf(page, queuedTitle),
     doneSession,
     async showsCollapsedDoneHistory() {
       await expect(storyCardDoneDisclosure(card)).not.toHaveAttribute("open");

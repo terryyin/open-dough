@@ -1,11 +1,9 @@
 // An ad hoc Codex Start admitted through production `attemptRun` closes with
 // no change through the installed wrap-up children, run from the borrowed
-// default checkout given as an alias. The installed reporting script runs in
-// process (../support/installedReporting.ts) against the kept record.
+// default checkout given as an alias, and publishes its one no-change range.
 import { existsSync, symlinkSync } from "node:fs";
 import path from "node:path";
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
-import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import { sessionRecordPathBeside } from "../../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
@@ -20,12 +18,7 @@ import {
   type StartOrigin,
 } from "../../test-support/support/startOrigin.ts";
 import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
-import { git } from "../../test-support/support/storyReviewWorktree.ts";
 import { admitCodexLaunch } from "../support/admittedCodexLaunch.ts";
-import {
-  reportInstalled,
-  reportingInvocation,
-} from "../support/installedReporting.ts";
 
 const source = makeMe.aPublishedSource.openDough.please();
 const repository = queuedReadyRepository().please();
@@ -63,8 +56,7 @@ afterEach(async () => {
   origin.cleanup();
 });
 
-test("ordinary no-change wrap-up closes the admitted claim and keeps the borrowed checkout", async () => {
-  const head = git(origin.project, "rev-parse", "HEAD");
+test("ordinary no-change wrap-up publishes one range from the admitted base", async () => {
   const admitted = await admitCodexLaunch(
     source,
     origin,
@@ -76,14 +68,6 @@ test("ordinary no-change wrap-up closes the admitted claim and keeps the borrowe
   const nativeAlias = path.join(origin.machine, "borrowed-checkout-alias");
   symlinkSync(origin.project, nativeAlias, "dir");
   const final = await finishAdmittedClaim(admitted, base, nativeAlias);
-  expect(existsSync(claim.workspace)).toBe(false);
-  expect(git(origin.project, "rev-parse", "HEAD")).toBe(head);
-  expect(
-    await origin.originGit(
-      "show",
-      `main:.planning/done/${doneRecordFileName(identity)}`,
-    ),
-  ).toContain(identity);
   const session = sessionRecordPathBeside(
     ".planning/PRODUCT-BACKLOG.md",
     reporting.reference,
@@ -101,18 +85,5 @@ test("ordinary no-change wrap-up closes the admitted claim and keeps the borrowe
     ),
   ).toBe(false);
 
-  const tip = (await origin.originGit("rev-parse", "main")).trim();
-  const { script, argv } = reportingInvocation(reporting.command);
-  expect(
-    await reportInstalled(script, [...argv, "--outcome", "completed"], {
-      reported: vi.fn(),
-    }),
-  ).toMatchObject({
-    reference: reporting.reference,
-    outcome: "completed",
-    message: "",
-    state: "recorded",
-  });
-  expect((await origin.originGit("rev-parse", "main")).trim()).toBe(tip);
   // The admission and the closure each run real Git children.
 }, 20_000);

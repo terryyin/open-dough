@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { expect, test } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import type { LaunchRecord } from "../../src/launchRecord.ts";
+import type { FirstInput, LaunchRecord } from "../../src/launchRecord.ts";
 import { PageReadsOnPage } from "../../src/pageReads.tsx";
 import { SessionsOnPage } from "../../src/pageSessions.ts";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
@@ -60,7 +60,6 @@ const adHocRecord = () =>
     .inClaudeSession({ sessionId: "ad-hoc-model" })
     .requestingModel("sonnet")
     .please();
-
 const observed = (records: readonly LaunchRecord[]) =>
   makeMe.aMachineAnswer.observingOpen(...records).please().records;
 
@@ -225,4 +224,26 @@ test("the Board lists each launch with its own story, and the sidebar names its 
   await lines(adHocTitle).toEqual(
     expect.arrayContaining(["Open Dough · Ad hoc", requested("Sonnet")]),
   );
+});
+
+test("ad hoc Codex details say whether the first input was accepted or never requested", async () => {
+  const continuation = { workspace: "/work", endpoint: "ws://127.0.0.1:1" };
+  const codex = (title: string, firstInput: FirstInput) =>
+    makeMe.aLaunchRecord
+      .adHoc({ title, storyIdentity: story(title, 760).identity })
+      .inCodexSession({ sessionId: title, continuation })
+      .withFirstInput(firstInput)
+      .please();
+  const typed = codex("Typed", { state: "confirmed" });
+  const blank = codex("Blank", { state: "not-requested", intent: "blank" });
+  await mountEntries([typed, blank]);
+  for (const [record, said, unsaid] of [
+    [typed, "First input accepted", "Opened without an instruction"],
+    [blank, "Opened without an instruction", "First input accepted"],
+  ] as const) {
+    const entry = page.getByLabelText(new RegExp(record.request.title));
+    await openDetails(entry, record);
+    await expect.element(entry.getByText(said)).toBeVisible();
+    await expect.element(entry.getByText(unsaid)).not.toBeInTheDocument();
+  }
 });

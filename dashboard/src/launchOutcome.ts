@@ -12,11 +12,7 @@ import {
   launchLandingSchema,
 } from "./launchLanding.ts";
 import { completionReceiptSchema } from "./completionReport.ts";
-import {
-  completionSchema,
-  launchRecordSchema,
-  launchWithStateSchema,
-} from "./launchRecord.ts";
+import { completionSchema, launchWithStateSchema } from "./launchRecord.ts";
 import { sessionHostSchema } from "./sessionReference.ts";
 import { baseCiFoundSchema } from "./baseCiConfirmation.ts";
 import { existingChangesFoundSchema } from "./existingLaunchChanges.ts";
@@ -171,7 +167,6 @@ export const launchAttemptSchema = z.object({
 export type LaunchAttemptRecord = z.infer<typeof launchAttemptSchema>;
 
 export const attemptObservationSchema = launchAttemptSchema.extend({
-  unboundRecovery: z.literal(true).optional(),
   owned: z.boolean(),
   running: z.boolean(),
   // For an attempt the answering server runs: how many changes of it that
@@ -234,7 +229,6 @@ export const acceptanceSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("accepted"),
     attempt: attemptObservationSchema,
-    recoveredSession: launchRecordSchema.optional(),
   }),
   ...unlaunchedSchemas,
   stopUnconfirmedFoundSchema,

@@ -10,7 +10,7 @@ import { recordsOf } from "../agentLaunchBoundary.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import {
   adHocDeveloperInput,
-  expectReportingBlock,
+  expectAdHocReportingInput,
 } from "./reportingInputAssertions.ts";
 import {
   executionCheckoutSession,
@@ -64,15 +64,15 @@ export async function expectExecutionCheckoutSessionLaunch(
   const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
   const session = executionCheckoutSession(project, landing, revision);
   expect(record?.establishedSession).toEqual(session);
-  const [block, reporting, ...developer] = (started?.instruction ?? "").split(
-    "\n\n",
-  );
-  expect(block).toBe(sessionBlock(session));
-  expectReportingBlock(reporting, record?.request, dashboard);
-  expect(developer).toEqual([
-    `Taken story: ${launchStoryIdentity(record)}`,
-    text,
-  ]);
+  expect(
+    expectAdHocReportingInput(
+      started?.instruction ?? "",
+      text,
+      record?.request,
+      dashboard,
+      sessionBlock(session),
+    ),
+  ).toEqual([]);
   expectBorrowedStarts(starts, project, landing, record, dashboard.home);
   return record;
 }

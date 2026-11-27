@@ -38,14 +38,36 @@ export function useCurrentPublishedSessions(sourceId: string) {
   );
 }
 
+type LinkFacts = {
+  readonly key: string;
+  readonly source: string;
+  readonly identity: string;
+  readonly recentOnly: boolean;
+};
+
+// What linking a shown row reads: its session, project and story identity.
+const linkFactsOf = (record: LaunchWithState): LinkFacts[] => {
+  const { identity } = launchSubject(record.request);
+  return identity === undefined
+    ? []
+    : [
+        {
+          key: sessionKey(record.session),
+          source: record.request.source,
+          identity,
+          recentOnly: doneStoryMustBeRecent(record),
+        },
+      ];
+};
+
 export function useShownDoneLinks(
   records: readonly LaunchWithState[] | undefined,
 ) {
   const { projects, selected, work } = useContext(RecentlyDoneLinkSources);
   const reads = useDoneLinkReads();
-  // Record evidence, including captured landing and reporting reference, is
-  // part of the observation context. Replacing it invalidates an old answer.
-  const rows = JSON.stringify(records ?? []);
+  // Only the facts a link reads make up the observation context, so detail a
+  // retained session's history adds keeps the links already shown.
+  const rows = JSON.stringify((records ?? []).flatMap(linkFactsOf));
   const sources = JSON.stringify(projects);
   const shown = work?.done;
   const revision = work?.revision;
@@ -62,7 +84,7 @@ export function useShownDoneLinks(
     shown,
   ]);
   useEffect(() => {
-    const listed = JSON.parse(rows) as LaunchWithState[];
+    const listed = JSON.parse(rows) as LinkFacts[];
     if (listed.length === 0) return;
     const configured = JSON.parse(sources) as PublishedSource[];
     let alive = true;
@@ -78,11 +100,7 @@ export function useShownDoneLinks(
       await withinReadWait(controller.signal, async (signal) =>
         Promise.all(
           configured.map(async (source) => {
-            const launches = listed.flatMap((record) => {
-              if (record.request.source !== source.id) return [];
-              const identity = launchSubject(record.request).identity;
-              return identity === undefined ? [] : [{ record, identity }];
-            });
+            const launches = listed.filter((row) => row.source === source.id);
             if (launches.length === 0) return;
             const catalog = async (): Promise<DoneStories | undefined> => {
               const current = currentCatalog(work, source.id);
@@ -97,13 +115,9 @@ export function useShownDoneLinks(
             };
             const done = await catalog();
             if (done?.status !== "catalogued") return;
-            for (const { record, identity } of launches) {
-              if (
-                linkIn(done, identity, {
-                  recentOnly: doneStoryMustBeRecent(record),
-                }) === "linked"
-              )
-                links.set(sessionKey(record.session), identity);
+            for (const { key, identity, recentOnly } of launches) {
+              if (linkIn(done, identity, { recentOnly }) === "linked")
+                links.set(key, identity);
             }
             publish();
           }),

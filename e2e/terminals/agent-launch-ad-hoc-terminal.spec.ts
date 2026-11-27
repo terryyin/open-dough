@@ -20,7 +20,6 @@ import {
   storyB,
 } from "../../Distribution/tests/support/queued-repository.mjs";
 import { openDoughFolder } from "../../dashboard/test-support/agentLaunchBoundary.ts";
-import { openCatalogLaunchBoard } from "../../dashboard/test-support/support/codexLaunch.ts";
 import { keptLaunchRecords } from "../../dashboard/test-support/support/launchStore.ts";
 import {
   terminalPanel,
@@ -45,6 +44,8 @@ import {
 import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import { openWhileStarting } from "../../dashboard/test-support/support/adHocTerminalStartup.ts";
 import { push } from "../../dashboard/test-support/support/storyReviewTrunkCommits.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
+import { catalogOrigin } from "../../dashboard/test-support/support/catalogProjectOrigin.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -84,7 +85,7 @@ test("starting with nothing typed opens the session in the terminal with the key
   dashboard.claudeScenario("launched");
   const backlog = publishScrollableBacklog(openDoughFolder(dashboard));
   await page.setViewportSize({ width: 1280, height: 480 });
-  await openCatalogLaunchBoard(page, dashboard.home);
+  await openInstalledStoryBoard(page, catalogOrigin(dashboard.home));
   await expectSettledPage(page, { backlog, taken: [] });
   const button = page.getByRole("button", {
     name: "Start session in Open Dough",

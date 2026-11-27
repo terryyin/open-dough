@@ -5,17 +5,12 @@
 // holding the native conversation. A story's start and the continuation of
 // its kept start close at acceptance and protect only that story's card; a
 // refused conversation after a published Take reconciles with that Take,
-// keeping its answer and continuation on the Taken card; an unattached
-// session's progress stays beside its own action.
+// keeping its answer and continuation on the Taken card.
 
-import {
-  attempts,
-  keptStarts,
-} from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { keptStarts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   storyCardSessions,
   parts,
-  sessionEntriesIn,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import { expectStartNote } from "../../dashboard/test-support/storyCardControls.ts";
 import {
@@ -114,46 +109,4 @@ test("Start execution closes at acceptance while its Take is held, and continuin
   native.release();
   await expect(storyCardSessions(claimed)).toHaveCount(1, { timeout: 30_000 });
   await expect(claimed).not.toContainText("Local startup in progress");
-});
-
-test("Start session closes at acceptance while Codex holds its input", async ({
-  page,
-  dashboard,
-  origin,
-  codexProtocol,
-}) => {
-  const native = codexProtocol;
-  if (native === undefined) throw new Error("Missing native fixture.");
-  native.hold = true;
-  const { story } = await openStories(page, origin);
-  const button = page.getByRole("button", {
-    name: "Start session in Open Dough",
-  });
-  await button.click();
-  const dialog = page.getByRole("dialog");
-  await dialog.getByRole("combobox", { name: "Host" }).selectOption("codex");
-  await dialog.getByRole("textbox").fill("why is CI slow?");
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
-
-  await expect(dialog).toBeHidden();
-  await expect
-    .poll(() => native.calls.filter((call) => call.method === "turn/start"), {
-      timeout: 30_000,
-    })
-    .toHaveLength(1);
-  await expect(button).toBeDisabled();
-  await expect(page.locator(".start-session-answer")).toContainText(
-    "Admitting a story.",
-  );
-  await expect(story.getByRole("button", { disabled: true })).toHaveCount(0);
-  expect(await attempts(dashboard)).toEqual([
-    expect.objectContaining({ owned: true }),
-  ]);
-
-  native.hold = false;
-  native.release();
-  await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1, {
-    timeout: 30_000,
-  });
-  await expect(button).toBeEnabled();
 });

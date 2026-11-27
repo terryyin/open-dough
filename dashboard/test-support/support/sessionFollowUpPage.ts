@@ -6,7 +6,6 @@ import {
   fileFollowUp,
 } from "./fileFollowUpPage.ts";
 import { startSessionDialog } from "../launchStoryCardPage.ts";
-import { storyCardDoneClass } from "../../src/storyCardDone.ts";
 
 export function sessionFollowUpPage(page: Page) {
   const { taken, recentlyDone } = parts(page);
@@ -22,13 +21,5 @@ export function sessionFollowUpPage(page: Page) {
     followUp: fileFollowUp,
     submit: (instruction?: string) => composer.start(instruction),
     openedSessions: storyCardSessions,
-    session: (scope: Locator, name: string) =>
-      scope.getByRole("article", { name, exact: true }),
-    async showDoneHistory(scope: Locator) {
-      const history = scope.getByRole("list", { name: "Done history" });
-      if (!(await history.isVisible()))
-        await scope.locator(`.${storyCardDoneClass} > summary`).click();
-      return history;
-    },
   };
 }

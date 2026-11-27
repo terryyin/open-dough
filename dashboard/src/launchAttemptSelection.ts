@@ -55,7 +55,6 @@ export const worktreeUpdateNeeded = (
 // recheck, continuation, update-and-retry, or completed session evidence does.
 export function needsReconciliation(attempt: AttemptObservation): boolean {
   if (attempt.completion?.outcome === "completed") return false;
-  if (attempt.unboundRecovery === true) return !attempt.running;
   return attempt.outcome === undefined
     ? !attempt.running
     : attempt.outcome.kind === "uncertain" ||
@@ -140,10 +139,7 @@ export function attemptsNeedingAttention(
   const attending = new Set<AttemptObservation>();
   for (const ofLane of lanes.values()) {
     const open = ofLane.filter(
-      (attempt) =>
-        attempt.running ||
-        unsettled(attempt) ||
-        attempt.unboundRecovery === true,
+      (attempt) => attempt.running || unsettled(attempt),
     );
     for (const attempt of open) attending.add(attempt);
     const latest = ofLane.reduce(laterAttempt);

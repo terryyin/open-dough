@@ -17,7 +17,6 @@ import { gitHubRepositoryUrl } from "./fixtureOriginRoute.ts";
 import { commitPublishedOrigin } from "./publishedOrigin.ts";
 import { describedBacklog } from "../describedRevisions.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { takenStoryFiles } from "./retainedProjectStory.ts";
 import {
   projectConfigurationFile,
   projectEnvironmentOf,
@@ -28,18 +27,17 @@ export const addedRepository = "example/sample-app";
 export const addedBranch = "release+stable";
 export const addedLocalPath = "~/work/private-checkout";
 
-export function projectAddMachine(
-  retainedStory?: Parameters<typeof takenStoryFiles>[0][number],
-) {
+export function projectAddMachine(retainedStory?: {
+  readonly identity: string;
+  readonly title: string;
+}) {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-project-add-"));
   const checkout = path.join(machine, "home/work/private-checkout");
   const installedOrigin = path.join(machine, "sample-app.git");
   const repository =
     retainedStory === undefined
       ? makeMe.aRepository.please()
-      : makeMe.aRepository
-          .withRevision("base", { files: takenStoryFiles([retainedStory]) })
-          .please();
+      : makeMe.aRepository.takingStories(retainedStory).please();
   const published = publishes({
     defaultBranch: addedBranch,
     backlog: describedBacklog(repository),

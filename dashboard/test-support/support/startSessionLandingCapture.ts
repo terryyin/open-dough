@@ -15,7 +15,7 @@ import { launch, recordsOf } from "../agentLaunchBoundary.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { commit } from "./launchLanding.ts";
 import { rawRequest } from "./rawHttp.ts";
-import { expectReportingBlock } from "./reportingInputAssertions.ts";
+import { expectAdHocReportingInput } from "./reportingInputAssertions.ts";
 import { originMain } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { sessionBlock } from "./startSessionLanding.ts";
@@ -54,15 +54,20 @@ export function expectLandingHandoff(
   sent: string,
   dashboard: DashboardServer,
   project: string,
-  input: readonly string[] = [],
+  instruction: string,
 ) {
   const { session, reporting, file, context } = landingHandoff(record);
   const identity = storyOf(record.request);
-  const [block, reportingBlock, ...extra] = sent.split("\n\n");
-  expect(block).toBe(sessionBlock(session));
-  expect(extra).toEqual(input);
-  expectReportingBlock(reportingBlock, record.request, dashboard);
-  expect(reportingBlock).toContain(`--landing-context '${file}'`);
+  expect(
+    expectAdHocReportingInput(
+      sent,
+      instruction,
+      record.request,
+      dashboard,
+      sessionBlock(session),
+    ),
+  ).toEqual([]);
+  expect(sent).toContain(`--landing-context '${file}'`);
   expect(context).toEqual({
     origin: dashboard.origin,
     source: "open-dough",

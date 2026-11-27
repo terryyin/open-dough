@@ -25,7 +25,8 @@ import {
 } from "../../dashboard/test-support/terminalScreenPage.ts";
 import { publishCommittedFiles } from "../../dashboard/test-support/committedFiles.ts";
 import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
-import { takenStoryFiles } from "../../dashboard/test-support/support/retainedProjectStory.ts";
+import { describedFiles } from "../../dashboard/test-support/describedRevisions.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import {
@@ -82,7 +83,9 @@ test.describe(`${name} terminal input`, () => {
     const later = { identity: "SEED-901#later", title: "Later story" };
     publishCommittedFiles(page, {
       repository: "terryyin/open-dough",
-      files: takenStoryFiles([...earlier, continued, later]),
+      files: describedFiles(
+        makeMe.aRepository.takingStories(...earlier, continued, later).please(),
+      ),
     });
     await openUntilRead(page);
     const { banner, board } = parts(page);

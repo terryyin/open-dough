@@ -93,19 +93,6 @@ export const storyCardSessions = (card: Locator) =>
 export const storyCardDoneDisclosure = (card: Locator) =>
   card.locator(`details.${storyCardDoneClass}`);
 
-// Opens the card's Done history so nested Session entries can be observed.
-// Idempotent: leaves an already-open disclosure open.
-export async function expandStoryCardDoneHistory(card: Locator) {
-  const disclosure = storyCardDoneDisclosure(card);
-  if (
-    !(await disclosure.evaluate(
-      (element) => (element as HTMLDetailsElement).open,
-    ))
-  )
-    await disclosure.locator("summary").click();
-  return disclosure;
-}
-
 const escaped = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 // A story's Done session entries wherever the Board places them: in its

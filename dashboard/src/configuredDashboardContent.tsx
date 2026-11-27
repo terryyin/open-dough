@@ -105,7 +105,6 @@ export function ConfiguredDashboardContent({
             items={launches.recoveriesOf(source.id)}
             evidence={launches.attemptEvidence}
             actions={launches}
-            presentTerminal={presentTerminal}
           />
         )}
         <StartupAnnouncer
