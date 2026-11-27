@@ -178,38 +178,3 @@ export async function withFollowUpContext(
     },
   };
 }
-
-// Older continuations kept the original context before its story binding was
-// stored separately. Recover only the published source and keep that input.
-export async function retainedFollowUpWithStory(
-  request: AgentLaunchRequest,
-  source: PublishedSource,
-  input: FollowUpContextInput,
-): Promise<AgentLaunchRequest | undefined> {
-  if (
-    request.workflow !== "ad-hoc" ||
-    request.followUp === undefined ||
-    request.followUp.storyIdentity !== undefined
-  )
-    return request;
-  const { followUp } = request;
-  if (followUp.context === undefined) return undefined;
-  const record =
-    "session" in followUp
-      ? await input.keptSession(source.id, followUp.session)
-      : undefined;
-  const storyIdentity =
-    "story" in followUp
-      ? followUp.story.identity
-      : record === undefined
-        ? undefined
-        : storyOf(record.request);
-  if (storyIdentity === undefined) return undefined;
-  try {
-    await input.requirePublishedFollowUpSessionStory(source, storyIdentity);
-  } catch (error) {
-    if (error instanceof RefusedRequest) return undefined;
-    throw error;
-  }
-  return { ...request, followUp: { ...followUp, storyIdentity } };
-}

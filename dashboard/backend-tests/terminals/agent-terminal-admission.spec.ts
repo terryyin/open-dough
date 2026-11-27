@@ -10,8 +10,6 @@
 // agent-terminal-boundary.spec.ts.
 
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { openDoughFolder } from "../../test-support/agentLaunchBoundary.ts";
 import {
   composeSession,
   lastAttachEnded,
@@ -25,7 +23,6 @@ import {
   type TerminalServer,
 } from "../../test-support/agentTerminalBoundary.ts";
 import { startClaudeTerminalBoundary } from "../../test-support/terminalBoundaryHttp.ts";
-import { keepMoreLaunchRecordsBesideServer } from "../../test-support/support/launchStore.ts";
 
 let stopBoundary: () => Promise<void>;
 let server: TerminalServer;
@@ -72,28 +69,6 @@ describe("a session Claude Code can still open", () => {
 });
 
 describe("a refused upgrade runs no claude", () => {
-  test("a saved completed automatic feedback run cannot open a terminal by its exact old URL", async () => {
-    const title = "Historical feedback maintenance";
-    const sessionId = server.claudeListsSession({
-      name: title,
-      cwd: openDoughFolder(server),
-      startedAt: Date.now(),
-    });
-    const saved = makeMe.aLaunchRecord
-      .adHoc({ title, maintenance: { due: "2026-11-19" } })
-      .inClaudeSession({ sessionId })
-      .markedDone()
-      .please();
-    await keepMoreLaunchRecordsBesideServer(server, [saved]);
-    const callsBefore = server.claudeCalls().length;
-    expect(
-      await refusedStatus(terminalUrl(server, "open-dough", sessionId), {
-        origin: server.origin,
-      }),
-    ).toBe(404);
-    expect(server.claudeCalls()).toHaveLength(callsBefore);
-  });
-
   const sameOrigin = () => ({ origin: server.origin });
   test.each([
     {

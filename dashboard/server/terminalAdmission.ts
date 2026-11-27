@@ -2,17 +2,12 @@
 import type { IncomingMessage } from "node:http";
 import { attachOpens, recordedWorkspace, storyOf } from "../src/agentLaunch.ts";
 import { sessionHostSchema } from "../src/sessionReference.ts";
-import { historicalFeedbackCompletion } from "../src/feedbackMaintenanceDue.ts";
 import type { AgentLaunches } from "./agentLaunches.ts";
 import type { TerminalSession } from "./agentTerminals.ts";
 import { launchHost } from "./launchHosts.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
 import { localFolder } from "./localFolder.ts";
-import {
-  knownSource,
-  noSuchSession,
-  recordedSession,
-} from "./sessionAdmission.ts";
+import { knownSource, recordedSession } from "./sessionAdmission.ts";
 
 // A loopback upgrade naming a session it may attach.
 export async function admittedAttach(
@@ -40,7 +35,6 @@ export async function attachableSession(
     sessionId: url.searchParams.get("session") ?? "",
     host: host.data,
   });
-  if (historicalFeedbackCompletion(record)) throw noSuchSession();
   const hostBoundary = launchHost(record.session.host);
   if (hostBoundary?.attach === undefined) {
     throw new RefusedRequest(

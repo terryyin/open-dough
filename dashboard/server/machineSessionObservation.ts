@@ -36,7 +36,6 @@ import {
   type OfferedDefinition,
   type RunningStart,
 } from "../src/agentLaunch.ts";
-import { historicalFeedbackCompletion } from "../src/feedbackMaintenanceDue.ts";
 import type { FeedbackMaintenanceState } from "../src/feedbackMaintenanceState.ts";
 import type { LocalWorkspace } from "../src/localWorkspace.ts";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
@@ -116,8 +115,7 @@ export async function machineSessionInputs(): Promise<readonly unknown[]> {
   return [configuredProjects(), await machineDocumentsRevision()];
 }
 
-// Observe visible story sessions and the closed automatic runs the Settings
-// status still needs. Closed historical runs require no native observation.
+// Observe the story sessions the machine shows.
 export async function observedMachineRecords(
   kept: ReadonlyMap<string, readonly LaunchRecord[]>,
 ) {
@@ -125,14 +123,8 @@ export async function observedMachineRecords(
   const visible = stored.filter(
     ({ request }) => storyOf(request) !== undefined,
   );
-  const completedFeedback = stored
-    .filter(historicalFeedbackCompletion)
-    .map((record): LaunchWithState => ({
-      ...record,
-      sessionState: { kind: "unknown" },
-    }));
   const records = await withStates(machineFolder(), visible, "recurring");
-  return { records, completedFeedback };
+  return { records };
 }
 
 // The machine's sessions as `launches` and the server's state read them now.
@@ -142,11 +134,8 @@ export async function readMachineSessions(
   maintenance: Pick<FeedbackMaintenanceCheck, "state">,
 ): Promise<MachineSessionsReading> {
   const { attempts, readable } = await launches.attempts();
-  const { records, completedFeedback } = await launches.machineObservation();
-  const feedbackMaintenance = maintenance.state(
-    [...records, ...completedFeedback],
-    attempts,
-  );
+  const { records } = await launches.machineObservation();
+  const feedbackMaintenance = maintenance.state(records, attempts);
   return {
     records,
     ...(feedbackMaintenance !== undefined && { feedbackMaintenance }),

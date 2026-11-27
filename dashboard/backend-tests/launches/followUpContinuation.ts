@@ -2,7 +2,6 @@
 // The spec states what is sent.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { doneRecordFileName } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import type { AgentLaunchRequest } from "../../src/agentLaunch.ts";
 import {
   followUpContextText,
   sessionContext,
@@ -19,7 +18,6 @@ import {
   project,
   recordText,
   recoverStory,
-  revision,
 } from "./storyFollowUpInput.ts";
 
 export const projectId = project.id;
@@ -111,36 +109,5 @@ export function pendingInput(conversation: LaunchRecord): FollowUpContextInput {
           : undefined,
       ),
     keptSession: () => Promise.reject(new Error("the source record is gone")),
-  };
-}
-
-export const legacyInstruction = "Continue the previous start";
-export const legacyContext =
-  "Done story “SEED-269#recover-terminal-insert”: prior context";
-
-export function legacyStoryFollowUp(): AgentLaunchRequest {
-  return makeMe.aLaunchRequest
-    .adHoc({
-      source: projectId,
-      host: "cursor",
-      instruction: legacyInstruction,
-      followUp: makeMe.aFollowUp
-        .ofStory(recoverStory, revision)
-        .withContext(legacyContext)
-        .please(),
-    })
-    .please();
-}
-
-export function legacyInput(): FollowUpContextInput {
-  return {
-    ...contextInput(
-      () => Promise.reject(new Error("the source record is gone")),
-      [],
-    ),
-    requirePublishedFollowUpSessionStory: (source, identity) =>
-      source.id === projectId && identity === recoverStory.identity
-        ? Promise.resolve()
-        : Promise.reject(new Error(`unpublished story ${identity}`)),
   };
 }

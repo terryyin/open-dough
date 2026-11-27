@@ -31,7 +31,12 @@ test("a blank Execution checkout launch keeps its declared landing until record 
   } = await aDoneCaptureCase()
     .withOrigin()
     .withWorkspace(branch)
-    .withDeclaringLaunch("default-launch", { launched: 60 }, branch)
+    .withDeclaringLaunch("default-launch", { launched: 60 }, branch, (launch) =>
+      launch.adHoc({
+        title: "Ad hoc work",
+        storyIdentity: "SEED-9#blank-declared-launch",
+      }),
+    )
     .please();
   const workspace = worktrees[branch];
   installPublisher(checkout.integration, workspace);

@@ -1,6 +1,5 @@
 // A fixed delivered comparison is independent of completion and native Done.
 import { z } from "zod";
-import type { LaunchRecord } from "./launchRecord.ts";
 export const commitIdSchema = z
   .string()
   .regex(/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/);
@@ -58,22 +57,6 @@ export function landingReportingReference(record: {
     record.request.reporting?.reference
   );
 }
-// A migrated Done row can name a story while retaining its exact old report.
-export function historicalUnboundLanding(
-  record: Pick<LaunchRecord, "request" | "doneAt" | "landing">,
-): LaunchLanding | undefined {
-  const landing = record.landing;
-  if (
-    record.request.workflow !== "ad-hoc" ||
-    record.doneAt === undefined ||
-    landing === undefined ||
-    landing.identity !== undefined ||
-    landing.reference !== record.request.reporting?.reference
-  )
-    return undefined;
-  return landing;
-}
-
 export const landingReceiptSchema = launchLandingSchema
   .omit({ repository: true })
   .extend({

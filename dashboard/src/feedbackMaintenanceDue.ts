@@ -22,8 +22,7 @@ import type {
 } from "./agentLaunch.ts";
 import type { FeedbackReview } from "./feedbackReview.ts";
 import { feedbackMaintenanceInstruction } from "./feedbackMaintenanceSetting.ts";
-import { launchRetentionDays, type LaunchRecord } from "./launchRecord.ts";
-import { storyOf } from "./launchWorkflow.ts";
+import { launchRetentionDays } from "./launchRecord.ts";
 import { sessionKey } from "./sessionReference.ts";
 
 // How a feedback-maintenance session this machine keeps stands
@@ -61,15 +60,6 @@ export function maintenanceDue(
     feedbackMaintenanceInstruction(request.host)
     ? {}
     : undefined;
-}
-
-// A closed automatic run can keep serving its date after the standalone UI retires.
-export function historicalFeedbackCompletion(record: LaunchRecord): boolean {
-  return (
-    record.doneAt !== undefined &&
-    storyOf(record.request) === undefined &&
-    maintenanceDue(record.request)?.due !== undefined
-  );
 }
 
 // The project's feedback-maintenance sessions, from records joined with their

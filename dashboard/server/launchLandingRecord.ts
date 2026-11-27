@@ -29,11 +29,12 @@ export function declaredLandingAuthority(
   const entry = record.branchEntry;
   if (entry?.trunk === undefined) return undefined;
   const identity = storyOf(record.request);
+  if (identity === undefined) return undefined;
   return {
     repository: entry.repository,
     workspace: entry.workspace,
     branch: entry.branch,
-    ...(identity === undefined ? {} : { identity }),
+    identity,
     remote: entry.trunk.remote,
     target: entry.trunk.target,
   };

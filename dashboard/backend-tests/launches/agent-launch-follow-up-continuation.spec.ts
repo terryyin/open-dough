@@ -1,14 +1,10 @@
 // Continue a kept follow-up after its source is gone. The recorded context
 // and the story binding are sent, with the instruction once. A pending Codex
-// input kept without its attempt is recovered with that saved text. A legacy
-// story follow-up still sends its context beside the instruction.
+// input kept without its attempt is recovered with that saved text.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { admittedLaunchRequest } from "../../server/agentLaunchAdmission.ts";
-import {
-  retainedFollowUpWithStory,
-  withFollowUpContext,
-} from "../../server/followUpAdmission.ts";
+import { withFollowUpContext } from "../../server/followUpAdmission.ts";
 import { recordedRequest } from "../../server/hostLaunch.ts";
 import { codexInput } from "../../server/hosts/codex/input.ts";
 import { cursorPrompt } from "../../server/hosts/cursor/prompt.ts";
@@ -22,10 +18,6 @@ import { project, recoverStory, revision } from "./storyFollowUpInput.ts";
 import {
   expiringStoryInput,
   instruction,
-  legacyContext,
-  legacyInput,
-  legacyInstruction,
-  legacyStoryFollowUp,
   pendingCodexConversation,
   pendingInput,
   pendingInstruction,
@@ -148,26 +140,4 @@ test("recovers a pending Codex input kept without its attempt", async () => {
   expect(
     codexInput(recorded, session.continuation.workspace, undefined, saved),
   ).toEqual(codexInput(recorded, session.continuation.workspace));
-});
-
-test("sends a legacy story follow-up's context beside its instruction", async () => {
-  const retained = await retainedFollowUpWithStory(
-    legacyStoryFollowUp(),
-    project,
-    legacyInput(),
-  );
-  if (retained === undefined) throw new Error("Missing retained follow-up");
-  const recorded = recordedRequest(
-    retained,
-    new Date("2026-11-26T15:04:00.000Z"),
-  );
-  const text = [legacyContext, legacyInstruction].join("\n\n");
-  expect(recorded).toMatchObject({
-    instruction: legacyInstruction,
-    storyIdentity: recoverStory.identity,
-    followUp: { context: legacyContext },
-  });
-  expect(text.split(legacyInstruction).length - 1).toBe(1);
-  expect(cursorPrompt(recorded, undefined)).toBe(text);
-  expect(codexInput(recorded, "/checkout")).toEqual([{ type: "text", text }]);
 });
