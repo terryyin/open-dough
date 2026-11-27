@@ -21,6 +21,8 @@
 
 - Slice 4 accepted at `7b8b2fd3ebe6eb8a6c5c9e232a032310c92b70f8`.
 
+- Slice 5 accepted at `8c1ab566db493f0f6d5d616118fc619a6403549c`.
+
 ## Goal and scope
 
 Give Dashboard maintainers fast, typed Node Vitest proof of how the
@@ -244,7 +246,7 @@ Codex-only fixtures create the full checkout path recursively and register teard
 ### 6. Keep Codex Done intent through late native answers
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: With the fake Codex conversation controls, each native refusal keeps
@@ -254,6 +256,10 @@ metadata followed by a completed latest turn invents no interrupt target. An
 unreadable active-turn identity stays unknown rather than a guessed stop. A
 shared Claude Code stop failure keeps intent and current Working without raw
 subprocess errors. Convert `agent-launch-done-codex-races.spec.ts`.
+
+Accepted proof: `caffeinate -s -i npm run test:dashboard:backend -- 'sessions/agent-launch-done-codex-races\.spec\.ts$' --workers=1` ran six Node cases, zero Chromium cases and zero retries. Summed case time fell from 6.723 s to 1.827 s. The vendor trace and state read distinguish a failed rename from a failed stop, identify the originally observed turn without touching the newer turn, and show no interrupt with completed or unreadable latest-turn data. The real Claude subprocess failure verifies the safe diagnostic and kept Done mark. Dashboard typecheck and whitespace check passed. See `slice6-return.md` and receipts in Git evidence.
+
+Only the subject spec changed. Acceptance narrowed the newer-turn assertion to the native work that must remain in progress, preserving the exact single interrupt for the old turn and bringing the projected formatted spec within 250 lines. The same selection passed once after the adjustment (`slice6-distinct-turn.json`). Inspection found no further refactor candidate.
 
 ### 7. Delete only a record whose session is gone, or refuse
 
