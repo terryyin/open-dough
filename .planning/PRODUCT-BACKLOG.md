@@ -31,6 +31,7 @@ intent introduced or affected by a newly developed story.
 - [Open the Board from the verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-the-board-from-the-verified-git-trunk) — SEED-430#open-the-board-from-the-verified-git-trunk ([plan](slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md))
 - [Open session changes in Intent and retire the Side panel review](seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review) — SEED-418#select-a-story-session-for-review ([plan](slice-plans/876-open-session-changes-in-intent/PLAN.md))
 - [Speed Intent story frontend cases toward 100 ms](seeds/SEED-413-renovate-dashboard-unit-tests.md#intent-story-cases-at-component-speed) — SEED-413#intent-story-cases-at-component-speed
+- [Cursor runner and runtime specs clean up after a timeout](seeds/SEED-447-ad-hoc-work.md#ad-hoc-work) — SEED-447#ad-hoc-work
 
 ## Backlog list
 
