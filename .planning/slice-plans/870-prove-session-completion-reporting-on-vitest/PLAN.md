@@ -147,7 +147,7 @@ host from `inCodexSession`; Codex scripts install at
 ### 2. Close only the reporting launch's session, and let no older retry close a newer report
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 13–15 active minutes.
 
 Proof: With two kept launches, the older launch's quiet report closes only
@@ -162,6 +162,24 @@ Retrying the older answers its original receipt and closes nothing. The
 newer retry records its message and stays open, and the older retry after
 it changes nothing. Convert the first case of `agent-completion-identity.spec.ts`
 and `agent-completion-superseded.spec.ts`.
+
+Delivered: `agent-completion-identity.spec.ts` is Node Vitest in place
+(2 cases, 126 and 131 ms) and absorbs the deleted superseded spec. Both
+completion specs run the launch's own `reporting.command`. A superseded
+record write fails by holding the records lock and advancing every
+`Date.now` reading past `acquireWriteLock`'s deadline: a read-only
+dashboard directory also fails the attempt reservation. A pinned clock
+races with the awaits before the writer sets its deadline. An ad hoc
+launch's quiet report never closes its session (`completionClosure` needs a
+story), so slices 3–5 use a story or tracked execution wherever closure is
+observed. Decision: the private HOME, installed Codex scripts and kept
+launch arrangement stay composed per spec through production operations;
+later slices group cases sharing an arrangement in one cohesive spec, and
+slice 8's refactor pass reassesses the remaining repetition across specs.
+CI on `d9ffe3388` failed `e2e/sessions/agent-launch-done-listing.spec.ts`:
+its fixed 28 October dates left the 30-day retention on 26 November. The
+sibling repairs `bf12cfcb1` and `0ababc6ed` own it; absorb one from trunk
+before the final CI.
 
 ### 3. Recover an unacknowledged quiet report as reporting only
 

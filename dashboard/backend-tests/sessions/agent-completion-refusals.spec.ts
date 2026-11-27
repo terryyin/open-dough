@@ -73,22 +73,11 @@ test("refused deliveries keep the earlier completion message", async () => {
   const earlier = "Publication finished. Reminder: inspect the migration.";
   const messageFile = path.join(root, "attention.txt");
   writeFileSync(messageFile, earlier);
-  const script = path.join(
-    process.env["HOME"] ?? "",
-    ".open-dough/dashboard/reporting",
-    accepted.id,
-    "dashboard-completion.mjs",
+  // `node <script> ...argv`, as the host's shell splits the reporting command.
+  const [, script = "", ...argv] = Array.from(
+    reporting.command.matchAll(/'((?:[^']|'\\'')*)'/g),
+    ([, part = ""]) => part.replaceAll("'\\''", "'"),
   );
-  const argv = [
-    "--origin",
-    origin,
-    "--source",
-    "open-dough",
-    "--host",
-    "codex",
-    "--reference",
-    accepted.id,
-  ];
   const reported = vi.fn();
   const receipt = completionReceiptSchema.parse(
     await reportInstalled(
