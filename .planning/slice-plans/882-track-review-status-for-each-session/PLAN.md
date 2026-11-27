@@ -190,6 +190,15 @@ Learnings:
 - The confirm, failure, focus and touch-height behavior of both controls is
   one module, `ReviewStateControl.tsx`.
 
+## Execution complete
+
+Product advice: no change. The delivered per-session review status fits the
+near-future direction of making a story's review readable in context, and
+the queued SEED-418 siblings keep their order. When "Review the combined
+changes of selected sessions" is refined, consider G2: a Recently done
+sidebar row from a project whose work is not shown falls back to the local
+`doneAt` until that project is shown.
+
 ## Proof ownership and local gate
 
 | Promise (seed) | Slice |
