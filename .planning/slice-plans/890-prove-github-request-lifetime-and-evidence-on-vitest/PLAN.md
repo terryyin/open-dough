@@ -135,6 +135,17 @@ checks and the browser journeys retain their existing owners.
   the witness, after a private `HOME`, and it must be closed before a
   development mount. The separate-process stdout check stays in the
   Playwright file until slice 6 retires it.
+- Slice 6 overran on 28 November 2026. The pause settled 15.6 active
+  minutes and `storyOverruns` became 3. Completed proof: none. The spec
+  was deleted before any test ran. The sizing assumption that failed is
+  that the timeout, unmarked 403, marked rate limit, shared pin, ordinary
+  departure, and held-back observations can be written and proved in one
+  15-minute slice. The plan already holds ten slices, the execution
+  maximum, so this slice was not split again. Slices 1–5 are delivered.
+  The remaining examples still promise safe failure evidence, so narrowing
+  the story is a developer decision. Report:
+  `open-dough/evidence/slice-6-failure-report.md` in this worktree's Git
+  directory.
 
 ## Premises and baseline
 
@@ -535,11 +546,16 @@ delivered slices share only test patterns with these slices.
   Trunk: `origin/main`.
 - Published claim: `735c60a52ea2cd88e8746df5e06edfcb1d9f81b2` on that story
   branch. `pendingCi: unobserved` — the claim published before this observer
-  was armed. Slice 4 is published at
-  `2950e48ddd61bfbe9fde0a130028b414651b1a6e`. The diagnostics split is
-  published at `bc8fc7f1d9724b44085dbf4c95324bf9a0e81404` on the same
-  branch. That SHA is the previously published base for the next
-  increment. Unpublished candidate: none.
+  was armed. Slice 5 is published at
+  `98f31733eaf295a5d88a5e8184f9b69d284d06f0` on the same branch. That SHA
+  is the previously published base. Execution is stopped after slice 6
+  overran. No next slice is selected. Unpublished candidate: none.
+- CI on `98f31733eaf295a5d88a5e8184f9b69d284d06f0`: run `46043952030`,
+  job `e2e / shard 2/6`, failed
+  `e2e/stories/direction-disclosure.spec.ts:219`. The Near-future direction
+  region stayed present after choosing Doughnut. The same product code
+  passed CI at `2950e48ddd61bfbe9fde0a130028b414651b1a6e`. This story does
+  not change that spec or the direction UI. The failure is not repaired.
 - CI: GitHub Actions, workflow `ci.yml` (display name `CI`, id `351271804`),
   repo `terryyin/open-dough`, branch
   `cursor/prove-github-request-lifetime-and-failure-eviden`.
