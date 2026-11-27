@@ -1,7 +1,7 @@
 // A HOME's Git routes: the ordered insteadOf list its Git config holds, the
 // rules that keep that list, and its one read and one write of the config.
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 // One insteadOf route in a HOME's Git config: Git reads `url` from `origin`.
@@ -94,7 +94,11 @@ export function writeHomeRoutes(home: string, routes: readonly HomeRoute[]) {
     ({ origin, url }) =>
       `[url "${quoted(origin)}"]\n\tinsteadOf = ${quoted(url)}`,
   );
-  writeFileSync(config, [...kept, ...written, ""].join("\n"));
+  // Git commands under `home` may read the config meanwhile, so it is renamed
+  // into place whole, as Git's own config writes are.
+  const staged = `${config}.${process.pid}.routes`;
+  writeFileSync(staged, [...kept, ...written, ""].join("\n"));
+  renameSync(staged, config);
 }
 
 export function changeHomeRoutes(
