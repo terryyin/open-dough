@@ -4,7 +4,6 @@
 // preparation in its own default 30 seconds. Each is loaded only by a worker
 // that takes it.
 import type { Fixtures } from "@playwright/test";
-import type { PublishedMainFixture } from "./publishedMainFixture.ts";
 import type { PublishedMainSourceProfile } from "./publishedMainSource.ts";
 
 // Cold shared preparation has its own bounded worker lifetime. It can outlast
@@ -33,8 +32,6 @@ async function requestPublishedMainSource(profile: PublishedMainSourceProfile) {
 
 export type PublishedMainWorkerFixtures = {
   publishedApplicationSourceReady: undefined;
-  publishedRepositorySourceReady: undefined;
-  ownerlessPublishedMain: PublishedMainFixture;
   pinnedWatcherCodex: string;
 };
 
@@ -50,39 +47,6 @@ export const publishedMainWorkerFixtures: Fixtures<
     async ({}, use) => {
       await requestPublishedMainSource("application");
       await use(undefined);
-    },
-    coldInputPreparation,
-  ],
-  publishedRepositorySourceReady: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => {
-      await requestPublishedMainSource("repository");
-      await use(undefined);
-    },
-    coldInputPreparation,
-  ],
-  // A full-source fixture made while no run owner answers: it copies and
-  // commits the whole live source itself. Its reader leaves its origin
-  // unpublished again, as it found it.
-  ownerlessPublishedMain: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => {
-      const { publishedMainFixture } =
-        await import("./publishedMainFixture.ts");
-      const owner = process.env["OPEN_DOUGH_DASHBOARD_ARTIFACT_OWNER"];
-      delete process.env["OPEN_DOUGH_DASHBOARD_ARTIFACT_OWNER"];
-      let fixture: PublishedMainFixture;
-      try {
-        fixture = await publishedMainFixture(true);
-      } finally {
-        if (owner !== undefined)
-          process.env["OPEN_DOUGH_DASHBOARD_ARTIFACT_OWNER"] = owner;
-      }
-      try {
-        await use(fixture);
-      } finally {
-        await fixture.cleanup();
-      }
     },
     coldInputPreparation,
   ],

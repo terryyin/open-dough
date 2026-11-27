@@ -161,6 +161,7 @@ test("npm watcher skips an excluded-only main range without install, build or re
     "Document D",
   );
   await settledSkip(watcher, d);
+  expect(await fixture.pushedPaths(d)).toBe(".planning/d.md\ndocs/d.md");
   expect(watcher.output()).toContain(
     `Skipping production update ${d}: every change since ${baseline} is excluded by its CI push policy.`,
   );

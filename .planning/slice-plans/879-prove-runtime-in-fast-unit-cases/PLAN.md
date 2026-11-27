@@ -302,7 +302,7 @@ takes it rests on Playwright's lazy worker fixtures.
 
 ### 6. Prove published fixture sources and development runtime from typed inputs
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 15–20 active minutes.
 Proof: Every case in the five slice-6 specs runs in about 100 ms or less.
 None runs `npm ci` or pushes to a real origin, except a single real case
@@ -320,6 +320,22 @@ Behavior:
   without a run owner.
 - Locked development inputs need no second install.
 - A changed lock needs a real `npm ci` and keeps dev dependencies.
+
+Result: 14 cases (14.3 s summed, load 8) became 26 cases at 55 ms summed
+(load 8) in four specs; `production-application-source` is gone.
+`homeRoutes.ts` keeps each HOME's routes as a list (`withRoute`,
+`republishedRoutes`, `publicationRoutes`) that `fixtureOriginRoute` writes
+once;
+`developmentInputsLocked` decides reuse; `liveSourceFiles` selects a
+snapshot's files and the application profile; `materializePublishedMainSource`
+takes its snapshot requester. Git's own route matching stays with
+`e2e/sessions/agent-completion-attention.spec.ts` "Read leaves the session
+open for Done"; documentation-only pushes are asserted in
+`production-watcher-updates.spec.ts`. Added E2E case:
+`e2e/runtime/published-development-install.spec.ts` "a changed development
+lock uses real npm ci and retains dev dependencies under production".
+At landing, `fixtureOriginRoute.ts` conflicts with trunk's `routedOrigin`
+and `servedHomes` additions; keep both (they read the same `.gitconfig`).
 
 ### 7. Decide runner ownership and quiet reporting from typed run inputs
 Type: Behavior
