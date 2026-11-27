@@ -12,37 +12,17 @@ import {
   appendConfiguredProject,
   mountProjectConfiguration,
 } from "../../server/projectConfiguration.ts";
-import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
+import * as readRules from "../../src/authenticatedReadRules.ts";
+import * as avatarPublication from "../../test-support/authenticatedAvatarRecords.ts";
+import { avatarPng } from "../../test-support/avatarAnswers.ts";
 import { headsAnswer, notLoggedIn } from "../../test-support/originAnswers.ts";
-import {
-  doneRecords,
-  fileOf,
-  identityOf,
-  pathOf,
-  publishedDone,
-} from "../../test-support/support/doneCatalogReads.ts";
-import {
-  endFakeGh,
-  fakeGhEnv,
-  installFakeGh,
-} from "../../test-support/support/fakeGh.ts";
-import {
-  failsWith,
-  publishes,
-  startFakeGitHub,
-  type FakeGitHub,
-} from "../../test-support/support/fakeGitHub.ts";
+import * as done from "../../test-support/support/doneCatalogReads.ts";
+import * as fakeGh from "../../test-support/support/fakeGh.ts";
+import * as fakeGitHub from "../../test-support/support/fakeGitHub.ts";
 import { holdingAnswer } from "../../test-support/support/heldGitHubAnswer.ts";
-import {
-  processAlive,
-  readPid,
-} from "../../test-support/support/processGroup.ts";
+import * as processGroup from "../../test-support/support/processGroup.ts";
 import { routeDashboardHome } from "../../test-support/support/fixtureOriginRoute.ts";
-import {
-  abandonedRequest,
-  rawRequest,
-  type RawRequestOptions,
-} from "../../test-support/support/rawHttp.ts";
+import * as http from "../../test-support/support/rawHttp.ts";
 
 const openDough = makeMe.aPublishedSource.openDough.please();
 const pygardon = makeMe.aPublishedSource.pygardon.please();
@@ -50,7 +30,7 @@ const shownRevision = "ab".repeat(20);
 const diagnosticMarker = "gho_should-never-reach-a-browser-1234567890";
 
 let origin: string;
-let github: FakeGitHub;
+let github: fakeGitHub.FakeGitHub;
 let pidPath: string;
 
 beforeEach(async () => {
@@ -59,20 +39,20 @@ beforeEach(async () => {
     vi.unstubAllEnvs();
     rmSync(machine, { recursive: true, force: true });
   });
-  const upstream = await startFakeGitHub();
+  const upstream = await fakeGitHub.startFakeGitHub();
   onTestFinished(() => upstream.close());
-  const gh = installFakeGh(machine);
+  const gh = fakeGh.installFakeGh(machine);
   pidPath = gh.pidPath;
-  onTestFinished(() => endFakeGh(gh));
+  onTestFinished(() => fakeGh.endFakeGh(gh));
   for (const [key, value] of Object.entries({
-    ...fakeGhEnv(gh, upstream.url),
+    ...fakeGh.fakeGhEnv(gh, upstream.url),
     HOME: machine,
     GH_TOKEN: "fixture-token",
+    DOUGH_AVATAR_ORIGIN: upstream.url.replace(/\/$/, ""),
   })) {
     vi.stubEnv(key, value);
   }
   routeDashboardHome(machine, upstream);
-
   onTestFinished(mountProjectConfiguration("development"));
   for (const source of [openDough, pygardon]) {
     appendConfiguredProject(
@@ -81,60 +61,66 @@ beforeEach(async () => {
         .please(),
     );
   }
-
   const middlewares = boundaryMiddlewareChain();
   const server = createServer((req, res) => {
     middlewares.handle(req, res);
   });
-  onTestFinished(
-    () =>
-      new Promise<void>((resolve) => {
-        server.close(() => {
-          resolve();
-        });
-        server.closeAllConnections();
-      }),
-  );
+  onTestFinished(async () => {
+    const closed = once(server, "close");
+    server.close();
+    server.closeAllConnections();
+    await closed;
+  });
   onTestFinished(installAuthenticatedReadMiddleware(middlewares));
   const listening = once(server, "listening");
   server.listen(0, "127.0.0.1");
   await listening;
-
   origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
   github = upstream;
 });
 
+const urlAt = (endpoint: string, params: Record<string, string>) =>
+  `${origin}${endpoint}?${new URLSearchParams(params).toString()}`;
+const avatarUrl = () =>
+  urlAt(readRules.authenticatedAvatarEndpoint, {
+    source: openDough.id,
+    revision: avatarPublication.revision,
+    path: `${avatarPublication.agents}/yui-chan.json`,
+  });
+
 function checkRevision(
-  options: Omit<RawRequestOptions, "url">,
+  options?: Omit<http.RawRequestOptions, "url">,
   source = openDough.id,
 ) {
-  const url = new URL(authenticatedReadEndpoint, origin);
-  url.search = new URLSearchParams({ source, since: shownRevision }).toString();
-  return rawRequest({ ...options, url: url.href });
+  return http.rawRequest({
+    url: urlAt(readRules.authenticatedReadEndpoint, {
+      source,
+      since: shownRevision,
+    }),
+    headers: { Origin: origin },
+    ...options,
+  });
 }
 
-test.each<
-  [
-    name: string,
-    status: number,
-    options: Omit<RawRequestOptions, "url">,
-    source?: string,
-  ]
->([
-  ["a foreign Origin", 403, { headers: { Origin: "http://outside.example" } }],
-  ["no Origin or Fetch Metadata", 403, { headers: {} }],
-  [
-    "cross-site Fetch Metadata without Origin",
-    403,
-    { headers: { "Sec-Fetch-Site": "cross-site" } },
-  ],
-  ["an unknown source", 404, {}, "unknown-project"],
-  ["a non-GET method", 405, { method: "POST" }],
+test.each([
+  {
+    name: "a foreign Origin",
+    status: 403,
+    headers: { Origin: "http://outside.example" },
+  },
+  { name: "no Origin or Fetch Metadata", status: 403, headers: {} },
+  {
+    name: "cross-site Fetch Metadata without Origin",
+    status: 403,
+    headers: { "Sec-Fetch-Site": "cross-site" },
+  },
+  { name: "an unknown source", status: 404, source: "unknown-project" },
+  { name: "a non-GET method", status: 405, method: "POST" },
 ])(
-  "refuses %s before asking GitHub",
-  async (...[, status, options, source]) => {
+  "refuses $name before asking GitHub",
+  async ({ status, headers, source, method }) => {
     const response = await checkRevision(
-      { ...options, headers: options.headers ?? { Origin: origin } },
+      { ...(method && { method }), headers: headers ?? { Origin: origin } },
       source,
     );
     expect(response.status).toBe(status);
@@ -142,16 +128,42 @@ test.each<
   },
 );
 
+test("refuses a foreign avatar Origin before asking GitHub or the avatar host", async () => {
+  const headers = { Origin: "http://outside.example" };
+  const response = await http.rawRequest({ url: avatarUrl(), headers });
+  expect(response.status).toBe(403);
+  expect(response.headers["content-type"]).toBe("application/json");
+  expect(github.calls).toHaveLength(0);
+  expect(github.avatarReads).toHaveLength(0);
+});
+
+test("serves the matched avatar bytes with bounded image headers", async () => {
+  const image = avatarPng(4);
+  github.serve(openDough.repository, avatarPublication.publishedRevisions());
+  github.serveAvatars(avatarPublication.avatarHost);
+  const response = await http.rawRequest({
+    url: avatarUrl(),
+    headers: { Origin: origin },
+  });
+  expect(response).toMatchObject({
+    status: 200,
+    headers: {
+      "content-type": "image/png",
+      "x-content-type-options": "nosniff",
+      "cache-control": "no-store",
+    },
+    raw: image.body,
+  });
+});
+
 test("admits same-origin Fetch Metadata without an Origin header", async () => {
   const revision = "cd".repeat(20);
   github.serve(openDough.repository, () =>
     Promise.resolve(headsAnswer({ [openDough.ref]: revision })),
   );
-
   const response = await checkRevision({
     headers: { "Sec-Fetch-Site": "same-origin" },
   });
-
   expect(response.status).toBe(200);
   expect(response.headers["cache-control"]).toBe("no-store");
   expect(JSON.parse(response.body)).toMatchObject({ revision });
@@ -161,14 +173,11 @@ test("admits same-origin Fetch Metadata without an Origin header", async () => {
 test("reports actionable login guidance for the selected source without exposing diagnostics", async () => {
   github.serve(
     pygardon.repository,
-    failsWith(`${notLoggedIn.stderr}token file: ${diagnosticMarker}\n`),
+    fakeGitHub.failsWith(
+      `${notLoggedIn.stderr}token file: ${diagnosticMarker}\n`,
+    ),
   );
-
-  const response = await checkRevision(
-    { headers: { Origin: origin } },
-    pygardon.id,
-  );
-
+  const response = await checkRevision(undefined, pygardon.id);
   expect(response.status).toBe(502);
   expect(response.headers["cache-control"]).toBe("no-store");
   expect(JSON.parse(response.body)).toEqual({
@@ -180,70 +189,61 @@ test("reports actionable login guidance for the selected source without exposing
 });
 
 test("reports a failed revision check without forwarding raw stderr or reading beyond the ref fallback", async () => {
-  github.serve(openDough.repository, failsWith(`fatal: ${diagnosticMarker}\n`));
-
-  const response = await checkRevision({ headers: { Origin: origin } });
-
+  github.serve(
+    openDough.repository,
+    fakeGitHub.failsWith(`fatal: ${diagnosticMarker}\n`),
+  );
+  const response = await checkRevision();
   expect(response.status).toBe(502);
   expect(response.body).not.toContain(diagnosticMarker);
   expect(response.body).not.toContain("fatal:");
+  const repo = `repos/${openDough.repository}`;
   expect(github.calls.map(({ argv }) => argv)).toEqual([
-    [
-      "api",
-      "--include",
-      `repos/${openDough.repository}/git/matching-refs/heads/`,
-    ],
-    [
-      "api",
-      "--include",
-      `repos/${openDough.repository}/commits/${openDough.ref}`,
-      "--jq",
-      ".sha",
-    ],
+    ["api", "--include", `${repo}/git/matching-refs/heads/`],
+    ["api", "--include", `${repo}/commits/${openDough.ref}`, "--jq", ".sha"],
   ]);
 });
 
 test("a departed Done reader ends its child and a later request reads the body", async () => {
   // Observe the native gh child rather than the in-process substitute.
   vi.stubEnv("FAKE_GH_TRANSPORT", "cli");
-  const identity = identityOf("leaving", 1);
-  const path = pathOf(identity);
-  const files = publishedDone({ doneRecords: doneRecords("leaving", 2) });
-  const revision = shownRevision;
+  const record = makeMe.aDoneRecord
+    .completed({ identity: "SEED-101#leaving" })
+    .please();
+  const path = done.pathOf(record.identity);
+  const files = done.publishedDone({ doneRecords: [record] });
   const held = holdingAnswer(
-    publishes({ revision, files }),
+    fakeGitHub.publishes({ revision: shownRevision, files }),
     (request) => request.kind === "content" && request.path === path,
   );
   github.serve(openDough.repository, held.answer);
   onTestFinished(held.release);
-  const url = new URL(authenticatedReadEndpoint, origin);
-  url.search = new URLSearchParams({
+  const url = urlAt(readRules.authenticatedReadEndpoint, {
     source: openDough.id,
-    revision,
+    revision: shownRevision,
     done: "bodies",
-    file: fileOf(identity),
-  }).toString();
-  const options = { url: url.href, headers: { Origin: origin } };
+    file: done.fileOf(record.identity),
+  });
+  const options = { url, headers: { Origin: origin } };
   const bodyCalls = () =>
     github.calls.filter(
       ({ request }) =>
         request.kind === "content" &&
         request.path === path &&
-        request.revision === revision,
+        request.revision === shownRevision,
     );
-  const leaving = abandonedRequest(options);
+  const leaving = http.abandonedRequest(options);
   await expect.poll(() => bodyCalls().length).toBe(1);
-  const pid = readPid(pidPath);
-  expect(processAlive(pid)).toBe(true);
+  const pid = processGroup.readPid(pidPath);
+  expect(processGroup.processAlive(pid)).toBe(true);
   leaving.cutAfter(0);
-  await expect.poll(() => processAlive(pid)).toBe(false);
+  await expect.poll(() => processGroup.processAlive(pid)).toBe(false);
   expect(readFileSync(`${pidPath}.exited`, "utf8").trim()).toBe("SIGTERM");
-
   held.release();
-  const response = await rawRequest(options);
+  const response = await http.rawRequest(options);
   expect(response.status).toBe(200);
   expect(JSON.parse(response.body)).toEqual({
-    revision,
+    revision: shownRevision,
     records: [{ path, text: files[path] }],
   });
   expect(bodyCalls()).toHaveLength(2);

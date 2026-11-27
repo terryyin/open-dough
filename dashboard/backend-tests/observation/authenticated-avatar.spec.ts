@@ -1,26 +1,19 @@
-// The GitHub avatar of the human credited for one agent profile, as the local
-// authenticated read boundary (../../server/avatarRead.ts) serves it, tested
-// directly against real HTTP with a synthetic `gh` and a fake avatar host on
-// this spec's own isolated server process (authenticatedAvatarRecords.ts).
-// Only the account GitHub matched to the committer of a listed profile's
-// addition is fetched, from the avatar source GitHub named for it, once per
-// source while the boundary keeps it, so a changed source is fetched afresh;
-// anything else is refused before asking GitHub or its avatar host. What the
-// page shows is covered in ../../../e2e/stories/agent-roster-avatar.spec.ts.
-
-import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
-  developmentBoundary,
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
-import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
+  afterEach,
+  beforeEach,
+  expect,
+  onTestFinished,
+  test,
+  vi,
+} from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { AvatarImages } from "../../server/avatarImages.ts";
+import { parseAvatarRead, performAvatarAt } from "../../server/avatarRead.ts";
+import { runGh } from "../../server/ghRead.ts";
+import { PinnedTexts } from "../../server/pinnedTexts.ts";
+import { RetainedAnswers } from "../../server/retainedAnswers.ts";
+import { RevisionMemo } from "../../server/revisionMemo.ts";
 import {
-  avatarPathsRead,
-  holdingAvatar,
-} from "../../test-support/avatarAnswers.ts";
-import {
-  additions,
   agents,
   avatarHost,
   laterRevision,
@@ -28,190 +21,219 @@ import {
   publishedRevisions,
   revision,
 } from "../../test-support/authenticatedAvatarRecords.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { avatarPng } from "../../test-support/avatarAnswers.ts";
+import type { AvatarAnswer } from "../../test-support/support/fakeGitHub.ts";
+import { parseRequest } from "../../test-support/support/ghRequest.ts";
+import { heldResponse } from "../support/ciReadingTransport.ts";
 
-test.describe.configure({ mode: "serial" });
+vi.mock(import("../../server/ghRead.ts"), async (original) => ({
+  ...(await original()),
+  runGh: vi.fn(),
+}));
 
-test.describe("authenticated avatar read (development environment)", () => {
-  let server: DashboardServer;
+const source = makeMe.aPublishedSource.openDough.please();
+const upstream = vi.mocked(runGh);
+const fetchAvatar = vi.fn<typeof fetch>();
+const png = avatarPng(4);
+const matchedProfileFile = "yui-chan.json";
+const avatarOrigin = "https://avatars.githubusercontent.com";
+const yuiAvatar = (version: number) =>
+  `${avatarOrigin}/u/301?v=${version}&s=64`;
+let boundary: Parameters<typeof performAvatarAt>[0];
 
-  test.beforeAll(async () => {
-    server = await startDashboardServer(developmentBoundary);
-    server.github.serve(everyRepository, publishedRevisions());
-    server.github.serveAvatars(avatarHost);
+function imageReply({ status, body, contentType }: AvatarAnswer): Response {
+  return new Response(new Uint8Array(body), {
+    status,
+    headers: { "content-type": contentType },
   });
+}
 
-  test.afterAll(async () => {
-    await server.close();
-  });
-
-  const avatarOf = (query: string, origin = server.origin) =>
-    rawRequest({
-      url: `${server.baseURL}/__authenticated-avatar?${query}`,
-      headers: { Origin: origin },
-    });
-  const profileQuery = (file: string, at = revision) =>
-    `source=open-dough&revision=${at}&path=${encodeURIComponent(`${agents}/${file}`)}`;
-  const avatarReads = () => avatarPathsRead(server.github.avatarReads);
-
-  test("serves the matched account's avatar, fetched once from the avatar source GitHub named, with no GitHub read on repeat", async () => {
-    const first = await avatarOf(profileQuery("yui-chan.json"));
-    expect(first.status).toBe(200);
-    expect(first.headers["content-type"]).toBe("image/png");
-    expect(first.headers["x-content-type-options"]).toBe("nosniff");
-    expect(first.headers["cache-control"]).toBe("no-store");
-    expect(server.github.avatarReads).toEqual(["/u/301?v=4&s=64"]);
-
-    const callsBefore = server.ghCalls().length;
-    const again = await avatarOf(profileQuery("yui-chan.json"));
-    expect(again.status).toBe(200);
-    expect(again.body).toBe(first.body);
-    expect(server.ghCalls()).toHaveLength(callsBefore);
-    expect(avatarReads()).toEqual(["/u/301"]);
-  });
-
-  test("shares one image read between two reads of one avatar source while its image is held, and answers both", async () => {
-    const held = holdingAvatar(avatarHost, "/u/309");
-    server.github.serveAvatars(held.answer);
-    try {
-      const first = avatarOf(profileQuery("airi-chan.json"));
-      await expect.poll(avatarReads).toContain("/u/309");
-      const callsBefore = server.ghCalls().length;
-      const second = avatarOf(profileQuery("airi-chan.json"));
-      // Answered without GitHub once the second read's handler has run.
-      const marker = await avatarOf(
-        profileQuery("airi-chan.json"),
-        "http://evil.example",
+beforeEach(() => {
+  boundary = {
+    pinned: new PinnedTexts(new RevisionMemo(new RetainedAnswers())),
+    avatars: new AvatarImages(),
+    tracked: new Set(),
+  };
+  const origin = publishedRevisions();
+  upstream.mockReset().mockImplementation(async (argv) => {
+    const request = parseRequest(argv);
+    if (request.kind === "unknown" || request.repository !== source.repository)
+      throw new Error(`Unexpected avatar provider request ${argv.join(" ")}`);
+    const response = await origin({ argv, request });
+    if (!("body" in response) || response.status !== 200)
+      throw new Error(
+        `Unexpected avatar provider response for ${argv.join(" ")}`,
       );
-      expect(marker.status).toBe(403);
-      // The second read reached the image with no GitHub read of its own.
-      expect(server.ghCalls()).toHaveLength(callsBefore);
-      held.release();
-      const [one, two] = await Promise.all([first, second]);
-      expect(one.status).toBe(200);
-      expect(two.status).toBe(200);
-      expect(two.body).toBe(one.body);
-      expect(avatarReads().filter((read) => read === "/u/309")).toEqual([
-        "/u/309",
-      ]);
-    } finally {
-      held.release();
-      server.github.serveAvatars(avatarHost);
-    }
+    return response.body;
   });
-
-  test("fetches a changed avatar source afresh under the same login, and keeps each source", async () => {
-    const earlier = await avatarOf(profileQuery("yui-chan.json"));
-    expect(earlier.status).toBe(200);
-    const readsBefore = server.github.avatarReads.length;
-
-    const later = await avatarOf(profileQuery("yui-chan.json", laterRevision));
-    expect(later.status).toBe(200);
-    expect(later.body).toBe(newerAvatar.body.toString("utf8"));
-    expect(later.body).not.toBe(earlier.body);
-    expect(server.github.avatarReads.slice(readsBefore)).toEqual([
-      "/u/301?v=5&s=64",
-    ]);
-
-    for (const [at, image] of [
-      [revision, earlier],
-      [laterRevision, later],
-    ] as const) {
-      const again = await avatarOf(profileQuery("yui-chan.json", at));
-      expect(again.body).toBe(image.body);
-    }
-    expect(server.github.avatarReads.slice(readsBefore)).toEqual([
-      "/u/301?v=5&s=64",
-    ]);
+  fetchAvatar.mockReset().mockImplementation(async (url) => {
+    if (typeof url !== "string" || !url.startsWith(avatarOrigin))
+      throw new Error("Unexpected avatar host");
+    return imageReply(await avatarHost(url.slice(avatarOrigin.length)));
   });
+  vi.stubGlobal("fetch", fetchAvatar);
+  vi.stubEnv("DOUGH_AVATAR_ORIGIN", avatarOrigin);
+});
 
-  for (const refused of [
-    {
-      case: "an unmatched committer",
-      file: "akiho-chan.json",
-      error:
-        "No GitHub account is matched to the human who added this agent profile.",
-    },
-    { case: "an avatar off GitHub's avatar host", file: "yuma-chan.json" },
-    { case: "an avatar address that is not https", file: "sola-chan.json" },
-    { case: "an avatar address with another query", file: "kirara-chan.json" },
-  ]) {
-    test(`answers no avatar for ${refused.case} without asking the avatar host`, async () => {
-      const readsBefore = avatarReads().length;
-      const response = await avatarOf(profileQuery(refused.file));
-      expect(response.status).toBe(404);
-      const { error } = JSON.parse(response.body) as { error: string };
-      expect(error).toBe(
-        refused.error ??
-          `GitHub named no usable avatar for ${additions[refused.file]?.login ?? ""}, the account matched to the human who added this agent profile.`,
-      );
-      expect(avatarReads()).toHaveLength(readsBefore);
-    });
-  }
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
+});
 
-  for (const failed of [
-    { case: "a failed avatar read", file: "mana-chan.json", path: "/u/305" },
-    { case: "an image type not shown", file: "rina-chan.json", path: "/u/306" },
-    { case: "an oversized image", file: "nana-chan.json", path: "/u/307" },
-    { case: "a redirected avatar", file: "maki-chan.json", path: "/u/308" },
-  ]) {
-    test(`reports ${failed.case} as unavailable, and asks again later`, async () => {
-      for (const attempt of [1, 2]) {
-        const response = await avatarOf(profileQuery(failed.file));
-        expect(response.status).toBe(502);
-        expect(response.headers["content-type"]).toBe("application/json");
-        expect(JSON.parse(response.body)).toEqual({
-          error: `The GitHub avatar of ${additions[failed.file]?.login ?? ""} could not be fetched as a small image.`,
-        });
-        expect(
-          avatarReads().filter((read) => read === failed.path),
-        ).toHaveLength(attempt);
-      }
-    });
-  }
+function profileParams(file: string, at = revision) {
+  return new URLSearchParams({
+    source: source.id,
+    revision: at,
+    path: `${agents}/${file}`,
+  });
+}
 
-  // A read at a moving ref, for a record that is not an agent profile, or for
-  // another repository is refused as an addition read is, by the same checks
-  // (authenticated-read-profile-addition.spec.ts).
-  for (const refused of [
-    {
-      case: "naming an image address",
-      query: `${profileQuery("yui-chan.json")}&url=${encodeURIComponent("https://evil.example/x.png")}`,
-      status: 400,
-    },
-    {
-      case: "naming an account",
-      query: `${profileQuery("yui-chan.json")}&login=terryyin`,
-      status: 400,
-    },
-    {
-      case: "for a profile the revision does not list",
-      query: profileQuery("honoka-chan.json"),
+function readAvatar(params: URLSearchParams) {
+  const read = parseAvatarRead(params);
+  if (read.kind === "refused") return Promise.resolve(read);
+  return performAvatarAt(boundary, source, read, (lookup) =>
+    lookup(new AbortController().signal),
+  );
+}
+
+const image = (answer: AvatarAnswer) => ({
+  kind: "image",
+  image: { bytes: answer.body, contentType: answer.contentType },
+});
+
+test("keeps the exact image fetched for the matched account", async () => {
+  const params = profileParams(matchedProfileFile);
+  await expect(readAvatar(params)).resolves.toEqual(image(png));
+  upstream.mockClear();
+  await expect(readAvatar(params)).resolves.toEqual(image(png));
+  expect(upstream).not.toHaveBeenCalled();
+  const signal = fetchAvatar.mock.calls[0]?.[1]?.signal;
+  expect(signal).toBeInstanceOf(AbortSignal);
+  expect(fetchAvatar).toHaveBeenCalledExactlyOnceWith(yuiAvatar(4), {
+    signal,
+    redirect: "error",
+  });
+});
+
+test("shares a held image between concurrent readers", async () => {
+  const held = heldResponse();
+  const entered = vi.spyOn(boundary.avatars, "image");
+  const heldPng = avatarPng(6);
+  onTestFinished(() => {
+    held.release(imageReply(heldPng));
+  });
+  fetchAvatar.mockReturnValue(held.response);
+  const params = profileParams("airi-chan.json");
+
+  const first = readAvatar(params);
+  await expect.poll(() => fetchAvatar.mock.calls.length).toBe(1);
+  const second = readAvatar(params);
+  await expect.poll(() => entered.mock.calls.length).toBe(2);
+  expect(fetchAvatar).toHaveBeenCalledTimes(1);
+  held.release(imageReply(heldPng));
+  await expect(Promise.all([first, second])).resolves.toEqual([
+    image(heldPng),
+    image(heldPng),
+  ]);
+});
+
+test("fetches a newer source for the same account and keeps each pin's image", async () => {
+  const original = profileParams(matchedProfileFile);
+  const newer = profileParams(matchedProfileFile, laterRevision);
+  await expect(readAvatar(original)).resolves.toEqual(image(png));
+  await expect(readAvatar(newer)).resolves.toEqual(image(newerAvatar));
+  await expect(readAvatar(original)).resolves.toEqual(image(png));
+  await expect(readAvatar(newer)).resolves.toEqual(image(newerAvatar));
+  expect(fetchAvatar.mock.calls.map(([url]) => url)).toEqual([
+    yuiAvatar(4),
+    yuiAvatar(5),
+  ]);
+});
+
+test.each([
+  {
+    file: "akiho-chan.json",
+    reason: "an unmatched committer",
+    message:
+      "No GitHub account is matched to the human who added this agent profile.",
+  },
+  { file: "yuma-chan.json", reason: "another host", login: "rae" },
+  { file: "sola-chan.json", reason: "a non-HTTPS address", login: "hugh" },
+  {
+    file: "kirara-chan.json",
+    reason: "an extra source parameter",
+    login: "quinn",
+  },
+])(
+  "refuses $reason without fetching an image",
+  async ({ file, login, message }) => {
+    await expect(readAvatar(profileParams(file))).resolves.toEqual({
+      kind: "refused",
       status: 404,
-    },
-  ]) {
-    test(`refuses an avatar read ${refused.case} before asking the avatar host`, async () => {
-      const callsBefore = server.ghCalls().length;
-      const readsBefore = avatarReads().length;
-      const response = await avatarOf(refused.query);
-      expect(response.status).toBe(refused.status);
-      expect(response.headers["content-type"]).toBe("application/json");
-      expect(avatarReads()).toHaveLength(readsBefore);
-      if (refused.status === 400) {
-        expect(server.ghCalls()).toHaveLength(callsBefore);
-      }
+      message:
+        message ??
+        `GitHub named no usable avatar for ${login}, the account matched to the human who added this agent profile.`,
     });
-  }
+    expect(fetchAvatar).not.toHaveBeenCalled();
+  },
+);
 
-  test("refuses a cross-origin avatar read before asking GitHub or the avatar host", async () => {
-    const callsBefore = server.ghCalls().length;
-    const readsBefore = avatarReads().length;
-    const response = await avatarOf(
-      profileQuery("yui-chan.json"),
-      "http://evil.example",
-    );
-    expect(response.status).toBe(403);
-    expect(server.ghCalls()).toHaveLength(callsBefore);
-    expect(avatarReads()).toHaveLength(readsBefore);
+test.each([
+  ["a failing response", "mana-chan.json", "fay", 305],
+  ["an unsupported image type", "rina-chan.json", "svg", 306],
+  ["an oversized body", "nana-chan.json", "big", 307],
+  ["a redirect", "maki-chan.json", "moved", 308],
+] as const)(
+  "reports %s as unavailable and retries the same source",
+  async (...[, file, login, id]) => {
+    const params = profileParams(file);
+    await expect(readAvatar(params)).resolves.toEqual({
+      kind: "failed",
+      message: `The GitHub avatar of ${login} could not be fetched as a small image.`,
+      retryAfterSeconds: undefined,
+      recovery: undefined,
+    });
+
+    fetchAvatar.mockResolvedValueOnce(imageReply(png));
+    await expect(readAvatar(params)).resolves.toEqual(image(png));
+    const url = `${avatarOrigin}/u/${id}?v=4&s=64`;
+    expect(fetchAvatar.mock.calls.map(([address]) => address)).toEqual([
+      url,
+      url,
+    ]);
+  },
+);
+
+test.each([
+  {
+    name: "an image address",
+    key: "url",
+    value: "https://outside.example/x.png",
+  },
+  { name: "a login", key: "login", value: "some-account" },
+])("refuses a request naming $name at parsing", ({ key, value }) => {
+  const params = profileParams(matchedProfileFile);
+  params.set(key, value);
+  expect(parseAvatarRead(params)).toMatchObject({
+    kind: "refused",
+    status: 400,
   });
+});
+
+test("refuses an unlisted profile before reading its attribution or image", async () => {
+  await expect(
+    readAvatar(profileParams("honoka-chan.json")),
+  ).resolves.toMatchObject({
+    kind: "refused",
+    status: 404,
+  });
+  expect(upstream.mock.calls.map(([argv]) => parseRequest(argv))).toEqual([
+    {
+      kind: "listing",
+      repository: source.repository,
+      path: agents,
+      revision,
+    },
+  ]);
+  expect(fetchAvatar).not.toHaveBeenCalled();
 });

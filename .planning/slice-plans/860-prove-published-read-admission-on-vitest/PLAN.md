@@ -40,6 +40,16 @@ The repair changes only a separate browser journey, so the focused
 catalog, Board and Review evidence still applies.
 The failed attempt's terminal inventory listed only that Codex failure.
 
+Slice 7's CI frontend viewport failure was reproduced locally with an outer
+browser shorter than its tester frame. The host transition itself was
+unobserved. The [diagnosis](diagnosis-launch-cancel-viewport.md) records
+the matched before/after check and the native Cancel and layout witnesses
+that passed after the options-only test switched to Escape dismissal.
+The repair was published at `0b5d332105d5c3e3cee40411f171fee74f946950`
+before restoring slice 8. Its CI frontend job 140484625255 again logged
+`VITEST_BROWSER_CONNECTION_CLOSED` with zero failed assertions. Ai-chan
+still owns that separate defect in plan 881.
+
 ## Goal and scope
 
 Give Board and Review maintainers fast, direct proof of what an admitted
@@ -522,7 +532,7 @@ reuse the existing product and fixture owners and need no refactor pass.
 ### 8. Serve the credited account's bounded avatar
 
 Type: Behavior
-Status: planned
+Status: done
 
 When the requested profile and pin resolve a usable matched-account avatar,
 serve the exact bounded image, share concurrent fetches, retain a successful
@@ -536,6 +546,52 @@ unsupported, oversized or redirected images and failed fetches. The slice 1 HTTP
 keeps the image headers and cross-origin refusal. Maintain the visible
 [roster avatar journey](../../../e2e/stories/agent-roster-avatar.spec.ts)
 at its existing owner. Account for all 15 cases in `authenticated-avatar.spec.ts`.
+
+Accepted proof. The installed avatar adapter passes the parsed source,
+profile and pin to [performAvatarAt](../../../dashboard/server/avatarRead.ts)
+with its scoped diagnostic/tracked lookup. The shared profile lookup
+requires only the lister and adder it calls. The real AvatarImages state
+and response writer keep their owners.
+[authenticated-avatar.spec.ts](../../../dashboard/backend-tests/observation/authenticated-avatar.spec.ts)
+matches the exact image bytes, HTTPS URL/version/size and redirect policy,
+one fetch for two held readers, reuse across repeated reads and a fresh
+fetch for a changed source with the same login. Unmatched and unusable
+sources refuse without fetch. Failed, unsupported, oversized and redirected
+responses report unavailable and then succeed on a bounded retry. Two
+parser cases refuse a supplied account/address and the unlisted case
+stops after its pinned listing. The
+[Node HTTP witness](../../../dashboard/backend-tests/observation/authenticated-read-http.spec.ts)
+asserts actual PNG bytes, content type, nosniff and no-store and rejects
+foreign Origin before either upstream call. All 25 replacement-selection
+cases passed before removing the 15 legacy avatar cases.
+
+```sh
+caffeinate -s -i npm run test:dashboard:backend -- \
+  'observation/authenticated-(avatar|read-(http|profile-addition(-refusal)?))\.spec\.ts$' \
+  'review/verified-origin-trunk\.spec\.ts$' --workers=1
+caffeinate -s -i npm run typecheck:dashboard
+caffeinate -s -i npm run test:e2e -- \
+  stories/agent-roster-avatar.spec.ts observation/unchanged-assignment-credit.spec.ts --workers=1
+caffeinate -s -i npm run test:e2e -- \
+  observation/steady-refresh-inspection.spec.ts sessions/session-attribution.spec.ts \
+  --grep 'assignments keep their agents|a retained session keeps its allocation credit' --workers=1
+```
+
+The final-path 44 Node cases passed in 16.66 s, including the 11 wire,
+13 profile and six cold Git cases. The 14 avatar cases summed to
+198 ms. The held image case took 107 ms. The two new wire cases took
+76 and 278 ms, and native departure took 417 ms. Typecheck passed.
+The two roster and unchanged-credit journeys passed in 26.85 s wall
+and the two held-refresh and retained-session-credit journeys in
+31.35 s. They check the published pin and visible credit, source
+changes, unchanged reuse and history gaps. See `s8-return.md`, its
+runner records and `s8-consumer-trace.md`.
+
+The independent pass renamed the avatar fixture filename binding and
+found no external consumer. Tracking still covers only the same profile
+lookup, and AvatarImages keeps its existing process lifetime. All
+accepted focused evidence applies, and the benchmark below exercises
+the renamed case on its final path.
 
 ## Local gate and delivery
 
@@ -564,6 +620,45 @@ at its existing owner. Account for all 15 cases in `authenticated-avatar.spec.ts
   before deleting its only witness. Group equivalent assertions with
   their owner. Observe host load before timing and use comparable
   one-worker conditions. See the [campaign comparison](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#backend-vitest-replacement-coverage).
+
+## Final family measurement
+
+```sh
+evidence=$(git rev-parse --git-path open-dough/evidence)
+caffeinate -s -i env OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD="$evidence/final-family.json" \
+  /usr/bin/time -p npm run test:dashboard:backend -- \
+  'observation/authenticated-(avatar|branch-read-boundary|read-(boundary|branch-request|containment|listed-records|refusal|committed-last|http|done-catalog(-gaps|-refusal|-request)?|profile-addition(-refusal)?))\.spec\.ts$' \
+  'review/verified-origin-trunk\.spec\.ts$' --workers=1
+```
+
+| One-worker observation | Published Take | Slice 8 candidate | After avatar lint repair |
+| --- | ---: | ---: | ---: |
+| Selected proof, all passed on first attempt | 90 | 109 | 109 |
+| Story family by runner | 84 Chromium | 103 Node, zero Chromium | 103 Node, zero Chromium |
+| Family summed case time | 10.884 s | 3.950 s | 5.222 s |
+| Family cases above 100 ms | 33 | 12 | 12 |
+| Six existing cold Git cases summed | 4.883 s | 4.046 s | 4.224 s |
+| Wall time with setup | 50.11 s | 18.31 s | 23.99 s |
+
+All runs used the same Mac, AC power, Node 24.21.0, 16 logical CPUs,
+default timeouts and one worker. Launch load was 30.60/23.92/24.43
+at the Take, 16.49/21.46/23.33 on the slice 8 candidate and
+19.90/20.06/22.36 after lint repair. The final selector includes all
+legacy paths and their additional Node owners. There were no skipped
+or repeated attempts. One rerun of the same selection after fixture
+assertion and table lint fixes verified selection and proof at the final
+candidate. The `final-family-lint-repair.json` record and the two earlier
+maintained JSON reports retain each case's name, runner and duration.
+
+In the final run the dozen family cases above the approximate 100 ms
+target were the real branch-history sequence (1,054 ms), four
+attribution and history cases (124–640 ms), a pinned foreign-source
+read with independent Git evidence (408 ms), the held avatar overlap
+(118 ms), and five wire cases (233–423 ms). The native departure case
+includes an actual CLI child exit and retry. The Board,
+Review, follow-up and roster E2E checks above preserve visible consumers.
+The retained roster avatar owner took 8.515 s case time in slice 8.
+Those E2E runs are outside the family timing.
 
 ## Plan review
 
