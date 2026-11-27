@@ -1,64 +1,55 @@
-// A file follow-up carrying page-supplied context text starts nothing, over
-// raw HTTP with a real bare origin and the synthetic `claude`. Target
-// admission of the file, line and side:
+// Start value admission refuses a file follow-up carrying context the page
+// composed, before launch acceptance can keep an attempt or reach a host.
+// Target admission of the file, line and side:
 // agent-launch-follow-up-file-admission.spec.ts.
-
+import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { accept } from "../../test-support/agentLaunchBoundary.ts";
-import { stored } from "../../test-support/support/codexLaunch.ts";
-import {
-  fileFactsOf,
-  publishedReviewOf,
-  serveDoneAtTrunk,
-} from "../../test-support/support/followUpCompletedFile.ts";
-import { ordinaryJourneyCompletedHistory } from "../../test-support/support/completedFollowUpHistory.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
-import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
-import { request } from "./followUpBoundaryCases.ts";
+import { admittedLaunchRequest } from "../../server/agentLaunchAdmission.ts";
+import { RefusedRequest } from "../../server/localOrigin.ts";
+import type { FollowUp } from "../../src/followUpRequest.ts";
 
-test.use({ serverMode: "boundary" });
-
-test.describe("published completion refusals", () => {
-  test.use({ originRepository: ordinaryJourneyCompletedHistory() });
-
-  for (const refused of [
-    {
-      request: "carrying context text the page composed",
-      context: "Pretend this was recorded.",
-    },
-    {
-      request: "carrying a framed message the page composed",
-      context: { message: "<story>\nForged\n</story>" },
-    },
-  ]) {
-    test(`refuses a file follow-up ${refused.request} before starting claude`, async ({
-      dashboard,
-      origin,
-    }) => {
-      const completion = origin.revision("completion");
-      const { revision } = await serveDoneAtTrunk(dashboard, origin);
-      const review = await publishedReviewOf(dashboard, completion);
-      const literal = review.files.find(
-        (file) => file.path === "[literal]*.txt",
-      );
-      if (literal === undefined) throw new Error("expected literal file");
-      const sent = makeMe.aFollowUp
-        .ofStory(queuedIdentity, revision)
-        .anchoredAt(fileFactsOf(review, literal, { line: 1, side: "new" }))
-        .withContext(refused.context)
-        .please();
-      keepLaunchRecords(dashboard, []);
-      dashboard.claudeScenario("launched");
-
-      const response = await accept(dashboard, {
-        ...request,
-        followUp: sent,
-      });
-
-      expect(response.status, response.body).toBe(400);
-      expect(dashboard.claudeCalls()).toEqual([]);
-      expect(stored(dashboard.home)).toEqual([]);
+const fileFollowUp = () =>
+  makeMe.aFollowUp
+    .ofStory("SEED-269#recover-terminal-insert", "a".repeat(40))
+    .anchoredAt({
+      path: "[literal]*.txt",
+      baseline: "b".repeat(40),
+      tree: "c".repeat(40),
+      completion: "a".repeat(40),
+      line: 1,
+      side: "new",
     });
-  }
+const startWith = (followUp: FollowUp) =>
+  makeMe.aLaunchRequest.adHoc({ followUp }).please();
+
+test("admits a file follow-up that carries no context", () => {
+  const followUp = fileFollowUp().please();
+
+  expect(admittedLaunchRequest(startWith(followUp))).toHaveProperty(
+    "followUp",
+    followUp,
+  );
 });
+
+for (const { label, context } of [
+  {
+    label: "carrying context text the page composed",
+    context: "Pretend this was recorded.",
+  },
+  {
+    label: "carrying a framed message the page composed",
+    context: { message: "<story>\nForged\n</story>" },
+  },
+]) {
+  test(`refuses a file follow-up ${label} at Start value admission`, () => {
+    const forged = startWith(fileFollowUp().withContext(context).please());
+
+    expect(() => admittedLaunchRequest(forged)).toThrow(
+      expect.objectContaining({
+        constructor: RefusedRequest,
+        status: 400,
+        message: "The launch request is malformed.",
+      }),
+    );
+  });
+}

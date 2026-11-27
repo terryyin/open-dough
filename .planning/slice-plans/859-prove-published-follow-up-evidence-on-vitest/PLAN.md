@@ -199,7 +199,7 @@ this change, so that load sensitivity predates this story.
 ### 7. Refuse page-authored evidence at Start value admission
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 5–8 active minutes.
 
 Move the two forged-context cases in `agent-launch-follow-up-file-admission`
@@ -207,6 +207,17 @@ to the maintained Start value admission entry. Check both raw text and an
 already-framed message using the actual incoming input shape, and prove the
 refusal occurs before an attempt or host starts. Drop unused wrappers only
 after checking all callers, including the cases in plan 850.
+
+Delivered: the forged-context spec runs three Node cases at
+`admittedLaunchRequest`, which throws before Start reaches any store or host;
+removing the context guard failed both refusals. `serveDoneAtTrunk` had no
+callers left and is gone; the other legacy helpers keep callers. The final
+selection ran 17 Node cases and no Playwright case in 23.1 s wall (18.4 s
+summed; 68.0 s and 18 Playwright cases at the start), at load 7–11. The
+retained E2E journeys passed 2 cases in 16.7 s. Each Git-backed Node case
+still takes 0.9–1.8 s, mostly fixture history and Review sync. Refactor pass
+skipped: the slice edited only its subject spec and removed a callerless
+helper.
 
 ## Proof and local gate
 
