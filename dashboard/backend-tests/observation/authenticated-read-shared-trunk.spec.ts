@@ -4,7 +4,7 @@
 // was asked, and ask GitHub nothing. The transfer is held at the origin's
 // upload-pack (../review/verifiedOriginTrunkCase.ts); the marker the boundary
 // refuses confirms both opens arrived before it is released. Simultaneous
-// GitHub reads: ./authenticated-read-shared.spec.ts.
+// GitHub reads: ./authenticated-read-shared-requests.spec.ts.
 
 import { readFileSync, rmSync } from "node:fs";
 import { expect, test } from "../../test-support/support/pageTest.ts";

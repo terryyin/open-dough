@@ -3,7 +3,11 @@
 // (`./observationOutcomes.ts`) are recorded as each detail validates its
 // answer or projects a typed gap.
 
-import type { PublishedWork, PublishedWorkProgress } from "./publishedWork.ts";
+import {
+  shownAtRevision,
+  type PublishedWork,
+  type PublishedWorkProgress,
+} from "./publishedWork.ts";
 import { interpretPublishedBacklog } from "./publishedBacklog.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedObservationReadSource } from "./publishedObservationReadSource.ts";
@@ -73,7 +77,10 @@ export async function readPublishedWork(
       const { revision, backlog: markdown, askedAt, confirmedAt } = snapshot;
       // Origin's newer answer was not recorded, so the shown confirmation
       // stands and this read adds nothing to it.
-      if (snapshot.unrecorded && shown?.revision === revision) {
+      if (
+        snapshot.unrecorded &&
+        shownAtRevision(shown, { source, revision }) !== undefined
+      ) {
         throw new ReadProblem(
           `The check of ${readingRefOf(source)} could not be saved.`,
         );
@@ -83,14 +90,15 @@ export async function readPublishedWork(
         ...(confirmedAt === undefined ? {} : { confirmedAt }),
       };
       outcomes.pinRevision(revision);
-      const sameRevision = shown !== undefined && shown.revision === revision;
+      const kept = shownAtRevision(shown, { source, revision });
+      const sameRevision = kept !== undefined;
       const retrievedAt = new Date();
       // Membership first, then preparation enrichment through the same
       // boundary's reachability-checked path reads at that revision. Same-
       // revision recovery keeps already shown facts instead of loading.
       const work: PublishedWork = sameRevision
         ? {
-            ...shown,
+            ...kept,
             retrievedAt,
             ...resolved,
           }

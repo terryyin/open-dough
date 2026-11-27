@@ -5,15 +5,8 @@
 
 import { expect } from "@playwright/test";
 import type { DashboardServer } from "./dashboardServer.ts";
-import { everyRepository } from "./fakeGitHub.ts";
-import type { GhRequest } from "./ghRequest.ts";
 import type { RawResponse } from "./rawHttp.ts";
-import {
-  readAt,
-  sharedReadsPublished,
-  type SharedRead,
-} from "./sharedReads.ts";
-import type { OriginAnswer } from "../originAnswers.ts";
+import { readAt, type SharedRead } from "./sharedReads.ts";
 
 export const heldBackPattern =
   /^GitHub limited the rate of the local GitHub CLI's requests, so (.+) was not asked of GitHub\. Reading resumes in (\d+) seconds\.$/;
@@ -75,17 +68,4 @@ export function expectHeldBack(
   const directedFrom = directed.from + 1000;
   expect(held.from, label).toBeLessThanOrEqual(directed.to);
   expect(held.to, label).toBeGreaterThanOrEqual(directedFrom);
-}
-
-// Serves `revision`, answering what `refuses` picks with what it returns.
-export function servedRefusing(
-  server: DashboardServer,
-  revision: string,
-  refuses: (request: GhRequest) => OriginAnswer | undefined,
-): void {
-  const published = sharedReadsPublished(revision);
-  server.github.serve(everyRepository, (call) => {
-    const refusal = refuses(call.request);
-    return refusal === undefined ? published(call) : Promise.resolve(refusal);
-  });
 }

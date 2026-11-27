@@ -1,7 +1,7 @@
 // The ad hoc session chosen as Intent's review scope, read on story Home
 // ahead of its CI evidence: its title, workflow, identifier and original
 // request, each saying when it is unavailable.
-import type { AdHocSessionDetails } from "./followUpSessions.ts";
+import type { AdHocSessionDetails } from "./storySessions.ts";
 import { launchKindName } from "./launchWorkflow.ts";
 
 export function IntentSessionDetails({

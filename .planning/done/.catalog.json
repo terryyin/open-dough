@@ -8,6 +8,24 @@
       "blob": "ee10d876831812e00ee847b28ccd2eb3550363a0"
     },
     {
+      "fileName": "SEED-413_authenticated-github-observation-via-vitest.json",
+      "identity": "SEED-413#authenticated-github-observation-via-vitest",
+      "completedAt": "2026-11-27T14:48:46.637Z",
+      "blob": "dd8d68403ae9693bbfda5e504edc3f6b722938a0"
+    },
+    {
+      "fileName": "SEED-413_diagnose-dashboard-ci-probe-flakes.json",
+      "identity": "SEED-413#diagnose-dashboard-ci-probe-flakes",
+      "completedAt": "2026-11-27T14:42:25.481Z",
+      "blob": "a88dad1635afddb62f10cb1adc1fd2a0c68f40ae"
+    },
+    {
+      "fileName": "SEED-418_keep-session-review-proof-after-retirement.json",
+      "identity": "SEED-418#keep-session-review-proof-after-retirement",
+      "completedAt": "2026-11-27T14:42:12.547Z",
+      "blob": "af3533d55dfaafae401554c1f490895d20f82f91"
+    },
+    {
       "fileName": "SEED-413_fast-runtime-unit-cases.json",
       "identity": "SEED-413#fast-runtime-unit-cases",
       "completedAt": "2026-11-27T13:35:56.168Z",

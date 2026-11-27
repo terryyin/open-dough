@@ -166,19 +166,14 @@ export function IntentPerspective({
   // the lens reads its comparison for the browser's overlay and the story's
   // header.
   const selectedIdentity = selection?.identity;
-  const { story, comparison, compared, retry, sessionDetails } =
-    useIntentStoryLens({
-      source,
-      work,
-      selectedIdentity,
-      records,
-    });
-  const storySummary = useStorySummary(
-    story,
-    comparison,
-    retry,
-    sessionDetails,
-  );
+  const lens = useIntentStoryLens({
+    source,
+    work,
+    selectedIdentity,
+    records,
+  });
+  const { compared } = lens;
+  const storySummary = useStorySummary(lens);
   return (
     <main
       className="intent-perspective"

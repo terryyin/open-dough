@@ -16,7 +16,10 @@ import {
   openLineMenu,
 } from "../../dashboard/test-support/support/diffLineFollowUpPage.ts";
 import { expandContextLineFollowUpHistory } from "../../dashboard/test-support/support/completedFollowUpHistory.ts";
-import { contextExpansion } from "../../dashboard/test-support/support/expandContextDiff.ts";
+import {
+  contextExpansion,
+  gapBeforeNextChange,
+} from "../../dashboard/test-support/support/expandContextDiff.ts";
 import {
   expect,
   test,
@@ -135,9 +138,7 @@ test.describe("diff line Follow up menu", () => {
     });
 
     await test.step("revealed context lines open the same menu", async () => {
-      const beforeGap = diff.getByRole("list", {
-        name: "Omitted lines before the next change",
-      });
+      const beforeGap = gapBeforeNextChange(diff);
       await contextExpansion(beforeGap, /Show 20 preceding/).click();
       const revealed = lineNumberControl(beforeGap, "old", 40);
       await openLineMenu(revealed, "pointer");

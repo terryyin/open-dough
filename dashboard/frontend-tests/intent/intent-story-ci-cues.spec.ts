@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { expandButton } from "../page-objects/activateButton.ts";
 import { emulateMedia } from "../review/browser-session.ts";
 import { scopeName, scopeToggle } from "./intent-browser-page.ts";
 import { fileLayout, intentPage } from "./intent-file-layout-page.ts";
@@ -54,9 +55,7 @@ test("tree files and Intent root rows show shared CI cues with distinct selectio
   await story.browseFiles();
   const file = story.file(fileLabel);
   const folder = scopeToggle("folder");
-  await expect.element(folder).toBeVisible();
-  if (folder.element().getAttribute("aria-expanded") === "false")
-    await folder.click();
+  await expandButton(folder);
   await expect.element(folder).toHaveAttribute("aria-expanded", "true");
 
   const name = story.sidebar.getByRole("button", {

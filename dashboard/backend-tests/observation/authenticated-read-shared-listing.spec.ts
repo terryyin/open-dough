@@ -5,7 +5,7 @@
 // listing to settle. Failures, another scope, and closing the boundary:
 // ./authenticated-read-shared-listing-failures.spec.ts. Simultaneous
 // outstanding sharing and the zero-window case that asks again past it:
-// ./authenticated-read-shared.spec.ts.
+// ./authenticated-read-shared-requests.spec.ts.
 
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import {

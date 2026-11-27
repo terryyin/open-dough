@@ -9,7 +9,10 @@ import { pressAt } from "../navigation/board-reading-page.ts";
 import { intentViewTab } from "./intent-candidates-page.ts";
 import { fullSha } from "./intent-ci-status-fixtures.ts";
 import { fileLayout } from "./intent-file-layout-page.ts";
-import { activateButton } from "../page-objects/activateButton.ts";
+import {
+  activateButton,
+  expandButton,
+} from "../page-objects/activateButton.ts";
 
 export const workOf = (
   source: PublishedSource,
@@ -62,13 +65,11 @@ const rowToggle = (row: Element) =>
   row.querySelector<HTMLButtonElement>(":scope > button[aria-expanded]");
 
 async function disclose(toggle: HTMLButtonElement) {
-  if (toggle.getAttribute("aria-expanded") === "false") {
-    await activateButton(page.elementLocator(toggle));
-    // Opening changes the accessible name used by elementLocator.
-    await expect
-      .element(page.elementLocator(toggle))
-      .toHaveAttribute("aria-expanded", "true");
-  }
+  await expandButton(page.elementLocator(toggle));
+  // Opening changes the accessible name used by elementLocator.
+  await expect
+    .element(page.elementLocator(toggle))
+    .toHaveAttribute("aria-expanded", "true");
 }
 
 export async function revealLocationAncestors(path: string) {

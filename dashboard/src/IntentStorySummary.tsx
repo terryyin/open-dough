@@ -3,16 +3,16 @@
 // lives in IntentPage.
 
 import {
-  compareOf,
   comparisonGapOf,
   defaultReviewOf,
   otherThanDefaultChosen,
   type LensComparison,
 } from "./IntentStoryComparison.tsx";
 import type { IntentDoneRecord } from "./IntentStoryCoverage.tsx";
-import type { AdHocSessionDetails } from "./followUpSessions.ts";
+import type { AdHocSessionDetails } from "./storySessions.ts";
 import { commitShaPattern } from "./authenticatedReadRules.ts";
 import type { CiComparisonRange } from "./selectedCiComparison.ts";
+import { storyChangesGapWords } from "./storyChangesGapWords.ts";
 import type { ShownStoryComparison } from "./storyComparisonShown.ts";
 
 // The selected story as Intent names it.
@@ -39,20 +39,35 @@ export type ComparedStory = {
 export type StorySummary = {
   readonly story: LensStory;
   readonly comparison: LensComparison;
+  // Whether a session is the reviewed scope, even before its read answers.
+  readonly sessionChosen: boolean;
   readonly onRetry: () => void;
   // The ad hoc session chosen as the review scope, if any.
   readonly session?: AdHocSessionDetails | undefined;
 };
 
-export function useStorySummary(
-  story: LensStory | undefined,
-  comparison: LensComparison,
-  onRetry: () => void,
-  session: AdHocSessionDetails | undefined,
-): StorySummary | undefined {
+export function useStorySummary({
+  story,
+  comparison,
+  sessionChosen,
+  retry,
+  sessionDetails,
+}: {
+  readonly story: LensStory | undefined;
+  readonly comparison: LensComparison;
+  readonly sessionChosen: boolean;
+  readonly retry: () => void;
+  readonly sessionDetails: AdHocSessionDetails | undefined;
+}): StorySummary | undefined {
   return story === undefined
     ? undefined
-    : { story, comparison, onRetry, session };
+    : {
+        story,
+        comparison,
+        sessionChosen,
+        onRetry: retry,
+        session: sessionDetails,
+      };
 }
 
 // Whether the CI views need the whole-story note beside the chosen comparison.
@@ -128,10 +143,12 @@ function ciRangeEvidenceOf(
     : {};
 }
 
-// A chosen session measures its chosen recorded range; without one it
-// measures nothing and says why, rather than measuring the whole story.
+// A chosen session measures its chosen recorded range; while that range is
+// read, or without one, it measures nothing and says why, rather than
+// measuring the whole story.
 function sessionEvidenceOf(comparison: LensComparison) {
-  if (comparison.state === "reading") return {};
+  if (comparison.state === "reading")
+    return { selectedRangeGap: storyChangesGapWords.reading };
   if (comparison.state === "compared")
     return comparison.review?.kind === "published-session"
       ? ciRangeEvidenceOf(comparison.review.baseline, comparison.review.tree)
@@ -140,9 +157,7 @@ function sessionEvidenceOf(comparison: LensComparison) {
 }
 
 export function storyCiEvidenceOptionsOf(summary: StorySummary | undefined) {
-  const session =
-    summary !== undefined &&
-    compareOf(summary.comparison)?.session !== undefined;
+  const session = summary?.sessionChosen === true;
   return {
     ...publishedDoneEvidenceOf(summary),
     ...(session

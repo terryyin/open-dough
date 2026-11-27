@@ -58,7 +58,7 @@ const untitledName = `Title unavailable — ${new Date(untitled.closedAt).toLoca
 
 test("on a phone width long ad hoc titles read in full and a tapped one announces its Ad hoc icon and own title and shows its comparison", async () => {
   await useTouchScreen();
-  const reads = await mountDoneStory({
+  const { reads } = await mountDoneStory({
     records: longRecords,
     launches: longFollowUps,
   });
@@ -103,7 +103,7 @@ test("on a phone width long ad hoc titles read in full and a tapped one announce
 });
 
 test("an ad hoc session with no retained launch shows Title unavailable and its close time, and selecting it shows its comparison", async () => {
-  const reads = await mountDoneStory({ records: [untitled] });
+  const { reads } = await mountDoneStory({ records: [untitled] });
   await reviewSessionChanges(publishedEntry()).click();
   const story = intentStoryCompare();
   await expectIntentAt(publishedName, "1 changed file");
