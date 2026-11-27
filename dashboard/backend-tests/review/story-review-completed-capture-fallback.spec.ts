@@ -19,10 +19,7 @@ import { retainedIntentLanding } from "../../test-support/support/retainedIntent
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import { claimedRecord } from "../../test-support/support/storyBranchIntegration.ts";
 import { publishDeclaredTrunk } from "../../test-support/support/storyCiComparisonBaseline.ts";
-import {
-  commitAll,
-  git,
-} from "../../test-support/support/storyReviewWorktree.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
 
 test.use({
   serverMode: "boundary",
@@ -66,7 +63,10 @@ for (const invalid of [
         })
         .please().revisions[0];
       writeRevisionFiles(origin.project, later);
-      commitAll(origin.project, "later trunk after capture");
+      makeMe
+        .theWorkspace(origin.project)
+        .commitAll("later trunk after capture")
+        .please();
       git(origin.project, "push", "--quiet", "origin", "main");
       record.landing = makeMe.aLaunchLanding
         .capturedFrom({
@@ -159,7 +159,10 @@ test("a shallow origin cannot verify an earlier refinement or replace unavailabl
     })
     .please().revisions[0];
   writeRevisionFiles(origin.project, later);
-  commitAll(origin.project, "later trunk after completion");
+  makeMe
+    .theWorkspace(origin.project)
+    .commitAll("later trunk after completion")
+    .please();
   git(origin.project, "push", "--quiet", "origin", "main");
   shallowPublishedHistory(origin);
   const answer = storyReviewSchema.parse(

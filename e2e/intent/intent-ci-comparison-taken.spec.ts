@@ -24,11 +24,8 @@ import {
   githubFor,
   pausePageClockAt,
 } from "../../dashboard/test-support/dashboardTest.ts";
-import {
-  commitAll,
-  git,
-  writeAt,
-} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import path from "node:path";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { storyTitle } from "../../dashboard/test-support/support/intentStoryPage.ts";
@@ -98,8 +95,11 @@ test("a Taken Story Branch story keeps live CI status and shows a provisional co
 
   await test.step("a new branch head reads only the newly shown attempt's jobs", async () => {
     const workspace = path.join(origin.machine, "another-agent-workspace");
-    writeAt(workspace, "src/story.ts", "taken story work\nnext tip\n");
-    commitAll(workspace, "advance the story branch");
+    makeMe
+      .theWorkspace(workspace)
+      .writeAt("src/story.ts", "taken story work\nnext tip\n")
+      .commitAll("advance the story branch")
+      .please();
     git(
       workspace,
       "push",

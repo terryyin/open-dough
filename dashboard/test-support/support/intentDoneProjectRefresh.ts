@@ -5,12 +5,13 @@
 import type { Page } from "@playwright/test";
 import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { storyReviewResultEndpoint } from "../../src/storyReviewResult.ts";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { passTimeUntilChecked } from "../autoRefreshJourney.ts";
 import { untilPageReadsAnswered } from "../pageRequestNotes.ts";
 import type { StartOrigin } from "./startOrigin.ts";
-import { commitAll, git } from "./storyReviewWorktree.ts";
+import { git } from "./storyReviewWorktree.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
 
 export function recordIntentLocations(page: Page) {
@@ -43,7 +44,10 @@ export async function advanceDoneProject(
   revision: RevisionFacts,
 ): Promise<string> {
   writeRevisionFiles(origin.project, revision);
-  commitAll(origin.project, "planning only after the story");
+  makeMe
+    .theWorkspace(origin.project)
+    .commitAll("planning only after the story")
+    .please();
   push(origin.project);
   const laterRevision = git(origin.origin, "rev-parse", "main");
   await passTimeUntilChecked(page);

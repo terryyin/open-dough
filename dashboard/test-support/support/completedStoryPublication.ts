@@ -6,8 +6,9 @@ import {
   doneRecordFileName,
   type IntentCoverage,
 } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
-import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
+import { git, lines } from "./storyReviewWorktree.ts";
 import { pull, push } from "./storyReviewTrunkCommits.ts";
 
 export function installedBacklogScript(
@@ -51,7 +52,7 @@ export function completeBacklogStory(
 // its commit.
 export function commitBacklogCompletion(workspace: string, message: string) {
   completeBacklogStory(workspace, { skillsDirectory: ".agents/skills" });
-  return commitAll(workspace, message);
+  return makeMe.theWorkspace(workspace).commitAll(message).please();
 }
 
 export function resolveStoryConflict(
@@ -70,8 +71,11 @@ export function resolveStoryConflict(
     )
       throw error;
   }
-  writeAt(workspace, file, content);
-  commitAll(workspace, message);
+  makeMe
+    .theWorkspace(workspace)
+    .writeAt(file, content)
+    .commitAll(message)
+    .please();
 }
 
 export function publishCompletedStory(
@@ -132,9 +136,15 @@ export function publishCompletedStoryLanding(
     delete facts["agent"];
     delete facts["host"];
     delete facts["model"];
-    writeAt(workspace, record, JSON.stringify(facts));
+    makeMe
+      .theWorkspace(workspace)
+      .writeAt(record, JSON.stringify(facts))
+      .please();
   }
-  const branchSide = commitAll(workspace, "complete the story through CLI");
+  const branchSide = makeMe
+    .theWorkspace(workspace)
+    .commitAll("complete the story through CLI")
+    .please();
   let completion = branchSide;
   if (mode === "trunk") push(workspace);
   else {
@@ -144,22 +154,22 @@ export function publishCompletedStoryLanding(
     const agentEmail = git(workspace, "config", "--worktree", "author.email");
     git(workspace, "push", "--quiet", "origin", `HEAD:refs/heads/${branch}`);
     pull(origin.project);
-    writeAt(
-      origin.project,
-      "integration-other.txt",
-      "another change before integration\n",
-    );
-    commitAll(origin.project, "trunk advances before story integration");
-    if (completionConflict) {
-      writeAt(
-        origin.project,
-        "shared.txt",
-        lines("line")
-          .replace("line 0\n", "completion trunk\n")
-          .replace("line 11\n", "other last\n"),
-      );
-      commitAll(origin.project, "trunk edits the story line before completion");
-    }
+    makeMe
+      .theWorkspace(origin.project)
+      .writeAt("integration-other.txt", "another change before integration\n")
+      .commitAll("trunk advances before story integration")
+      .please();
+    if (completionConflict)
+      makeMe
+        .theWorkspace(origin.project)
+        .writeAt(
+          "shared.txt",
+          lines("line")
+            .replace("line 0\n", "completion trunk\n")
+            .replace("line 11\n", "other last\n"),
+        )
+        .commitAll("trunk edits the story line before completion")
+        .please();
     git(origin.project, "fetch", "--quiet", "origin", branch);
     git(origin.project, "config", "user.name", agentName);
     git(origin.project, "config", "user.email", agentEmail);

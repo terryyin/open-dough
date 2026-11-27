@@ -4,7 +4,8 @@ import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { existsSync, statSync } from "node:fs";
 import path from "node:path";
-import { commitAll, git, writeAt } from "./storyReviewWorktree.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { git } from "./storyReviewWorktree.ts";
 
 type TrunkCommitChange = {
   readonly message: string;
@@ -82,9 +83,11 @@ export function commitTrunkChanges(
   const [first, ...later] = changes;
   if (first === undefined) return [];
   const base = git(project, "rev-parse", "HEAD");
-  writeAt(project, first.file, first.content);
-  commitAll(project, first.message);
-  const firstRevision = git(project, "rev-parse", "HEAD");
+  const firstRevision = makeMe
+    .theWorkspace(project)
+    .writeAt(first.file, first.content)
+    .commitAll(first.message)
+    .please();
   const revisions = [
     firstRevision,
     ...(later.length === 0

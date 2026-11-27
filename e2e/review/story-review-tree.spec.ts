@@ -26,8 +26,8 @@ import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.
 import {
   nestedRepository,
   storyWorktree,
-  writeAt,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { keepPublishedStoryReview } from "../../dashboard/test-support/support/storyLaunchRecord.ts";
 
 test.use({ originRepository: nestedRepository });
@@ -38,7 +38,10 @@ test("a story's changed files show by name under their folders", async ({
   origin,
 }) => {
   const { workspace } = storyWorktree(origin);
-  writeAt(workspace, "dashboard/src/a.tsx", "added\nconst example = 1;\n");
+  makeMe
+    .theWorkspace(workspace)
+    .writeAt("dashboard/src/a.tsx", "added\nconst example = 1;\n")
+    .please();
   keepPublishedStoryReview(dashboard, origin, workspace);
   const card = await openBacklog(page, origin);
   const { files, diffs } = await openIntentReviewChanges(page, card);

@@ -16,8 +16,8 @@ import {
   branch,
   git,
   storyWorktree,
-  writeAt,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { takenBranchContributionHistory } from "../../dashboard/test-support/support/takenBranchContributionHistory.ts";
 
 test.use({ originRepository: takenBranchContributionHistory() });
@@ -109,7 +109,10 @@ function publishBranchForReader(origin: StartOrigin) {
 }
 
 function publishBranchChange(writer: string) {
-  writeAt(writer, "guides/refresh.txt", "new branch change\n");
+  makeMe
+    .theWorkspace(writer)
+    .writeAt("guides/refresh.txt", "new branch change\n")
+    .please();
   git(writer, "add", "guides/refresh.txt");
   git(
     writer,

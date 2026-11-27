@@ -11,12 +11,10 @@ import { stubRemoteRequestRecording } from "../support/fixtureHome.ts";
 import { performProjectBrowseRead } from "../../server/projectBrowseRead.ts";
 import { parseRequestedRead } from "../../server/requestedRead.ts";
 import { knownSource } from "../../server/sessionAdmission.ts";
-import {
-  git,
-  writeAt,
-} from "../../test-support/support/storyReviewWorktree.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
 import { takenBranchContributionHistory } from "../../test-support/support/takenBranchContributionHistory.ts";
 import { prepareRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 const spaced = "docs/read me.md";
 const removed = "notes/removed.txt";
@@ -33,8 +31,11 @@ async function publishedProject() {
   const source = knownSource(subject.source);
   git(writer, "fetch", "--quiet", "origin", source.ref);
   git(writer, "checkout", "--quiet", "-B", "browse", "FETCH_HEAD");
-  writeAt(writer, removed, "removed later\n");
-  writeAt(writer, binary, "\0binary");
+  makeMe
+    .theWorkspace(writer)
+    .writeAt(removed, "removed later\n")
+    .writeAt(binary, "\0binary")
+    .please();
   git(writer, "add", "--", removed, binary);
   const first = commitStoryFile(writer, spaced, "first text\n");
   git(writer, "rm", "--quiet", "--", removed);

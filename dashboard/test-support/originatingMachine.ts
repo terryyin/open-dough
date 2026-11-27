@@ -12,7 +12,7 @@ import {
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { StartOrigin } from "./support/startOrigin.ts";
 import { dashboardDeveloper } from "./support/startOriginPreparation.ts";
-import { commitAll, git, writeAt } from "./support/storyReviewWorktree.ts";
+import { git } from "./support/storyReviewWorktree.ts";
 
 const workspaceOf = (origin: StartOrigin) =>
   path.join(origin.machine, "originating-machine");
@@ -47,8 +47,11 @@ export function addedOnBranch(
   const workspace = originatingClone(origin);
   const trunk = git(workspace, "rev-parse", "origin/main");
   git(workspace, "switch", "--quiet", "-c", branch, trunk);
-  writeAt(workspace, file, "published by another machine\n");
-  commitAll(workspace, "Edit on the originating machine");
+  makeMe
+    .theWorkspace(workspace)
+    .writeAt(file, "published by another machine\n")
+    .commitAll("Edit on the originating machine")
+    .please();
   return { workspace, trunk };
 }
 
@@ -60,7 +63,7 @@ export function trunkAdvancedWith(
   text = "trunk moved on\n",
 ) {
   return advanceOriginTrunk(origin, (workspace) => {
-    writeAt(workspace, file, text);
+    makeMe.theWorkspace(workspace).writeAt(file, text).please();
   });
 }
 
@@ -71,7 +74,10 @@ export function advanceOriginTrunk(
   const workspace = originatingClone(origin);
   git(workspace, "switch", "--quiet", "--detach", "origin/main");
   write(workspace);
-  commitAll(workspace, "Advance trunk after the session");
+  makeMe
+    .theWorkspace(workspace)
+    .commitAll("Advance trunk after the session")
+    .please();
   git(workspace, "push", "--quiet", "origin", "HEAD:refs/heads/main");
   return git(origin.origin, "rev-parse", "main");
 }

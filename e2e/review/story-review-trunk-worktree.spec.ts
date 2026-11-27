@@ -6,10 +6,7 @@ import {
 import { test } from "../../dashboard/test-support/support/preparationPage.ts";
 import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { push } from "../../dashboard/test-support/support/storyReviewTrunkCommits.ts";
-import {
-  commitAll,
-  writeAt,
-} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test("a Trunk story taken in a terminal shows an empty published review until its first change is pushed", async ({
   page,
@@ -20,8 +17,11 @@ test("a Trunk story taken in a terminal shows an empty published review until it
 
   await test.step("Given a terminal start has only unpublished work", async () => {
     ({ workspace } = await origin.takenInTrunkMode("trunk-a"));
-    writeAt(workspace, "slice.txt", "first slice\n");
-    commitAll(workspace, "First slice");
+    makeMe
+      .theWorkspace(workspace)
+      .writeAt("slice.txt", "first slice\n")
+      .commitAll("First slice")
+      .please();
   });
   await test.step("When I open the Taken story's Review changes", async () => {
     await openBacklog(page, origin);

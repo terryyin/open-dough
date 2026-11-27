@@ -27,10 +27,8 @@ import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtur
 import { selectDoneStoryInIntent } from "../../dashboard/test-support/support/selectDoneStoryInIntent.ts";
 import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
 import { trunkCommitFromAnotherWriter } from "../../dashboard/test-support/support/storyBranchIntegration.ts";
-import {
-  git,
-  writeAt,
-} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 async function clonePublishedWork(
   dashboard: DashboardServer,
@@ -105,9 +103,15 @@ test("a fresh clone reads the retired admission's story and its exact published 
     await test.step("And the borrowed session publishes its product change", () =>
       landNativeWork(admitted, file));
   await test.step("And the borrowed checkout has staged and unstaged developer edits", () => {
-    writeAt(origin.project, borrowedNotes, "staged developer notes\n");
+    makeMe
+      .theWorkspace(origin.project)
+      .writeAt(borrowedNotes, "staged developer notes\n")
+      .please();
     git(origin.project, "add", borrowedNotes);
-    writeAt(origin.project, borrowedNotes, "unstaged developer notes\n");
+    makeMe
+      .theWorkspace(origin.project)
+      .writeAt(borrowedNotes, "unstaged developer notes\n")
+      .please();
   });
   const borrowed =
     await test.step("And we have the borrowed checkout's HEAD, index and edits", () =>

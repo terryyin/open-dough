@@ -19,8 +19,8 @@ import {
 import {
   git,
   storyWorktree,
-  writeAt,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { phoneLaunchTouchViewport } from "../../dashboard/test-support/touchLaunchPage.ts";
 
 test.use({
@@ -71,7 +71,10 @@ test("a Taken Trunk review opens attributed published files at touch width and k
     });
   });
   await test.step("When the agent publishes another story file", () => {
-    writeAt(origin.project, "more.md", "another published change\n");
+    makeMe
+      .theWorkspace(origin.project)
+      .writeAt("more.md", "another published change\n")
+      .please();
     commitAllAs(origin.project, "Continue Story A", yui);
     push(origin.project);
   });

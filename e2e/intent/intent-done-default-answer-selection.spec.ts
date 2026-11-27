@@ -46,7 +46,6 @@ import { selectDoneStoryInIntent } from "../../dashboard/test-support/support/se
 import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import { claimedLaunchWithStoryCommit } from "../../dashboard/test-support/support/storyBranchIntegration.ts";
 import {
-  commitAll,
   git,
   lines,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
@@ -104,7 +103,10 @@ test("selecting another Done story opens its published default after reading the
     })
     .please().revisions[0];
   writeRevisionFiles(second.workspace, secondFacts);
-  commitAll(second.workspace, "second story changes its own location");
+  makeMe
+    .theWorkspace(second.workspace)
+    .commitAll("second story changes its own location")
+    .please();
   git(second.workspace, "push", "--quiet", "origin", "HEAD:main");
   const secondCompletion = publishCompletedStory(origin, {
     ...second,
@@ -122,7 +124,10 @@ test("selecting another Done story opens its published default after reading the
     })
     .please().revisions[0];
   writeRevisionFiles(origin.project, later);
-  const current = commitAll(origin.project, "later trunk after both stories");
+  const current = makeMe
+    .theWorkspace(origin.project)
+    .commitAll("later trunk after both stories")
+    .please();
   git(origin.project, "push", "--quiet", "origin", "main");
   const legacy = makeMe.aLaunchRecord
     .executing({ identity: storyB.identity, title: storyB.title })

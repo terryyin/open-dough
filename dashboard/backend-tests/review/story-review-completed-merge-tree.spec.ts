@@ -13,7 +13,7 @@ import {
 } from "../../test-support/support/completedReviewRequests.ts";
 import { plainMergeEditCompletedHistory } from "../../test-support/support/completedOwnMergeHistory.ts";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
-import { writeAt } from "../../test-support/support/storyReviewWorktree.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test.use({
   serverMode: "boundary",
@@ -23,19 +23,21 @@ test.use({
   pathPrefix: async ({}, use) => {
     const realGit = execFileSync("which", ["git"], { encoding: "utf8" }).trim();
     const bin = mkdtempSync(path.join(tmpdir(), "dough-old-git-"));
-    writeAt(
-      bin,
-      "git",
-      [
-        "#!/bin/sh",
-        'if [ "$1" = merge-tree ]; then',
-        '  echo "error: unknown option \\`write-tree\'" >&2',
-        "  exit 129",
-        "fi",
-        `exec '${realGit}' "$@"`,
-        "",
-      ].join("\n"),
-    );
+    makeMe
+      .theWorkspace(bin)
+      .writeAt(
+        "git",
+        [
+          "#!/bin/sh",
+          'if [ "$1" = merge-tree ]; then',
+          '  echo "error: unknown option \\`write-tree\'" >&2',
+          "  exit 129",
+          "fi",
+          `exec '${realGit}' "$@"`,
+          "",
+        ].join("\n"),
+      )
+      .please();
     chmodSync(path.join(bin, "git"), 0o755);
     await use([bin]);
     rmSync(bin, { recursive: true, force: true });

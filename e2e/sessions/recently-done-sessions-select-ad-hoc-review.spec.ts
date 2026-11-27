@@ -18,10 +18,8 @@ import {
 } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
-import {
-  git,
-  writeAt,
-} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.use({ preparationHost: "codex", projectFolders: ["open-dough"] });
 
@@ -42,11 +40,13 @@ test("selecting a completed ad hoc session shows historical Review and Intent co
         "Outcome: Caught\nPromise: Range-resume assessment survives cleanup.\nFault: Drop saved coverage after retirement.\nEvidence: The Range-resume baseline matched after restoration.\n",
     },
     implementation: (workspace) => {
-      writeAt(
-        workspace,
-        vendorPath,
-        '"""Sharadar vendor fixture edited by the ad hoc completion."""\nVALUE = 13\n',
-      );
+      makeMe
+        .theWorkspace(workspace)
+        .writeAt(
+          vendorPath,
+          '"""Sharadar vendor fixture edited by the ad hoc completion."""\nVALUE = 13\n',
+        )
+        .please();
     },
   });
   const published = git(origin.origin, "rev-parse", "main");

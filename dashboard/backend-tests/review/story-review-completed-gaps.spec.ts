@@ -16,10 +16,8 @@ import {
   storyReviewFileEndpoint,
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
-import {
-  git,
-  writeAt,
-} from "../../test-support/support/storyReviewWorktree.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
   agentWorktree,
   claimWorktree,
@@ -65,8 +63,14 @@ test.describe("ordinary trunk", () => {
       "ambiguous-b",
       git(first, "rev-parse", "HEAD"),
     );
-    writeAt(first, "local-a.txt", "first workspace only\n");
-    writeAt(second, "local-b.txt", "second workspace only\n");
+    makeMe
+      .theWorkspace(first)
+      .writeAt("local-a.txt", "first workspace only\n")
+      .please();
+    makeMe
+      .theWorkspace(second)
+      .writeAt("local-b.txt", "second workspace only\n")
+      .please();
     const active = await get(request, dashboard, storyReviewEndpoint, named);
     expect(active.status()).toBe(200);
     expect(await active.json()).toEqual(noPublishedComparison);

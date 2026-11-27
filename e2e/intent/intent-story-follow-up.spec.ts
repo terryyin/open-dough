@@ -30,11 +30,10 @@ import { followUpFromLine } from "../../dashboard/test-support/support/diffLineF
 import { publishedReviewOf } from "../../dashboard/test-support/support/followUpCompletedFile.ts";
 import { queuedIdentity } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
-  commitAll,
   git,
   lines,
-  writeAt,
 } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { push } from "../../dashboard/test-support/support/storyReviewTrunkCommits.ts";
 import {
   terminalPanel,
@@ -58,8 +57,11 @@ test("Intent Changes old line 85 Follow up starts blank and opens the terminal w
   dashboard.claudeScenario("launched");
   const { intent } = await selectCompletedStoryInIntent(page, origin, {
     beforeStory: (project) => {
-      writeAt(project, "dashboard/tests/a.spec.ts", trunkSpec);
-      commitAll(project, "assertion at old line 85");
+      makeMe
+        .theWorkspace(project)
+        .writeAt("dashboard/tests/a.spec.ts", trunkSpec)
+        .commitAll("assertion at old line 85")
+        .please();
       push(project);
     },
     implementation: {

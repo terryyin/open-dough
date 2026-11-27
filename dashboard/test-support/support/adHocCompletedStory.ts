@@ -15,7 +15,7 @@ import { publishCompletedStory } from "./completedStoryPublication.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { keepLaunchRecords } from "./launchStore.ts";
 import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
-import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
+import { git, lines } from "./storyReviewWorktree.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
 
 type AdHocCompletedStory = {
@@ -43,8 +43,11 @@ export async function retainAdHocCompletedStory(
   },
 ): Promise<AdHocCompletedStory> {
   const reference = randomUUID();
-  writeAt(origin.project, "shared.txt", lines("line"));
-  commitAll(origin.project, "initial shared file");
+  makeMe
+    .theWorkspace(origin.project)
+    .writeAt("shared.txt", lines("line"))
+    .commitAll("initial shared file")
+    .please();
   push(origin.project);
   const start = await origin.publishTake({
     agent: "Yui",
@@ -55,14 +58,13 @@ export async function retainAdHocCompletedStory(
   });
   const { workspace, branch } = start;
   const claim = git(workspace, "rev-parse", "HEAD");
-  writeAt(
-    workspace,
-    "shared.txt",
-    lines("line").replace("line 0\n", "story first\n"),
-  );
-  writeAt(workspace, "ad-hoc-result.txt", "completed from ad hoc session\n");
+  makeMe
+    .theWorkspace(workspace)
+    .writeAt("shared.txt", lines("line").replace("line 0\n", "story first\n"))
+    .writeAt("ad-hoc-result.txt", "completed from ad hoc session\n")
+    .please();
   implementation?.(workspace);
-  commitAll(workspace, "story implementation");
+  makeMe.theWorkspace(workspace).commitAll("story implementation").please();
   git(workspace, "fetch", "--quiet", "origin", "main");
   git(workspace, "merge", "--quiet", "--no-edit", "origin/main");
   const completion = publishCompletedStory(origin, {

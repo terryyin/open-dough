@@ -28,11 +28,7 @@ import {
   publishTakenComparedStoryBranch,
   publishTakenComparedTrunk,
 } from "../../dashboard/test-support/support/storyCiComparisonTakenFixture.ts";
-import {
-  commitAll,
-  git,
-  writeAt,
-} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 for (const mode of ["story-branch", "trunk"] as const) {
   test(`a Taken adapter ${mode} story compares the completed ancestor of its running tip`, async ({
@@ -51,8 +47,11 @@ for (const mode of ["story-branch", "trunk"] as const) {
       mode === "trunk"
         ? origin.project
         : path.join(origin.machine, "another-agent-workspace");
-    writeAt(workspace, "src/pending.ts", "published while CI is running\n");
-    commitAll(workspace, "advance the live tip");
+    makeMe
+      .theWorkspace(workspace)
+      .writeAt("src/pending.ts", "published while CI is running\n")
+      .commitAll("advance the live tip")
+      .please();
     git(workspace, "push", "--quiet", "origin", `HEAD:refs/heads/${branch}`);
     const tip = git(workspace, "rev-parse", "HEAD");
 

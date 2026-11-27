@@ -4,7 +4,6 @@
 // finds them for a story's review.
 
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect } from "@playwright/test";
 import { configureAgentAuthorship } from "../../../Distribution/src/skills/dough-execute-plan/scripts/workspace-agent-authorship.mjs";
@@ -14,7 +13,7 @@ import {
   renderAgentProfile,
 } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import type { StartOrigin } from "./startOrigin.ts";
-import { commitAll, git, writeAt } from "./storyReviewWorktree.ts";
+import { git } from "./storyReviewWorktree.ts";
 
 // The agent's known name and identity, as its profile and author config
 // spell them.
@@ -61,21 +60,23 @@ export async function claimWorktree(
 ) {
   const workspace = await agentWorktree(origin, agent, slug, at);
   const { name, path: profile } = identityOf(agent);
-  writeAt(
-    workspace,
-    path.join(".planning", profile),
-    renderAgentProfile(
-      makeMe.anAgentProfile
-        .executing({
-          name,
-          identity,
-          mode: "trunk",
-          branch: "origin/main",
-        })
-        .please(),
-    ),
-  );
-  writeFileSync(path.join(workspace, `${slug}.txt`), `${slug}\n`);
-  commitAll(workspace, `claim ${identity}`);
+  makeMe
+    .theWorkspace(workspace)
+    .writeAt(
+      path.join(".planning", profile),
+      renderAgentProfile(
+        makeMe.anAgentProfile
+          .executing({
+            name,
+            identity,
+            mode: "trunk",
+            branch: "origin/main",
+          })
+          .please(),
+      ),
+    )
+    .writeAt(`${slug}.txt`, `${slug}\n`)
+    .commitAll(`claim ${identity}`)
+    .please();
   return workspace;
 }

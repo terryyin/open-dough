@@ -9,6 +9,7 @@ import {
   storyA,
   storyB,
 } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { parts } from "../dashboardPage.ts";
 import { browseStoryFiles, expectStoryTab } from "../intentModePage.ts";
 import { expectSelected } from "../storyCardSelection.ts";
@@ -19,7 +20,7 @@ import {
 import { expectStoryComparisonRead } from "./intentStoryPage.ts";
 import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
-import { commitAll, git } from "./storyReviewWorktree.ts";
+import { git } from "./storyReviewWorktree.ts";
 
 export async function selectTakenStoryInIntent(
   page: Page,
@@ -38,7 +39,10 @@ export async function selectTakenStoryInIntent(
   });
   change(workspace);
   if (git(workspace, "status", "--porcelain") !== "")
-    commitAll(workspace, "add the remaining story files");
+    makeMe
+      .theWorkspace(workspace)
+      .commitAll("add the remaining story files")
+      .please();
   git(workspace, "push", "--quiet", "origin", `HEAD:refs/heads/${branch}`);
   await openBacklog(page, origin, follows);
   const { taken, intentChoice, intent } = parts(page);

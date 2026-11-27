@@ -9,6 +9,7 @@ import type { Page } from "@playwright/test";
 import type { IntentCoverage } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
 import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { intentTrunkCompletionOntoTip } from "./intentCompletedHistory.ts";
 import { publishIntentTrunk } from "./intentStoryWorktree.ts";
@@ -16,7 +17,6 @@ import { selectDoneStoryInIntent } from "./selectDoneStoryInIntent.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { publishDeclaredTrunk } from "./storyCiComparisonBaseline.ts";
 import { shallowPublishedHistory } from "./reviewRepositoryFixture.ts";
-import { commitAll } from "./storyReviewWorktree.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
 
 // The completed story's test changes as Review changes names each file's
@@ -75,10 +75,10 @@ export async function selectCompletedStoryInIntent(
   if (history === "shallow") shallowPublishedHistory(origin);
   if (later !== undefined) {
     writeRevisionFiles(origin.project, later);
-    published = commitAll(
-      origin.project,
-      "change current tests and settings after landing",
-    );
+    published = makeMe
+      .theWorkspace(origin.project)
+      .commitAll("change current tests and settings after landing")
+      .please();
     push(origin.project);
   }
   await publishCommittedOrigin(page, {

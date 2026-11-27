@@ -32,11 +32,8 @@ import {
 import { openBacklog } from "./sessionDialog.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { reviewRegion, showFilesByTouch } from "./reviewControls.ts";
-import {
-  commitAll,
-  largeRepository,
-  storyWorktree,
-} from "./storyReviewWorktree.ts";
+import { largeRepository, storyWorktree } from "./storyReviewWorktree.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { withLocalState } from "../../../Distribution/tests/support/repository-local-state.mjs";
 
 // The comparison holds what the touch assertions distinguish, as the phone
@@ -66,7 +63,7 @@ export const touchReviewRepository = withLocalState(
 export async function openReviewByTouch(page: Page, origin: StartOrigin) {
   const { workspace, base } = storyWorktree(origin);
   const changedFiles = filesInFolder + 3;
-  commitAll(workspace, "Complete the session");
+  makeMe.theWorkspace(workspace).commitAll("Complete the session").please();
   const session = publishWorktreeReviewSession(origin, workspace, base);
   await openBacklog(page, origin);
   await expectSettledPage(page);

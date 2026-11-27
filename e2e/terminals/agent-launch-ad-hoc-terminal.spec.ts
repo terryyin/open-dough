@@ -45,10 +45,6 @@ import {
 import { sessionsSidebarParts } from "../../dashboard/test-support/sessionsSidebarPage.ts";
 import { openWhileStarting } from "../../dashboard/test-support/support/adHocTerminalStartup.ts";
 import { push } from "../../dashboard/test-support/support/storyReviewTrunkCommits.ts";
-import {
-  commitAll,
-  writeAt,
-} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -64,15 +60,15 @@ function publishScrollableBacklog(project: string) {
   });
   const { backlog, files } = queuedReadyPlanning(additional);
   const queued = [storyA, storyB, ...additional];
-  for (const [file, content] of Object.entries(files)) {
-    writeAt(project, file, content);
-  }
-  writeAt(
-    project,
-    ".planning/PRODUCT-BACKLOG.md",
-    renderPublishedBacklog({ ...backlog, queued }),
-  );
-  commitAll(project, "Publish a scrollable fixture backlog");
+  makeMe
+    .theWorkspace(project)
+    .writeAll(files)
+    .writeAt(
+      ".planning/PRODUCT-BACKLOG.md",
+      renderPublishedBacklog({ ...backlog, queued }),
+    )
+    .commitAll("Publish a scrollable fixture backlog")
+    .please();
   push(project);
   return queued.map(({ title }) => title);
 }

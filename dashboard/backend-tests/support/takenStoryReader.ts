@@ -1,17 +1,14 @@
 // A backend case's configured project whose Taken story origin publishes,
 // with the writer that publishes story commits to it.
 import path from "node:path";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { configuredFixtureProject } from "./fixtureProject.ts";
 import { reviewRepositoryPath } from "../../server/reviewRepository.ts";
 import { knownSource } from "../../server/sessionAdmission.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import type { StartRepository } from "../../test-support/support/startOriginPreparation.ts";
 import { yui } from "../../test-support/support/storyReviewTrunkCommits.ts";
-import {
-  branch,
-  git,
-  writeAt,
-} from "../../test-support/support/storyReviewWorktree.ts";
+import { branch, git } from "../../test-support/support/storyReviewWorktree.ts";
 import { takenBranchContributionHistory } from "../../test-support/support/takenBranchContributionHistory.ts";
 
 // The configured project's execution checkout is absent: every Taken read
@@ -47,7 +44,7 @@ export function commitStoryFile(
   ...alongside: readonly string[]
 ) {
   for (const written of [file, ...alongside]) {
-    writeAt(writer, written, text);
+    makeMe.theWorkspace(writer).writeAt(written, text).please();
     git(writer, "--literal-pathspecs", "add", "--", written);
   }
   git(

@@ -22,7 +22,7 @@ import {
 } from "./completedStoryThroughInterleaving.ts";
 import { landStoryBranchOntoTip } from "./completedOwnMergeHistory.ts";
 import type { StartOrigin } from "./startOrigin.ts";
-import { commitAll, lines, writeAt } from "./storyReviewWorktree.ts";
+import { lines } from "./storyReviewWorktree.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
 import {
   laterWithoutBuildBeforeClaim,
@@ -172,13 +172,15 @@ export async function publishSummaryComparisonStory(
     origin,
     summaryComparisonCompletionOntoTip(variant),
   );
-  writeAt(
-    origin.project,
-    "dashboard/tests/later.spec.ts",
-    "later trunk file\n",
-  );
+  makeMe
+    .theWorkspace(origin.project)
+    .writeAt("dashboard/tests/later.spec.ts", "later trunk file\n")
+    .please();
   if (later !== undefined) writeRevisionFiles(origin.project, later);
-  commitAll(origin.project, "later trunk file after the story");
+  makeMe
+    .theWorkspace(origin.project)
+    .commitAll("later trunk file after the story")
+    .please();
   push(origin.project);
   await publishDeclaredTrunk(
     origin,

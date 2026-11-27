@@ -39,10 +39,6 @@ import {
   queuedIdentity,
   type StartOrigin,
 } from "../../dashboard/test-support/support/startOrigin.ts";
-import {
-  commitAll,
-  writeAt,
-} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { push } from "../../dashboard/test-support/support/storyReviewTrunkCommits.ts";
 import {
   openTerminalControl,
@@ -101,18 +97,16 @@ async function openTakenStory(
       .inClaudeSession(listed(session))
       .please(),
   ]);
-  writeAt(workspace, "story.txt", "story\n");
-  writeAt(
-    workspace,
-    "z-tests/nested/first.spec.ts",
-    "first configured location\n",
-  );
-  writeAt(
-    workspace,
-    "a-tests/second-folder/second.spec.ts",
-    "first by repository order\n",
-  );
-  commitAll(workspace, "Publish the story files");
+  makeMe
+    .theWorkspace(workspace)
+    .writeAt("story.txt", "story\n")
+    .writeAt("z-tests/nested/first.spec.ts", "first configured location\n")
+    .writeAt(
+      "a-tests/second-folder/second.spec.ts",
+      "first by repository order\n",
+    )
+    .commitAll("Publish the story files")
+    .please();
   push(workspace);
   await page.setViewportSize({ width: 1920, height: 900 });
   await openBacklog(page, origin);

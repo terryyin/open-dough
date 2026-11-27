@@ -55,8 +55,6 @@ Legacy selection in `dashboard/backend-tests/review/`
 
 - `story-review-completed-conflicts.spec.ts`
 - `story-review-completed-merge-tree.spec.ts`
-- `story-review-landed-result-tree.spec.ts`
-- `story-review-result-tree.spec.ts`
 
 ### 4. Admit the selected Review file and its text
 

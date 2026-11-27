@@ -13,7 +13,7 @@ import path from "node:path";
 import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
 import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { commitAll, git, lines, writeAt } from "./storyReviewWorktree.ts";
+import { git, lines } from "./storyReviewWorktree.ts";
 import { intentSettingsText } from "./intentSettingsFile.ts";
 
 // The story's changes as Review changes names each file's control.
@@ -59,7 +59,7 @@ export const intentTrunkRevision = {
 // Publishes that revision onto trunk from the execution checkout.
 export function publishIntentTrunk(project: string) {
   writeRevisionFiles(project, intentTrunkRevision);
-  commitAll(project, intentTrunkRevision.message);
+  makeMe.theWorkspace(project).commitAll(intentTrunkRevision.message).please();
   git(project, "push", "--quiet", "origin", "main");
 }
 
@@ -70,9 +70,16 @@ export function changeIntentTests(workspace: string) {
   const move = (from: string, to: string, word?: string) => {
     mkdirSync(path.dirname(path.join(workspace, to)), { recursive: true });
     git(workspace, "mv", from, to);
-    if (word !== undefined) writeAt(workspace, to, `${lines(word)}renamed\n`);
+    if (word !== undefined)
+      makeMe
+        .theWorkspace(workspace)
+        .writeAt(to, `${lines(word)}renamed\n`)
+        .please();
   };
-  writeAt(workspace, "dashboard/tests/a.spec.ts", `${lines("a")}more\n`);
+  makeMe
+    .theWorkspace(workspace)
+    .writeAt("dashboard/tests/a.spec.ts", `${lines("a")}more\n`)
+    .please();
   rmSync(path.join(workspace, "dashboard/tests/gone.spec.ts"));
   move("dashboard/tests/between/moved.spec.ts", "tests/moved.sh", "between");
   move(
@@ -86,9 +93,12 @@ export function changeIntentTests(workspace: string) {
     "leaving",
   );
   move("docs/notes.md", "docs/renamed-notes.md");
-  writeAt(workspace, "dashboard/src/App.tsx", `${lines("app")}more\n`);
-  commitAll(workspace, "change the tests");
-  writeAt(workspace, "dashboard/tests/boundary/b.spec.ts", "added\n");
+  makeMe
+    .theWorkspace(workspace)
+    .writeAt("dashboard/src/App.tsx", `${lines("app")}more\n`)
+    .commitAll("change the tests")
+    .writeAt("dashboard/tests/boundary/b.spec.ts", "added\n")
+    .please();
 }
 
 // A long spec the story adds two folders deep (`boundary/deep`), as Review
@@ -98,15 +108,17 @@ export const deepSpec = "Added dashboard/tests/boundary/deep/long.spec.ts";
 // The story's changes, and that long added spec.
 export function changeWithDeepSpec(workspace: string) {
   changeIntentTests(workspace);
-  writeAt(
-    workspace,
-    "dashboard/tests/boundary/deep/long.spec.ts",
-    lines("long", 120),
-  );
+  makeMe
+    .theWorkspace(workspace)
+    .writeAt("dashboard/tests/boundary/deep/long.spec.ts", lines("long", 120))
+    .please();
 }
 
 // A story's worktree changing only a product file, outside every location.
 export function changeProductOnly(workspace: string) {
-  writeAt(workspace, "dashboard/src/App.tsx", `${lines("app")}more\n`);
-  commitAll(workspace, "change the product");
+  makeMe
+    .theWorkspace(workspace)
+    .writeAt("dashboard/src/App.tsx", `${lines("app")}more\n`)
+    .commitAll("change the product")
+    .please();
 }

@@ -7,7 +7,6 @@ import {
   selectCompletedStoryInIntent,
 } from "../../dashboard/test-support/support/intentCompletedStory.ts";
 import { intentStory } from "../../dashboard/test-support/support/intentStoryPage.ts";
-import { commitAll } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { push } from "../../dashboard/test-support/support/storyReviewTrunkCommits.ts";
 import {
   expect,
@@ -27,7 +26,10 @@ function publishWithoutLocations(project: string) {
       })
       .please().revisions[0],
   );
-  commitAll(project, "publish without Intent locations");
+  makeMe
+    .theWorkspace(project)
+    .commitAll("publish without Intent locations")
+    .please();
   push(project);
 }
 

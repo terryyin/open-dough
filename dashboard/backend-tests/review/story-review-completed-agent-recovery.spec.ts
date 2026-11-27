@@ -13,11 +13,7 @@ import {
   returnedThenTakeoverCompletedHistory,
 } from "../../test-support/support/completedStoryHistory.ts";
 import { agentWorktree } from "../../test-support/support/agentAuthoredWorktree.ts";
-import {
-  commitAll,
-  git,
-  writeAt,
-} from "../../test-support/support/storyReviewWorktree.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
 import {
   commitAllAs,
   push,
@@ -84,21 +80,23 @@ test.describe("returned", () => {
       "later-claim",
       completion,
     );
-    writeAt(
-      future,
-      ".planning/agents/airi-chan.json",
-      renderAgentProfile(
-        makeMe.anAgentProfile
-          .executing({
-            name: "Airi",
-            identity: queuedIdentity,
-            mode: "trunk",
-            branch: "exec/later-claim",
-          })
-          .please(),
-      ),
-    );
-    commitAll(future, "later claim must not change the historical review");
+    makeMe
+      .theWorkspace(future)
+      .writeAt(
+        ".planning/agents/airi-chan.json",
+        renderAgentProfile(
+          makeMe.anAgentProfile
+            .executing({
+              name: "Airi",
+              identity: queuedIdentity,
+              mode: "trunk",
+              branch: "exec/later-claim",
+            })
+            .please(),
+        ),
+      )
+      .commitAll("later claim must not change the historical review")
+      .please();
     push(future);
     git(origin.project, "worktree", "remove", future);
     expect(await read()).toEqual(review);
@@ -172,18 +170,20 @@ for (const preparation of [false, true]) {
   }) => {
     if (preparation) {
       const agent = agentIdentity("Airi");
-      writeAt(
-        origin.project,
-        `.planning/${agent.path}`,
-        renderAgentProfile(
-          makeMe.anAgentProfile
-            .preparing({
-              name: "Airi",
-              identity: queuedIdentity,
-            })
-            .please(),
-        ),
-      );
+      makeMe
+        .theWorkspace(origin.project)
+        .writeAt(
+          `.planning/${agent.path}`,
+          renderAgentProfile(
+            makeMe.anAgentProfile
+              .preparing({
+                name: "Airi",
+                identity: queuedIdentity,
+              })
+              .please(),
+          ),
+        )
+        .please();
       commitAllAs(
         origin.project,
         "published preparation is no execution claim",
@@ -203,7 +203,10 @@ for (const preparation of [false, true]) {
       ],
       { cwd: origin.project },
     );
-    commitAll(origin.project, "complete without an execution claim");
+    makeMe
+      .theWorkspace(origin.project)
+      .commitAll("complete without an execution claim")
+      .please();
     push(origin.project);
     const response = await getReview(
       request,

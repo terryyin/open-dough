@@ -19,7 +19,7 @@ import {
   openTaken,
   trunkModeStory,
 } from "../../dashboard/test-support/support/storyReviewTrunkMode.ts";
-import { writeAt } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 test.use({
   originRepository: trunkModeStory({ published: 2, unpublished: true }),
@@ -97,7 +97,10 @@ test("a synced Taken review stays readable while origin is unreachable and advan
     renameSync(away, origin.origin);
   });
   await test.step("And the agent publishes again", () => {
-    writeAt(origin.project, "more.md", "another published change\n");
+    makeMe
+      .theWorkspace(origin.project)
+      .writeAt("more.md", "another published change\n")
+      .please();
     commitAllAs(origin.project, "Continue Story A", yui);
     push(origin.project);
   });

@@ -26,10 +26,7 @@ import {
   expectExactSourceCue,
   expectNoRunOrAttemptIds,
 } from "../../dashboard/test-support/support/expectCiComparisonSourceCue.ts";
-import {
-  commitAll,
-  writeAt,
-} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
 for (const variant of [undefined] as readonly (
   undefined | "own-conflict-extra" | "non-owning-story-file"
@@ -47,8 +44,11 @@ for (const variant of [undefined] as readonly (
     const setup = await publishComparedStoryBranch(page, origin, variant);
     // An incompatible workflow at the local tip cannot supply historical
     // dependencies. The selected path exists in each build's own revision.
-    writeAt(origin.project, comparisonWorkflowPath, "jobs: {}\n");
-    commitAll(origin.project, "change the workflow after the compared builds");
+    makeMe
+      .theWorkspace(origin.project)
+      .writeAt(comparisonWorkflowPath, "jobs: {}\n")
+      .commitAll("change the workflow after the compared builds")
+      .please();
     const landedJobsUnavailable = variant === "non-owning-story-file";
     serveObservedComparisonAttempts(
       setup,

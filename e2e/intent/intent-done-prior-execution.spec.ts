@@ -31,10 +31,7 @@ import {
   claimedRecord,
 } from "../../dashboard/test-support/support/storyBranchIntegration.ts";
 import { shallowPublishedHistory } from "../../dashboard/test-support/support/reviewRepositoryFixture.ts";
-import {
-  commitAll,
-  lines,
-} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { lines } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 
 const modified = "Modified dashboard/tests/a.spec.ts";
 
@@ -72,7 +69,10 @@ test("a Done story's later completion outranks its execution launch's first capt
     host: "codex",
     storyWork(workspace) {
       writeRevisionFiles(workspace, first);
-      commitAll(workspace, "first test increment before completion");
+      makeMe
+        .theWorkspace(workspace)
+        .commitAll("first test increment before completion")
+        .please();
     },
   });
   const captured = capturedPublicationSchema.parse(await story.integrated())

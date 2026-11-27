@@ -17,13 +17,16 @@ import {
   pull,
   push,
 } from "./storyReviewTrunkCommits.ts";
-import { commitAll, git, writeAt } from "./storyReviewWorktree.ts";
+import { git } from "./storyReviewWorktree.ts";
 
 export function advanceCompletedTrunk(origin: StartOrigin) {
   pull(origin.project);
-  writeAt(origin.project, "later.txt", "later trunk\n");
-  writeAt(origin.project, "[literal]*.txt", "later rewrite\n");
-  const advanced = commitAll(origin.project, "advance after completion");
+  const advanced = makeMe
+    .theWorkspace(origin.project)
+    .writeAt("later.txt", "later trunk\n")
+    .writeAt("[literal]*.txt", "later rewrite\n")
+    .commitAll("advance after completion")
+    .please();
   push(origin.project);
   return advanced;
 }
@@ -86,7 +89,10 @@ function laterBranchMergesTrunkAndFastForwards(
     workspace,
     start,
   );
-  writeAt(workspace, "later-story.txt", "later story work\n");
+  makeMe
+    .theWorkspace(workspace)
+    .writeAt("later-story.txt", "later story work\n")
+    .please();
   commitAllAs(
     workspace,
     "later story work started before completion",

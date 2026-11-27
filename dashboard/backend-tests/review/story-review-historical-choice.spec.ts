@@ -6,11 +6,8 @@ import { ordinaryTrunkModeCompletedHistory } from "../../test-support/support/co
 import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import { storyALaunchRecord } from "../../test-support/support/storyLaunchRecord.ts";
-import {
-  branch,
-  git,
-  writeAt,
-} from "../../test-support/support/storyReviewWorktree.ts";
+import { branch, git } from "../../test-support/support/storyReviewWorktree.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
 test("a Done story opens its published completion while its workspace has local edits", async () => {
   const { repository, home, project } = await configuredFixtureProject(
@@ -28,7 +25,10 @@ test("a Done story opens its published completion while its workspace has local 
     workspace,
     completion,
   );
-  writeAt(workspace, "local-only.txt", "after completion\n");
+  makeMe
+    .theWorkspace(workspace)
+    .writeAt("local-only.txt", "after completion\n")
+    .please();
   keepLaunchRecords(home, [storyALaunchRecord(workspace)]);
 
   const review = await storyReview(

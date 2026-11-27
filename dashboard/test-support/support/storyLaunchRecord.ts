@@ -6,7 +6,7 @@ import type { LaunchRecord } from "../../src/agentLaunch.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { keepLaunchRecords } from "./launchStore.ts";
 import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
-import { branch, commitAll, git } from "./storyReviewWorktree.ts";
+import { branch, git } from "./storyReviewWorktree.ts";
 
 // Story A's execution in the session given, as one the synthetic `claude`
 // lists; callers state what its start established.
@@ -45,7 +45,10 @@ export function keepPublishedStoryReview(
     ? "88888888-8888-4888-8888-888888888888"
     : "99999999-9999-4999-8999-999999999999";
   if (git(workspace, "status", "--porcelain") !== "")
-    commitAll(workspace, "Publish the review files");
+    makeMe
+      .theWorkspace(workspace)
+      .commitAll("Publish the review files")
+      .please();
   git(workspace, "fetch", "--quiet", "origin", "main");
   const base = git(workspace, "rev-parse", "origin/main");
   git(workspace, "merge", "--quiet", "--no-edit", base);

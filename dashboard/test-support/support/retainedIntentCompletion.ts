@@ -4,6 +4,7 @@
 import type { Page } from "@playwright/test";
 import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { writeRevisionFiles } from "../../../Distribution/tests/support/repository-revision-files.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import {
   intentTrunkCompletionOntoTip,
@@ -15,7 +16,6 @@ import { keepLaunchRecord } from "./storyLaunchRecord.ts";
 import type { StartOrigin } from "./startOrigin.ts";
 import { publishDeclaredTrunk } from "./storyCiComparisonBaseline.ts";
 import { shallowPublishedHistory } from "./reviewRepositoryFixture.ts";
-import { commitAll } from "./storyReviewWorktree.ts";
 import { push } from "./storyReviewTrunkCommits.ts";
 
 export async function retainedIntentCompletion(
@@ -47,10 +47,10 @@ export async function retainedIntentCompletion(
   let published = publishedCommits["advance after completion"];
   if (facts.later !== undefined) {
     writeRevisionFiles(origin.project, facts.later);
-    published = commitAll(
-      origin.project,
-      "later trunk changes after completion",
-    );
+    published = makeMe
+      .theWorkspace(origin.project)
+      .commitAll("later trunk changes after completion")
+      .please();
     push(origin.project);
   }
   writeRevisionFiles(story.workspace, facts.local);

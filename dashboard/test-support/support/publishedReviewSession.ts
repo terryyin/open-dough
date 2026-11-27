@@ -11,7 +11,7 @@ import {
 import { rebuildDoneCatalog } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-complete.mjs";
 import { advanceOriginTrunk } from "../originatingMachine.ts";
 import type { StartOrigin } from "./startOrigin.ts";
-import { git, writeAt } from "./storyReviewWorktree.ts";
+import { git } from "./storyReviewWorktree.ts";
 
 export const publishedReviewStory = {
   identity: "SEED-898#published-review",
@@ -34,18 +34,21 @@ export function publishReviewSession(
     .please();
   advanceOriginTrunk(origin, (workspace) => {
     const backlog = path.dirname(defaultBacklogPath);
-    writeAt(
-      workspace,
-      path.join(backlog, doneRecordPath(story.identity)),
-      renderDoneRecord(story),
-    );
+    makeMe
+      .theWorkspace(workspace)
+      .writeAt(
+        path.join(backlog, doneRecordPath(story.identity)),
+        renderDoneRecord(story),
+      )
+      .please();
     rebuildDoneCatalog(path.join(workspace, backlog));
-    writeAt(
-      workspace,
-      sessionRecordPathBeside(defaultBacklogPath, record.sessionId),
-      `${JSON.stringify(record)}
-`,
-    );
+    makeMe
+      .theWorkspace(workspace)
+      .writeAt(
+        sessionRecordPathBeside(defaultBacklogPath, record.sessionId),
+        `${JSON.stringify(record)}\n`,
+      )
+      .please();
   });
   return record.sessionId;
 }

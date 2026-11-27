@@ -16,7 +16,7 @@ import {
 import { completeBacklogStory } from "./completedStoryPublication.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import type { StartOrigin } from "./startOrigin.ts";
-import { commitAll, git, writeAt } from "./storyReviewWorktree.ts";
+import { git } from "./storyReviewWorktree.ts";
 
 const exec = promisify(execFile);
 const skills = ".agents/skills";
@@ -110,8 +110,11 @@ export async function landNativeWork(
   const native = admitted.origin.project;
   const { publishedSha } = admitted.claim;
   git(native, "merge", "--ff-only", publishedSha);
-  writeAt(native, file, "Accepted native work\n");
-  const candidate = commitAll(native, "Verify product behavior before cleanup");
+  const candidate = makeMe
+    .theWorkspace(native)
+    .writeAt(file, "Accepted native work\n")
+    .commitAll("Verify product behavior before cleanup")
+    .please();
   const result: unknown = JSON.parse(
     await deliver(
       native,
@@ -161,7 +164,10 @@ export async function finishAdmittedClaim(
   git(workspace, "fetch", "--quiet", "origin");
   git(workspace, "merge", "--ff-only", beforeCleanup);
   completeBacklogStory(workspace, { identity, skillsDirectory: skills });
-  const final = commitAll(workspace, "Complete the admitted story");
+  const final = makeMe
+    .theWorkspace(workspace)
+    .commitAll("Complete the admitted story")
+    .please();
   const ci = completionCi(
     mkdtempSync(path.join(origin.machine, "admitted-completion-")),
     [beforeCleanup, final],

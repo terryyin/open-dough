@@ -3,7 +3,6 @@
 // diffs; cases remain in ../review/story-review*.spec.ts.
 
 import { execFileSync } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { RepositoryRevision } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
@@ -16,24 +15,12 @@ export const branch = "claude/story-a";
 export const git = (cwd: string, ...args: string[]) =>
   execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
 
-// Commits every change and answers the commit it made.
-export function commitAll(cwd: string, message: string) {
-  git(cwd, "add", "--all");
-  git(cwd, "commit", "--quiet", "-m", message);
-  return git(cwd, "rev-parse", "HEAD");
-}
-
 // Lines enough for a small edit to stay a rename.
 export const lines = (word: string, count = 12) =>
   [...Array(count).keys()].map((line) => `${word} ${String(line)}\n`).join("");
 
 // The unstaged edit's added line, too long for the review to show unscrolled.
 export const wideLine = `more ${"wide ".repeat(80)}`;
-
-export function writeAt(root: string, file: string, text: string) {
-  mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
-  writeFileSync(path.join(root, file), text);
-}
 
 // Where Story A's linked worktree is checked out, on `branch`.
 const storyWorkspace = (project: string) =>

@@ -14,10 +14,7 @@ import { retainAdHocCompletedStory } from "../../dashboard/test-support/support/
 import { expectSelected } from "../../dashboard/test-support/storyCardSelection.ts";
 import { pausePageClockAt } from "../../dashboard/test-support/dashboardTest.ts";
 import { doneRecordFileName } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-done-record.mjs";
-import {
-  commitAll,
-  git,
-} from "../../dashboard/test-support/support/storyReviewWorktree.ts";
+import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
 import { push } from "../../dashboard/test-support/support/storyReviewTrunkCommits.ts";
 import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
@@ -74,10 +71,10 @@ test("selecting an ad hoc session whose Done story is beyond the Board window re
     [catalogScript, "catalog-done", "--file", ".planning/PRODUCT-BACKLOG.md"],
     { cwd: origin.project, stdio: "pipe" },
   );
-  commitAll(
-    origin.project,
-    "backdate completed story outside the Board window",
-  );
+  makeMe
+    .theWorkspace(origin.project)
+    .commitAll("backdate completed story outside the Board window")
+    .please();
   push(origin.project);
   const published = git(origin.origin, "rev-parse", "main");
   await publishCommittedOrigin(page, {

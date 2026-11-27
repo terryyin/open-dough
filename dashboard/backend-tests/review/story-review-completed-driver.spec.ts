@@ -15,10 +15,8 @@ import {
   storyReviewFileEndpoint,
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
-import {
-  git,
-  writeAt,
-} from "../../test-support/support/storyReviewWorktree.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import type { StartOrigin } from "../../test-support/support/startOrigin.ts";
 import type { StartRepository } from "../../test-support/support/startOriginPreparation.ts";
 
@@ -33,11 +31,10 @@ function configurePrintingDriver(origin: StartOrigin) {
     "merge.printing.driver",
     'printf \'driver says hello\\n\'; git merge-file "%A" "%O" "%B"',
   );
-  writeAt(
-    origin.project,
-    ".git/info/attributes",
-    "shared.txt merge=printing\n",
-  );
+  makeMe
+    .theWorkspace(origin.project)
+    .writeAt(".git/info/attributes", "shared.txt merge=printing\n")
+    .please();
 }
 
 for (const [label, originRepository] of [

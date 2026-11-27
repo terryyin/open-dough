@@ -27,6 +27,8 @@ import { storyNoteMakeMeProperties } from "./storyNoteTestData.mjs";
 import { publishedReadingMakeMeProperties } from "./publishedReadingMakeMe.mjs";
 import { sessionRecordMakeMeProperties } from "./sessionRecordTestData.mjs";
 import { reporterRunMakeMeProperties } from "./reporterRunMakeMe.mjs";
+import { WorkspaceBuilder } from "./workspaceTestData.mjs";
+import { StoryResultTreeBuilder } from "./storyResultTreeTestData.mjs";
 
 /** @typedef {import("./publishedReadingMakeMe.mjs").BacklogEntry} BacklogEntry */
 /** @typedef {import("../../../dashboard/test-support/publishedFiles.ts").PublishedRevision} PublishedRevision */
@@ -72,12 +74,24 @@ import { reporterRunMakeMeProperties } from "./reporterRunMakeMe.mjs";
  * @property {PlanSliceBuilder} aPlanSlice
  * @property {SlicePlanBuilder} aSlicePlan
  * @property {HostHookSettingsBuilder} hostHookSettings
+ * @property {(root: string) => WorkspaceBuilder} theWorkspace
+ * @property {StoryResultTreeBuilder} aStoryResultTree
  */
 
 /** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & import("./storyReviewMakeMe.mjs").StoryReviewMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe & StoryNoteMakeMe & import("./projectRevisionTestData.mjs").ProjectRevisionMakeMe & import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe & import("./sessionRecordTestData.mjs").SessionRecordMakeMe & import("./reporterRunMakeMe.mjs").ReporterRunMakeMe} */
 export const makeMe = Object.defineProperties(
   /** @type {CoreMakeMe & OptionsDefinitionMakeMe & ProjectCiSettingsMakeMe & TerminalThemeSettingMakeMe & import("./storyReviewMakeMe.mjs").StoryReviewMakeMe & CiMakeMe & LaunchMakeMe & UsageMakeMe & FeedbackMakeMe & StoryNoteMakeMe & import("./projectRevisionTestData.mjs").ProjectRevisionMakeMe & import("./publishedReadingMakeMe.mjs").PublishedReadingMakeMe & import("./sessionRecordTestData.mjs").SessionRecordMakeMe & import("./reporterRunMakeMe.mjs").ReporterRunMakeMe} */ ({}),
   {
+    theWorkspace: {
+      enumerable: true,
+      value: (/** @type {string} */ root) => new WorkspaceBuilder(root),
+    },
+    aStoryResultTree: {
+      enumerable: true,
+      get() {
+        return new StoryResultTreeBuilder();
+      },
+    },
     hostHookSettings: {
       enumerable: true,
       get() {
