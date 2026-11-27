@@ -22,7 +22,11 @@ fail() {
 temporary_dir=$(mktemp -d)
 github_pid=
 cleanup() {
-  if [[ -n ${github_pid} ]]; then kill -KILL "${github_pid}" 2> /dev/null || true; fi
+  if [[ -n ${github_pid} ]]; then
+    kill -KILL "${github_pid}" 2> /dev/null || true
+    # Reap it here: under job control, bash otherwise reports "Killed".
+    wait "${github_pid}" 2> /dev/null || true
+  fi
   rm -rf -- "${temporary_dir}"
 }
 trap cleanup EXIT

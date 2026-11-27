@@ -260,6 +260,10 @@ with `e2e/observation/auto-refresh-rate-limit.spec.ts`. A diagnosis round
 found the check's hang: a fake `mktemp` left on PATH by its own earlier
 section.
 
+CI repair (run 45986238553): on Linux bash the check printed "Killed"
+when its EXIT trap killed the fake GitHub under job control; the trap now
+reaps it with `wait`. Not reproducible with macOS bash 5.3.
+
 ### 5. Decide test preparation and shared artifact demand from typed requests
 Type: Behavior
 Status: done
