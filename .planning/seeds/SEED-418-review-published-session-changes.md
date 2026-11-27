@@ -40,27 +40,6 @@ kept across a refresh; the story's session list lives in Follow up's module; and
 test support and one E2E case are left over or redundant.
 [Plan](../slice-plans/883-keep-session-review-proof-after-retirement/PLAN.md).
 
-<a id="announce-compact-dropdown-choice"></a>
-
-### Announce the chosen value of a compact dropdown
-
-**Identity:** SEED-418#announce-compact-dropdown-choice
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/884-announce-compact-dropdown-choice/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"956705ef6fcb815d444b247b8cc13cf32aa87b704c10ccefcee932fe4b276a9f","plan":"55fe7ade46a8e68cf3f43497e740b802ac460be91a559e6071b64770110f6728"}}
-```
-
-**Goal.** A developer using a screen reader hears what a closed compact
-dropdown currently holds — the chosen project in **Project**, and the
-chosen scope, including its ad hoc identity, in Intent's **Review scope** —
-not only the control's name.
-
-**Scope.** Correct what the retrospective of SEED-418#review-scope-dropdown
-(Choose review scope from a compact dropdown) found: the shared compact dropdown names its closed control only by its
-label, so its chosen value and the ad hoc icon's name go unannounced. Expose
-the chosen value through the select-only combobox pattern for both
-dropdowns, keeping their behavior and layout.
-[Plan](../slice-plans/884-announce-compact-dropdown-choice/PLAN.md).
-
 <a id="show-selected-session-in-review-home"></a>
 
 ### Show the selected ad hoc session on Intent Home
