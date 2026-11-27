@@ -499,6 +499,25 @@ Full local gate (2026-11-27, at load 18–23, under `caffeinate -s -i`):
 - `agent-launch-boundary.spec.ts:208` uses the same kind of 4 s
   `heldClaudePid` poll and has not failed yet.
 
+## Execution complete
+
+Product advice: keep the current priorities. The correction delivered what it
+promised:
+- Unbound Claude recovery is removed.
+- Landing refusals are proved in one typed 15-case table.
+- E2E repeats per host and per journey are trimmed, with removed cases
+  naming their lower-level survivors.
+- Four retained ad hoc specs are now two, at the default timeout.
+- Follow-up availability moved to mounted cases plus one E2E journey.
+- Session placement, opening the installed Board, the reporting input and
+  the Taken-story origin each have one test-support owner.
+
+One product change landed, under the failure policy (`d9ac5aaec`): the
+Recently done "Needs review" cues now stay shown while history detail loads.
+Backlog maintenance should note this against the SEED-336 scope bullet on
+"reusing confirmed links while reads are pending". The CI time-drop claims
+stay conditional on branch CI.
+
 ## Concern evidence
 
 Refinement was not needed: each slice is one structural correction with its
