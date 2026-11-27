@@ -1,36 +1,136 @@
-import { givenSavedCodexSession } from "../../test-support/support/codexObservation.ts";
-// HTTP/store and optional WS/PTY exercise native rename and exact-turn interruption.
+// Mark as done renames the kept conversation and only interrupts a known active turn.
+import { EventEmitter } from "node:events";
+import { mkdirSync, mkdtempSync, realpathSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { beforeEach, expect, onTestFinished, test, vi } from "vitest";
+import type { WebSocket } from "ws";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { AgentLaunches } from "../../server/agentLaunches.ts";
+import { NativeDoneMarks } from "../../server/doneMarks.ts";
+import { executionCheckout } from "../../server/executionCheckout.ts";
+import { launchHost } from "../../server/launchHosts.ts";
 import {
-  test,
-  expect,
-  stored,
-} from "../../test-support/support/codexLaunch.ts";
-import { changeLaunchStore } from "../../test-support/support/launchStore.ts";
-import { markDone, recordsOf } from "../../test-support/agentLaunchBoundary.ts";
-import { shows } from "../../test-support/agentTerminalBoundary.ts";
+  bindRecord,
+  keptRecords,
+  updateRecord,
+} from "../../server/launchRecordStore.ts";
+import type { LocalFolder } from "../../server/localFolder.ts";
+import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
+import { admittedDone } from "../../server/sessionAdmission.ts";
+import { TerminalAttachments } from "../../server/terminalAttachments.ts";
 import {
   codexAttaches,
+  codexEnded,
   codexLines,
-  expectCodexHungUp,
-  openCodexTerminal,
 } from "../../test-support/support/codexTerminal.ts";
+import {
+  codexEndpoint,
+  installFakeCodex,
+  type FakeCodex,
+} from "../../test-support/support/fakeCodex.ts";
+import { processRunning } from "../../test-support/support/processGroup.ts";
 
-// No page: the local boundaries alone answer these requests.
-test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
+const source = makeMe.aPublishedSource.openDough.please();
+
+let native: FakeCodex;
+let folder: LocalFolder;
+let terminals: TerminalAttachments;
+let marks: NativeDoneMarks;
+let launches: AgentLaunches;
+
+beforeEach(async () => {
+  const root = realpathSync(mkdtempSync(path.join(tmpdir(), "dough-done-cx-")));
+  const home = path.join(root, "home");
+  mkdirSync(home);
+  native = await installFakeCodex(root, process.env["PATH"] ?? "", true);
+  for (const [key, value] of Object.entries(native.env)) vi.stubEnv(key, value);
+  vi.stubEnv("HOME", home);
+  const unmount = mountProjectConfiguration("production");
+  folder = executionCheckout(source);
+  terminals = new TerminalAttachments();
+  marks = new NativeDoneMarks({
+    terminals,
+    hostFor: launchHost,
+    reportingFolder: () => folder,
+  });
+  launches = new AgentLaunches(marks);
+  onTestFinished(async () => {
+    native.release();
+    await marks.close();
+    terminals.close();
+    launches.close();
+    await launches.drain();
+    await native.close();
+    unmount();
+    vi.unstubAllEnvs();
+    rmSync(root, { recursive: true, force: true });
+  });
+  mkdirSync(folder.path, { recursive: true });
+});
+
+async function keepConversation() {
+  const record = makeMe.aLaunchRecord
+    .refining({
+      source: source.id,
+      identity: "SEED-867#codex-done",
+      title: "Refine this story",
+    })
+    .inCodexSession({
+      sessionId: native.threadId,
+      continuation: { endpoint: codexEndpoint(native), workspace: folder.path },
+    })
+    .please();
+  native.cwd = folder.path;
+  native.history = [{ id: "native-turn-id", items: [] }];
+  await bindRecord(source.id, record);
+  return record;
+}
+
+class TerminalSocket extends EventEmitter {
+  readonly OPEN = 1;
+  readyState = this.OPEN;
+  output = "";
+  closeCode?: number;
+
+  send(text: string, options?: { binary?: boolean }): void {
+    if (!options?.binary) this.output += text;
+  }
+
+  close(code: number): void {
+    if (this.readyState !== this.OPEN) return;
+    this.readyState = 3;
+    this.closeCode = code;
+    this.emit("close");
+  }
+}
+
+async function attach(
+  session: Awaited<ReturnType<typeof keepConversation>>["session"],
+) {
+  const socket = new TerminalSocket();
+  terminals.connect(socket as unknown as WebSocket, {
+    sourceId: source.id,
+    folder,
+    session,
+    markedDone: false,
+  });
+  await expect.poll(() => socket.output).toContain("original retained history");
+  return socket;
+}
+
+const calls = (method: string) =>
+  native.calls.filter((call) => call.method === method);
+
 for (const status of ["active", "idle", "notLoaded"] as const) {
   for (const attached of [false, true]) {
-    test(`${status} conversation marked done ${attached ? "with" : "without"} attachment preserves history and native identity`, async ({
-      dashboard,
-      codexProtocol: native,
-    }) => {
-      if (native === undefined) throw new Error("Missing native fixture");
-      await givenSavedCodexSession(dashboard, native);
+    test(`${status} conversation marked done ${attached ? "with" : "without"} attachment preserves history and native identity`, async () => {
+      const record = await keepConversation();
       native.observations.set(native.threadId, {
-        status: {
-          type: status,
-          ...(status === "active" ? { activeFlags: [] } : {}),
-        },
+        status:
+          status === "active"
+            ? { type: status, activeFlags: [] }
+            : { type: status },
         turns: [
           {
             id: "observed-turn",
@@ -38,47 +138,31 @@ for (const status of ["active", "idle", "notLoaded"] as const) {
           },
         ],
       });
-      const record = stored(dashboard.home)[0];
-      const terminal = attached
-        ? await openCodexTerminal(dashboard, native.threadId)
-        : undefined;
-      if (terminal !== undefined)
-        expect(await shows(terminal, "original retained history")).toBe(true);
-      const response = await markDone(dashboard, {
-        source: "open-dough",
-        session: native.threadId,
-        host: "codex",
-      });
-      expect(response.status).toBe(200);
-      expect(JSON.parse(response.body)).toMatchObject({
-        record: {
-          doneAt: expect.any(String),
-          session: { sessionId: native.threadId, name: record?.session.name },
-          sessionState: {
-            kind: "available",
-            activity: status === "active" ? "interrupted" : "review",
-          },
+      const socket = attached ? await attach(record.session) : undefined;
+      const name = `done-${record.session.name}`;
+
+      const marked = await marks.markDone(source, record, folder, launches);
+
+      expect(Date.parse(marked.doneAt ?? "")).not.toBeNaN();
+      expect(await launches.stateOf(source, marked)).toMatchObject({
+        session: record.session,
+        sessionState: {
+          kind: "available",
+          activity: status === "active" ? "interrupted" : "review",
         },
       });
-      expect(stored(dashboard.home)[0]?.doneAt).toBeDefined();
-      expect(stored(dashboard.home)[0]?.doneProblem).toBeUndefined();
-      expect(native.names.get(native.threadId)).toBe(
-        `done-${record?.session.name ?? ""}`,
-      );
-      expect(
-        native.calls.filter((call) => call.method === "thread/name/set"),
-      ).toEqual([
+      expect(await keptRecords(source.id)).toMatchObject([
+        { session: record.session, doneAt: marked.doneAt },
+      ]);
+      expect((await keptRecords(source.id))[0]?.doneProblem).toBeUndefined();
+      expect(native.names.get(native.threadId)).toBe(name);
+      expect(calls("thread/name/set")).toEqual([
         {
           method: "thread/name/set",
-          params: {
-            threadId: native.threadId,
-            name: `done-${record?.session.name ?? ""}`,
-          },
+          params: { threadId: native.threadId, name },
         },
       ]);
-      expect(
-        native.calls.filter((call) => call.method === "turn/interrupt"),
-      ).toEqual(
+      expect(calls("turn/interrupt")).toEqual(
         status === "active"
           ? [
               {
@@ -90,89 +174,74 @@ for (const status of ["active", "idle", "notLoaded"] as const) {
       );
       expect(native.observations.get(native.threadId)?.turns).toHaveLength(1);
       expect(native.history).toHaveLength(1);
-      expect(
-        native.calls.filter((call) =>
-          ["thread/start", "turn/start"].includes(call.method),
-        ),
-      ).toHaveLength(0);
-      if (terminal !== undefined) {
-        expect(await terminal.closed).toBe(4000);
-        const pid = codexAttaches(native)[0]?.pid ?? 0;
-        await expectCodexHungUp(native, pid);
+      expect(calls("thread/start")).toEqual([]);
+      expect(calls("turn/start")).toEqual([]);
+      if (socket === undefined) {
+        expect(codexAttaches(native)).toEqual([]);
+      } else {
+        expect(socket.closeCode).toBe(4000);
+        const attaches = codexAttaches(native);
+        expect(attaches).toHaveLength(1);
+        const [attached] = attaches;
+        if (attached === undefined)
+          throw new Error("The native attachment was not recorded.");
+        const { pid } = attached;
+        await expect.poll(() => codexEnded(native, pid)).toBe("SIGHUP");
+        await expect.poll(() => processRunning(pid)).toBe(false);
         expect(codexLines(native, pid)).toEqual([]);
       }
-      expect(await recordsOf(dashboard, "open-dough")).toContainEqual(
-        expect.objectContaining({ doneAt: stored(dashboard.home)[0]?.doneAt }),
-      );
     });
   }
 }
 
-test("unrecorded and cross-origin done requests fail before native reads or writes", async ({
-  dashboard,
-  codexProtocol: native,
-}) => {
-  if (native === undefined) throw new Error("Missing native fixture");
-  await givenSavedCodexSession(dashboard, native);
+test("an unrecorded Codex Done request is refused before native reads or writes", async () => {
+  await keepConversation();
   const before = [...native.calls];
-  expect(
-    (
-      await markDone(dashboard, {
-        source: "open-dough",
+
+  await expect(
+    admittedDone(
+      {
+        source: source.id,
         session: "unknown",
         host: "codex",
-      })
-    ).status,
-  ).toBe(404);
-  expect(
-    (
-      await markDone(
-        dashboard,
-        { source: "open-dough", session: native.threadId, host: "codex" },
-        { Origin: "http://evil.example" },
-      )
-    ).status,
-  ).toBe(403);
+      },
+      launches,
+    ),
+  ).rejects.toMatchObject({ status: 404 });
+
   expect(native.calls).toEqual(before);
-  expect(stored(dashboard.home)[0]?.doneAt).toBeUndefined();
+  expect((await keptRecords(source.id))[0]?.doneAt).toBeUndefined();
 });
 
-test("missing saved endpoint retains local intent, closes attachments and reports unconfirmed operations", async ({
-  dashboard,
-  codexProtocol: native,
-}) => {
-  if (native === undefined) throw new Error("Missing native fixture");
-  await givenSavedCodexSession(dashboard, native);
-  const terminal = await openCodexTerminal(dashboard, native.threadId);
-  expect(await shows(terminal, "original retained history")).toBe(true);
-  changeLaunchStore(dashboard, (document) => ({
-    ...document,
-    "open-dough": stored(dashboard.home).map((record) => ({
-      ...record,
-      // Predecessor kept no continuation: Done retains local intent only.
-      session: makeMe.aHostSession
-        .codex({ sessionId: native.threadId })
-        .named(record.session.name)
-        .please(),
-    })),
-  }));
+test("missing saved endpoint retains local intent, ends the attachment and reports unconfirmed operations", async () => {
+  const record = await keepConversation();
+  const socket = await attach(record.session);
+  const predecessor = {
+    ...record,
+    session: makeMe.aHostSession
+      .codex({ sessionId: native.threadId })
+      .named(record.session.name)
+      .please(),
+  };
+  expect(await updateRecord(source.id, predecessor)).toBe(true);
   const before = [...native.calls];
-  const response = await markDone(dashboard, {
-    source: "open-dough",
-    session: native.threadId,
-    host: "codex",
-  });
-  expect(response.status).toBe(200);
-  expect(JSON.parse(response.body)).toMatchObject({
-    record: {
-      doneAt: expect.any(String),
-      doneProblem: expect.stringContaining("Saved native endpoint is missing"),
-      sessionState: { kind: "unknown" },
-    },
-  });
-  expect(stored(dashboard.home)[0]?.doneProblem).toContain(
-    "Local done mark retained",
+
+  const marked = await marks.markDone(source, predecessor, folder, launches);
+
+  expect(Date.parse(marked.doneAt ?? "")).not.toBeNaN();
+  expect(marked.doneProblem).toContain(
+    "Codex rename failed: Saved native endpoint is missing.",
   );
+  expect(marked.doneProblem).toContain(
+    "Codex stop failed: Saved native endpoint is missing.",
+  );
+  expect((await launches.stateOf(source, marked)).sessionState).toEqual({
+    kind: "unknown",
+  });
+  expect(await keptRecords(source.id)).toMatchObject([
+    { doneAt: marked.doneAt, doneProblem: marked.doneProblem },
+  ]);
+  expect(marked.doneProblem).toContain("Local done mark retained");
   expect(native.calls).toEqual(before);
-  expect(await terminal.closed).toBe(4000);
+  expect(socket.closeCode).toBe(4000);
 });

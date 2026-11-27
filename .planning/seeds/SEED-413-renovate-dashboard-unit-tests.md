@@ -202,74 +202,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   observation while an ordinary ask still reuses a held observation. A full
   answer accepted as gzip decodes to the plain response.
 
-<a id="prove-native-session-and-terminal-lifecycle-on-vitest"></a>
-
-### Prove marking sessions done, stopping, deleting and reopening in Node Vitest
-
-**Identity:** SEED-413#prove-native-session-and-terminal-lifecycle-on-vitest
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/867-prove-marking-sessions-done-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"4a00512e9761571e3eeb561f6a69f6adbc08ff20454889f3387d8ab50b7bb1c4","plan":"372e80f238626f93ccaeed5262f4dc38384dc47d1cf9de3ad078d320ee3058d5"}}
-```
-
-- **Goal.** Developers changing how the Dashboard ends a kept session get
-  fast, typed Node Vitest feedback on Mark as done, its native rename, stop
-  or removal, record deletion and reopening. Each case shows the record the
-  Dashboard keeps and the native operations it ran or skipped.
-- **Scope.** Move the 14 legacy specs off backend Playwright and account
-  for each observation: `sessions/agent-launch-done{,-close,-codex,-codex-intent,-codex-races,-prompt,-refusal,-rename-wait,-stop}.spec.ts`,
-  `sessions/agent-launch-delete.spec.ts`,
-  `sessions/agent-terminal-done-codex-boundary.spec.ts`,
-  `sessions/agent-terminal-reopen.spec.ts`,
-  `sessions/done-question-rule.spec.ts` and
-  `sessions/agent-completion-quiet-rename.spec.ts`. Cover Claude Code and
-  Codex Done by what the host lists, the rename through an open or private
-  terminal and its waits, the takeover of a reported Done, races with late
-  native answers, shutdown during a wait, refusal before any native call,
-  record deletion, reopening through the terminal and the Mark as done
-  question. Prove them through typed production operations and kept
-  records: the Done, delete and reopen decisions take the host, terminal and
-  record collaborators they use as typed values, and add no server, request
-  or boundary wrapper to test support. A case keeps a real PTY, socket or
-  server only where that boundary supplies the observation, and keeps only
-  that boundary. Remove support with its last consumer. Product behavior
-  stays unchanged. Completion reporting, observation, terminal attach, the
-  Cursor runner and retention have their own sibling stories.
-- **Key examples.**
-  - Given a kept Claude Code session the host no longer lists, Mark as done
-    keeps Done with the rename failure's cause and attaches, stops and
-    removes nothing. When the listing cannot be read, the session is still
-    stopped.
-  - Given a session listed as exited, Mark as done removes its job with
-    `claude rm` in the project folder without renaming or stopping it. A
-    failed removal keeps Done with its cause and none of the native
-    diagnostic, and a later Mark as done retries the removal and clears
-    the cause, as it also clears an earlier stored stop failure.
-  - Given a session with an open terminal, Mark as done types the rename
-    into that terminal, ends the attachment, stops the session and keeps the
-    mark across a restart. A title holding a control character types
-    nothing. With no terminal open, a private attachment renames once its
-    composer appears and is then hung up. A composer that never arrives, a
-    rename that is never listed, or a session still working names that cause
-    once the wait ends and still stops it. A server closed during the wait
-    keeps the pending mark.
-  - Given a quiet report that is still renaming a session, the developer's
-    Mark as done takes it over: one rename runs and the reported write is
-    dropped.
-  - Given a Codex session, Done ends every Codex attachment while a Claude
-    session with the same ID keeps its own. A late failed interruption, a
-    turn finishing during interruption or an unreadable active turn never
-    restores deleted intent, redirects the stop or guesses a target.
-  - Given a delete request, only the record of a session whose listing
-    cannot be read, or that Claude Code no longer lists and is not Done, is
-    deleted, with nothing stopped or renamed. A known session keeps its
-    record. A session this Dashboard did not record, another project's or
-    another site's request is refused before `claude` runs, and an
-    unwritable record file answers why and keeps the record.
-  - Given a session marked Done, opening its terminal reopens it once the
-    attach starts and keeps it reopened across a restart. A refused upgrade
-    leaves it Done.
-
-**Plan.** [Prove marking sessions done, stopping, deleting and reopening in Node Vitest](../slice-plans/867-prove-marking-sessions-done-on-vitest/PLAN.md)
 
 <a id="prove-session-completion-reporting-on-vitest"></a>
 
@@ -883,7 +815,7 @@ or removed once its behavior or duplicate is accounted for.
 | 6 ordinary follow-up context specs | [Prove retained follow-up context in Node Vitest](https://github.com/terryyin/open-dough/blob/76b599da18dca0da2499f87944e2c6020f4f0807/.planning/slice-plans/850-prove-follow-up-context-on-vitest/PLAN.md), completed on Node Vitest |
 | 7 retained launch record specs | [Retained launch records](https://github.com/terryyin/open-dough/blob/29e3287e862e5d5415d32653b3e71c91287b90a8/.planning/slice-plans/851-prove-kept-launch-records-on-vitest/PLAN.md), completed on Node Vitest; the shared-machine spec's catalog fixture checks moved to [runner cutover](#retire-legacy-dashboard-backend-runner) |
 | Four `start-origin-{default,demand,isolation,private}` specs | [Runner cutover](#retire-legacy-dashboard-backend-runner), preserving private installed fixture behavior wherever it remains in use |
-| 14 Done, stop, delete and reopen specs | [Marking sessions done, stopping, deleting and reopening](#prove-native-session-and-terminal-lifecycle-on-vitest) |
+| 14 Done, stop, delete and reopen specs | [Marking sessions done, stopping, deleting and reopening](https://github.com/terryyin/open-dough/blob/499d3b82bfe3b987b927c3f77aaece6d0f68fd2d/.planning/slice-plans/867-prove-marking-sessions-done-on-vitest/PLAN.md), completed on Node Vitest with the terminal and deletion journeys retained in E2E |
 | 11 completion reporting specs | [Session completion reporting](#prove-session-completion-reporting-on-vitest) |
 | Nine observation, alert and replay specs | [Native session observation and alerts](https://github.com/terryyin/open-dough/blob/0e82130ff6693e0f9a7b936aa8871aacb6ebbfee/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-observation-on-vitest) |
 | Five Claude and Codex terminal attach specs | [Terminal attach](#prove-terminal-attach-and-cursor-turns-on-vitest) |

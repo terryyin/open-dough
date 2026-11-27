@@ -1,233 +1,205 @@
-// Delete record at the local launch boundary (../../server/launchBoundary.ts),
-// over raw HTTP: a same-origin POST for a session this dashboard recorded
-// removes only that session's record from this machine's launch records while
-// Claude Code's listing still leaves its state unknown, or no longer lists it
-// while it is not marked done. It runs no `claude
-// stop`, renames nothing, and marks nothing done. A session whose state the
-// boundary reads as known keeps its record and is answered with that state.
-// Which requests are refused before `claude` runs, and a record file that
-// cannot be written, are here too. The machine directory holds HOME and the
-// synthetic `claude`'s (../../test-support/fixtures/fake-claude) state; the real one is never
-// reached.
-
-import { chmodSync, mkdtempSync, rmSync } from "node:fs";
+// Deletion admits a kept session, then consults its native state before
+// changing the machine's records. Origin refusal belongs to the shared route.
 import {
-  keptLaunchRecords,
-  launchStoreFile,
-} from "../../test-support/support/launchStore.ts";
+  chmodSync,
+  mkdirSync,
+  mkdtempSync,
+  realpathSync,
+  rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { beforeEach, expect, onTestFinished, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { AgentLaunches } from "../../server/agentLaunches.ts";
+import { NativeDoneMarks } from "../../server/doneMarks.ts";
+import { executionCheckout } from "../../server/executionCheckout.ts";
+import { launchHost } from "../../server/launchHosts.ts";
+import { bindRecord } from "../../server/launchRecordBinding.ts";
+import { deleted } from "../../server/launchRecordDeletion.ts";
+import { keptRecords } from "../../server/launchRecordStore.ts";
+import { machineFolder } from "../../server/localFolder.ts";
+import { machineDashboardDirectory } from "../../server/machineHome.ts";
+import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
+import { admittedDelete } from "../../server/sessionAdmission.ts";
+import type { LaunchRecord } from "../../src/launchRecord.ts";
 import {
-  deleteRecord,
-  markDone,
-  recordsOf,
-} from "../../test-support/agentLaunchBoundary.ts";
-import { closeOpenSessions } from "../../test-support/openStorySessionSetup.ts";
-import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
-import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
+  installFakeClaude,
+  type FakeClaudeControls,
+} from "../../test-support/support/fakeClaude.ts";
 
-test.describe("deleting a recorded session's record", () => {
-  test.describe.configure({ mode: "serial" });
-  let machine: string;
-  let server: DashboardServer;
+const source = makeMe.aPublishedSource.openDough.please();
+const otherSource = makeMe.aPublishedSource.pygardon.please();
+const keptId = "588c4c19-0000-4000-8000-000000000001";
+const targetId = "ed479a94-0000-4000-8000-000000000002";
+const body = { source: source.id, session: targetId };
 
-  const sessionIds = async () =>
-    (await recordsOf(server, "open-dough")).map(
-      (each) => (each as { session: { sessionId: string } }).session.sessionId,
-    );
+let launches: AgentLaunches;
+let claude: FakeClaudeControls;
 
-  test.beforeAll(async () => {
-    machine = mkdtempSync(path.join(tmpdir(), "dough-delete-"));
-    server = await startDashboardServer({
-      mode: "boundary",
-      machine,
-      projectFolders: ["open-dough", "pygardon"],
-      doneRenameWaitMs: 100,
-    });
+beforeEach(() => {
+  const machine = realpathSync(
+    mkdtempSync(path.join(tmpdir(), "dough-delete-")),
+  );
+  const fixture = installFakeClaude(
+    machine,
+    { binDir: machine, path: process.env.PATH ?? "" },
+    {},
+  );
+  for (const [key, value] of Object.entries(fixture.env))
+    vi.stubEnv(key, value);
+  const unmount = mountProjectConfiguration("production");
+  claude = fixture.controls;
+  const marks = new NativeDoneMarks({
+    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
+    hostFor: launchHost,
+    reportingFolder: machineFolder,
   });
-
-  test.afterAll(async () => {
-    await server.close();
+  launches = new AgentLaunches(marks);
+  onTestFinished(async () => {
+    launches.close();
+    await marks.close();
+    await launches.drain();
+    unmount();
+    vi.unstubAllEnvs();
     rmSync(machine, { recursive: true, force: true });
   });
+  mkdirSync(executionCheckout(source).path, { recursive: true });
+  mkdirSync(executionCheckout(otherSource).path, { recursive: true });
+});
 
-  test.beforeEach(async () => {
-    await closeOpenSessions(server);
-  });
+function launch(sessionId: string, identity: string) {
+  return makeMe.aLaunchRecord
+    .executing({ source: source.id, identity, title: "Keep track of work" })
+    .inClaudeSession({ sessionId });
+}
 
-  test("deletes only the record of a session whose listing cannot be read, stopping and renaming nothing", async () => {
-    const kept = await composeSession(server);
-    const session = await composeSession(server, "open-dough", {
-      identity: "SEED-other#delete-target",
-      title: "Another story",
-    });
-    const before = keptLaunchRecords(server);
-    server.claudeListingFails(true);
-    const callsBefore = server.claudeCalls().length;
-    const stopsBefore = server.claudeStopCalls().length;
-    try {
-      const response = await deleteRecord(server, {
-        source: "open-dough",
-        session: session.sessionId,
-      });
+async function keepListed(record: LaunchRecord) {
+  await bindRecord(source.id, record);
+  claude.claudeListingBecomes([
+    ...claude.claudeListing(),
+    makeMe.aClaudeListingRow
+      .background({
+        sessionId: record.session.sessionId,
+        name: record.session.name,
+        cwd: executionCheckout(source).path,
+        startedAt: Date.parse(record.launchedAt),
+      })
+      .as("working")
+      .please(),
+  ]);
+}
 
-      expect(response.status).toBe(200);
-      expect(JSON.parse(response.body)).toEqual({ kind: "deleted" });
-      expect(await sessionIds()).toEqual([kept.sessionId]);
-    } finally {
-      server.claudeListingFails(false);
-    }
-    expect(keptLaunchRecords(server)).toEqual(
-      before.filter(
-        (each) =>
-          !("session" in each) || each.session.sessionId !== session.sessionId,
-      ),
+test("deletes only the record whose listing cannot be read, stopping and renaming nothing", async () => {
+  await keepListed(launch(keptId, "SEED-867#keep").please());
+  await keepListed(launch(targetId, "SEED-867#delete").please());
+  const before = await keptRecords(source.id);
+  const listing = claude.claudeListing();
+  claude.claudeListingFails(true);
+
+  const answer = await deleted(await admittedDelete(body, launches), launches);
+
+  expect(answer).toEqual({ kind: "deleted" });
+  expect(await keptRecords(source.id)).toEqual(
+    before.filter(({ session }) => session.sessionId !== targetId),
+  );
+  expect(claude.claudeListing()).toEqual(listing);
+  expect(claude.claudeStopCalls()).toEqual([]);
+  expect(claude.claudeAttaches()).toEqual([]);
+});
+
+test("deletes only the unmarked record Claude Code no longer lists", async () => {
+  await keepListed(launch(keptId, "SEED-867#keep").please());
+  await keepListed(launch(targetId, "SEED-867#delete-forgotten").please());
+  claude.claudeSessionBecomes(targetId, "forgotten");
+  const before = await keptRecords(source.id);
+  const listing = claude.claudeListing();
+
+  const answer = await deleted(await admittedDelete(body, launches), launches);
+
+  expect(answer).toEqual({ kind: "deleted" });
+  expect(await keptRecords(source.id)).toEqual(
+    before.filter(({ session }) => session.sessionId !== targetId),
+  );
+  expect(claude.claudeListing()).toEqual(listing);
+  expect(claude.claudeStopCalls()).toEqual([]);
+  expect(claude.claudeAttaches()).toEqual([]);
+});
+
+test.each([
+  {
+    known: "working",
+    done: false,
+    state: { kind: "available", availability: "loaded", activity: "working" },
+  },
+  {
+    known: "unlisted and marked Done",
+    done: true,
+    state: { kind: "unavailable" },
+  },
+])(
+  "keeps the $known session's record and answers its state",
+  async ({ done, state }) => {
+    const record = launch(targetId, "SEED-867#known");
+    await keepListed((done ? record.markedDone() : record).please());
+    if (done) claude.claudeSessionBecomes(targetId, "forgotten");
+    const before = await keptRecords(source.id);
+    const listing = claude.claudeListing();
+
+    const answer = await deleted(
+      await admittedDelete(body, launches),
+      launches,
     );
-    expect(server.claudeStopCalls()).toHaveLength(stopsBefore);
-    expect(
-      server
-        .claudeCalls()
-        .slice(callsBefore)
-        .map((call) => call.argv[0]),
-    ).not.toContain("stop");
-    expect(server.claudeAttaches()).toEqual([]);
-    expect(
-      server.claudeListing().find((each) => each["id"] === session.shortId),
-    ).toBeDefined();
-  });
 
-  test("deletes only the record of a session Claude Code no longer lists and that is not marked done, stopping nothing", async () => {
-    const kept = await composeSession(server);
-    const session = await composeSession(server, "open-dough", {
-      identity: "SEED-other#delete-forgotten",
-      title: "Forgotten story",
+    expect(answer).toMatchObject({
+      kind: "state-known",
+      record: { session: { sessionId: targetId }, sessionState: state },
     });
-    server.claudeSessionBecomes(session.sessionId, "forgotten");
-    const before = keptLaunchRecords(server);
-    const stopsBefore = server.claudeStopCalls().length;
+    expect(await keptRecords(source.id)).toEqual(before);
+    expect(claude.claudeListing()).toEqual(listing);
+    expect(claude.claudeStopCalls()).toEqual([]);
+    expect(claude.claudeAttaches()).toEqual([]);
+  },
+);
 
-    const response = await deleteRecord(server, {
-      source: "open-dough",
-      session: session.sessionId,
+test("refuses unrecorded sessions, another project's session and unknown projects before Claude Code runs", async () => {
+  await keepListed(launch(targetId, "SEED-867#keep").please());
+  const before = await keptRecords(source.id);
+  for (const [requested, message] of [
+    [
+      { ...body, session: "00000000-0000-4000-8000-000000000000" },
+      "This dashboard launched no such session for this project.",
+    ],
+    [
+      { ...body, source: otherSource.id },
+      "This dashboard launched no such session for this project.",
+    ],
+    [{ ...body, source: "not-a-real-project" }, "Unknown catalog source."],
+  ] as const) {
+    await expect(admittedDelete(requested, launches)).rejects.toMatchObject({
+      status: 404,
+      message,
     });
-
-    expect(response.status).toBe(200);
-    expect(JSON.parse(response.body)).toEqual({ kind: "deleted" });
-    expect(await sessionIds()).toContain(kept.sessionId);
-    expect(await sessionIds()).not.toContain(session.sessionId);
-    expect(keptLaunchRecords(server)).toEqual(
-      before.filter(
-        (each) =>
-          !("session" in each) || each.session.sessionId !== session.sessionId,
-      ),
-    );
-    expect(server.claudeStopCalls()).toHaveLength(stopsBefore);
-  });
-
-  for (const known of ["working", "unlisted and marked done"] as const) {
-    test(`keeps the record of a session that is ${known} and answers its state`, async () => {
-      const session = await composeSession(server);
-      if (known === "working") {
-        server.claudeSessionBecomes(session.sessionId, "working");
-      } else {
-        await markDone(server, {
-          source: "open-dough",
-          session: session.sessionId,
-        });
-        server.claudeSessionBecomes(session.sessionId, "forgotten");
-      }
-      const before = keptLaunchRecords(server);
-      const stopsBefore = server.claudeStopCalls().length;
-
-      const response = await deleteRecord(server, {
-        source: "open-dough",
-        session: session.sessionId,
-      });
-
-      expect(response.status).toBe(200);
-      expect(JSON.parse(response.body)).toMatchObject({
-        kind: "state-known",
-        record: {
-          session: { sessionId: session.sessionId },
-          sessionState:
-            known === "working"
-              ? {
-                  kind: "available",
-                  availability: "loaded",
-                  activity: "working",
-                }
-              : { kind: "unavailable" },
-        },
-      });
-      expect(await sessionIds()).toContain(session.sessionId);
-      expect(keptLaunchRecords(server)).toEqual(before);
-      expect(server.claudeStopCalls()).toHaveLength(stopsBefore);
-    });
+    expect(claude.claudeCalls()).toEqual([]);
   }
+  expect(await keptRecords(source.id)).toEqual(before);
+});
 
-  test("refuses a session this dashboard did not record, or another project's, before running claude", async () => {
-    const session = await composeSession(server);
-    for (const body of [
-      {
-        source: "open-dough",
-        session: "00000000-0000-4000-8000-000000000000",
-      },
-      { source: "pygardon", session: session.sessionId },
-      { source: "not-a-real-project", session: session.sessionId },
-    ]) {
-      const callsBefore = server.claudeCalls().length;
-
-      const response = await deleteRecord(server, body);
-
-      expect(response.status).toBe(404);
-      expect(server.claudeCalls()).toHaveLength(callsBefore);
-    }
-    expect(await sessionIds()).toContain(session.sessionId);
-  });
-
-  test("refuses a request from another site before running claude", async () => {
-    const session = await composeSession(server);
-    const callsBefore = server.claudeCalls().length;
-
-    const response = await deleteRecord(
-      server,
-      { source: "open-dough", session: session.sessionId },
-      { Origin: "http://evil.example" },
+test("explains why an unwritable record cannot be deleted and keeps it", async () => {
+  await keepListed(launch(targetId, "SEED-867#keep").please());
+  const before = await keptRecords(source.id);
+  const directory = machineDashboardDirectory();
+  claude.claudeListingFails(true);
+  chmodSync(directory, 0o500);
+  try {
+    const admitted = await admittedDelete(body, launches);
+    const answer = deleted(admitted, launches);
+    await expect(answer).rejects.toHaveProperty("status", 500);
+    await expect(answer).rejects.toThrow(
+      /The session record could not be deleted: .*EACCES/,
     );
-
-    expect(response.status).toBe(403);
-    expect(server.claudeCalls()).toHaveLength(callsBefore);
-    expect(await sessionIds()).toContain(session.sessionId);
-  });
-
-  test("answers a record file that cannot be written with why, keeping the record", async () => {
-    const session = await composeSession(server);
-    const before = keptLaunchRecords(server);
-    const directory = path.dirname(launchStoreFile(server));
-    server.claudeListingFails(true);
-    chmodSync(directory, 0o500);
-    try {
-      const response = await deleteRecord(server, {
-        source: "open-dough",
-        session: session.sessionId,
-      });
-
-      expect(response.status).toBe(500);
-      expect(response.headers["content-type"]).toContain("application/json");
-      expect(JSON.parse(response.body)).toEqual({
-        error: expect.stringContaining(
-          "The session record could not be deleted",
-        ),
-      });
-    } finally {
-      chmodSync(directory, 0o700);
-      server.claudeListingFails(false);
-    }
-    expect(keptLaunchRecords(server)).toEqual(before);
-    expect(await sessionIds()).toContain(session.sessionId);
-  });
+  } finally {
+    chmodSync(directory, 0o700);
+  }
+  expect(await keptRecords(source.id)).toEqual(before);
 });

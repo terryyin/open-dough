@@ -1,118 +1,142 @@
-// Reopening a session marked done at the terminal boundary
-// (../../server/agentTerminals.ts, admitted by ../../server/agentLaunchAdmission.ts)
-// over raw HTTP and a raw terminal socket: once `claude attach` starts for a
-// session marked done, its record answers no done time, also after a restart.
-// An upgrade refused before attaching leaves the session done. How the page
-// shows the reopened session is ../../../e2e/sessions/agent-terminal-done.spec.ts, and how the
-// boundary marks it done is ./agent-launch-done.spec.ts. The machine directory
-// holds HOME and the synthetic `claude`'s (../../test-support/fixtures/fake-claude) state; the
-// real one is never reached.
-
-import { mkdtempSync, rmSync } from "node:fs";
+import { EventEmitter } from "node:events";
+import { mkdirSync, mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { markDone, recordsOf } from "../../test-support/agentLaunchBoundary.ts";
-import { closeOpenSessions } from "../../test-support/openStorySessionSetup.ts";
+import { beforeEach, expect, onTestFinished, test, vi } from "vitest";
+import type { WebSocket } from "ws";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { AgentLaunches } from "../../server/agentLaunches.ts";
+import { NativeDoneMarks } from "../../server/doneMarks.ts";
+import { executionCheckout } from "../../server/executionCheckout.ts";
+import { JoinedSockets } from "../../server/joinedSockets.ts";
+import { launchHost } from "../../server/launchHosts.ts";
+import { bindRecord, keptSession } from "../../server/launchRecordStore.ts";
+import { machineFolder } from "../../server/localFolder.ts";
+import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
+import { attachableSession } from "../../server/terminalAdmission.ts";
+import { agentTerminalEndpoint } from "../../src/agentTerminal.ts";
 import {
-  lastAttachEnded,
-  composeSession,
-  openTerminal,
-  refusedStatus,
-  shows,
-  terminalUrl,
-  type RecordedSession,
-} from "../../test-support/agentTerminalBoundary.ts";
-import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
+  installFakeClaude,
+  type FakeClaudeControls,
+} from "../../test-support/support/fakeClaude.ts";
 
-// The project's kept record of the session, as the launch boundary answers it.
-async function recordOf(server: DashboardServer, session: RecordedSession) {
-  const records = (await recordsOf(server, "open-dough")) as {
-    session: { sessionId: string };
-    doneAt?: string;
-  }[];
-  return records.find(
-    (record) => record.session.sessionId === session.sessionId,
+class Socket extends EventEmitter {
+  readonly OPEN = 1;
+  readonly readyState = this.OPEN;
+  readonly output: string[] = [];
+
+  send(text: string): void {
+    this.output.push(text);
+  }
+}
+
+const source = makeMe.aPublishedSource.openDough.please();
+const sessionId = "588c4c19-0000-4000-8000-000000000008";
+const terminal = new URL(agentTerminalEndpoint, "http://127.0.0.1:4173");
+terminal.search = new URLSearchParams({
+  source: source.id,
+  host: "claude",
+  session: sessionId,
+}).toString();
+
+let launches: AgentLaunches;
+let claude: FakeClaudeControls;
+
+beforeEach(() => {
+  const machine = realpathSync(
+    mkdtempSync(path.join(tmpdir(), "dough-reopen-")),
   );
-}
-
-// Marks the session done through the launch boundary, answering its done time.
-async function markedDone(
-  server: DashboardServer,
-  session: RecordedSession,
-): Promise<string> {
-  const response = await markDone(server, {
-    source: "open-dough",
-    session: session.sessionId,
+  const fixture = installFakeClaude(
+    machine,
+    { binDir: machine, path: process.env.PATH ?? "" },
+    {},
+  );
+  for (const [key, value] of Object.entries(fixture.env))
+    vi.stubEnv(key, value);
+  const unmount = mountProjectConfiguration("production");
+  claude = fixture.controls;
+  const marks = new NativeDoneMarks({
+    terminals: { withAttachment: vi.fn(), endAttachments: vi.fn() },
+    hostFor: launchHost,
+    reportingFolder: machineFolder,
   });
-  expect(response.status).toBe(200);
-  return (JSON.parse(response.body) as { record: { doneAt: string } }).record
-    .doneAt;
-}
-
-test.describe("reopening a session marked done through its terminal", () => {
-  test.describe.configure({ mode: "serial" });
-  let machine: string;
-  let server: DashboardServer;
-
-  const startServer = () =>
-    startDashboardServer({
-      mode: "boundary",
-      machine,
-      projectFolders: ["open-dough"],
-      doneRenameWaitMs: 100,
-    });
-
-  test.beforeAll(async () => {
-    machine = mkdtempSync(path.join(tmpdir(), "dough-reopen-"));
-    server = await startServer();
-  });
-
-  test.afterAll(async () => {
-    await server.close();
+  launches = new AgentLaunches(marks);
+  onTestFinished(async () => {
+    launches.close();
+    await marks.close();
+    await launches.drain();
+    unmount();
+    vi.unstubAllEnvs();
     rmSync(machine, { recursive: true, force: true });
   });
+  mkdirSync(executionCheckout(source).path, { recursive: true });
+});
 
-  test("reopens a session marked done once its attach starts, and keeps it reopened across a restart", async () => {
-    const done = await composeSession(server);
-    await markedDone(server, done);
-    expect(await recordOf(server, done)).toHaveProperty("doneAt");
+async function keepDoneSession() {
+  const record = makeMe.aLaunchRecord
+    .executing({ identity: "SEED-867#reopen", title: "Keep working" })
+    .inClaudeSession({ sessionId })
+    .markedDone()
+    .please();
+  await bindRecord(source.id, record);
+  claude.claudeListingBecomes([
+    makeMe.aClaudeListingRow
+      .background({
+        sessionId,
+        name: record.session.name,
+        cwd: executionCheckout(source).path,
+        startedAt: Date.parse(record.launchedAt),
+      })
+      .as("stopped")
+      .please(),
+  ]);
+  return record;
+}
 
-    const terminal = await openTerminal(server, done);
+test("reopens a kept Done session as its terminal attaches", async () => {
+  const done = await keepDoneSession();
+  const admitted = await attachableSession(terminal, launches);
+  expect(admitted.markedDone).toBe(true);
 
-    expect(await shows(terminal, `attached ${done.shortId}`)).toBe(true);
-    const reopened = await recordOf(server, done);
-    expect(reopened).toMatchObject({
-      session: { sessionId: done.sessionId },
-      sessionState: { kind: "available" },
-    });
-    expect(reopened).not.toHaveProperty("doneAt");
-    terminal.socket.close();
-    expect(await lastAttachEnded(server)).toBe("SIGHUP");
+  const socket = new Socket();
+  const sockets = new JoinedSockets({
+    hostName: "Claude Code",
+    admitted: true,
+    readiness: undefined,
+    startupFailure: undefined,
+    isTracked: () => true,
+    writeInput: () => {},
+    resize: () => {},
+    onDropped: () => {},
+  });
+  sockets.attach(socket as unknown as WebSocket, admitted, false);
+  sockets.send("terminal output");
+  await expect.poll(() => socket.output).toEqual(["terminal output"]);
 
-    await server.close();
-    server = await startServer();
-    expect(await recordOf(server, done)).toMatchObject({
-      session: { sessionId: done.sessionId },
-    });
-    expect(await recordOf(server, done)).not.toHaveProperty("doneAt");
+  const reopened = await keptSession(source.id, done.session);
+  if (reopened === undefined) throw new Error("Expected the reopened record.");
+  expect(reopened).not.toHaveProperty("doneAt");
+  expect((await launches.stateOf(source, reopened)).sessionState.kind).toBe(
+    "available",
+  );
+
+  socket.emit("close");
+  expect(sockets.hasOpen()).toBe(false);
+  const afterDisconnect = await keptSession(source.id, done.session);
+  expect(afterDisconnect).toBeDefined();
+  expect(afterDisconnect).not.toHaveProperty("doneAt");
+});
+
+test("refusing terminal admission for a forgotten Claude Code session preserves its Done mark", async () => {
+  const done = await keepDoneSession();
+  claude.claudeSessionBecomes(sessionId, "forgotten");
+
+  await expect(attachableSession(terminal, launches)).rejects.toMatchObject({
+    status: 410,
   });
 
-  test("keeps a done session Claude Code no longer lists done when its upgrade is refused", async () => {
-    await closeOpenSessions(server);
-    const forgotten = await composeSession(server);
-    const doneAt = await markedDone(server, forgotten);
-    server.claudeSessionBecomes(forgotten.sessionId, "forgotten");
-
-    const status = await refusedStatus(
-      terminalUrl(server, "open-dough", forgotten.sessionId),
-      { origin: server.origin },
-    );
-
-    expect(status).toBe(410);
-    expect(await recordOf(server, forgotten)).toMatchObject({ doneAt });
+  expect(await keptSession(source.id, done.session)).toMatchObject({
+    doneAt: done.doneAt,
   });
+  expect(claude.claudeAttaches()).toEqual([]);
 });

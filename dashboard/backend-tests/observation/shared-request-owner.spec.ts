@@ -1,12 +1,8 @@
-// Two dashboard servers, through their local authenticated read boundary over
-// real HTTP, and the installed CI diagnostic entry ask one fake GitHub
-// through one request owner
-// (github-request-owner.mjs, ../../test-support/support/sharedRequestOwner.ts): eight requests
-// at GitHub between them, one call for a read both dashboards wait on, one
-// rate-limit wait holding back all three, one request first when it ends,
-// and a leaving or closing dashboard ending only its own waits. One process's
-// turns and wait: ./authenticated-read-turns.spec.ts,
-// ./authenticated-read-cooldown.spec.ts.
+// Two dashboards over real HTTP and the CI diagnostic share one GitHub
+// request owner. It limits upstream turns, shares concurrent reads and rate
+// limits, and keeps other reads running when a dashboard stops waiting.
+// Single-process turns and waits are covered by authenticated-read-turns.spec.ts
+// and authenticated-read-cooldown.spec.ts.
 
 import { expect, test as base } from "../../test-support/support/pageTest.ts";
 import { untilReported } from "../../test-support/support/directedWait.ts";
@@ -30,6 +26,7 @@ import {
   isWorkflowRead,
   withWorkflow,
 } from "../../test-support/support/sharedRequestOwner.ts";
+import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
 import {
   asked,
   isSeed,
@@ -43,6 +40,10 @@ import {
   httpErrorAnswer,
   rateLimitedAnswer,
 } from "../../test-support/originAnswers.ts";
+import {
+  ownerAdmissionEnvironment,
+  ownerAdmissions,
+} from "./shared-request-owner-admission-probe.mjs";
 
 type Machine = Awaited<ReturnType<typeof dashboardsOnOneOwner>>;
 let machine: Machine;
@@ -54,8 +55,17 @@ const processDiagnostics = test.extend({
   firstServerLiveReason: "separate process",
 });
 
+const admissionsLog = () => test.info().outputPath("owner-admissions.txt");
+const admissionsForSeed = (index: number) =>
+  ownerAdmissions(admissionsLog(), seedPaths[index] ?? "");
+
 test.beforeEach(async ({ firstServerLiveReason }) => {
-  machine = await dashboardsOnOneOwner(firstServerLiveReason);
+  const restore = withRestoredEnv(
+    firstServerLiveReason
+      ? ownerAdmissionEnvironment(admissionsLog(), seedPaths)
+      : {},
+  );
+  machine = await dashboardsOnOneOwner(firstServerLiveReason).finally(restore);
 });
 test.afterEach(async () => {
   await machine.closeAll();
@@ -193,8 +203,8 @@ processDiagnostics(
     const failed = [first, second].map((server) =>
       readAt(server, seedAt(revision, 0)),
     );
-    await machine.reached();
     await arrived(failing.before, 1);
+    await expect.poll(() => admissionsForSeed(0)).toBe(2);
     failing.releaseAll();
     expect((await Promise.all(failed)).map(({ status }) => status)).toEqual([
       502, 502,
@@ -216,8 +226,10 @@ processDiagnostics(
       headers: { Origin: first.origin },
     });
     const outlives = readAt(second, seedAt(revision, 2));
-    await machine.reached();
     await arrived(held.before, 2);
+    await expect
+      .poll(() => [admissionsForSeed(1), admissionsForSeed(2)])
+      .toEqual([2, 2]);
     left.cutAfter(0);
     await machine.reached();
     await machine.close(first);

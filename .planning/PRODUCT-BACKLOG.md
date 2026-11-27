@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Prove marking sessions done, stopping, deleting and reopening in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-and-terminal-lifecycle-on-vitest) — SEED-413#prove-native-session-and-terminal-lifecycle-on-vitest ([plan](slice-plans/867-prove-marking-sessions-done-on-vitest/PLAN.md))
 - [Prove session completion reporting in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-completion-reporting-on-vitest) — SEED-413#prove-session-completion-reporting-on-vitest ([plan](slice-plans/870-prove-session-completion-reporting-on-vitest/PLAN.md))
 - [Prove terminal attach in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-terminal-attach-and-cursor-turns-on-vitest) — SEED-413#prove-terminal-attach-and-cursor-turns-on-vitest ([plan](slice-plans/871-prove-terminal-attach-on-vitest/PLAN.md))
 - [Open the Board from the verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-the-board-from-the-verified-git-trunk) — SEED-430#open-the-board-from-the-verified-git-trunk ([plan](slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md))

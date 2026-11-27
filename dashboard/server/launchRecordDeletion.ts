@@ -1,6 +1,7 @@
-// Deletion records launch-local intent even before native launch settlement.
+// Session deletion checks native state. Record removal keeps durable intent.
+import type { DeleteRecordAnswer } from "../src/deleteRecord.ts";
 import { landingReportingReference } from "../src/launchLanding.ts";
-import type { LaunchRecord } from "../src/launchRecord.ts";
+import { recordDeletable, type LaunchRecord } from "../src/launchRecord.ts";
 import { removeLandingPins } from "./launchLandingGit.ts";
 import {
   recordLanding,
@@ -18,6 +19,44 @@ import {
   replaceAttempts,
   withKeptAttempts,
 } from "./launchAttemptStore.ts";
+import type { AgentLaunches } from "./agentLaunches.ts";
+import { RefusedRequest } from "./localOrigin.ts";
+import type { admittedDelete } from "./sessionAdmission.ts";
+
+export async function deleted(
+  { source, record }: Awaited<ReturnType<typeof admittedDelete>>,
+  launches: AgentLaunches,
+): Promise<DeleteRecordAnswer> {
+  const joined = await launches.stateOf(source, record);
+  if (!recordDeletable(joined)) {
+    return { kind: "state-known", record: joined };
+  }
+  let wasDeleted: boolean;
+  try {
+    wasDeleted = await deleteRecord(source.id, record.session);
+  } catch (error) {
+    throw new RefusedRequest(
+      500,
+      `The session record could not be deleted: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+  // Only once the record is actually gone may its host retire the
+  // session-local state that record alone remembered; a kept record
+  // (a failed deletion above) keeps that state, so a session whose
+  // record survives stays resumable exactly as before.
+  if (wasDeleted) {
+    try {
+      const { notifyRecordRemoved } = await import("./launchRecordRemoval.ts");
+      await notifyRecordRemoved(record);
+    } catch (error) {
+      throw new RefusedRequest(
+        500,
+        `The session record was deleted, but its session-local state could not be removed: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+  return { kind: "deleted" };
+}
 
 // Removes one kept session's record, leaving the project's other records as
 // they are. Answers whether such a record was kept.

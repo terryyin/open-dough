@@ -1,26 +1,99 @@
-import { givenSavedCodexSession } from "../../test-support/support/codexObservation.ts";
-// Refusal/race substitutions supply vendor replies, never local done semantics.
-import { writeFileSync } from "node:fs";
-import path from "node:path";
-import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
 import {
-  test,
-  expect,
-  stored,
-} from "../../test-support/support/codexLaunch.ts";
-import { markDone } from "../../test-support/agentLaunchBoundary.ts";
-import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
+  mkdirSync,
+  mkdtempSync,
+  realpathSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { beforeEach, expect, onTestFinished, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { AgentLaunches } from "../../server/agentLaunches.ts";
+import { NativeDoneMarks } from "../../server/doneMarks.ts";
+import { executionCheckout } from "../../server/executionCheckout.ts";
+import { launchHost } from "../../server/launchHosts.ts";
+import { bindRecord, keptRecords } from "../../server/launchRecordStore.ts";
+import { machineFolder, type LocalFolder } from "../../server/localFolder.ts";
+import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
+import { TerminalAttachments } from "../../server/terminalAttachments.ts";
+import type { LaunchRecord } from "../../src/agentLaunch.ts";
+import {
+  fakeClaudeHost,
+  installFakeClaude,
+} from "../../test-support/support/fakeClaude.ts";
+import {
+  codexEndpoint,
+  installFakeCodex,
+  type FakeCodex,
+} from "../../test-support/support/fakeCodex.ts";
 
-// No page: the local boundaries alone answer these requests.
-test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
+const source = makeMe.aPublishedSource.openDough.please();
+
+let machine: string;
+let folder: LocalFolder;
+let marks: NativeDoneMarks;
+let launches: AgentLaunches;
+
+beforeEach(() => {
+  machine = realpathSync(mkdtempSync(path.join(tmpdir(), "dough-races-")));
+  vi.stubEnv("HOME", path.join(machine, "home"));
+  const unmount = mountProjectConfiguration("production");
+  folder = executionCheckout(source);
+  const terminals = new TerminalAttachments();
+  marks = new NativeDoneMarks({
+    terminals,
+    hostFor: launchHost,
+    reportingFolder: machineFolder,
+  });
+  launches = new AgentLaunches(marks);
+  onTestFinished(async () => {
+    await marks.close();
+    terminals.close();
+    launches.close();
+    await launches.drain();
+    unmount();
+    vi.unstubAllEnvs();
+    rmSync(machine, { recursive: true, force: true });
+  });
+  mkdirSync(folder.path, { recursive: true });
+});
+
+async function keepConversation() {
+  const native = await installFakeCodex(machine, process.env.PATH ?? "", true);
+  onTestFinished(() => native.close());
+  for (const [key, value] of Object.entries(native.env)) vi.stubEnv(key, value);
+  native.cwd = folder.path;
+  const record = makeMe.aLaunchRecord
+    .refining({ identity: "SEED-867#codex-race", title: "Refine" })
+    .inCodexSession({
+      sessionId: native.threadId,
+      continuation: { endpoint: codexEndpoint(native), workspace: folder.path },
+    })
+    .please();
+  await bindRecord(source.id, record);
+  return { native, record };
+}
+
+const interruptions = (native: FakeCodex) =>
+  native.calls
+    .filter(({ method }) => method === "turn/interrupt")
+    .map(({ params }) => params);
+
+async function expectKeptDone(marked: LaunchRecord) {
+  expect(Date.parse(marked.doneAt ?? "")).not.toBeNaN();
+  const [kept] = await keptRecords(source.id);
+  expect(kept).toMatchObject({
+    session: marked.session,
+    doneAt: marked.doneAt,
+  });
+  expect(kept?.doneProblem).toBe(marked.doneProblem);
+}
+
 for (const refusal of ["rename", "interrupt"] as const) {
-  test(`${refusal} refusal preserves local intent and actual working/interrupted outcome`, async ({
-    dashboard,
-    codexProtocol,
-  }) => {
-    const native = codexProtocol;
-    if (native === undefined) throw new Error("Missing native fixture");
-    await givenSavedCodexSession(dashboard, native);
+  test(`${refusal} refusal preserves local intent and actual working/interrupted outcome`, async () => {
+    const { native, record } = await keepConversation();
     native.observations.set(native.threadId, {
       status: { type: "active", activeFlags: [] },
       turns: [{ id: "running-turn", status: "inProgress" }],
@@ -28,181 +101,150 @@ for (const refusal of ["rename", "interrupt"] as const) {
     const error = { code: -32000, message: `Native ${refusal} refused.` };
     if (refusal === "rename") native.renameError = error;
     else native.interruptError = error;
-    const response = await markDone(dashboard, {
-      source: "open-dough",
-      session: native.threadId,
-      host: "codex",
-    });
-    expect(response.status).toBe(200);
-    expect(JSON.parse(response.body)).toMatchObject({
-      record: {
-        doneAt: expect.any(String),
-        doneProblem: expect.stringContaining(`Native ${refusal} refused.`),
-        sessionState: {
-          kind: "available",
-          activity: refusal === "interrupt" ? "working" : "interrupted",
-        },
-      },
-    });
-    expect(stored(dashboard.home)[0]?.doneAt).toBeDefined();
-    expect(stored(dashboard.home)[0]?.doneProblem).toContain(
-      `Codex ${refusal === "interrupt" ? "stop" : "rename"} failed`,
+
+    const marked = await marks.markDone(source, record, folder, launches);
+
+    const operation = refusal === "interrupt" ? "stop" : "rename";
+    expect(marked.doneProblem).toContain(
+      `Codex ${operation} failed: ${error.message}`,
     );
-    expect(
-      native.calls.filter((call) => call.method === "turn/interrupt"),
-    ).toEqual([
+    expect((await launches.stateOf(source, marked)).sessionState).toMatchObject(
       {
-        method: "turn/interrupt",
-        params: { threadId: native.threadId, turnId: "running-turn" },
+        kind: "available",
+        activity: refusal === "interrupt" ? "working" : "interrupted",
       },
+    );
+    expect(interruptions(native)).toEqual([
+      { threadId: native.threadId, turnId: "running-turn" },
     ]);
+    await expectKeptDone(marked);
   });
 }
 
-test("a turn finishing during interruption never redirects the request to a newer turn", async ({
-  dashboard,
-  codexProtocol,
-}) => {
-  const native = codexProtocol;
-  if (native === undefined) throw new Error("Missing native fixture");
-  await givenSavedCodexSession(dashboard, native);
-  const observation = {
-    status: { type: "active", activeFlags: [] },
-    turns: [{ id: "observed-turn", status: "inProgress" }],
-  };
-  native.observations.set(native.threadId, observation);
-  native.beforeInterrupt = (threadId, turnId) => {
-    expect(threadId).toBe(native.threadId);
-    expect(turnId).toBe("observed-turn");
-    const first = observation.turns[0];
-    if (first === undefined) throw new Error("Missing observed turn");
-    first.status = "completed";
-    observation.turns.push({ id: "newer-turn", status: "inProgress" });
-  };
-  const response = await markDone(dashboard, {
-    source: "open-dough",
-    session: native.threadId,
-    host: "codex",
-  });
-  expect(response.status).toBe(200);
-  expect(JSON.parse(response.body)).toMatchObject({
-    record: {
-      doneAt: expect.any(String),
-      doneProblem: expect.stringContaining(
-        "expected active turn id observed-turn but found newer-turn",
-      ),
-      sessionState: { kind: "available", activity: "working" },
-    },
-  });
-  expect(
-    native.calls.filter((call) => call.method === "turn/interrupt"),
-  ).toEqual([
-    {
-      method: "turn/interrupt",
-      params: { threadId: native.threadId, turnId: "observed-turn" },
-    },
-  ]);
-  expect(observation.turns).toEqual([
-    { id: "observed-turn", status: "completed" },
-    { id: "newer-turn", status: "inProgress" },
-  ]);
-});
-
-test("active metadata followed by a completed latest turn never invents an interrupt target", async ({
-  dashboard,
-  codexProtocol,
-}) => {
-  const native = codexProtocol;
-  if (native === undefined) throw new Error("Missing native fixture");
-  await givenSavedCodexSession(dashboard, native);
+test("a turn finishing during interruption never redirects the request to a newer turn", async () => {
+  const { native, record } = await keepConversation();
+  const observed = { id: "observed-turn", status: "inProgress" };
+  const turns = [observed];
   native.observations.set(native.threadId, {
     status: { type: "active", activeFlags: [] },
-    turns: [{ id: "finished-turn", status: "completed" }],
+    turns,
   });
-  const response = await markDone(dashboard, {
-    source: "open-dough",
-    session: native.threadId,
-    host: "codex",
-  });
-  expect(response.status).toBe(200);
-  expect(stored(dashboard.home)[0]?.doneAt).toBeDefined();
-  expect(
-    native.calls.filter((call) => call.method === "turn/interrupt"),
-  ).toEqual([]);
-});
+  native.beforeInterrupt = () => {
+    observed.status = "completed";
+    turns.push({ id: "newer-turn", status: "inProgress" });
+  };
 
-test("an unreadable active-turn identity remains unknown rather than a guessed stop", async ({
-  dashboard,
-  codexProtocol,
-}) => {
-  const native = codexProtocol;
-  if (native === undefined) throw new Error("Missing native fixture");
-  await givenSavedCodexSession(dashboard, native);
-  native.observations.set(native.threadId, {
-    status: { type: "active", activeFlags: [] },
-    turns: [],
-    historyError: { code: -32601, message: "Latest turn unreadable." },
-  });
-  const response = await markDone(dashboard, {
-    source: "open-dough",
-    session: native.threadId,
-    host: "codex",
-  });
-  expect(response.status).toBe(200);
-  expect(JSON.parse(response.body)).toMatchObject({
-    record: {
-      doneProblem: expect.stringContaining("Latest turn unreadable"),
-      sessionState: { kind: "available", activity: "working" },
-    },
-  });
-  expect(
-    native.calls.filter((call) => call.method === "turn/interrupt"),
-  ).toEqual([]);
-});
+  const marked = await marks.markDone(source, record, folder, launches);
 
-test("shared Claude stop failure retains intent and current Working without exposing raw subprocess errors", async ({
-  dashboard,
-  codexProtocol,
-}) => {
-  const native = codexProtocol;
-  if (native === undefined) throw new Error("Missing native fixture");
-  // Native process substitute fails only stop; ordinary fixture supplies launch/listing.
-  const fixturePath = path.join(
-    repoRoot,
-    "dashboard",
-    "test-support",
-    "fixtures",
-    "fake-claude",
+  expect(marked.doneProblem).toContain(
+    "expected active turn id observed-turn but found newer-turn",
   );
+  expect((await launches.stateOf(source, marked)).sessionState).toMatchObject({
+    kind: "available",
+    activity: "working",
+  });
+  expect(interruptions(native)).toEqual([
+    { threadId: native.threadId, turnId: observed.id },
+  ]);
+  expect(turns.find(({ id }) => id === "newer-turn")?.status).toBe(
+    "inProgress",
+  );
+  await expectKeptDone(marked);
+});
+
+test.each([
+  {
+    title:
+      "active metadata followed by a completed latest turn never invents an interrupt target",
+    nativeOutcome: { turns: [{ id: "finished-turn", status: "completed" }] },
+    problem: undefined,
+  },
+  {
+    title:
+      "an unreadable active-turn identity remains unknown rather than a guessed stop",
+    nativeOutcome: {
+      turns: [],
+      historyError: { code: -32601, message: "Latest turn unreadable." },
+    },
+    problem:
+      "Local done mark retained. Codex stop failed: Latest turn unreadable.",
+  },
+])("$title", async ({ nativeOutcome, problem }) => {
+  const { native, record } = await keepConversation();
+  native.observations.set(native.threadId, {
+    ...nativeOutcome,
+    status: { type: "active", activeFlags: [] },
+  });
+
+  const marked = await marks.markDone(source, record, folder, launches);
+
+  expect(
+    native.calls.filter(({ method }) => method === "thread/turns/list"),
+  ).toMatchObject([{ params: { threadId: native.threadId } }]);
+  expect(interruptions(native)).toEqual([]);
+  expect(marked.doneProblem).toBe(problem);
+  expect((await launches.stateOf(source, marked)).sessionState).toMatchObject({
+    kind: "available",
+    activity: "working",
+  });
+  await expectKeptDone(marked);
+});
+
+test("shared Claude stop failure retains intent and current Working without exposing raw subprocess errors", async () => {
+  const claude = installFakeClaude(
+    machine,
+    { binDir: machine, path: process.env.PATH ?? "" },
+    {},
+  );
+  for (const [key, value] of Object.entries(claude.env)) vi.stubEnv(key, value);
+  const executable = path.join(machine, fakeClaudeHost.binDir, "claude");
+  const privateDetail = "private-native-subprocess-detail";
+  // The installed fake can be a hard link. Move that link before substituting stop.
+  renameSync(executable, `${executable}-fixture.cjs`);
   writeFileSync(
-    path.join(native.binDir, "claude"),
+    executable,
     `#!/usr/bin/env node
 if (process.argv[2] === "stop") {
   require("node:fs").appendFileSync(require("node:path").join(process.env.FAKE_CLAUDE_DIR, "calls.jsonl"), JSON.stringify({ argv: process.argv.slice(2), cwd: process.cwd() }) + "\\n");
-  process.stderr.write("private-native-subprocess-detail");
+  process.stderr.write(${JSON.stringify(privateDetail)});
   process.exit(1);
 }
-require(${JSON.stringify(fixturePath)});
+require("./claude-fixture.cjs");
 `,
     { mode: 0o755 },
   );
-  const session = await composeSession(dashboard);
-  // Idle between steps, so the rename succeeds and only the stop fails.
-  dashboard.claudeSessionBecomes(session.sessionId, "working-idle");
-  const response = await markDone(dashboard, {
-    source: "open-dough",
-    session: session.sessionId,
+  const sessionId = "588c4c19-0000-4000-8000-000000000007";
+  const shortId = sessionId.slice(0, 8);
+  const record = makeMe.aLaunchRecord
+    .executing({ identity: "SEED-867#stop-fails", title: "Finish" })
+    .inClaudeSession({ sessionId, shortId })
+    .please();
+  await bindRecord(source.id, record);
+  claude.controls.claudeListingBecomes([
+    makeMe.aClaudeListingRow
+      .background({
+        sessionId,
+        name: record.session.name,
+        cwd: folder.path,
+        startedAt: Date.parse(record.launchedAt),
+      })
+      .as("working-idle")
+      .please(),
+  ]);
+
+  const marked = await marks.markDone(source, record, folder, launches);
+  const observed = await launches.stateOf(source, marked);
+
+  expect(observed.doneProblem).toBe(
+    "Local done mark retained. Claude Code stop failed: The native operation could not be confirmed.",
+  );
+  expect(observed.sessionState).toMatchObject({
+    kind: "available",
+    activity: "working",
   });
-  expect(response.status).toBe(200);
-  expect(JSON.parse(response.body)).toMatchObject({
-    record: {
-      doneAt: expect.any(String),
-      doneProblem:
-        "Local done mark retained. Claude Code stop failed: The native operation could not be confirmed.",
-      sessionState: { kind: "available", activity: "working" },
-    },
-  });
-  expect(response.body).not.toContain("private-native-subprocess-detail");
-  expect(stored(dashboard.home)[0]?.doneAt).toBeDefined();
-  expect(dashboard.claudeStopCalls()).toHaveLength(1);
+  expect(JSON.stringify(observed)).not.toContain(privateDetail);
+  expect(claude.controls.claudeStopCalls()).toEqual([
+    { argv: ["stop", shortId], cwd: folder.path },
+  ]);
+  await expectKeptDone(marked);
 });
