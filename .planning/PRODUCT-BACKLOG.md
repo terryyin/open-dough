@@ -33,10 +33,10 @@ intent introduced or affected by a newly developed story.
 - [Prove session completion reporting in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-completion-reporting-on-vitest) — SEED-413#prove-session-completion-reporting-on-vitest ([plan](slice-plans/870-prove-session-completion-reporting-on-vitest/PLAN.md))
 - [Prove native session observation and alerts in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-observation-on-vitest) — SEED-413#prove-native-session-observation-on-vitest ([plan](slice-plans/869-prove-native-session-observation-on-vitest/PLAN.md))
 - [Prove terminal attach in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-terminal-attach-and-cursor-turns-on-vitest) — SEED-413#prove-terminal-attach-and-cursor-turns-on-vitest ([plan](slice-plans/871-prove-terminal-attach-on-vitest/PLAN.md))
+- [Open the Board from the verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-the-board-from-the-verified-git-trunk) — SEED-430#open-the-board-from-the-verified-git-trunk ([plan](slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md))
 
 ## Backlog list
 
-- [Open the Board from the verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-the-board-from-the-verified-git-trunk) — SEED-430#open-the-board-from-the-verified-git-trunk ([plan](slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md))
 - [Refresh the published Board in place](seeds/SEED-430-read-published-project-data-from-local-git.md#refresh-published-board-in-place) — SEED-430#refresh-published-board-in-place
 - [Follow published progress and read Board records from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git
