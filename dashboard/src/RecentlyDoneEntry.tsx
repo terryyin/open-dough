@@ -11,7 +11,10 @@ import {
   PublishedSessionEntry,
   PublishedSessionReviewAction,
 } from "./PublishedSessionEntry.tsx";
-import { reportingReferenceOf } from "./sessionListing.ts";
+import {
+  pairedPublished,
+  reviewableCompletions,
+} from "./recentlyDoneListing.ts";
 import type { Listed } from "./recentlyDoneView.ts";
 import { StoryReviewStateAction } from "./StoryReviewStateAction.tsx";
 import type { StoryReviewStates } from "./storyReviewStates.ts";
@@ -57,13 +60,8 @@ export function ListedEntry({
   readonly selectedIdentity: string | undefined;
   readonly onSelect: (identity: string) => void;
 }) {
-  const { record, sessions, followUps, published } = each;
-  const retained = new Set(
-    [...sessions, ...followUps].map(reportingReferenceOf),
-  );
-  const byReference = new Map(
-    published.map((session) => [session.sessionId, session]),
-  );
+  const { record, sessions, followUps } = each;
+  const { publishedOf, publishedOnly } = pairedPublished(each);
   const detail = detailOf(record);
   return (
     <DoneStoryCard
@@ -76,9 +74,7 @@ export function ListedEntry({
       sourceId={sourceId}
       launchRecords={launches.records}
       actionsOf={(session) => {
-        const reference = reportingReferenceOf(session);
-        const comparison =
-          reference === undefined ? undefined : byReference.get(reference);
+        const comparison = publishedOf(session);
         return (
           <>
             {comparison !== undefined && (
@@ -96,13 +92,11 @@ export function ListedEntry({
           </>
         );
       }}
-      publishedSessions={published
-        .filter((session) => !retained.has(session.sessionId))
-        .map((session) => (
-          <li key={session.sessionId}>
-            <PublishedSessionEntry record={session} sourceId={sourceId} />
-          </li>
-        ))}
+      publishedSessions={publishedOnly.map((session) => (
+        <li key={session.sessionId}>
+          <PublishedSessionEntry record={session} sourceId={sourceId} />
+        </li>
+      ))}
       selected={selectedIdentity === record.identity}
       onSelect={onSelect}
       ciFollowUp={
@@ -115,6 +109,7 @@ export function ListedEntry({
       reviewState={
         <StoryReviewStateAction
           identity={record.identity}
+          completions={reviewableCompletions(each)}
           states={reviewStates}
         />
       }

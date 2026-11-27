@@ -1,14 +1,16 @@
 // This machine's story review states (`../src/storyReviewState.ts`), kept by
 // project id and story identity in
 // `~/.open-dough/dashboard/story-review-states.json`, resolved through
-// `HOME`: an entry means the story is reviewed, and no entry means it is not.
-// A missing or unreadable file reads as every story unreviewed. The
+// `HOME`: an entry's `reviewedAt` is when the story was marked reviewed, and
+// no entry means it is not. A missing or unreadable file reads as every story
+// unreviewed. The
 // file is read, replaced atomically, and moved aside when unreadable as
 // `./machineJsonStore.ts` describes.
 
 import type { IncomingMessage } from "node:http";
 import { z } from "zod";
 import {
+  storyReviewMarkSchema,
   storyReviewStateChangeSchema,
   type StoryReviewStatesAnswer,
 } from "../src/storyReviewState.ts";
@@ -24,7 +26,7 @@ import {
 
 const storeSchema = z.record(
   z.string(),
-  z.record(z.string(), z.object({ reviewedAt: z.iso.datetime() })),
+  z.record(z.string(), storyReviewMarkSchema),
 );
 
 type StoredStates = z.infer<typeof storeSchema>;
@@ -38,9 +40,7 @@ const stateStore = (): MachineJsonStore<StoredStates> => ({
 const answerOf = (
   stored: StoredStates,
   project: string,
-): StoryReviewStatesAnswer => ({
-  reviewed: Object.keys(stored[project] ?? {}),
-});
+): StoryReviewStatesAnswer => ({ stories: stored[project] ?? {} });
 
 async function reviewStates(project: string): Promise<StoryReviewStatesAnswer> {
   const read = await readMachineJson(stateStore());
@@ -52,7 +52,7 @@ async function changeReviewState(
   identity: string,
   reviewed: boolean,
 ): Promise<StoryReviewStatesAnswer> {
-  let answer: StoryReviewStatesAnswer = { reviewed: [] };
+  let answer: StoryReviewStatesAnswer = { stories: {} };
   await replaceMachineJson(stateStore(), (stored) => {
     const others = Object.fromEntries(
       Object.entries(stored[project] ?? {}).filter(
@@ -71,7 +71,7 @@ async function changeReviewState(
   return answer;
 }
 
-// One request naming a configured project: GET answers its reviewed stories,
+// One request naming a configured project: GET answers its saved marks,
 // POST sets or clears one story's state and answers the same.
 export async function answerStoryReviewStates(
   req: IncomingMessage,

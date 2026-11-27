@@ -16,6 +16,7 @@ import {
   topLevelEntries,
 } from "../sessions/recently-done-column-page.ts";
 import {
+  doneSessionOf,
   isSelected,
   reviewBoard,
   reviewCard,
@@ -130,6 +131,27 @@ test("marking and unreviewing a story keep the card's sessions as they were", as
     `open-dough ${storyA.identity} true`,
     `open-dough ${storyA.identity} false`,
   ]);
+});
+
+// A mark at T covers the sessions completed by then: one completed after T
+// leaves the story Partially reviewed, and marking it again covers both.
+test("a mark covers the sessions completed by then, and a later one leaves the story partially reviewed", async () => {
+  const board = reviewBoard({
+    answer: makeMe.aMachineAnswer
+      .observingUnavailable(
+        doneSessionOf(storyA, "before", 40),
+        doneSessionOf(storyA, "after", 20),
+      )
+      .please(),
+    markedAt: { [storyA.identity]: minutesAgo(30) },
+  });
+  await board.mount();
+  const a = reviewCard(storyA.title);
+  await expect.element(a.partiallyReviewed).toBeVisible();
+  await expect.element(a.markAsReviewed).toBeVisible();
+  await a.markAsReviewed.click();
+  await expect.element(a.reviewedButton).toBeVisible();
+  expect(a.partiallyReviewed.query()).toBeNull();
 });
 
 test("a card whose record could not be read offers Mark as reviewed", async () => {

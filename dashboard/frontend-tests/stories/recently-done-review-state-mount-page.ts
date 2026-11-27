@@ -18,14 +18,22 @@ export const storyC = { identity: "SEED-503#review-c", title: "Review C" };
 export const doneStories = [storyA, storyB, storyC];
 
 // Each project's review states as the machine's local records keep them,
-// from the stories `reviewed` lists, with every change saved in order.
-export function reviewStateStore(reviewed: Record<string, string[]> = {}) {
+// from the stories `reviewed` lists (marked now, unless a case gives their
+// `reviewedAt`), with every change saved in order and marked at the clock.
+export function reviewStateStore(
+  reviewed: Record<string, string[]> = {},
+  markedAt: Record<string, string> = {},
+) {
+  const now = () => new Date().toISOString();
   const saved = new Map(
-    Object.entries(reviewed).map(([project, ids]) => [project, new Set(ids)]),
+    Object.entries(reviewed).map(([project, ids]) => [
+      project,
+      new Map(ids.map((id) => [id, markedAt[id] ?? now()])),
+    ]),
   );
   const changes: string[] = [];
   const of = (project: string) => {
-    const stories = saved.get(project) ?? new Set<string>();
+    const stories = saved.get(project) ?? new Map<string, string>();
     saved.set(project, stories);
     return stories;
   };
@@ -33,20 +41,40 @@ export function reviewStateStore(reviewed: Record<string, string[]> = {}) {
     const stories = of(project);
     if (change !== undefined) {
       changes.push(`${project} ${change.identity} ${String(change.reviewed)}`);
-      if (change.reviewed) stories.add(change.identity);
+      if (change.reviewed) stories.set(change.identity, now());
       else stories.delete(change.identity);
     }
-    return Promise.resolve(new Set(stories));
+    return Promise.resolve(new Map(stories));
   };
-  return { read, changes, reviewed: (project: string) => [...of(project)] };
+  return {
+    read,
+    changes,
+    reviewed: (project: string) => [...of(project).keys()],
+  };
 }
+
+// A session of `story` Done `doneAgo` minutes ago.
+export const doneSessionOf = (
+  story: { identity: string; title: string },
+  sessionId: string,
+  doneAgo: number,
+) =>
+  makeMe.aLaunchRecord
+    .executing(story)
+    .inClaudeSession({ sessionId })
+    .launchedAt(minutesAgo(doneAgo + 1))
+    .markedDoneAt(minutesAgo(doneAgo))
+    .please();
 
 export function reviewBoard({
   answer,
   viewport = { width: 1280, height: 900 },
+  markedAt = {},
 }: {
   answer?: MachineAnswer;
   viewport?: { width: number; height: number };
+  // Open Dough stories already marked reviewed, at each one's `reviewedAt`.
+  markedAt?: Record<string, string>;
 } = {}) {
   const { done, doneReads } = makeMe.aDoneCatalog
     .holding(
@@ -72,7 +100,10 @@ export function reviewBoard({
       return doneReads.readBodies(project, revision, files, signal);
     },
   };
-  const reviewStates = reviewStateStore();
+  const reviewStates = reviewStateStore(
+    { "open-dough": Object.keys(markedAt) },
+    markedAt,
+  );
   const work = boardWork([], { done });
   return {
     reviewed: (project = "open-dough") => reviewStates.reviewed(project),
@@ -119,6 +150,9 @@ export function reviewCard(name: string) {
     }),
     reviewedButton: actions.getByRole("button", {
       name: "Reviewed",
+      exact: true,
+    }),
+    partiallyReviewed: actions.getByText("Partially reviewed", {
       exact: true,
     }),
     question,

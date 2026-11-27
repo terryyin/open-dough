@@ -9,15 +9,20 @@ import { heldOnPagePerKey } from "./pageReads.tsx";
 import type { StoryReviewStateChange } from "./storyReviewState.ts";
 
 export type StoryReviewStates = {
-  // The reviewed story identities, until the first read answers.
-  readonly reviewed: ReadonlySet<string> | undefined;
+  // Each marked story's `reviewedAt` by identity, once the first read answers.
+  readonly reviewed: ReadonlyMap<string, string> | undefined;
   // Saves one story's state; rejects when it could not be saved.
   readonly change: (change: StoryReviewStateChange) => Promise<void>;
 };
 
 const projectReviewStates = (
-  source: (change?: StoryReviewStateChange) => Promise<ReadonlySet<string>>,
-) => localSettingState<ReadonlySet<string>, StoryReviewStateChange>(source);
+  source: (
+    change?: StoryReviewStateChange,
+  ) => Promise<ReadonlyMap<string, string>>,
+) =>
+  localSettingState<ReadonlyMap<string, string>, StoryReviewStateChange>(
+    source,
+  );
 
 const useProjectReviewStates = heldOnPagePerKey((reads, project) =>
   projectReviewStates((change) => reads.reviewStates(project, change)),
@@ -35,4 +40,29 @@ export function useStoryReviewStates(
     enabled ? state.snapshot : unknown,
   );
   return { reviewed, change: state.change };
+}
+
+// The one review rule: a completed session is reviewed when its completion is
+// at or before its story's saved `reviewedAt`.
+export const sessionReviewed = (
+  reviewedAt: string | undefined,
+  completedAt: string,
+): boolean =>
+  reviewedAt !== undefined && Date.parse(completedAt) <= Date.parse(reviewedAt);
+
+export type StoryReviewStatus = "unreviewed" | "partial" | "reviewed";
+
+// A story's status from its current reviewable sessions' completions; with
+// none, the saved mark alone decides.
+export function storyReviewStatus(
+  reviewedAt: string | undefined,
+  completions: readonly string[],
+): StoryReviewStatus {
+  if (completions.length === 0)
+    return reviewedAt === undefined ? "unreviewed" : "reviewed";
+  const reviewed = completions.filter((completedAt) =>
+    sessionReviewed(reviewedAt, completedAt),
+  ).length;
+  if (reviewed === 0) return "unreviewed";
+  return reviewed === completions.length ? "reviewed" : "partial";
 }

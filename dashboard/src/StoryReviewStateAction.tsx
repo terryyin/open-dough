@@ -1,8 +1,10 @@
 // A done story card's review state among its Story actions
 // (`./DoneStoryCard.tsx`), from the project's shared states
-// (`./storyReviewStates.ts`): an unreviewed story offers a red Mark as reviewed; a
-// reviewed one offers a quieter Reviewed button that asks before undoing
-// the review. An unreviewed story shows no badge.
+// (`./storyReviewStates.ts`) and its reviewable sessions' completions: a story
+// none of whose sessions are reviewed offers a red Mark as reviewed; one with
+// some reviewed shows a Partially reviewed badge beside that same action; and
+// one with all reviewed offers a quieter Reviewed button that asks before
+// undoing the review. An unreviewed story shows no badge.
 // Nothing shows until the project's states are first read. Using either
 // action keeps the keyboard on the card, on the action that then shows (when
 // Recently done has meanwhile kept the keyboard on the card itself, it moves
@@ -12,22 +14,32 @@
 // It never selects the story or opens the Side panel.
 import { useRef, useState } from "react";
 import { InPlaceQuestion, useAskInPlace } from "./AskInPlace.tsx";
-import type { StoryReviewStates } from "./storyReviewStates.ts";
+import {
+  storyReviewStatus,
+  type StoryReviewStates,
+} from "./storyReviewStates.ts";
 import { reviewStateNotSaved } from "./storyReviewStatesReadSource.ts";
 import "./story-review-state.css";
 
 export function StoryReviewStateAction({
   identity,
+  completions,
   states,
 }: {
   readonly identity: string;
+  // When each of the story's current reviewable sessions completed.
+  readonly completions: readonly string[];
   readonly states: StoryReviewStates;
 }) {
   const [said, setSaid] = useState("");
   const [failed, setFailed] = useState(false);
   const [busy, setBusy] = useState(false);
   const holder = useRef<HTMLDivElement>(null);
-  const reviewed = states.reviewed?.has(identity);
+  const status =
+    states.reviewed === undefined
+      ? undefined
+      : storyReviewStatus(states.reviewed.get(identity), completions);
+  const reviewed = status === undefined ? undefined : status === "reviewed";
   const asking = useAskInPlace(
     reviewed ? "Unreview this story?" : undefined,
     async (pressed) => {
@@ -56,6 +68,9 @@ export function StoryReviewStateAction({
   if (reviewed === undefined) return null;
   return (
     <div ref={holder} className="story-review-state">
+      {status === "partial" && (
+        <span className="story-review-state-partial">Partially reviewed</span>
+      )}
       {asking.shown ? (
         <InPlaceQuestion asking={asking} confirm="Unreview" keep="Cancel" />
       ) : (

@@ -95,7 +95,7 @@ second store or a published fact.
 
 ### 1. A story mark covers the sessions completed by then
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A story has two retained completed sessions and a published
 session with no launch. With no saved mark, the story offers **Mark as
@@ -128,6 +128,27 @@ and run `e2e/stories/recently-done-review-state-persistence.spec.ts`,
 `recently-done-review-state-refresh.spec.ts`,
 `e2e/sessions/recently-done-sessions-review-cue-ad-hoc.spec.ts`, and
 `e2e/review/story-review-completed.spec.ts`.
+
+Accepted proof (27 Nov 2026, uncommitted candidate on `5e2e6e355`):
+frontend mount specs `recently-done-review-{state,appearance,coverage}-mount`,
+`recently-done-review-cue-mount`, `recently-done-card-membership-mount` 27/27,
+and the moved pairing's consumers `recently-done-{read-gaps,expired-published-sessions,published-counterpart}` 6/6.
+The backend admission spec passed, as did `npm run typecheck:dashboard`. The
+e2e specs ran with strict status passed, 9/9: the five planned ones plus
+`e2e/sessions/recently-done-published-sessions.spec.ts` and
+`e2e/intent/intent-session-scope.spec.ts`, which the refactor reached.
+
+Learnings for slice 2:
+- The endpoint now answers `{ stories: { [identity]: { reviewedAt } } }`. The
+  rule lives in `dashboard/src/storyReviewStates.ts`
+  (`sessionReviewed`, `storyReviewStatus`).
+- `dashboard/src/recentlyDoneListing.ts` holds `pairedPublished` and
+  `reviewableCompletions`, one place for "a retained session and its
+  published record count once."
+- In a partly reviewed story, **Partially reviewed** is a text badge beside
+  **Mark as reviewed**, not the button's label.
+- `recently-done-review-coverage-mount.spec.ts` changes the mount's answer
+  mid-test for sessions arriving after a mark.
 
 ### 2. Mark or unreview one session
 Type: Behavior
@@ -194,6 +215,13 @@ for the same reason. Reached consumers:
 | Review-state mount, cue mount, card-membership mount, admission spec, `doneStoryReviewPage.ts`, `recentlyDoneReviewState.ts`, `recentlyDoneSessionsSidebarPage.ts` | run in the slice that changes the assertion |
 | `board-frame-mount.ts`, `recently-done-sidebar-mount-page.ts`, `unreadPageReads.ts` | run by `npm run typecheck:dashboard`; they supply the read and do not assert a review label |
 | `e2e/stories/recently-done-review-state-*.spec.ts`, `recently-done-sessions-review-cue-ad-hoc.spec.ts`, `e2e/review/story-review-completed.spec.ts` | run in slice 1; the cue spec again in slice 2 |
+
+## Story obligations
+
+### G1. Sidebar cue compares the retained `doneAt` (first reported in slice 1)
+Reported: slice 1 — "The sidebar row has no published record, so it compares `doneAt` instead of the published `closedAt`. The story card does use `closedAt`."
+Story clause: "A retained session and its published record count once."
+Disposition: receiving slice 2
 
 ## Plan review
 
