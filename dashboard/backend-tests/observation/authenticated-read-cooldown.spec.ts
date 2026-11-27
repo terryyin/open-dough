@@ -9,7 +9,7 @@
 // missing. Each case starts a server of its own, because the wait outlives
 // the request that met it. What else the wait reaches, and what starts none:
 // ./authenticated-read-cooldown-reach.spec.ts. How each read reports
-// GitHub's own direction: ./authenticated-read-directed-wait.spec.ts. A limit
+// GitHub's own direction: ./authenticated-read-failure-report.spec.ts. A limit
 // that directs no wait: ./authenticated-read-backoff.spec.ts. How reading
 // resumes once a wait ends: ./authenticated-read-resumption.spec.ts.
 

@@ -1,92 +1,135 @@
-// A real gh subprocess exceeds the authenticated read's 32 MiB output bound
-// (../../server/ghRead.ts); the request owner carries its safe cause through
-// the HTTP notice/history.
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
+// A real `gh` subprocess exceeds the authenticated read's 32 MiB output bound
+// (../../server/ghRead.ts): a pinned content read fails with its safe cause
+// and no raw output or invented status, and the revision check's oversized
+// head listing falls back to the ref alone without claiming branch heads.
+// Classification wording for every other failure:
+// ./authenticated-read-failure-report.spec.ts.
+
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { expect, test as base } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { disconnectGh, GhFailure, runGh } from "../../server/ghRead.ts";
+import { reportedFailure } from "../../server/readFailureMessage.ts";
+import { RevisionChecks } from "../../server/revisionChecks.ts";
 import {
-  pinnedAt,
-  sharedSeedPath,
-  unnamedRevision,
-} from "../../test-support/support/sharedReads.ts";
+  endFakeGh,
+  fakeGhEnv,
+  installFakeGh,
+} from "../../test-support/support/fakeGh.ts";
+import {
+  everyRepository,
+  startFakeGitHub,
+  type FakeGitHub,
+} from "../../test-support/support/fakeGitHub.ts";
 import { commitAnswer } from "../../test-support/originAnswers.ts";
-import {
-  checkArgv,
-  ownRevisionCheckBoundary,
-  revisionA,
-  revisionB,
-} from "./revisionCheckBoundary.ts";
-import {
-  inspect,
-  knownSourceId,
-  secretMarker,
-  developmentBoundary,
-  startDashboardServer,
-} from "../../test-support/support/readDiagnostics.ts";
+import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
 
 // Past the bound by a margin the answer's JSON framing cannot make up.
 const pastBound = 33 * 1024 * 1024;
+const secretMarker = "SECRET-OUTPUT-MARKER";
+const source = makeMe.aPublishedSource.openDough.please();
+const revisionA = "a1".repeat(20);
+const revisionB = "b2".repeat(20);
+// A real `gh` writing past 32 MiB takes seconds, so each case keeps the
+// former Playwright default of 30 s instead of Vitest's 5 s.
+const pastBoundTimeoutMs = 30_000;
 
-test("oversized gh output names its cause without retry advice, raw output or an invented upstream status", async () => {
-  const server = await startDashboardServer({
-    ...developmentBoundary,
-    liveServer: "separate process",
-  });
-  try {
-    server.github.serve(everyRepository, () =>
+// The production read in this worker, its real CLI `gh` answering from a
+// fake GitHub.
+const test = base.extend<{ github: FakeGitHub }>({
+  // eslint-disable-next-line no-empty-pattern
+  github: async ({}, use) => {
+    const root = mkdtempSync(path.join(tmpdir(), "dough-output-bound-"));
+    const github = await startFakeGitHub();
+    const gh = installFakeGh(root, { transport: "cli" });
+    const restore = withRestoredEnv(fakeGhEnv(gh, github.url));
+    try {
+      await use(github);
+    } finally {
+      disconnectGh();
+      await endFakeGh(gh);
+      restore();
+      await github.close();
+      rmSync(root, { recursive: true, force: true });
+    }
+  },
+});
+
+test(
+  "oversized gh output names its cause without raw output or an invented upstream status",
+  async ({ github }) => {
+    github.serve(everyRepository, () =>
       Promise.resolve({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify({
-          sha: secretMarker + "x".repeat(pastBound),
-        }),
+        body: JSON.stringify({ sha: secretMarker + "x".repeat(pastBound) }),
       }),
     );
-    const response = await pinnedAt(server);
-    expect(response.status).toBe(502);
-    expect(JSON.parse(response.body)).toEqual({
-      error: `The local GitHub CLI output exceeded the request's size limit while reading ${sharedSeedPath} at ${unnamedRevision}.`,
+    const reading = `seed.md at ${revisionA}`;
+    const failure = await runGh(
+      ["api", `repos/${source.repository}/contents/seed.md?ref=${revisionA}`],
+      new AbortController().signal,
+    ).then(
+      () => undefined,
+      (error: unknown) => error,
+    );
+    expect(failure).toBeInstanceOf(GhFailure);
+    expect((failure as GhFailure).reason).toEqual({ kind: "output-bound" });
+    const reported = reportedFailure(failure, source, reading);
+    expect(reported).toEqual({
+      message: `The local GitHub CLI output exceeded the request's size limit while reading ${reading}.`,
+      retryAfterSeconds: undefined,
+      recovery: undefined,
     });
-    expect(response.body).not.toContain(secretMarker);
-    expect(response.body.length).toBeLessThan(300);
-    const history = await inspect(server);
-    expect(history.failures).toHaveLength(1);
-    expect(history.failures[0]).toMatchObject({
-      source: knownSourceId,
-      category: "content",
-      cause: "output-bound",
-    });
-    expect(history.failures[0]?.status).toBeUndefined();
-    expect(history.failures[0]?.rateLimit).toBeUndefined();
-    expect(history.body).not.toContain(secretMarker);
-    expect(server.ghCalls()).toHaveLength(1);
-  } finally {
-    await server.close();
-  }
-});
+    expect(JSON.stringify(reported)).not.toContain(secretMarker);
+    expect(github.calls).toHaveLength(1);
+  },
+  pastBoundTimeoutMs,
+);
 
-test("an oversized branch listing still falls back to the ref alone without claiming branch-head evidence", async () => {
-  const boundary = await ownRevisionCheckBoundary();
-  const repository = "terryyin/open-dough";
-  try {
-    boundary.listing.set(repository, {
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify([
-        {
-          ref: `refs/heads/${"x".repeat(pastBound)}`,
-          object: { type: "commit", sha: revisionA },
-        },
-      ]),
+test(
+  "an oversized branch listing still falls back to the ref alone without claiming branch-head evidence",
+  async ({ github }) => {
+    github.serve(everyRepository, ({ request }) =>
+      Promise.resolve(
+        request.kind === "matching-refs"
+          ? {
+              status: 200,
+              contentType: "application/json",
+              body: JSON.stringify([
+                {
+                  ref: `refs/heads/${"x".repeat(pastBound)}`,
+                  object: { type: "commit", sha: revisionA },
+                },
+              ]),
+            }
+          : commitAnswer(revisionB),
+      ),
+    );
+    const checks = new RevisionChecks({
+      tracked: new Set(),
+      scope: () => Promise.resolve(undefined),
     });
-    boundary.main.set(repository, commitAnswer(revisionB));
-    const response = await boundary.check(knownSourceId, revisionA);
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual({ revision: revisionB, changed: true });
-    expect(response.calls).toEqual([
-      checkArgv(repository),
-      ["api", "--include", `repos/${repository}/commits/main`, "--jq", ".sha"],
+    expect(await checks.check(source, new AbortController().signal)).toEqual({
+      revision: revisionB,
+      heads: undefined,
+    });
+    expect(github.calls.map(({ argv }) => argv)).toEqual([
+      [
+        "api",
+        "--include",
+        `repos/${source.repository}/git/matching-refs/heads/`,
+      ],
+      [
+        "api",
+        "--include",
+        `repos/${source.repository}/commits/main`,
+        "--jq",
+        ".sha",
+      ],
     ]);
-  } finally {
-    await boundary.close();
-  }
-});
+  },
+  pastBoundTimeoutMs,
+);

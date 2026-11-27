@@ -25,7 +25,7 @@ reachable path before recording upstream call counts.
 [Plan 861](../861-prove-published-refresh-lifecycle-on-vitest/PLAN.md) owns
 revision-listing reuse, revision streams, and retained answers. This plan
 keeps the request-sharing interaction those clients rely on, including
-caller-specific answers and failure survival. [Plan 860](../860-prove-published-read-admission-on-vitest/PLAN.md)
+caller-specific answers and failure survival. [Plan 860](https://github.com/terryyin/open-dough/blob/ebdf4ebac57a7d7cd41172def1b8089a2d4fd455/.planning/slice-plans/860-prove-published-read-admission-on-vitest/PLAN.md)
 owns source and published-record read admission. [Plan 823](../823-follow-published-progress-from-local-git/PLAN.md)
 owns moving further readers to local Git. The installed login-isolation
 checks and the browser journeys retain their existing owners.
@@ -121,7 +121,7 @@ the `authenticated-read-` prefix and `.spec.ts` suffix except
 | `wait-in-turn` | 1 | 1795 |
 | `shared-request-owner` | 4 | 1452, 1404, 2311, 1727 |
 
-## Ordered slices and outside-in proof
+## Ordered slices
 
 Legacy names below are relative to `dashboard/backend-tests/observation/`.
 The listed paths are the disposition map. Keep each predecessor running
@@ -132,7 +132,7 @@ minutes.
 ### 1. Report classified failures and bounded output to the reader
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: GitHub refusals keep their typed recovery eligibility, directed
 wait and safe wording as a revision check, pinned content read, directory,
@@ -153,6 +153,18 @@ distribution answer parser's existing direction validation.
 Legacy: `authenticated-read-transient-eligibility.spec.ts`,
 `authenticated-read-directed-wait.spec.ts`,
 `authenticated-read-output-bound.spec.ts`.
+
+Delivered: `authenticated-read-failure-report.spec.ts` (5 Node cases,
+0–7 ms) owns the status, connectivity, timeout, directed-wait and
+oversized-answer matrix through `readAnswer` → `ReadAdmission.answered` →
+`reportedFailure`. `authenticated-read-output-bound.spec.ts` is now 2 Node
+cases with the real CLI fake `gh`: the production `runGh` past 32 MiB with
+one call and safe wording, and `RevisionChecks.check` falling back to the
+ref alone. They took 8.7 s and 11.2 s at load 38 and carry an essential
+per-test 30 s timeout. Final selector:
+`observation/authenticated-read-(failure-report|output-bound)\.spec\.ts$`;
+0 Chromium cases remain. The retired cap case's incident-history record
+moves to slice 6 (G1).
 
 ### 2. Hold queued reads and resume one read at a time
 
@@ -346,6 +358,13 @@ stall case of `authenticated-read-incident-record-lifecycle.spec.ts`.
   HTTP witnesses, and name and measure any proof moved to E2E under the
   [campaign comparison](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#backend-vitest-replacement-coverage).
   Confirm each old observation has an owner before retirement.
+
+## Story obligations
+
+### G1. Oversized-output incident record (first reported in slice 1)
+Reported: slice 1 — "The incident-history record check was not carried over: source, category `content`, cause `output-bound`, no status or rate limit, and no secret in the history."
+Story clause: "leave bounded, safe evidence of failures"
+Disposition: receiving slice 6
 
 ## Plan review
 

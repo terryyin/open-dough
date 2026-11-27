@@ -151,7 +151,7 @@ export function readAt(
 
 // A revision no published answer names: the one a revision check was shown
 // and a pinned read pins.
-export const unnamedRevision = "ab".repeat(20);
+const unnamedRevision = "ab".repeat(20);
 
 // The query asking whether main still names a revision shown, as the page's
 // scheduled checks ask it: one listing of the published branch heads, then
