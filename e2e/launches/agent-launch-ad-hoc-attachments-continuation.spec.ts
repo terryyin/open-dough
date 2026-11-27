@@ -8,7 +8,11 @@ import {
   openTakenBacklog,
   startSessionField,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
-import { recoveryOf } from "../../dashboard/test-support/responsiveRecovery.ts";
+import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
+import {
+  needsReconciliation,
+  recoveryOf,
+} from "../../dashboard/test-support/responsiveRecovery.ts";
 import {
   expectCopiedAttachmentPath,
   launchAttachmentClaimsRoot,
@@ -51,9 +55,12 @@ test("unconfirmed Codex first input continued from Startup recovery resends the 
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   await expect(dialog).toBeHidden();
 
-  await expect
-    .poll(async () => (await attempts(dashboard))[0]?.outcome?.kind)
-    .toBe("uncertain");
+  // The start publishes a real Take before the native exchange settles it.
+  const recovery = recoveryOf(page);
+  await expect(recovery).toContainText(needsReconciliation, {
+    timeout: launchWaitMs,
+  });
+  expect((await attempts(dashboard))[0]?.outcome?.kind).toBe("uncertain");
   await expect
     .poll(() => {
       try {
@@ -81,8 +88,6 @@ test("unconfirmed Codex first input continued from Startup recovery resends the 
       : "",
   ).toContain(attachedPath);
 
-  const recovery = recoveryOf(page);
-  await expect(recovery).toContainText("Startup needs reconciliation");
   native.refuseInput = false;
   await recovery
     .getByRole("button", {

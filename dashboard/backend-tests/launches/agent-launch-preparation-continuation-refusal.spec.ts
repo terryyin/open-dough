@@ -160,7 +160,7 @@ describe("a preparation interrupted before its commit", () => {
     expect(await origin.takenProfiles()).toEqual([]);
   });
 
-  test("preserves staged foreign work and later recovers without replacing an occupied agent", async () => {
+  test("preserves staged foreign work when it cannot verify the retained preparation", async () => {
     const file = "foreign-draft.txt";
     const foreign = path.join(workspace, file);
     writeFileSync(foreign, "Keep this unrelated work.\n");
@@ -175,33 +175,41 @@ describe("a preparation interrupted before its commit", () => {
     expect((await diff()).stdout).toBe(staged);
     expect(readFileSync(foreign, "utf8")).toBe("Keep this unrelated work.\n");
     expect(await origin.takenProfiles()).toEqual([]);
-    await exec("git", ["rm", "--cached", "--", file], { cwd: workspace });
-    rmSync(foreign);
-    const occupied = await origin.takenByAnotherAgent(storyB.identity);
-    expect(occupied).toBe("Yui-chan");
-    const occupant = async () =>
-      (await origin.takenProfiles()).find(
-        (profile) => profile["agent"] === occupied,
+  });
+
+  describe("while another agent occupies the next profile", () => {
+    let occupied: string;
+
+    beforeEach(async () => {
+      occupied = await origin.takenByAnotherAgent(storyB.identity);
+      expect(occupied).toBe("Yui-chan");
+    });
+
+    test("recovers without replacing the occupied agent", async () => {
+      const occupant = async () =>
+        (await origin.takenProfiles()).find(
+          (profile) => profile["agent"] === occupied,
+        );
+      const allocation = () =>
+        origin.originGit(
+          "log",
+          "-1",
+          "--diff-filter=A",
+          "--format=%H",
+          "main",
+          "--",
+          ".planning/agents/yui-chan.json",
+        );
+      const [before, occupiedAllocation] = await Promise.all([
+        occupant(),
+        allocation(),
+      ]);
+      expect((await resumedAssignment(await start()))?.["agent"]).toBe(
+        "Akiho-chan",
       );
-    const allocation = () =>
-      origin.originGit(
-        "log",
-        "-1",
-        "--diff-filter=A",
-        "--format=%H",
-        "main",
-        "--",
-        ".planning/agents/yui-chan.json",
-      );
-    const [before, occupiedAllocation] = await Promise.all([
-      occupant(),
-      allocation(),
-    ]);
-    expect((await resumedAssignment(await start()))?.["agent"]).toBe(
-      "Akiho-chan",
-    );
-    expect(await occupant()).toEqual(before);
-    expect(await allocation()).toBe(occupiedAllocation);
+      expect(await occupant()).toEqual(before);
+      expect(await allocation()).toBe(occupiedAllocation);
+    });
   });
 
   test("names the failure printed by a continuation without a readable result", async () => {

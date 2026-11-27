@@ -208,8 +208,10 @@ Evidence (2026-11-27):
   - `agent-launch-ad-hoc-attachments-continuation.spec.ts:29`, which stays
     on "Admitting a story.".
 
-  This execution repairs both as a separate increment, under the failure
-  policy.
+  Both are repaired. The backend case is split so that each test body runs
+  one real start; it passed 5 of 5 at load 14–21. The E2E case waits on the
+  page's "Startup needs reconciliation" within `launchWaitMs`, instead of a
+  5 s API poll; it passed 5 of 5 at load 22–30.
 - E2E specs run through `npm run test:e2e -- <files>`, because
   `scripts/test.sh` refuses `.ts` files.
 
