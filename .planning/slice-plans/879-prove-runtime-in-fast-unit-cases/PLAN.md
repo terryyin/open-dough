@@ -225,7 +225,7 @@ connection close belongs to `SEED-413#keep-full-frontend-runs-connected`.
 
 ### 4. Prove the fake gh client and in-process owner through its wire values
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 20–25 active minutes.
 Proof: Every case in the seven `fake-gh-*` specs runs in about 100 ms or
 less, with the case count reduced.
@@ -243,6 +243,22 @@ Behavior:
 Keep one real process case for child and temp-directory retirement. It
 stays in this folder only if it runs in about 100 ms; otherwise it moves
 to `Distribution/tests/test-runner`.
+
+Result: the `fake-gh-*` specs went from 35 cases (37.9 s summed, load 14)
+to 10 cases at 0–12 ms (load 14) in three Node Vitest specs; `fake-gh-client`,
+`-client-lifecycle`, `-in-process-activation` and `-in-process-scopes`
+are gone. Frames decode as values (`decodeFakeGhFrame`, one malformed
+table); admission and held shared reads run on `ReadAdmission` and
+`OutstandingReads` with a controlled clock; the three serving modes and
+owner keying are typed cases. The one real check is
+`Distribution/tests/test-runner/fake-gh-real-owner.sh`: signal and
+mktemp retirement, the shell client's argv, binary stdout, local auth and
+ignored curl configuration, and the real owner's preload, argv, bound and
+poisoned API executable. Owner sharing across dashboards stays with
+`observation/shared-request-owner.spec.ts`; the clock-controlled owner
+with `e2e/observation/auto-refresh-rate-limit.spec.ts`. A diagnosis round
+found the check's hang: a fake `mktemp` left on PATH by its own earlier
+section.
 
 ### 5. Decide test preparation and shared artifact demand from typed requests
 Type: Behavior

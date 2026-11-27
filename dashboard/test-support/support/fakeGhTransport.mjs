@@ -6,7 +6,8 @@ import { EventEmitter } from "node:events";
 const diagnostic = (message, code = 1) =>
   Object.assign(new Error(message), { code });
 
-function decode(frame, maxBuffer) {
+// Exported so the frame rule is proven with frames as values.
+export function decodeFakeGhFrame(frame, maxBuffer) {
   const first = frame.indexOf(10);
   const second = frame.indexOf(10, first + 1);
   const code = frame.subarray(0, first).toString();
@@ -113,7 +114,7 @@ export function runFakeGh(argv, options, callback) {
               return;
             }
             try {
-              const { exitCode, stdout, stderr } = decode(
+              const { exitCode, stdout, stderr } = decodeFakeGhFrame(
                 Buffer.concat(chunks),
                 maxBuffer,
               );
