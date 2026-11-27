@@ -240,3 +240,17 @@ Cursor turn specs are a separate story. The four premises were observed in
 this checkout. This review found no remaining slice-specific concern. The
 Codex Done-mark observation is slice 5's proof, on the server premise 4
 already ran.
+
+## Execution complete
+
+Product advice: no change to priorities. All 24 attach cases run on Node
+Vitest in 12.5 s against about 38 s across the five Playwright files. The
+sibling [Cursor turns](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-cursor-turns-on-vitest)
+story can reuse `startClaudeTerminalBoundary` and the runner-neutral
+readers (`codexEndOnceGone`, `developerShellViolations`) instead of
+repeating plain-server setup. Open for the developer: the scope line "Add zero new server,
+request, or boundary wrappers to `dashboard/test-support/`" versus the new
+`dashboard/test-support/terminalBoundaryHttp.ts`, which composes the
+existing fake hosts, projects and `startInProcessBoundaryHttp` once for
+five specs. Execution judged it composition rather than a wrapper;
+recommendation: keep it.
