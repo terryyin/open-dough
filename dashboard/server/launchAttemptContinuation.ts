@@ -27,26 +27,20 @@ import {
   workedByThisServer,
 } from "./launchAttemptWorker.ts";
 import { ownLaunchRecord } from "./ownLaunchRecord.ts";
-import {
-  availableUnboundRecovery,
-  retainedUnboundLaunches,
-  verifiesUnboundLaunch,
-} from "./unboundLaunchRecovery.ts";
 
 type Continuation = {
   readonly attempt: LaunchAttemptRecord;
   readonly ownLaunch: boolean;
-  readonly recoveredSession?: LaunchRecord;
 };
 
-export async function continuationRecord(
+export function continuationRecord(
   owned: OwnedAttempts,
   verifying: ReadonlySet<string>,
   sourceId: string,
   id: string,
   attempts: readonly LaunchAttemptRecord[],
   records: ReadonlyMap<string, readonly LaunchRecord[]> | undefined,
-): Promise<Continuation | Unaccepted> {
+): Continuation | Unaccepted {
   const found = attempts.find(
     (entry) => entry.id === id && entry.request.source === sourceId,
   );
@@ -56,47 +50,24 @@ export async function continuationRecord(
     held?.outcome !== undefined && workedByThisServer(found);
   const machineRunning = !supersededWorker && attemptWorkerRunning(found);
   const projectRecords = records?.get(sourceId) ?? [];
-  const historical = availableUnboundRecovery(found, projectRecords);
   const unneeded =
     notContinued({ ...found, owned: false, running: machineRunning }) ??
     notContinued(owned.observed(found));
-  if (
-    unneeded !== undefined &&
-    (historical === undefined ||
-      machineRunning ||
-      owned.observed(found).running)
-  )
-    return unneeded;
+  if (unneeded !== undefined) return unneeded;
   if (verifying.has(id)) return recheckRunning;
   if (records === undefined) return unreadableLaunchRecords;
   let own: LaunchRecord | undefined;
-  let recoveredSession: LaunchRecord | undefined;
   if (
     found.request.workflow === "ad-hoc" &&
     found.publication.kind !== "published"
-  ) {
-    const retained = retainedUnboundLaunches(found, projectRecords);
-    if (retained.length === 0) return { attempt: found, ownLaunch: false };
-    if (
-      historical === undefined ||
-      !(await verifiesUnboundLaunch(found, historical))
-    )
-      return {
-        kind: "uncertain",
-        reason: "unconfirmed",
-        explanation:
-          "The earlier session could not be verified in its saved workspace. Nothing was started.",
-      };
-    own = historical;
-    recoveredSession = historical;
-  } else if (pendingInputRecord(projectRecords, found.request) === undefined) {
+  )
+    return { attempt: found, ownLaunch: false };
+  if (pendingInputRecord(projectRecords, found.request) === undefined)
     own = ownLaunchRecord(records, found);
-  }
   return own === undefined
     ? { attempt: found, ownLaunch: false }
     : {
         ownLaunch: true,
-        ...(recoveredSession === undefined ? {} : { recoveredSession }),
         attempt: {
           ...found,
           worker: undefined,
@@ -108,10 +79,7 @@ export async function continuationRecord(
               sessionId: own.session.sessionId,
             },
           },
-          settledAt:
-            recoveredSession !== undefined && found.outcome?.kind === "launched"
-              ? found.settledAt
-              : new Date().toISOString(),
+          settledAt: new Date().toISOString(),
         },
       };
 }
@@ -141,7 +109,7 @@ export async function continueAttempt(
   let recorded: boolean;
   try {
     recorded = await keepAttemptIf(found, async (machine) => {
-      selected = await continuationRecord(
+      selected = continuationRecord(
         owned,
         verifying,
         sourceId,
@@ -163,9 +131,6 @@ export async function continueAttempt(
     return {
       kind: "accepted",
       attempt: owned.observed(selected.attempt),
-      ...(selected.recoveredSession === undefined
-        ? {}
-        : { recoveredSession: selected.recoveredSession }),
     };
   }
   const answer = await before(selected.attempt.request);

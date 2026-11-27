@@ -9,11 +9,13 @@
 
 import type { IncomingMessage } from "node:http";
 import type { AvatarImage } from "./avatarImages.ts";
+import type { ProfileAddition } from "./ghProfileAddition.ts";
 import type { Boundary } from "./performedRead.ts";
+import type { PinnedTexts } from "./pinnedTexts.ts";
 import { reportedFailure } from "./readFailureMessage.ts";
 import { unreachable, type Outcome } from "./readOutcome.ts";
 import { listedProfileAddition } from "./recordsBesideBacklog.ts";
-import { parseAdditionRead } from "./additionRead.ts";
+import { parseAdditionRead, type AdditionRead } from "./additionRead.ts";
 import { withTrackedGh } from "./trackedGh.ts";
 import {
   contextForAvatarRead,
@@ -28,7 +30,7 @@ export type AvatarOutcome =
 
 // Which profile's credited account an avatar read asks about: a listed agent
 // profile at a pinned revision, as for its addition read, and nothing else.
-function parseAvatarRead(
+export function parseAvatarRead(
   params: URLSearchParams,
 ): ReturnType<typeof parseAdditionRead> {
   if ([...params.keys()].sort().join("&") !== "path&revision&source") {
@@ -46,9 +48,16 @@ function noAvatar(message: string): AvatarOutcome {
   return { kind: "refused", status: 404, message };
 }
 
+type AvatarBoundary = Pick<Boundary, "tracked" | "avatars"> & {
+  readonly pinned: Pick<PinnedTexts, "lister" | "adder">;
+};
+type TrackAddition = (
+  lookup: (signal: AbortSignal) => Promise<ProfileAddition | undefined>,
+) => Promise<ProfileAddition | undefined>;
+
 export async function performAvatarRead(
   req: IncomingMessage,
-  boundary: Boundary,
+  boundary: AvatarBoundary,
   source: PublishedSource,
   params: URLSearchParams,
 ): Promise<AvatarOutcome> {
@@ -56,14 +65,24 @@ export async function performAvatarRead(
   if (read.kind === "refused") {
     return read;
   }
+  return performAvatarAt(boundary, source, read, (lookup) =>
+    withReadDiagnosticContext(
+      contextForAvatarRead(source.id, read.revision),
+      () => withTrackedGh(req, boundary.tracked, lookup),
+    ),
+  );
+}
+
+export async function performAvatarAt(
+  { pinned, tracked, avatars }: AvatarBoundary,
+  source: PublishedSource,
+  read: AdditionRead,
+  trackAddition: TrackAddition,
+): Promise<AvatarOutcome> {
   let added;
   try {
-    added = await withReadDiagnosticContext(
-      contextForAvatarRead(source.id, read.revision),
-      () =>
-        withTrackedGh(req, boundary.tracked, (signal) =>
-          listedProfileAddition(boundary.pinned, source, read, signal),
-        ),
+    added = await trackAddition((signal) =>
+      listedProfileAddition(pinned, source, read, signal),
     );
   } catch (error) {
     return {
@@ -91,7 +110,7 @@ export async function performAvatarRead(
   try {
     return {
       kind: "image",
-      image: await boundary.avatars.image(added.avatar, boundary.tracked),
+      image: await avatars.image(added.avatar, tracked),
     };
   } catch {
     // Refused as not a bounded image, or not fetched at all.

@@ -34,7 +34,8 @@ export function parts(page: Page) {
     directionToggle: page.locator(".direction summary"),
     // The direction's text, shown only while the direction is open.
     directionText: direction.locator("p"),
-    // The row holding the direction, Start session, and the help.
+    // The row holding the direction, Start session, the help, and the
+    // Board's confirmation time with its Refresh (./boardRefreshPage.ts).
     projectActions: page.locator(".project-actions"),
     preparationHelp: page.getByRole("button", {
       name: "Preparation badge legend",
@@ -91,19 +92,6 @@ export const storyCardSessions = (card: Locator) =>
 // An unfinished card's Done history disclosure (`./StoryCardDoneSessions.tsx`).
 export const storyCardDoneDisclosure = (card: Locator) =>
   card.locator(`details.${storyCardDoneClass}`);
-
-// Opens the card's Done history so nested Session entries can be observed.
-// Idempotent: leaves an already-open disclosure open.
-export async function expandStoryCardDoneHistory(card: Locator) {
-  const disclosure = storyCardDoneDisclosure(card);
-  if (
-    !(await disclosure.evaluate(
-      (element) => (element as HTMLDetailsElement).open,
-    ))
-  )
-    await disclosure.locator("summary").click();
-  return disclosure;
-}
 
 const escaped = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 

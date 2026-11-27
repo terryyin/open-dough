@@ -5,8 +5,8 @@
 // context after, then the Taken story it was admitted under; nothing at all
 // when that part is blank.
 // A new story follow-up's saved message includes its developer instruction.
-// Older story follow-ups and standalone session follow-ups save only context,
-// so they keep their separate instruction block.
+// A session follow-up and an older story follow-up save only context, so they
+// keep their separate instruction block.
 
 import type { RecordedLaunchRequest } from "../src/agentLaunch.ts";
 import { developerPart } from "../src/launchAttachments.ts";

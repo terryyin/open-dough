@@ -136,7 +136,7 @@ async function isListedAgentProfile(
 // are read; undefined when it does not. The avatar read (`./avatarRead.ts`)
 // finds its account the same way.
 export async function listedProfileAddition(
-  pinned: PinnedTexts,
+  pinned: Pick<PinnedTexts, "lister" | "adder">,
   source: PublishedSource,
   { revision, path }: { readonly revision: string; readonly path: string },
   signal: AbortSignal,

@@ -165,10 +165,11 @@ export async function readProject(
   const membership = await membershipRead(server.github, () =>
     read(server, ""),
   );
-  // When membership was asked differs by process; the rest is compared.
+  // When membership was asked, and when origin confirmed its revision, differ
+  // by process; the rest is compared.
   const shown = Object.fromEntries(
     Object.entries(membership.body as object).filter(
-      ([key]) => key !== "askedAt",
+      ([key]) => key !== "askedAt" && key !== "confirmedAt",
     ),
   ) as { revision: string };
   expect(shown.revision).toBe(publication.trunk.revision);

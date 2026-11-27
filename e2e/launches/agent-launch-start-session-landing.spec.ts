@@ -39,7 +39,6 @@ import {
 import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
-  openBacklog,
   originMain,
   radio,
 } from "../../dashboard/test-support/support/sessionDialog.ts";
@@ -56,6 +55,7 @@ import {
   expectBorrowedStarts,
   launchStoryIdentity,
 } from "../../dashboard/test-support/support/unattachedLaunchAssertions.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 
 const where =
   "The session runs in this project's execution checkout, with its existing changes;";
@@ -86,7 +86,7 @@ test("blank Automatically land Start opens a blank terminal and keeps the publis
   origin,
 }) => {
   const starts = recordStarts(origin);
-  await openBacklog(page, origin, true);
+  await openInstalledStoryBoard(page, origin);
   const before = await originMain(origin);
   const places = worktrees(origin.project);
   await startSession(page, "Open Dough").click();

@@ -58,14 +58,18 @@ export function describedRevision<Name extends string>(
   >)[name];
 }
 
-// The files one revision stating `facts` publishes, for a harness that serves
-// files alone. Its backlog is the description's own: an empty one unless
-// `facts` state theirs, or `backlog: null` for none.
-export function describedFiles(facts: RevisionFacts): Record<string, string> {
-  return describedRevision(
-    makeMe.aRepository.withRevision("published", facts).please(),
-    "",
-  ).files;
+// The files one revision stating `facts`, or a one-revision description,
+// publishes, for a harness that serves files alone. Its backlog is the
+// description's own: an empty one unless `facts` state theirs, or
+// `backlog: null` for none.
+export function describedFiles(
+  facts: RevisionFacts | RepositoryDescription<string>,
+): Record<string, string> {
+  const description =
+    "revisions" in facts
+      ? facts
+      : makeMe.aRepository.withRevision("published", facts).please();
+  return describedRevision(description, "").files;
 }
 
 // The backlog text a description with one revision publishes, for a journey

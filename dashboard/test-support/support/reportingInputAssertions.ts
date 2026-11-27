@@ -108,25 +108,35 @@ export function expectReportingBlock(
     expect(lines[5]).toMatch(rule);
 }
 
+// An ad hoc launch's input: the developer's `instruction`, its reporting
+// block, then the "Taken story:" line when the launch binds a story. A
+// launch into an established session leads with its `sessionBlock` instead,
+// and the instruction follows that line; it answers the paragraphs after the
+// instruction, such as attached images.
 export function expectAdHocReportingInput(
   input: string,
   instruction: string,
   request: RecordedLaunchRequest | undefined,
   server: Pick<DashboardServer, "home" | "origin">,
-) {
-  const developer = adHocDeveloperInput(input);
-  expect(developer).toBe(instruction);
-  let reporting = input.slice(developer.length + 2);
-  if (
-    request?.workflow === "ad-hoc" &&
-    request.followUp === undefined &&
-    request.storyIdentity !== undefined
-  ) {
-    const binding = `\n\nTaken story: ${request.storyIdentity}`;
-    expect(reporting.endsWith(binding)).toBe(true);
-    reporting = reporting.slice(0, -binding.length);
-  }
+  sessionBlock?: string,
+): string[] {
+  const lead = sessionBlock ?? instruction;
+  expect(input.startsWith(`${lead}\n\nDashboard reporting context:`)).toBe(
+    true,
+  );
+  const [reporting, ...after] = input.slice(lead.length + 2).split("\n\n");
   expectReportingBlock(reporting, request, server);
+  const story =
+    request?.workflow === "ad-hoc" && request.followUp === undefined
+      ? request.storyIdentity
+      : undefined;
+  const expected = [
+    ...(story === undefined ? [] : [`Taken story: ${story}`]),
+    ...(sessionBlock === undefined ? [] : [instruction]),
+  ];
+  if (sessionBlock === undefined) expect(after).toEqual(expected);
+  else expect(after.slice(0, expected.length)).toEqual(expected);
+  return after.slice(expected.length);
 }
 
 export function adHocDeveloperInput(input: string): string {

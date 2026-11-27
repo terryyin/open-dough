@@ -20,7 +20,6 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 import {
   parts,
@@ -33,6 +32,7 @@ import {
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
 import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
 import { setPageVisibility } from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 
 test("a launched ad hoc start leaves the overview and its page presents the session from the history", async ({
   page,
@@ -49,7 +49,7 @@ test("a launched ad hoc start leaves the overview and its page presents the sess
     )
       historyReads.push(request.url());
   });
-  await openBacklog(page, origin, true);
+  await openInstalledStoryBoard(page, origin);
   expect(historyReads).toEqual([]);
   let release = () => {};
   const delivery = new Promise<void>((resolve) => {

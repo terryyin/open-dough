@@ -40,15 +40,20 @@ export const retainedRecord = publishedSessionRecordSchema.parse(
     .please(),
 );
 // An ad hoc follow-up this machine retained under `title`, reporting as the
-// published `record`.
+// published `record`. Its request asks `instruction`, the title unless
+// stated; a `composed` prompt is its confirmed first input.
 export const adHocFollowUp = (
   title: string,
   record: { readonly sessionId: string },
   launched: number,
-) =>
-  makeMe.aLaunchRecord
+  {
+    instruction = title,
+    composed,
+  }: { readonly instruction?: string; readonly composed?: string } = {},
+) => {
+  const launch = makeMe.aLaunchRecord
     .adHoc({
-      instruction: title,
+      instruction,
       title,
       storyIdentity: source.identity,
       followUp: makeMe.aFollowUp.ofStory(source, "a".repeat(40)).please(),
@@ -60,8 +65,13 @@ export const adHocFollowUp = (
     })
     .inClaudeSession({ sessionId: `follow-up-${String(launched)}` })
     .launchedAt(minutesAgo(launched))
-    .markedDoneAt(minutesAgo(launched - 14))
-    .please();
+    .markedDoneAt(minutesAgo(launched - 14));
+  return (
+    composed === undefined
+      ? launch
+      : launch.withFirstInput({ state: "confirmed", instruction: composed })
+  ).please();
+};
 export const retained = adHocFollowUp("Follow up here", retainedRecord, 20);
 
 // An execution session is named by its close time.

@@ -35,10 +35,9 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import { expectReportingBlock } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
+import { expectAdHocReportingInput } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 import {
-  openBacklog,
   originMain,
   radio,
 } from "../../dashboard/test-support/support/sessionDialog.ts";
@@ -52,6 +51,7 @@ import {
   worktrees,
 } from "../../dashboard/test-support/support/startSessionLanding.ts";
 import { startedSessionTerminal } from "../../dashboard/test-support/support/startedSessionTerminal.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 
 const inNew = "The session runs in a new workspace under .worktrees/";
 const carries =
@@ -74,7 +74,7 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
   origin,
 }, testInfo) => {
   const starts = recordStarts(origin);
-  await openBacklog(page, origin, true);
+  await openInstalledStoryBoard(page, origin);
   const before = await originMain(origin);
   await startSession(page, "Open Dough").click();
   const dialog = startSessionDialog(page, "Open Dough");
@@ -150,13 +150,13 @@ test("Isolated workspace creates one worktree at fetched trunk on the host's nam
   const [started, ...others] = dashboard.claudeLaunches();
   expect(others).toEqual([]);
   expect(started?.cwd).toBe(realpathSync(worktree(origin.project, slug)));
-  const [block, reporting, ...developer] = (started?.instruction ?? "").split(
-    "\n\n",
+  const [images] = expectAdHocReportingInput(
+    started?.instruction ?? "",
+    text,
+    record.request,
+    dashboard,
+    sessionBlock(session),
   );
-  expect(block).toBe(sessionBlock(session));
-  expectReportingBlock(reporting, record.request, dashboard);
-  const [story, own, images] = developer;
-  expect([story, own]).toEqual([`Taken story: ${admitted.identity}`, text]);
   const attached = images?.replace(/^Attached images:\n1\. /, "") ?? "";
   expectCopiedAttachmentPath(attached, dashboard.home, "1-card.png");
   expect(readFileSync(attached)).toEqual(pngA);

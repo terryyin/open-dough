@@ -23,10 +23,8 @@ import {
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
 import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
 import { expectServedHomesReach } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
-import {
-  openBacklog,
-  originMain,
-} from "../../dashboard/test-support/support/sessionDialog.ts";
+import { originMain } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 
 test("a retired one-shot's common file browser reads only its captured pair after trunk advances, reverts the result, and the dashboard restarts", async ({
   page,
@@ -46,7 +44,7 @@ test("a retired one-shot's common file browser reads only its captured pair afte
   expectServedHomesReach(dashboard.github, defaultRepository, receipt.revision);
   const review = await openIntentReviewChanges(
     page,
-    await openBacklog(page, origin, true),
+    (await openInstalledStoryBoard(page, origin)).card("Story A"),
   );
   const { answer } = review;
   expect(answer).toMatchObject({

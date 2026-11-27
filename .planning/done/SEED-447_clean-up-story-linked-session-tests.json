@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-447#clean-up-story-linked-session-tests",
+  "title": "Remove leftover unbound recovery and overlapping story-linked session tests",
+  "completedAt": "2026-11-27T13:31:24.533Z",
+  "developer": "Terry Yin",
+  "agent": "Anri-chan",
+  "host": "claude"
+}

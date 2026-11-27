@@ -2,6 +2,30 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-447_clean-up-story-linked-session-tests.json",
+      "identity": "SEED-447#clean-up-story-linked-session-tests",
+      "completedAt": "2026-11-27T13:31:24.533Z",
+      "blob": "53d11cbaf00607b972622af008d02cc2a81d9522"
+    },
+    {
+      "fileName": "SEED-418_show-selected-session-in-review-home.json",
+      "identity": "SEED-418#show-selected-session-in-review-home",
+      "completedAt": "2026-11-27T13:11:39.319Z",
+      "blob": "7e456695bab55704123320f87cda6bd868eb0b25"
+    },
+    {
+      "fileName": "SEED-430_refresh-published-board-in-place.json",
+      "identity": "SEED-430#refresh-published-board-in-place",
+      "completedAt": "2026-11-27T12:45:06.596Z",
+      "blob": "1c5c404053e196a380de8d903651a647fb5c15b9"
+    },
+    {
+      "fileName": "SEED-413_published-read-admission-via-vitest.json",
+      "identity": "SEED-413#published-read-admission-via-vitest",
+      "completedAt": "2026-11-27T12:24:59.993Z",
+      "blob": "e98adb39b4db0279b0dd2b4e9c02906f42be98b7"
+    },
+    {
       "fileName": "SEED-418_announce-compact-dropdown-choice.json",
       "identity": "SEED-418#announce-compact-dropdown-choice",
       "completedAt": "2026-11-27T11:59:17.278Z",

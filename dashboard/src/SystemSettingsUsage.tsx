@@ -8,7 +8,7 @@
 // check time beside the error. The trend is an observation; it claims neither
 // an improvement, a common cost nor a tool's efficiency.
 import { useState } from "react";
-import { Moment } from "./Moment.tsx";
+import { CheckedAt } from "./CheckedAt.tsx";
 import { TokenIndexTrend } from "./TokenIndexTrend.tsx";
 import { UsageFilters } from "./UsageFilters.tsx";
 import { UsageDays } from "./UsageDays.tsx";
@@ -32,15 +32,6 @@ const checkedAt = (answers: readonly TokenIndexAnswer[]) =>
         each !== null && (latest === null || each > latest) ? each : latest,
       null,
     );
-
-const CheckedAt = ({ at }: { readonly at: string | null }) =>
-  at === null ? (
-    "Not checked yet"
-  ) : (
-    <>
-      Checked <Moment at={new Date(at)} />
-    </>
-  );
 
 export function SystemSettingsUsage({
   source,

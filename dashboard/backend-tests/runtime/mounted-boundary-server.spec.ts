@@ -11,6 +11,7 @@ import {
 } from "../../test-support/agentTerminalBoundary.ts";
 import { expectCursorRunnerStandIn } from "../../test-support/support/cursorRunnerJourney.ts";
 import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { launchWaitMs } from "../../test-support/support/launchWait.ts";
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
@@ -177,7 +178,9 @@ test("the mounted server accepts the control that ends a pending launch wait", a
   try {
     server.claudeScenario("hang");
     const response = launch(server, makeMe.aLaunchRequest.adHoc().please());
-    await expect.poll(() => server.heldClaudePid()).toBeDefined();
+    await expect
+      .poll(() => server.heldClaudePid(), { timeout: launchWaitMs })
+      .toBeDefined();
     await server.endLaunchWait();
     expect(JSON.parse((await response).body)).toMatchObject({
       kind: "uncertain",

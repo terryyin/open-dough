@@ -16,7 +16,6 @@ import { restMembershipAsked } from "../../dashboard/test-support/originObservat
 import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
 import { git } from "../../dashboard/test-support/support/launchLanding.ts";
 import { addProjectOnPage } from "../../dashboard/test-support/support/projectAddPage.ts";
-import { publishRetainedProjectStory } from "../../dashboard/test-support/support/retainedProjectStory.ts";
 import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
 import {
   startSessionDialog,
@@ -162,7 +161,13 @@ test("retained workspace explanations use the execution checkout and keep actual
     "utf8",
   );
   const server = await fixture.start("preview");
-  publishRetainedProjectStory(server, addedRepository, story, addedBranch);
+  server.github.serve(
+    addedRepository,
+    makeMe.aRepository
+      .withTrunkBranch(addedBranch)
+      .takingStories(story)
+      .please(),
+  );
   await page.goto(server.baseURL);
   await addProjectOnPage(page);
   await expect(

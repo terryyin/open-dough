@@ -14,7 +14,7 @@ const branchRefusal = {
   status: 409,
   message: "This is not the session's authorized branch landing.",
 };
-const retainedAuthority = makeMe.aLandingAuthority
+const settledAuthority = makeMe.aLandingAuthority
   .ofRepository("/repo")
   .inWorktree({ workspace: "/work", branch: "dough/decision" })
   .please();
@@ -23,12 +23,34 @@ type Refusal = {
   scenario: string;
   expected: { status: number; message: string };
   reportOrigin?: string;
-  host?: LandingDecisionInput["report"]["host"];
+  report?: LandingDecisionInput["report"];
   operation?: LandingDecisionInput["operation"];
   record?: LandingDecisionInput["records"][number];
   receivedAt?: string;
-  deletedAt?: string;
 };
+
+const authorizedRefusal = {
+  status: 409,
+  message: "This is not the established launch's authorized landing.",
+};
+
+const declaredStory = "SEED-9#declared-landing";
+const declaredSubmission = () =>
+  makeMe.aLandingSubmission
+    .forLaunch({ identity: declaredStory })
+    .comparing(comparison);
+const declaredLanding = (
+  facts: Parameters<typeof makeMe.aLaunchRecord.withDeclaredLanding>[0] = {},
+) =>
+  makeMe.aLaunchRecord
+    .adHoc({ title: "Declared landing", storyIdentity: declaredStory })
+    .inClaudeSession({ sessionId: "declared-decision-session" })
+    .startingInExecutionCheckout({ workspace: "/work", repository: "/repo" })
+    .withDeclaredLanding({
+      identity: declaredStory,
+      origin: dashboardOrigin,
+      ...facts,
+    });
 
 test.each<Refusal>([
   {
@@ -38,12 +60,89 @@ test.each<Refusal>([
   },
   {
     scenario: "a declared branch landing from another host",
-    host: "codex",
+    report: declaredSubmission().forLaunch({ host: "codex" }).please(),
     expected: branchRefusal,
   },
   {
     scenario: "a deleted declared landing",
-    deletedAt: "2026-11-20T11:00:00.000Z",
+    record: declaredLanding({ deletedAt: "2026-11-20T11:00:00.000Z" }).please(),
+    expected: branchRefusal,
+  },
+  {
+    // Positive control: the unaltered declaration passes every authority
+    // check and reaches the comparison, which holds no prepared pair.
+    scenario: "an authorized record that was never prepared",
+    operation: "record",
+    expected: {
+      status: 409,
+      message:
+        "This comparison was not retained for this launch before publication.",
+    },
+  },
+  {
+    scenario: "a submission for another story",
+    report: declaredSubmission()
+      .forLaunch({ identity: "SEED-9#other-story" })
+      .please(),
+    expected: authorizedRefusal,
+  },
+  {
+    scenario: "a submission to another remote",
+    report: declaredSubmission().landingOnTrunk({ remote: "foreign" }).please(),
+    expected: authorizedRefusal,
+  },
+  {
+    scenario: "a submission to another target",
+    report: declaredSubmission()
+      .landingOnTrunk({ target: "refs/heads/foreign" })
+      .please(),
+    expected: authorizedRefusal,
+  },
+  {
+    scenario: "a declared landing for another story",
+    record: declaredLanding({
+      retainedAuthority: { identity: "SEED-9#other-story" },
+    }).please(),
+    expected: branchRefusal,
+  },
+  {
+    scenario: "a declared landing in another repository",
+    record: declaredLanding({
+      retainedAuthority: { repository: "/elsewhere" },
+    }).please(),
+    expected: branchRefusal,
+  },
+  {
+    scenario: "a declared landing in another workspace",
+    record: declaredLanding({
+      retainedAuthority: { workspace: "/elsewhere" },
+    }).please(),
+    expected: branchRefusal,
+  },
+  {
+    scenario: "a declared landing on another branch",
+    record: declaredLanding({
+      retainedAuthority: { branch: "foreign" },
+    }).please(),
+    expected: branchRefusal,
+  },
+  {
+    scenario: "a declared landing to another remote",
+    record: declaredLanding({
+      retainedAuthority: { remote: "foreign" },
+    }).please(),
+    expected: branchRefusal,
+  },
+  {
+    scenario: "a declared landing to another target",
+    record: declaredLanding({
+      retainedAuthority: { target: "refs/heads/foreign" },
+    }).please(),
+    expected: branchRefusal,
+  },
+  {
+    scenario: "an unprepared landing after the session is done",
+    record: declaredLanding().markedDoneAt("2026-11-20T11:30:00.000Z").please(),
     expected: branchRefusal,
   },
   {
@@ -53,7 +152,7 @@ test.each<Refusal>([
     record: makeMe.aLaunchRecord
       .adHoc({ title: "Settled retained landing" })
       .inClaudeSession({ sessionId: "settled-decision-session" })
-      .inIsolatedWorkspace(retainedAuthority)
+      .inIsolatedWorkspace(settledAuthority)
       .reportingThrough({
         origin: dashboardOrigin,
         reference: submission.reference,
@@ -61,7 +160,7 @@ test.each<Refusal>([
       })
       .withLandingReporting({
         origin: dashboardOrigin,
-        authority: retainedAuthority,
+        authority: settledAuthority,
         preparations: [],
         settledAt: "2000-11-20T12:00:00.000Z",
       })
@@ -76,35 +175,17 @@ test.each<Refusal>([
   async ({
     expected,
     reportOrigin = dashboardOrigin,
-    host = "claude",
+    report = declaredSubmission().please(),
     operation = "prepare",
-    record,
+    record = declaredLanding().please(),
     receivedAt = "2026-11-20T12:00:00.000Z",
-    deletedAt,
   }) => {
     const answer = decideLanding({
-      report: makeMe.aLandingSubmission
-        .forLaunch({ host })
-        .comparing(comparison)
-        .please(),
+      report,
       origin: reportOrigin,
       operation,
       attempts: [],
-      records: [
-        record ??
-          makeMe.aLaunchRecord
-            .adHoc({
-              title: "Declared landing",
-              storyIdentity: "SEED-9#declared-landing",
-            })
-            .inClaudeSession({ sessionId: "declared-decision-session" })
-            .withDeclaredLanding({
-              identity: "SEED-9#declared-landing",
-              origin: dashboardOrigin,
-              ...(deletedAt !== undefined && { deletedAt }),
-            })
-            .please(),
-      ],
+      records: [record],
       receiptId: "44444444-4444-4444-8444-444444444444",
       receivedAt,
     });

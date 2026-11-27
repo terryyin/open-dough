@@ -1,24 +1,13 @@
 // Held-work mount of the production configured frame: typed view inputs for
-// work, perspective and page reads, while ConfiguredDashboardFrame and
-// ConfiguredDashboardContent own frame, banner, notice and scroll composition
-// (../../src/configuredDashboardFrame.tsx, ../../src/configuredDashboardContent.tsx).
-import { createElement, Fragment, useContext, useEffect } from "react";
+// work, perspective and page reads; the frame's composition is
+// ./intent-ci-page-tree.ts. The mount owns the reads a case leaves at their
+// defaults and drives what the page shows as a case asks.
 import { expect } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
-import { ConfiguredDashboardContent } from "../../src/configuredDashboardContent.tsx";
-import { ConfiguredDashboardFrame } from "../../src/configuredDashboardFrame.tsx";
-import { DashboardBanner } from "../../src/DashboardBanner.tsx";
-import { FollowUpNavigationOnPage } from "../../src/ciFollowUpNavigation.tsx";
-import type { DashboardRoute } from "../../src/dashboardRouteUrl.ts";
-import { LaunchesOnPage } from "../../src/pageLaunches.ts";
-import { PageReadsOnPage, type PageReads } from "../../src/pageReads.tsx";
-import {
-  StorySelectionOnPage,
-  type PageStorySelection,
-} from "../../src/pageStorySelection.tsx";
-import { ProjectsOnPage } from "../../src/projectList.tsx";
+import type { PageReads } from "../../src/pageReads.tsx";
+import type { PageStorySelection } from "../../src/pageStorySelection.tsx";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import { recentStoriesKey, type RecentStory } from "../../src/recentStories.ts";
@@ -31,6 +20,7 @@ import { machineSessionsAnswering } from "../../test-support/component-mount/mac
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { withStoryResultFixture } from "../../test-support/component-mount/storyResultFixture.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
+import { intentCiPageTree, type Shown } from "./intent-ci-page-tree.ts";
 
 // The review a case leaves unavailable, as with no local review workspace.
 const unavailableReviewSource: ReviewSource = {
@@ -52,37 +42,6 @@ export const unmeasuredHostSessions: PageReads["sessions"] = {
       makeMe.aHostStatus.with({ cpuPercent: null, freeBytes: null }).please(),
     ),
 };
-
-// Hands the case the page's story selection, which a Board card toggles.
-function SelectionHandle({
-  onSelection,
-}: {
-  readonly onSelection: (selection: PageStorySelection | undefined) => void;
-}) {
-  onSelection(useContext(StorySelectionOnPage));
-  return null;
-}
-
-// `opened` says whether the page's content is shown; while it is not, Intent
-// is closed as it is on Development, and opening it reads the selection anew.
-type Shown = {
-  readonly work: PublishedWork;
-  readonly showsIntent: boolean;
-  readonly opened: boolean;
-};
-
-function CommittedView({
-  shown,
-  onCommit,
-}: {
-  readonly shown: Shown;
-  readonly onCommit: (committed: Shown) => void;
-}) {
-  useEffect(() => {
-    onCommit(shown);
-  }, [onCommit, shown]);
-  return null;
-}
 
 // The Sessions sidebar starts closed, the Board at its first column and Recent
 // stories at `recentStories`, whatever an earlier case in this browser kept,
@@ -144,99 +103,25 @@ export async function mountIntentCiPage({
   const onCommit = (next: Shown) => {
     committed = next;
   };
-  const noop = () => undefined;
   const select = (project: PublishedSource | undefined) => {
     if (project === undefined || project.id === shown.work.source.id) return;
     const snapshot = observations.get(project.id);
     if (snapshot !== undefined) void show({ ...shown, work: snapshot });
   };
-  const render = () => {
-    const { source } = shown.work;
-    const showsIntent = shown.showsIntent;
-    const showsBoard = !showsIntent;
-    const route: DashboardRoute = {
-      source,
-      view: "stories",
-      perspective: showsIntent ? "intent" : "development",
-    };
-    return createElement(
-      PageReadsOnPage,
-      { reads: pageReads },
-      createElement(ProjectsOnPage, {
-        projects,
-        replaceProjects: noop,
-        children: createElement(
-          LaunchesOnPage,
-          { value: launches },
-          createElement(
-            FollowUpNavigationOnPage,
-            { value: noop },
-            createElement(ConfiguredDashboardFrame, {
-              launches,
-              stories: {
-                selected: source.id,
-                shown: showsBoard ? source.id : undefined,
-                show: select,
-                select,
-                development: showsBoard,
-                work: shown.work,
-              },
-              storyReference: {
-                projects,
-                selected: source.id,
-                work: shown.work,
-                reading: false,
-                failure: undefined,
-                show: select,
-                retry: retryReference,
-                suspended: showsIntent,
-              },
-              banner: createElement(DashboardBanner, {
-                source,
-                perspective: route.perspective,
-                onOpenSettings: noop,
-                onSelect: select,
-                onSelectPerspective: (next) => {
-                  void show({ ...shown, showsIntent: next === "intent" });
-                },
-              }),
-              children: (storyNotice) =>
-                createElement(
-                  Fragment,
-                  null,
-                  createElement(CommittedView, { shown, onCommit }),
-                  createElement(SelectionHandle, { onSelection }),
-                  shown.opened &&
-                    createElement(ConfiguredDashboardContent, {
-                      source,
-                      work: shown.work,
-                      route,
-                      destination: undefined,
-                      showsIntent,
-                      showsRoster: false,
-                      showsBoard,
-                      storyNotice,
-                      attempt: { status: "read" },
-                      reading: false,
-                      withheld: false,
-                      recoversAt: undefined,
-                      limitedUntil: undefined,
-                      notice: "",
-                      launches,
-                      visibility: "visible",
-                      readFailure: undefined,
-                      openRoster: noop,
-                      rosterAgent: undefined,
-                      onBack: noop,
-                      showStories: noop,
-                    }),
-                ),
-            }),
-          ),
-        ),
-      }),
-    );
-  };
+  const render = () =>
+    intentCiPageTree({
+      shown,
+      pageReads,
+      projects,
+      launches,
+      select,
+      retryReference,
+      choosePerspective: (showsIntent) => {
+        void show({ ...shown, showsIntent });
+      },
+      onCommit,
+      onSelection,
+    });
   const mounted = await mountComponent(render(), {
     viewport,
     fillsViewport: true,

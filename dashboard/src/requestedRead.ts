@@ -15,9 +15,15 @@ import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import { readPublishedWork } from "./publishedWorkRead.ts";
 
+// Why the ref is read again: limit recovery, or launch reconciliation's
+// fresh read.
+export type RefAsk = "recovery" | "fresh";
+
 export type ReadRequest = {
   readonly asked: number;
   readonly revision: string | undefined;
+  // Launch reconciliation's ask: only a ref check begun after it may answer.
+  readonly fresh?: boolean;
   readonly movedBranches?: StoryBranchHeads;
 };
 
@@ -37,7 +43,7 @@ export type ReadReports = {
 // answered itself, once its signal is aborted.
 export function carryOutRead(
   reads: PublishedObservationReadSource,
-  { revision, movedBranches }: ReadRequest,
+  { revision, fresh = false, movedBranches }: ReadRequest,
   source: PublishedSource,
   shown: PublishedWork | undefined,
   signal: AbortSignal,
@@ -91,6 +97,7 @@ export function carryOutRead(
     revision,
     shown,
     reads,
+    fresh,
   ).then(
     (read) => {
       landed(true, () => {

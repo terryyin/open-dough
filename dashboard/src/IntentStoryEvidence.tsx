@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { House } from "lucide-react";
 import { Icon } from "./Icon.tsx";
 import { IntentCiStatus } from "./IntentCiStatus.tsx";
+import { IntentSessionDetails } from "./IntentSessionDetails.tsx";
 import { IntentStoryCoverage } from "./IntentStoryCoverage.tsx";
 import { WholeStoryNote } from "./IntentStoryComparison.tsx";
 import { wholeStoryOf, type StorySummary } from "./IntentStorySummary.tsx";
@@ -59,6 +60,7 @@ export function IntentStoryEvidence({
       />
       {explanation}
       <div className="intent-page-panel" tabIndex={-1} {...panel("ci")}>
+        <IntentSessionDetails details={story.session} />
         <WholeStoryNote whole={wholeStory} />
         <IntentCiStatus />
       </div>

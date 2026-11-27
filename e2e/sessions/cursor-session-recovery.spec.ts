@@ -9,7 +9,7 @@ import type { LaunchRecord } from "../../dashboard/src/launchRecord.ts";
 import { stopCursorRunner } from "../../dashboard/server/hosts/cursor/runnerClient.ts";
 import { recordsOf } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
-  expandStoryCardDoneHistory,
+  shownDoneSessionEntriesOf,
   parts,
   sessionEntriesIn,
 } from "../../dashboard/test-support/dashboardPage.ts";
@@ -180,7 +180,7 @@ test("done and completed sessions offer no Recover", async ({
   });
   await reloadUntilRead(page);
   const card = storyCard(parts(page).taken, record.request.title);
-  await expandStoryCardDoneHistory(card);
+  await shownDoneSessionEntriesOf(page, record.request.title);
   let entry = sessionEntriesIn(card);
   await expect(entry).toHaveCount(1);
   await expect(entry.getByRole("button", { name: "Recover" })).toHaveCount(0);

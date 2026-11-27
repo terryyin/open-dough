@@ -1,9 +1,11 @@
-// Start session Attach images: pick two PNGs, remove Image 1, Start → fake
-// Claude's prompt ends with the remaining path under the test HOME's
-// launch-attachments folder, and that file holds the picked bytes. An image
-// pasted into the instruction field is sent the same way as pasted.png
-// (SEED-204 E1 / commitments 5b, 5c); pasting text is
-// ../../dashboard/frontend-tests/launches/launch-attachments.spec.ts.
+// Start session Attach images, with no typed text: pick two PNGs, remove
+// Image 1, paste a third into the instruction field as pasted.png, Start →
+// the terminal opens and fake Claude's prompt is the numbered list alone, each
+// path under the test HOME's launch-attachments folder holding its bytes
+// (SEED-204 E1 / commitments 5b, 5c). Text before the list is
+// ../../dashboard/backend-tests/launches/developer-part.spec.ts and Codex's
+// ./agent-launch-ad-hoc-attachments-codex.spec.ts; pasting text and refused
+// images are ../../dashboard/frontend-tests/launches/launch-attachments.spec.ts.
 
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -38,89 +40,34 @@ test.use({ projectFolders: ["open-dough"] });
 const openJourney = (page: Page, launchJourney: LaunchJourney) =>
   openTakenBacklog(page, launchJourney);
 
-test("attaching two images, removing Image 1, then Start sends the remaining copied path", async ({
+test("attaching two images, removing Image 1 and pasting one with no text sends the list alone and opens the terminal", async ({
   page,
   dashboard,
   launchJourney,
 }, testInfo) => {
   dashboard.claudeScenario("launched");
   await openJourney(page, launchJourney);
-
   const picked = writePickedImages(testInfo, [
     { name: "card-a.png", bytes: pngA },
     { name: "card-b.png", bytes: pngB },
   ]);
 
-  const text = "Why is this card clipped?";
   const dialog = startSessionDialog(page, "Open Dough");
   await startSession(page, "Open Dough").click();
-  await startSessionField(dialog).fill(text);
-
+  const field = startSessionField(dialog);
   await pickImagesInDialog(page, dialog, picked);
 
   const list = dialog.getByRole("list", { name: "Attached images" });
   await expect(list.getByText("Image 1 · card-a.png")).toBeVisible();
   await expect(list.getByText("Image 2 · card-b.png")).toBeVisible();
-  await expect(list.locator("img")).toHaveCount(2);
-  await expect(
-    list.getByRole("button", { name: "Remove Image 1" }),
-  ).toBeVisible();
-  await expect(
-    list.getByRole("button", { name: "Remove Image 2" }),
-  ).toBeVisible();
-
   await list.getByRole("button", { name: "Remove Image 1" }).click();
   await expect(list.getByText("Image 1 · card-b.png")).toBeVisible();
   await expect(list.getByText("card-a.png")).toHaveCount(0);
-  await expect(list.locator("img")).toHaveCount(1);
 
-  await dialog.getByRole("button", { name: "Start" }).click();
-  await expect(dialog).toBeHidden();
-
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-  const [call] = dashboard.claudeLaunchCalls();
-  const prompt = adHocDeveloperInput(call?.argv.at(-1) ?? "");
-  const expectedPrefix = `${text}\n\nAttached images:\n1. `;
-  expect(prompt.startsWith(expectedPrefix)).toBe(true);
-  const attachedPath = prompt.slice(expectedPrefix.length);
-  expectCopiedAttachmentPath(attachedPath, dashboard.home, "1-card-b.png");
-  expect(readFileSync(attachedPath)).toEqual(pngB);
-
-  await expect
-    .poll(async () => {
-      const [record] = (await recordsOf(
-        dashboard,
-        "open-dough",
-      )) as LaunchRecord[];
-      return record?.request.attachments;
-    })
-    .toEqual([attachedPath]);
-  const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
-  expect(JSON.stringify(record?.request)).not.toMatch(/iVBOR/);
-  expect(record?.request).not.toHaveProperty("attachmentClaims");
-});
-
-test("Start session with no text and one image sends the list alone, labels by time and opens the terminal", async ({
-  page,
-  dashboard,
-  launchJourney,
-}, testInfo) => {
-  dashboard.claudeScenario("launched");
-  await openJourney(page, launchJourney);
-
-  const picked = writePickedImages(testInfo, [
-    { name: "card.png", bytes: pngA },
-  ]);
-
-  const dialog = startSessionDialog(page, "Open Dough");
-  await startSession(page, "Open Dough").click();
-  await expect(startSessionField(dialog)).toHaveValue("");
-  await pickImagesInDialog(page, dialog, picked);
-  await expect(
-    dialog
-      .getByRole("list", { name: "Attached images" })
-      .getByText("Image 1 · card.png"),
-  ).toBeVisible();
+  await pasteImageInField(field, pngA);
+  await expect(list.getByText("Image 2 · pasted.png")).toBeVisible();
+  await expect(list.locator("img")).toHaveCount(2);
+  await expect(field).toHaveValue("");
 
   await dialog.getByRole("button", { name: "Start" }).click();
   await expect(dialog).toBeHidden();
@@ -130,14 +77,12 @@ test("Start session with no text and one image sends the list alone, labels by t
   await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
   const [call] = dashboard.claudeLaunchCalls();
   const prompt = adHocDeveloperInput(call?.argv.at(-1) ?? "");
-  const expectedPrefix = "Attached images:\n1. ";
-  expect(prompt.startsWith(expectedPrefix)).toBe(true);
-  const [attachedPath, ...rest] = prompt
-    .slice(expectedPrefix.length)
-    .split("\n\n");
-  expect(rest).toEqual([]);
-  expectCopiedAttachmentPath(attachedPath ?? "", dashboard.home, "1-card.png");
-  expect(readFileSync(attachedPath ?? "")).toEqual(pngA);
+  const match = /^Attached images:\n1\. (.+)\n2\. (.+)$/u.exec(prompt);
+  const [, cardB = "", pasted = ""] = match ?? [];
+  expectCopiedAttachmentPath(cardB, dashboard.home, "1-card-b.png");
+  expectCopiedAttachmentPath(pasted, dashboard.home, "2-pasted.png");
+  expect(readFileSync(cardB)).toEqual(pngB);
+  expect(readFileSync(pasted)).toEqual(pngA);
 
   await expect
     .poll(async () => {
@@ -145,50 +90,20 @@ test("Start session with no text and one image sends the list alone, labels by t
         dashboard,
         "open-dough",
       )) as LaunchRecord[];
-      return record?.request.title;
+      return record?.request.attachments;
     })
-    .toMatch(/^Ad hoc work — \d{1,2} \w{3}, \d\d:\d\d$/);
+    .toEqual([cardB, pasted]);
   const [record] = (await recordsOf(dashboard, "open-dough")) as LaunchRecord[];
+  expect(record?.request.title).toMatch(
+    /^Ad hoc work — \d{1,2} \w{3}, \d\d:\d\d$/,
+  );
   expect(call && claudeLaunch(call).name).toBe(
     `Open Dough · Ad hoc · ${record?.request.title}`,
   );
-  expect(record?.request.attachments).toEqual([attachedPath]);
-  expect(record?.request.attachmentDigests).toEqual([
-    createHash("sha256").update(pngA).digest("hex"),
-  ]);
+  expect(record?.request.attachmentDigests).toEqual(
+    [pngB, pngA].map((png) => createHash("sha256").update(png).digest("hex")),
+  );
   expect(record?.request).not.toHaveProperty("instruction");
-});
-
-test("pasting an image into the instruction field attaches it as pasted.png and Start sends its path", async ({
-  page,
-  dashboard,
-  launchJourney,
-}) => {
-  dashboard.claudeScenario("launched");
-  await openJourney(page, launchJourney);
-
-  const text = "Why is this card clipped?";
-  const dialog = startSessionDialog(page, "Open Dough");
-  await startSession(page, "Open Dough").click();
-  const field = startSessionField(dialog);
-  await field.fill(text);
-
-  await pasteImageInField(field, pngA);
-
-  const list = dialog.getByRole("list", { name: "Attached images" });
-  await expect(list.getByText("Image 1 · pasted.png")).toBeVisible();
-  await expect(list.locator("img")).toHaveCount(1);
-  await expect(field).toHaveValue(text);
-
-  await dialog.getByRole("button", { name: "Start" }).click();
-  await expect(dialog).toBeHidden();
-
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
-  const [call] = dashboard.claudeLaunchCalls();
-  const prompt = adHocDeveloperInput(call?.argv.at(-1) ?? "");
-  const expectedPrefix = `${text}\n\nAttached images:\n1. `;
-  expect(prompt.startsWith(expectedPrefix)).toBe(true);
-  const attachedPath = prompt.slice(expectedPrefix.length);
-  expectCopiedAttachmentPath(attachedPath, dashboard.home, "1-pasted.png");
-  expect(readFileSync(attachedPath)).toEqual(pngA);
+  expect(JSON.stringify(record?.request)).not.toMatch(/iVBOR/);
+  expect(record?.request).not.toHaveProperty("attachmentClaims");
 });

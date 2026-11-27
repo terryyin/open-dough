@@ -4,7 +4,10 @@ import { expect, onTestFinished, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { commitDeclaredRevision } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { GhFailure } from "../../server/ghFailure.ts";
-import { reviewRepositoryPath } from "../../server/reviewRepository.ts";
+import {
+  reviewRepositoryPath,
+  syncedReviewRepository,
+} from "../../server/reviewRepository.ts";
 import { fixtureRepository } from "../support/fixtureHome.ts";
 import {
   backlogPath,
@@ -23,7 +26,7 @@ test("an initial publication pins the published commit and its backlog bytes", a
       .withRevision("published", { files: { [backlogPath]: published } })
       .please(),
   );
-  await expect(read()).resolves.toEqual({
+  await expect(read()).resolves.toMatchObject({
     kind: "verified",
     revision: repository.trunkSha,
     backlog: published,
@@ -38,7 +41,7 @@ test("a changed publication answers the new probed commit's backlog", async () =
       .withRevision("published", { files: { [backlogPath]: first } })
       .please(),
   );
-  await expect(read()).resolves.toEqual({
+  await expect(read()).resolves.toMatchObject({
     kind: "verified",
     revision: repository.trunkSha,
     backlog: first,
@@ -53,7 +56,7 @@ test("a changed publication answers the new probed commit's backlog", async () =
     "origin",
     "HEAD:refs/heads/main",
   );
-  await expect(read()).resolves.toEqual({
+  await expect(read()).resolves.toMatchObject({
     kind: "verified",
     revision: moved,
     backlog: next,
@@ -91,7 +94,7 @@ test("a transfer held while the ref moves from A to B is rejected, and a retry s
   git(repository.origin, "update-ref", "refs/heads/main", publishedB);
   await signalFifo(releaseFifo, true);
   await expect(first).resolves.toEqual({ kind: "rejected" });
-  await expect(read()).resolves.toEqual({
+  await expect(read()).resolves.toMatchObject({
     kind: "verified",
     revision: repository.revisions.b,
     backlog: atB,
@@ -166,4 +169,46 @@ test("401 and 403 stderr are refusal, and another 128 is unavailable", async () 
       `fatal: Authentication failed for 'https://github.com/${fixtureRepository}.git/'\n${trailer}`,
     ),
   ).resolves.toEqual({ kind: "unavailable" });
+});
+
+test("Review fetches of another commit beside the check leave its verified revision", async () => {
+  const published = "Published membership.\n";
+  const { repository, source, signal, read } = await opened(
+    makeMe.aRepository
+      .withRevision("story", { files: { [backlogPath]: "Story.\n" } })
+      .withRevision("published", { files: { [backlogPath]: published } })
+      .please(),
+  );
+  const story = repository.revisions.story;
+  if (story === undefined)
+    throw new Error("Revision story was not materialized.");
+  git(repository.origin, "update-ref", "refs/heads/story", story);
+  for (let round = 0; round < 8; round += 1) {
+    const [checked] = await Promise.all([
+      read(),
+      syncedReviewRepository(source, signal, "story"),
+      syncedReviewRepository(source, signal, "story"),
+    ]);
+    expect(checked).toMatchObject({
+      kind: "verified",
+      revision: repository.trunkSha,
+      backlog: published,
+    });
+  }
+});
+
+test("a Review sync and the check that first use the Review repository together both proceed", async () => {
+  const { repository, source, signal, read } = await opened(
+    makeMe.aRepository
+      .withRevision("published", { files: { [backlogPath]: "Published.\n" } })
+      .please(),
+  );
+  const [checked] = await Promise.all([
+    read(),
+    syncedReviewRepository(source, signal),
+  ]);
+  expect(checked).toMatchObject({
+    kind: "verified",
+    revision: repository.trunkSha,
+  });
 });

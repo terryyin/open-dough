@@ -30,12 +30,15 @@ import type { ReportedFailure } from "./readFailureMessage.ts";
 // (`../src/authenticatedRead.ts`, `../src/authenticatedBranchRead.ts`) checks it.
 export type PinnedFile = { readonly path: string; readonly text: string };
 type Answer =
-  // The backlog at a revision; with when its ref was asked, when this read
-  // resolved it.
+  // The backlog at a revision; with when its ref was asked and when origin
+  // last confirmed it, when this read resolved it, and `unrecorded` when a
+  // newer confirmation could not be recorded, so the former one answers.
   | {
       readonly revision: string;
       readonly backlog: string;
       readonly askedAt?: string;
+      readonly confirmedAt?: string;
+      readonly unrecorded?: true;
     }
   | ({ readonly revision: string } & PinnedFile)
   // A revision check, with the head each watched story branch names now, or
