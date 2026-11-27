@@ -1,7 +1,8 @@
 // Intent's Review scope names an ad hoc session by its retained title after
 // an "Ad hoc" icon: on a phone the open list shows long titles in full, and
-// a tapped title closes to its own label and comparison even when another
-// title opens with the same words. An ad hoc session published from another
+// a tapped title closes to a Review scope combobox announcing the icon and its
+// own title, and to its comparison, even when another title opens with the
+// same words. An ad hoc session published from another
 // machine with no retained launch reads "Title unavailable" with its close
 // time and still selects its own comparison.
 import { expect, test } from "vitest";
@@ -55,7 +56,7 @@ const untitled = publishedSessionRecordSchema.parse(
 );
 const untitledName = `Title unavailable — ${new Date(untitled.closedAt).toLocaleString()}`;
 
-test("on a phone width long ad hoc titles read in full and a tapped one shows its own title and comparison", async () => {
+test("on a phone width long ad hoc titles read in full and a tapped one announces its Ad hoc icon and own title and shows its comparison", async () => {
   await useTouchScreen();
   const reads = await mountDoneStory({
     records: longRecords,
@@ -65,6 +66,9 @@ test("on a phone width long ad hoc titles read in full and a tapped one shows it
   await page.viewport(portrait.width, portrait.height);
   const story = intentStoryCompare();
   await expectIntentAt(publishedName, "1 changed file");
+  await expect.element(story.scope).toMatchAriaInlineSnapshot(`
+    - combobox "Review scope": /Execution — .+/
+  `);
 
   await tapWhereShown(story.scope.element());
   const [first, second] = longTitles;
@@ -87,6 +91,11 @@ test("on a phone width long ad hoc titles read in full and a tapped one shows it
   await tapWhereShown(option.element());
 
   await expectIntentAt(second, "1 changed file");
+  await expect.element(story.scope).toMatchAriaInlineSnapshot(`
+    - combobox "Review scope":
+      - img "Ad hoc"
+      - text: Tighten the review scope dropdown so a phone reader can tell the retained title apart from its close time
+  `);
   expect(reads).toContain(secondRecord.sessionId);
   expect(reads).not.toContain(firstRecord.sessionId);
   await expect.element(story.scope).not.toHaveTextContent(first);

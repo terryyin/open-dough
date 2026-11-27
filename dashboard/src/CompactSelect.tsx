@@ -15,7 +15,9 @@ export type CompactSelectOption = {
   readonly label: ReactNode;
 };
 
-// A button showing the committed choice that opens a listbox. Arrow keys,
+// A button showing the committed choice that opens a listbox. It is a
+// select-only combobox named by `name`, so a screen reader announces the
+// shown choice as its value. Arrow keys,
 // Home and End move a highlight without changing the choice; Enter, Space or
 // a click commits; Escape or a pointer outside dismisses and keeps the
 // choice. Either way focus returns to the button. Touch and keyboard share
@@ -134,6 +136,7 @@ export function CompactSelect<Option extends CompactSelectOption>({
       <button
         type="button"
         ref={button}
+        role="combobox"
         className={`compact-select-button ${buttonClassName}`}
         {...buttonData}
         aria-label={name}

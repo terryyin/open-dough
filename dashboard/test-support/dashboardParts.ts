@@ -13,7 +13,7 @@ export function parts(page: Page) {
   return {
     banner,
     // Compact title control where the tab list no longer fits the banner.
-    projectCompact: banner.getByRole("button", {
+    projectCompact: banner.getByRole("combobox", {
       name: "Project",
       exact: true,
     }),

@@ -82,7 +82,7 @@ Read at `c287e9b66`.
 ### 1. The closed compact dropdown announces its chosen value
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 A developer using a screen reader reaches the closed **Project** and
@@ -102,6 +102,24 @@ commit and after Escape. The existing behavior cases in those files and in
 the readers above prove the preserved promises once their locators use
 the combobox role. Replay the E2E journeys that drive either compact
 control through the changed page objects.
+
+Accepted proof: `intent-session-scope-titles.spec.ts` snapshots the closed
+**Review scope** as `combobox "Review scope": /Execution — .+/` before the
+tap (the starting scope is a published session, so it carries no "Ad hoc"
+image) and as `combobox "Review scope"` holding `img "Ad hoc"` and the
+chosen title after the touch choice. `dashboard-header-compact.spec.ts`
+snapshots `combobox "Project": Open Dough` after Escape and `combobox
+"Project": Pygardon` after Enter. Local gate on AC power under
+`caffeinate`: the plan's frontend pattern passed 485 tests in 200 files;
+14 E2E journeys passed 25/25 under the strict reporter (the plan's five,
+side-panel-content-switching and -replacement, backlog-preparing,
+preparation-legend, cursor-sessions-sidebar-layout and -resize-lasting,
+sessions-sidebar-touch, recently-done-sessions-select-ad-hoc and
+-ad-hoc-development); typecheck passed. The refactor routed the five specs'
+inline closed-control locators through `compactProject` and added
+`showsChosenProject` to `dashboard-header-reading.ts`; those five specs
+reran and passed (12 tests). Learning: Vitest browser
+`toMatchAriaInlineSnapshot` accepts regex values for locale-formatted text.
 
 ## Decisive premises
 
