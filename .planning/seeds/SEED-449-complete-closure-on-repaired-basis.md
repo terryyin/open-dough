@@ -15,7 +15,7 @@ scope: one story
 
 **Identity:** SEED-449#complete-closure-on-repaired-basis
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planless"}
+{"schemaVersion":1,"refinement":"refined","approach":"planless","assessment":"ready","reasons":[],"basis":{"document":"20da435414c693f728156286383b2226a1e142658d6212ed4004f4a4e8cee902"}}
 ```
 
 **Goal:** A Trunk Mode wrap-up whose closure changes only CI-ignored paths can
