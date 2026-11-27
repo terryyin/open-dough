@@ -27,7 +27,7 @@ function writeProof(path, record) {
 
 test("with frontend-entry the summarize action writes the upload-named report for frontend only", (t) => {
   const run = runAttempt(t);
-  // The frontend producer's shard and two other groups' shards.
+  // The frontend job and one shard from each of the other two groups.
   const records = {
     "dashboard-frontend": [
       [`${cwd}/dashboard/frontend-tests/pass.spec.ts`, "expected", [0]],
@@ -81,8 +81,8 @@ test("with frontend-entry the summarize action writes the upload-named report fo
 
 test("without frontend-entry the summarize action still writes only the combined summary", (t) => {
   const run = runAttempt(t);
-  const shard = run.runner("dashboard-frontend", 1);
-  const declared = declaredFrontend(1, shard);
+  const runner = run.runner("dashboard-frontend", 1);
+  const declared = declaredFrontend(runner);
   writeProof(
     declared.report,
     makeMe.aDashboardProofRecord
@@ -91,7 +91,7 @@ test("without frontend-entry the summarize action still writes only the combined
       .withTest(`${cwd}/dashboard/frontend-tests/dom.spec.ts`, "expected", [20])
       .please(),
   );
-  assert.equal(run.fragments(1, shard, declared.inputs).status, 0);
+  assert.equal(run.fragments(1, runner, declared.inputs).status, 0);
   const summary = run.summary(expect);
   assert.deepEqual([summary.status, summary.stderr], [0, ""]);
   assert.equal(summary.report, undefined);
@@ -100,8 +100,11 @@ test("without frontend-entry the summarize action still writes only the combined
 
 test("a failed and unfinished frontend selection stays failed/other, and a present empty shard stays zero beside missing parts", (t) => {
   const run = runAttempt(t);
-  // The frontend producer as if it ran three shards.
-  const declared = (part, temp) => declaredFrontend(part, temp, 3);
+  // Replay a historical three-part frontend declaration.
+  const declared = (part, temp) => {
+    const { inputs, report } = declaredFrontend(temp);
+    return { inputs: { ...inputs, part: String(part), parts: "3" }, report };
+  };
   const first = run.runner("dashboard-frontend", 1);
   const second = run.runner("dashboard-frontend", 2);
   const third = run.runner("dashboard-frontend", 3);

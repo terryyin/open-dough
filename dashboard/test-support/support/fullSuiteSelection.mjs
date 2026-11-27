@@ -4,7 +4,7 @@
 // `splitVariable` is the configuration's own CI share setting
 // (`<prefix>_SPLIT`, ./runnerConfig.mjs).
 export function fullDashboardSuite(argv, env, splitVariable) {
-  if (env[splitVariable]) return false;
+  if (splitVariable !== undefined && env[splitVariable]) return false;
   const args = argv[0] === "test" ? argv.slice(1) : argv;
   const selections =
     /^(?:-g|-G|--grep|--grep-invert|--project|--shard|--test-list|--test-list-invert|--last-failed|--only-changed|--list|--ui|--ui-host|--ui-port)(?:=|$)/;

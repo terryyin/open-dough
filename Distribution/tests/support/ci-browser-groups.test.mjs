@@ -1,9 +1,6 @@
-// Each browser test group is its own CI producer: ci.yml gives
-// browser-test-group.yml one job per group, whose inputs alone name the
-// group's command, settings, shards and root (its outputs and proof entry),
-// and that command runs the group's own configuration with the same settings
-// prefix and root. Changing one group's shards or settings therefore changes no
-// other group's selection or settings. The fragments these producers keep:
+// Each browser test group is its own CI producer. The frontend runs directly
+// in ci.yml. The sharded groups give browser-test-group.yml their commands,
+// settings, shards and roots. The fragments these producers keep:
 // ./ci-proof-declaration.test.mjs; each group's declared shards:
 // ./browser-group-shards.test.mjs.
 import assert from "node:assert/strict";
@@ -16,13 +13,17 @@ import { frontendGroup } from "../../../dashboard/test-support/support/browserTe
 import { finishGroupRun } from "../../../dashboard/test-support/support/groupOutputs.mjs";
 import {
   browserWorkflow,
+  input,
+  jobs,
   locations,
+  producers,
   root,
+  workflow,
 } from "./ci-proof-action-fixtures.mjs";
 import { browserGroupConfigs } from "./browserGroupConfigs.mjs";
 import { makeMe } from "./makeMe.mjs";
 
-test("each browser group's job names its own command, settings, root and shards", () => {
+test("each sharded browser group's job names its own command, settings, root and shards", () => {
   for (const group of browserGroupConfigs) {
     const { inputs, directory, root, shards, prefix } = group;
     // Its job runs the command its runner declares.
@@ -48,6 +49,28 @@ test("each browser group's job names its own command, settings, root and shards"
       browserGroupConfigs.length,
       `every group has its own ${name}`,
     );
+});
+
+test("the standalone frontend job runs the full group and keeps its browser proof", () => {
+  const { job, command, prefix, directory, root: specRoot } = frontendGroup;
+  const frontend = jobs(workflow).get(job).join("\n");
+  const {
+    suite,
+    proof: [fragments],
+  } = producers.find((producer) => producer.job === job);
+  assert.match(frontend, /^ {4}runs-on: ubuntu-24\.04$/m);
+  assert.doesNotMatch(frontend, /\b(?:strategy|matrix|shards|specs):|_SPLIT/);
+  assert.ok(suite.endsWith(`run: exec npm run ${command}`));
+  const entry = posix.join(
+    posix.relative(fileURLToPath(root), fileURLToPath(directory)),
+    specRoot,
+  );
+  assert.equal(input(fragments, "entries"), entry);
+  assert.ok(locations.includes(entry));
+  const record = input(suite, `${prefix}_PROOF_RECORD`);
+  assert.ok(record, "the frontend runner has a proof record destination");
+  assert.equal(input(fragments, "report"), record);
+  assert.equal(input(fragments, "report-format"), "browser-record");
 });
 
 test("the frontend times report records Vitest durations under runner-relative spec labels", (t) => {

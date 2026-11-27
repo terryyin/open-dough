@@ -62,7 +62,7 @@ function keepGroupPart(run, job, part, record, parts) {
   const declared = declaredPart(job, part, temp, parts);
   if (record !== undefined)
     writeFileSync(
-      declared.report("PROOF_RECORD"),
+      declared.report(),
       JSON.stringify(locatedRecord(cwd, record)),
     );
   return run.fragments(part, temp, declared.inputs);
@@ -96,7 +96,7 @@ test("Open Dough's CI publishes npm test's per-file outcomes as test files and e
       failed,
       declaredPart("distribution-tests", 2, failed).inputs,
     ),
-    // A reported browser shard records only its own selection.
+    // Each browser job reports its own selection.
     keepGroupPart(run, jobForRoot("e2e"), 1, [
       [`${cwd}/e2e/workflow.spec.ts`, "expected", [40]],
     ]),

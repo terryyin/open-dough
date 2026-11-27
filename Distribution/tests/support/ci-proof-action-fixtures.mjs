@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 export const root = new URL("../../../", import.meta.url);
 const read = (path) => readFileSync(new URL(path, root), "utf8");
 export const workflow = read(".github/workflows/ci.yml");
-// The reusable workflow each browser test group's job calls.
+// The reusable workflow the sharded browser test groups call.
 export const browserWorkflow = read(".github/workflows/browser-test-group.yml");
 export const fragmentsAction = read(
   ".github/actions/ci-proof-fragments/action.yml",
@@ -82,7 +82,7 @@ const keptFragments = (jobSteps) =>
 const suiteOf = (jobSteps) =>
   jobSteps.find((step) => /\n {8}id: suite\n/.test(step));
 
-// Each browser test group's job in ci.yml and the inputs it gives
+// Each sharded browser test group's job in ci.yml and the inputs it gives
 // browser-test-group.yml.
 export const browserGroups = [...workflowJobs]
   .filter(([, lines]) =>
@@ -90,12 +90,12 @@ export const browserGroups = [...workflowJobs]
   )
   .map(([job, lines]) => ({ job, inputs: callerInputs(lines) }));
 
-// The jobs that keep CI proof fragments: each one's matrix axis, its part
-// count (the matrix length), the suite step that runs its tests, the steps
-// keeping its fragments, and the inputs a browser group's job gives the
-// reusable workflow whose steps those are.
+// The jobs that keep CI proof fragments: their part counts, suite steps and
+// fragment steps, plus the matrix axis and reusable workflow inputs when used.
 const testSteps = steps(workflowJobs.get("distribution-tests"));
 const browserSteps = stepsOf(browserWorkflow, "shard");
+const frontendSteps = steps(workflowJobs.get("dashboard-frontend"));
+const frontendProof = keptFragments(frontendSteps);
 export const producers = [
   {
     job: "distribution-tests",
@@ -115,6 +115,14 @@ export const producers = [
     proof: keptFragments(browserSteps),
     inputs,
   })),
+  {
+    job: "dashboard-frontend",
+    parts: 1,
+    suite: suiteOf(frontendSteps),
+    proof: frontendProof,
+    inputs: { root: input(frontendProof[0], "entries") },
+    recordVariable: "OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD",
+  },
 ];
 
 // The ci-proof job's step that collects the summary.
@@ -142,6 +150,7 @@ export function declaredPart(job, part, temp, parts) {
         evaluated(value, context),
       ]),
     ),
-    report: (variable) => evaluated(input(declared.suite, variable), context),
+    report: (variable = declared.recordVariable ?? "PROOF_RECORD") =>
+      evaluated(input(declared.suite, variable), context),
   };
 }

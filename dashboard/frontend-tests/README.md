@@ -91,17 +91,15 @@ workflows in [`../../e2e/`](../../e2e/README.md).
 
 `npm run test:dashboard:frontend` runs the full group in Vitest Browser Mode.
 Vitest launches Chromium through `@vitest/browser-playwright`.
-The run reads the group's worker limit and
-`OPEN_DOUGH_DASHBOARD_FRONTEND_SPLIT`, `_TIMES`, `_PROOF_RECORD` and
-`_DEADLINE_MS` settings. The unfiltered local run takes full-suite admission.
+The run reads the group's worker limit and the
+`OPEN_DOUGH_DASHBOARD_FRONTEND_TIMES`, `_PROOF_RECORD` and `_DEADLINE_MS`
+settings. The unfiltered local run takes full-suite admission.
 Failed runs keep their output under `test-results/`.
 
 Select by file, `--grep`, or both, for example
 `npm run test:dashboard:frontend -- intent/ --grep 'wording'`. Use `--list --reporter=line`
 to see the selection.
 
-CI runs this group as its own producer, the `dashboard-frontend` job, and
-publishes its cases under the **Dashboard Frontend Test** entry and the frontend test proof
+CI runs the whole group in the `dashboard-frontend` job and publishes its
+cases under the **Dashboard Frontend Test** entry and the frontend test proof
 artifact.
-
-`.github/workflows/ci.yml` declares each group's shards.

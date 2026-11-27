@@ -14,8 +14,8 @@ export const expect = producers
 // than CI runs: its fragments inputs and its proof record's path.
 export function declaredGroup(group, part, temp, parts) {
   const declared = declaredPart(group, part, temp, parts);
-  return { inputs: declared.inputs, report: declared.report("PROOF_RECORD") };
+  return { inputs: declared.inputs, report: declared.report() };
 }
 
-export const declaredFrontend = (part, temp, parts) =>
-  declaredGroup("dashboard-frontend", part, temp, parts);
+export const declaredFrontend = (temp) =>
+  declaredGroup("dashboard-frontend", 1, temp);

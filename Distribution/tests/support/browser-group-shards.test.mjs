@@ -170,23 +170,23 @@ test("overlapping E2E patterns fail every shard and the unsplit run before any t
   );
 });
 
-test("a frontend pattern matching no spec fails the configuration naming it", () => {
+test("a backend pattern matching no spec fails the configuration naming it", () => {
   const workflowWithRetiredPattern = `jobs:
-  dashboard-frontend:
+  dashboard-backend:
     with:
       shards: "[1, 2]"
       specs: |
-        1: dashboard/frontend-tests/retired/**
+        1: dashboard/backend-tests/retired/**
 `;
   withScratchGroup(
-    "dashboard-frontend",
+    "dashboard-backend",
     { edit: () => workflowWithRetiredPattern },
     ({ testDir, selection }) => {
       for (const split of [undefined, "1/2", "2/2"])
         assert.throws(
           () => dashboardTestMatch(testDir, split, selection),
           new Error(
-            `FAIL: ${workflowFile}: pattern dashboard/frontend-tests/retired/** of share 1 matches no check.`,
+            `FAIL: ${workflowFile}: pattern dashboard/backend-tests/retired/** of share 1 matches no check.`,
           ),
         );
     },

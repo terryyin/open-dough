@@ -1,7 +1,7 @@
 // ci.yml's ci-proof job declares the proof entries, parts and units that its
-// producers write, after the proof jobs settle however they ended: npm
-// test's shares and each browser test group's own shards, run by
-// browser-test-group.yml with the inputs its job gives. The two local CI
+// producers write, after the proof jobs settle however they ended: the
+// standalone frontend job, npm test's shares and the sharded browser groups.
+// The two local CI
 // proof actions replayed with what the workflows give them:
 // ./ci-proof-actions.test.mjs. Each group's own inputs:
 // ./ci-browser-groups.test.mjs.
@@ -81,8 +81,9 @@ test("the ci-proof job runs after every proof job however they ended", () => {
       .exec(lines)?.[1]
       .trimEnd()
       .split("\n")
-      .map((item) => item.slice(8)),
-    producers.map(({ job }) => job),
+      .map((item) => item.slice(8))
+      .sort(),
+    producers.map(({ job }) => job).sort(),
   );
   assert.match(lines, /^ {4}if: \$\{\{ !cancelled\(\) \}\}$/m);
   assert.ok(summaryStep, "the ci-proof job runs no ci-proof-summary step");
@@ -94,7 +95,7 @@ test("the ci-proof job runs after every proof job however they ended", () => {
   assert.ok(summaryAction.includes(`name: ${summaryArtifactName(attempt)}\n`));
 });
 
-test("the declared parts and units equal the matrix lengths and report units of the jobs that write each entry, in Intent location order", () => {
+test("the declared parts and units match their producers in Intent location order", () => {
   const expected = new Map();
   for (const producer of producers) {
     const units = [unitOf(producer.proof[0])];
@@ -132,8 +133,11 @@ test("every producer keeps its part's attempt-named fragments under its own name
       /\n {8}if: \$\{\{ !cancelled\(\) && steps\.suite\.outcome != 'skipped' \}\}\n/,
     );
     assert.ok(suite, `${job} names no suite step`);
-    assert.equal(input(step, "part"), `\${{ matrix.${axis} }}`);
-    assert.equal(input(step, "parts"), "${{ strategy.job-total }}");
+    assert.equal(input(step, "part"), axis ? `\${{ matrix.${axis} }}` : "1");
+    assert.equal(
+      input(step, "parts"),
+      axis ? "${{ strategy.job-total }}" : "1",
+    );
     assert.equal(declaredInput(producer, "producer"), job);
   }
 });

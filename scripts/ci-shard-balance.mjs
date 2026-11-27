@@ -3,8 +3,8 @@
 //
 //   node scripts/ci-shard-balance.mjs GROUP [--runs N]
 //
-// GROUP is a test job id in .github/workflows/ci.yml: distribution-tests, e2e,
-// dashboard-frontend or dashboard-backend. It reads the group's times
+// GROUP is a sharded test job in .github/workflows/ci.yml: distribution-tests,
+// e2e or dashboard-backend. It reads the group's times
 // artifacts from the last N (default 5) successful ci.yml runs on
 // main through `gh` (scripts/ci-shard-times.mjs; read-only, it starts no run)
 // into a temporary directory it removes, and takes each discovered file's
@@ -43,7 +43,7 @@ import {
 import { selectShare } from "./test-share-matrix.mjs";
 
 const WORKFLOW = ".github/workflows/ci.yml";
-const BROWSER_GROUPS = ["e2e", "dashboard-frontend", "dashboard-backend"];
+const BROWSER_GROUPS = ["e2e", "dashboard-backend"];
 const DISTRIBUTION = "distribution-tests";
 
 class UsageError extends Error {}

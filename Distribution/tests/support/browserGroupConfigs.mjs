@@ -1,4 +1,4 @@
-// Each browser test group as ci.yml runs it (./ci-proof-action-fixtures.mjs
+// Each sharded browser test group as ci.yml runs it (./ci-proof-action-fixtures.mjs
 // `browserGroups`), joined to the declaration its runner takes for the same
 // job (dashboard/test-support/support/browserTestGroups.mjs): its npm
 // command, settings prefix, test root, `directory` (repository-relative) and

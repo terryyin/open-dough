@@ -50,8 +50,7 @@ jobs:
   shard:
     name: shard ${{ matrix.shard }}/${{ strategy.job-total }}
     runs-on: ubuntu-24.04
-    # Frontend grew with Integrated UI dissolution; keep ~30s inside the job
-    # bound for report upload after the suite deadline.
+    # Leave about 30 seconds inside the job bound for report uploads.
     timeout-minutes: 8
     strategy:
       fail-fast: false

@@ -72,10 +72,12 @@ jobs:
         run: &diagnose-node |
           echo '::error::Infrastructure setup: Node or npm cache acquisition failed within its 60-second deadline. Restore GitHub Releases, nodejs.org, or cache connectivity and rerun setup before checks.'
           exit 1
-      - name: Install npm dependencies
+      - &install-npm
+        name: Install npm dependencies
         id: npm
         run: node scripts/setup-native.mjs npm
-      - name: Cache Playwright Chromium
+      - &cache-chromium
+        name: Cache Playwright Chromium
         if: ${{ !cancelled() && steps.npm.outcome == 'success' }}
         uses: actions/cache@v6
         id: playwright-cache
@@ -86,12 +88,14 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('package-lock.json') }}
-      - name: Use a clean browser directory after cache failure
+      - &recover-chromium-cache
+        name: Use a clean browser directory after cache failure
         if: ${{ !cancelled() && steps.playwright-cache.outcome == 'failure' }}
         run: |
           echo '::warning::Chromium cache restore failed. Installing the locked browser directly.'
           echo "PLAYWRIGHT_BROWSERS_PATH=${RUNNER_TEMP}/playwright-chromium" >> "$GITHUB_ENV"
-      - name: Install Playwright Chromium
+      - &install-chromium
+        name: Install Playwright Chromium
         if: ${{ !cancelled() && steps.npm.outcome == 'success' }}
         id: browser
         run: node scripts/setup-native.mjs browser
@@ -173,7 +177,7 @@ jobs:
         id: typecheck
         run: npm run typecheck:dashboard
 
-  # Browser producers: browser-test-group.yml; shard selection:
+  # Sharded browser producers use browser-test-group.yml. Shard selection:
   # dashboard/test-support/support/testFiles.mjs.
   e2e:
     uses: ./.github/workflows/browser-test-group.yml
@@ -192,13 +196,58 @@ jobs:
         4: e2e/observation/** e2e/terminals/**
         5: e2e/review/** e2e/launches/responsive-*
   dashboard-frontend:
-    uses: ./.github/workflows/browser-test-group.yml
-    with:
-      group: dashboard-frontend
-      command: test:dashboard:frontend
-      settings: OPEN_DOUGH_DASHBOARD_FRONTEND
-      root: dashboard/frontend-tests
-      shards: "[1]"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Start prerequisite acquisition (180 seconds) and browser run (450 seconds) deadlines
+        run: |
+          started=$(( $(date +%s) * 1000 ))
+          echo "OPEN_DOUGH_SETUP_DEADLINE_MS=$(( started + 180000 ))" >> "$GITHUB_ENV"
+          echo "OPEN_DOUGH_DASHBOARD_FRONTEND_DEADLINE_MS=$(( started + 450000 ))" >> "$GITHUB_ENV"
+      - *node-deadline
+      - *npm-cache
+      - *setup-node
+      - *diagnose-node-and-cache
+      - *install-npm
+      - *cache-chromium
+      - *recover-chromium-cache
+      - *install-chromium
+      - name: Run the group's browser tests
+        if: ${{ success() && steps.npm.outcome == 'success' && steps.browser.outcome == 'success' }}
+        id: suite
+        env:
+          OPEN_DOUGH_DASHBOARD_FRONTEND_TIMES: ${{ runner.temp }}/browser-times.txt
+          OPEN_DOUGH_DASHBOARD_FRONTEND_PROOF_RECORD: ${{ runner.temp }}/browser-proof.json
+        run: exec npm run test:dashboard:frontend
+      - name: Keep per-spec times
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: dashboard-frontend-times
+          path: ${{ runner.temp }}/browser-times.txt
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Keep the CI proof fragments
+        if: ${{ !cancelled() && steps.suite.outcome != 'skipped' }}
+        uses: ./.github/actions/ci-proof-fragments
+        with:
+          producer: dashboard-frontend
+          part: 1
+          parts: 1
+          entries: dashboard/frontend-tests
+          report-format: browser-record
+          report: ${{ runner.temp }}/browser-proof.json
+      - name: Keep browser failure output
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: dashboard-frontend-failure-output
+          path: dashboard/frontend-tests/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
   dashboard-backend:
     uses: ./.github/workflows/browser-test-group.yml
     with:

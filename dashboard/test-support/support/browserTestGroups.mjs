@@ -2,9 +2,8 @@
 // the npm `command` its job in ../../../.github/workflows/ci.yml runs, its
 // OPEN_DOUGH_* settings `prefix`, the `directory` its configs live in and
 // labels specs relative to, its Playwright `config` unless it runs on Vitest
-// alone, its test `root` there and its CI
-// `job`, whose declared shards it runs (./runnerConfig.mjs
-// prepareFocusedRun). Their agreement with ci.yml:
+// alone, its test `root` there and its CI `job`. Sharded groups use that
+// job's spec declarations. Their agreement with ci.yml:
 // ../../../Distribution/tests/support/ci-browser-groups.test.mjs.
 import { ciGroupSelection } from "./testFiles.mjs";
 
@@ -16,6 +15,7 @@ import { ciGroupSelection } from "./testFiles.mjs";
  *   directory: URL,
  *   root: string,
  *   config?: string,
+ *   sharded?: boolean,
  * }} BrowserTestGroup
  */
 
@@ -38,6 +38,7 @@ export const frontendGroup = {
   prefix: "OPEN_DOUGH_DASHBOARD_FRONTEND",
   directory: dashboard,
   root: "frontend-tests",
+  sharded: false,
 };
 
 /** @type {BrowserTestGroup} */
@@ -53,10 +54,12 @@ export const backendGroup = {
 export const browserTestGroups = [e2eGroup, frontendGroup, backendGroup];
 
 /**
- * `group`'s spec selection as its runner makes it: its root, split by
- * `<prefix>_SPLIT` into the shards its CI job declares (./testFiles.mjs).
- * @param {Pick<BrowserTestGroup, "prefix" | "root" | "job">} group
+ * `group`'s spec selection as its runner makes it: its root and, for a
+ * sharded group, the split variable and CI job declaration.
+ * @param {Pick<BrowserTestGroup, "prefix" | "root" | "job" | "sharded">} group
  */
-export function browserGroupSelection({ prefix, root, job }) {
-  return ciGroupSelection(root, `${prefix}_SPLIT`, job);
+export function browserGroupSelection({ prefix, root, job, sharded }) {
+  return sharded === false
+    ? { roots: [root] }
+    : ciGroupSelection(root, `${prefix}_SPLIT`, job);
 }

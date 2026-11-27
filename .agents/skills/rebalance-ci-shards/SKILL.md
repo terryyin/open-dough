@@ -1,14 +1,14 @@
 ---
 name: rebalance-ci-shards
-description: Reports how evenly one CI test group's shards share recent main-run times and proposes one spec-pattern change to .github/workflows/ci.yml for the maintainer to accept or decline. Use when a maintainer asks to rebalance, even out or check the CI shards of e2e, dashboard-frontend, dashboard-backend or distribution-tests; not for changing how many jobs a group has.
+description: Reports how evenly one CI test group's shards share recent main-run times and proposes one spec-pattern change to .github/workflows/ci.yml for the maintainer to accept or decline. Use when a maintainer asks to rebalance, even out or check the CI shards of e2e, dashboard-backend or distribution-tests. Job counts are handled by the CI job timing report.
 ---
 
 # Rebalance CI shards
 
 Internal to the Open Dough repository; do not distribute via the installer.
 
-Every test group declares its shards in `.github/workflows/ci.yml`: the
-`distribution-tests` matrix's `tests` patterns, and each browser job's
+Sharded test groups declare their patterns in `.github/workflows/ci.yml`: the
+`distribution-tests` matrix's `tests` patterns, and each sharded browser job's
 `specs` input. Shard balance has no automatic owner. Rebalance only when a
 maintainer asks, typically because a shard drifts toward its deadline or the
 group's job durations spread apart. Drift shows in
@@ -28,9 +28,8 @@ This skill never changes a shard count or deadline.
 
 ## Inputs
 
-- The group: one of `distribution-tests`, `e2e`, `dashboard-frontend` or
-  `dashboard-backend`. Ask when the request names none; one invocation covers
-  one group.
+- The group is one of `distribution-tests`, `e2e` or `dashboard-backend`.
+  Ask when the request names none. One invocation covers one group.
 - `gh` authenticated for this repository; the script reads recent successful
   `ci.yml` runs on `main` and their times artifacts.
 - For `distribution-tests` on macOS, Homebrew bash 5 first on `PATH`: the

@@ -51,7 +51,7 @@ export async function runDashboardGroup({ group, vitestConfig, engine, name }) {
   const dashboard = fileURLToPath(group.directory);
   const vitestConfigFile = path.join(dashboard, vitestConfig);
   const { prefix } = group;
-  const splitSetting = `${prefix}_SPLIT`;
+  const splitSetting = group.sharded === false ? undefined : `${prefix}_SPLIT`;
   const proofSetting = `${prefix}_PROOF_RECORD`;
   const timesSetting = `${prefix}_TIMES`;
   const deadlineSetting = `${prefix}_DEADLINE_MS`;
@@ -182,7 +182,10 @@ export async function runDashboardGroup({ group, vitestConfig, engine, name }) {
   process.once("SIGINT", interrupt);
   process.once("SIGTERM", interrupt);
   try {
-    const all = groupFiles(group, process.env[splitSetting]);
+    const all = groupFiles(
+      group,
+      splitSetting === undefined ? undefined : process.env[splitSetting],
+    );
     if (playwright && !all.some((file) => file.vitest))
       return await playwright.run(argv);
     const args = groupArguments(argv);
