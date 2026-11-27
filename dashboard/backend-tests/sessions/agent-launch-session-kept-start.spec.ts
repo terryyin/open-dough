@@ -14,16 +14,14 @@ import {
   recordsOf,
 } from "../../test-support/agentLaunchBoundary.ts";
 import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
-import {
-  oneShot,
-  originState,
-} from "../../test-support/support/oneShotLaunch.ts";
+import { oneShot } from "../../test-support/support/oneShotLaunch.ts";
 import {
   requestFor,
   slug,
   startBoundary,
 } from "../../test-support/support/launchDashboard.ts";
 import {
+  originState,
   queuedIdentity,
   startOrigin,
   type StartOrigin,

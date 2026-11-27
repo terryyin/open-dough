@@ -1,6 +1,5 @@
-// What the session-policy launch specs share: a one-shot policy, what origin
-// holds, and what every established one-shot launch shows whichever host
-// carried it.
+// What the session-policy launch specs share: a one-shot policy and what
+// every established one-shot launch shows whichever host carried it.
 
 import { existsSync, realpathSync } from "node:fs";
 import path from "node:path";
@@ -11,7 +10,11 @@ import { expectReportingBlock } from "./reportingInputAssertions.ts";
 import { keptStarts, recordsOf } from "../agentLaunchBoundary.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
 import { slug, type Workflow } from "./launchDashboard.ts";
-import { queuedIdentity, type StartOrigin } from "./startOrigin.ts";
+import {
+  originState,
+  queuedIdentity,
+  type StartOrigin,
+} from "./startOrigin.ts";
 
 const workflows: Record<Workflow, string> = {
   execution: "dough-execute-plan",
@@ -22,17 +25,6 @@ export const oneShot = (
   workspace: SessionPolicy["workspace"],
   landing: SessionPolicy["landing"],
 ): SessionPolicy => ({ tracking: "one-shot", workspace, landing });
-
-// What origin holds: every ref and the agent profiles on main.
-export async function originState(origin: StartOrigin) {
-  return {
-    refs: await origin.originGit(
-      "for-each-ref",
-      "--format=%(refname) %(objectname)",
-    ),
-    profiles: await origin.takenProfiles(),
-  };
-}
 
 // The established one-shot context's block lines in the instruction, as the
 // installed formatter wrote them.

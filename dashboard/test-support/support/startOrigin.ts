@@ -213,3 +213,14 @@ export async function startOrigin(
     },
   };
 }
+
+// What origin holds: every ref and the agent profiles on main.
+export async function originState(origin: StartOrigin) {
+  return {
+    refs: await origin.originGit(
+      "for-each-ref",
+      "--format=%(refname) %(objectname)",
+    ),
+    profiles: await origin.takenProfiles(),
+  };
+}

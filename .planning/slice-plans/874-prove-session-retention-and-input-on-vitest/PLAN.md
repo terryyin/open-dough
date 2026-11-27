@@ -130,7 +130,7 @@ owns the browser's deletion and visible result.
 ### 3. Refuse a session policy that cannot be established
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 9 active minutes.
 
 Proof: Replace both `agent-launch-session-refusal` cases. Use the installed
@@ -141,6 +141,8 @@ two standard-tracking conflicts, default-checkout and automatic landing.
 At the production launch admission boundary, observe the corresponding 400
 answers, empty kept starts and native dispatches, and unchanged origin.
 Reuse the existing boundary only for the wire response and dispatch control.
+
+- Proof recorded (2026-11-27, Node Vitest, 1 worker): both `agent-launch-session-refusal` cases run on Node Vitest against `startOrigin`'s real installed checkout, production `sessionPolicies()` and `withSessionPolicy`, and the 400 answers through production `answer()` with an in-memory POST; a spied `launches.accept` is never called, `keptStarts()` stays empty, origin refs and profiles are unchanged. Passed 2/2 after the refactor pass; typecheck exited 0. At load 17–25 the legacy rerun took 11.489 s and Vitest 6.890–8.788 s (3.888 s when instrumented); `startOrigin` (bare origin and clone) dominates, the refusals take about 0.1 s. The refactor pass moved `originState` from Playwright-bound `oneShotLaunch.ts` into `startOrigin.ts` for slices 4–5 and named a follow-up: a typed launch-admission entry so ~10 backend specs stop hand-building `IncomingMessage` to reach `answer()` (`agentLaunchAdmission.ts`, `launchBoundaryAnswer.ts`). Learning: a `test:dashboard:backend` selection matching both Vitest and Playwright files ran only the Vitest file, so prove legacy Playwright specs in a separate selection.
 
 ### 4. Carry the selected one-shot policy into a new session
 

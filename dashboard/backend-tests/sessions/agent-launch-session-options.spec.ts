@@ -22,13 +22,13 @@ import {
 import {
   expectEstablishedOneShot,
   oneShot,
-  originState,
 } from "../../test-support/support/oneShotLaunch.ts";
 import {
   requestFor,
   startBoundary,
 } from "../../test-support/support/launchDashboard.ts";
 import {
+  originState,
   startOrigin,
   type StartOrigin,
 } from "../../test-support/support/startOrigin.ts";
