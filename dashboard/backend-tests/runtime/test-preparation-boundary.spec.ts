@@ -1,8 +1,7 @@
 // What a server start requests from the run's shared artifacts. A landed-CI
 // case's custom boundary start (../../test-support/support/landedCiHistoryTest.ts)
 // waits for its worker's boundary inputs and starts an unmounted boundary
-// server; a development notification server
-// (../../test-support/support/sessionAlertServers.ts) serves from source.
+// server.
 import { expect, test } from "vitest";
 import { servedArtifacts } from "../../test-support/support/dashboardServerOptions.ts";
 import { serverBundleArtifactKey } from "../../test-support/support/serverBundle.ts";
@@ -16,8 +15,4 @@ test("a custom boundary start has its bundle prepared and requests no app", asyn
     app: false,
     bundle: true,
   });
-});
-
-test("a development notification server requests no app or bundle", () => {
-  expect(servedArtifacts("dev", false)).toEqual({ app: false, bundle: false });
 });

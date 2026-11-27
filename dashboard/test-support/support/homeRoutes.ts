@@ -1,6 +1,5 @@
 // A HOME's Git routes: the ordered insteadOf list its Git config holds, the
 // rules that keep that list, and its one read and one write of the config.
-import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
@@ -50,30 +49,19 @@ export function publicationRoutes(
 }
 
 const homeConfig = (home: string) => path.join(home, ".gitconfig");
+const unquoted = (value: string) => value.replace(/\\([\\"])/g, "$1");
 
-// The routes `home`'s Git config lists, in order.
+// Reads the route stanzas written by writeHomeRoutes, in order.
 export function homeRoutes(home: string): HomeRoute[] {
-  const listed = spawnSync(
-    "git",
-    [
-      "config",
-      "--file",
-      homeConfig(home),
-      "--get-regexp",
-      String.raw`^url\..*\.insteadof$`,
-    ],
-    { encoding: "utf8" },
+  const config = homeConfig(home);
+  if (!existsSync(config)) return [];
+  const stanzas = readFileSync(config, "utf8").matchAll(
+    /^\[url "(.*)"\]\n\tinsteadOf = (.*)$/gm,
   );
-  return listed.stdout
-    .split("\n")
-    .filter(Boolean)
-    .map((line) => {
-      const at = line.lastIndexOf(" ");
-      return {
-        origin: line.slice("url.".length, at - ".insteadof".length),
-        url: line.slice(at + 1),
-      };
-    });
+  return Array.from(stanzas, ([, origin = "", url = ""]) => ({
+    origin: unquoted(origin),
+    url: unquoted(url),
+  }));
 }
 
 const quoted = (value: string) => value.replace(/[\\"]/g, "\\$&");
