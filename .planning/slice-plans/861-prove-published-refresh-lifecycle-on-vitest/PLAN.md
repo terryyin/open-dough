@@ -61,18 +61,19 @@ Reconciliation with related work:
   `performedRevisionCheck.ts` (69), `revisionStreamObservation.ts` (102),
   `ghRevision.ts` (134), `authenticatedRead.ts` (243), and `performedRead.ts`
   (228) are within 250 lines; `sourceRevisionStream.ts` is 255 lines.
-  `pinnedMemo.ts` has almost no room: a later slice that injects an upstream
-  there extracts that read first so the edited file stays within 250 lines.
-  If slice 8 edits `sourceRevisionStream.ts`, separate per-subscriber delivery
+  `pinnedMemo.ts` has almost no room. Slice 5 already extracted the
+  commit-record read into `commitRecordRead.ts` in the working tree
+  (`pinnedMemo.ts` 247 lines there) and must keep that file within 250.
+  If slice 10 edits `sourceRevisionStream.ts`, separate per-subscriber delivery
   and teardown cleanly so every edited file stays within 250 lines.
 - Test-support cleanup: `retainedAnswersJourney.ts`, `revisionReuseOrigin.ts`,
   `revisionReuseAnswers.ts`, and `revisionReuseCalls.ts` also serve
   `e2e/observation/authenticated-read-retained-answers-reload.spec.ts`, which
   this story keeps as the preview-reload E2E owner. Leave those four modules.
-  After slices 4 and 5 retire their backend callers, delete
+  After slice 7 retires the last revision-reuse backend caller, delete
   `dashboard/backend-tests/observation/revisionReuseBoundary.ts` only when it
-  has no remaining caller. Delete `listingTimeoutBoundary.ts` in slice 7 and
-  `revisionStreamBoundary.ts` plus `controlledRevisionStream.ts` in slice 8
+  has no remaining caller. Delete `listingTimeoutBoundary.ts` in slice 9 and
+  `revisionStreamBoundary.ts` plus `controlledRevisionStream.ts` in slice 10
   once their last callers migrate. Keep `revisionCheckBoundary.ts` because
   `authenticated-read-turns.spec.ts` and `authenticated-read-output-bound.spec.ts`
   (owned by plan 862) still import it.
@@ -256,33 +257,66 @@ passed. `pinnedMemo.ts` stays 249 lines. `commitsBetween.ts` is 122.
 Refactor pass skipped: the optional comparison, listing, and commit-time
 arguments are the planned seams and default to the GitHub readers.
 
-### 5. Handle merge and rename diffs, comparison failures, and history reuse
+### 5. Reuse a comparison's merge and rename account
 
 Type: Behavior
 Status: planned
 
 Behavior: Coinciding reads at B wait on one in-flight comparison and commit
 read. A file differing between A and B is read at B even when a merge commit
-omits it; a path renamed away in either the comparison or a commit between is
-missing at B and its new path is read. The backlog at B never waits on a held
-comparison; a failed comparison or failed commit read is not remembered (that
-read proceeds from upstream and a later read retries and reuses); a
-rate-limited comparison leaves the backlog answered and reports the rate limit
-with `retryAfterSeconds` without reading the record. Profile additions and
-last-committed times reuse A's answers when untouched, walk B when touched,
-and credit the re-adding commit when a profile is removed and re-added with
-identical bytes.
+omits it. A path renamed away in the comparison, though no commit between
+names it, is missing at B. A path a commit between renames away, though the
+comparison does not name it, is missing at B and its new path is read.
 
-Proof: Direct Node Vitest cases on the same `PinnedTexts`/`PinnedMemo` seam
-with controlled deferred promises for concurrency and failure injection.
-Replaces `authenticated-read-revision-reuse-compared.spec.ts` (4),
-`authenticated-read-revision-reuse-failures.spec.ts` (4), and
-`authenticated-read-revision-reuse-history.spec.ts` (3) — 11 cases total.
-Delete `revisionReuseBoundary.ts` after verifying zero remaining callers.
+The uncommitted extraction stays in this slice: `commitRecordRead.ts`, an
+optional `readCommit` on `PinnedMemo` and `PinnedTexts`, and an optional
+`listPathCommits` on `PinnedTexts`. Defaults remain `commitViaGh` and
+`listPathCommitsViaGh`, so `new PinnedTexts(memo)` and
+`new PinnedTexts(memo, readFile)` stay valid. `pinnedMemo.ts` is 247 lines
+and must stay within 250.
+
+Proof: Direct Node Vitest on `PinnedTexts` with a deferred comparison and
+commit read. Replaces `authenticated-read-revision-reuse-compared.spec.ts`
+(4). Also rerun the thirteen reuse cases and `npm run typecheck:dashboard`,
+because this slice lands the untested readers. Leave the failure and history
+specs, and leave `revisionReuseBoundary.ts`.
+
+### 6. Retry a comparison that failed and answer the backlog while it is held
+
+Type: Behavior
+Status: planned
+
+Behavior: A failed comparison is not remembered: that read proceeds from
+upstream, and a later read compares again and reuses. A failed commit read
+is not remembered the same way. The backlog at B is answered while a
+comparison is held, and a burst of reads there shares one comparison and one
+commit read. A comparison refused with `Retry-After` leaves the backlog
+answered, reports the rate limit with `retryAfterSeconds`, and reads nothing
+for the record.
+
+Proof: Direct Node Vitest on the same seam with deferred and failing
+promises. Replaces `authenticated-read-revision-reuse-failures.spec.ts` (4).
+Leave `revisionReuseBoundary.ts` and the history spec.
+
+### 7. Reuse profile-addition history across a moved revision
+
+Type: Behavior
+Status: planned
+
+Behavior: An unrelated commit answers profile additions and last-committed
+times at B from A without listing history. A touched profile and plan are
+listed and walked at B, and the untouched profile's addition is reused. A
+profile removed and re-added with identical text credits the re-adding
+commit's committer and time.
+
+Proof: Direct Node Vitest on `PinnedTexts.adder` and the injected
+`listPathCommits` / `readCommit` readers. Replaces
+`authenticated-read-revision-reuse-history.spec.ts` (3). Delete
+`revisionReuseBoundary.ts` only after a search shows zero remaining callers.
 Leave `revisionReuseOrigin.ts`, `revisionReuseAnswers.ts`, and
 `revisionReuseCalls.ts`; the preview-reload E2E still reaches them.
 
-### 6. Check published revisions with conditional ETags, fallback, and rate-limit waits
+### 8. Check published revisions with conditional ETags, fallback, and rate-limit waits
 
 Type: Behavior
 Status: planned
@@ -307,7 +341,7 @@ Replaces `authenticated-read-revision-backlog.spec.ts` (2),
 `authenticated-read-revision-check.spec.ts` (4), and
 `authenticated-read-revision-check-failures.spec.ts` (4) — 10 cases total.
 
-### 7. Share settled listings across checks and clear them on failure or close
+### 9. Share settled listings across checks and clear them on failure or close
 
 Type: Behavior
 Status: planned
@@ -332,7 +366,7 @@ process exit, cooldown holdback/resumption, and abort-on-close. Replaces
 `authenticated-read-shared-listing-failures.spec.ts` (3) — 6 cases total.
 Delete `dashboard/backend-tests/observation/listingTimeoutBoundary.ts`.
 
-### 8. Stream revision updates over SSE and clean up on departure or close
+### 10. Stream revision updates over SSE and clean up on departure or close
 
 Type: Behavior
 Status: planned
@@ -403,6 +437,20 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
   other 51 cases, already one proof loop each. The second overrun is handoff
   time after a finished proof. Continue slice 4 on that plan; do not split
   again for this overrun.
+- Slice 5 overran at 16.4 active minutes with no spec and no proof
+  (`storyOverruns` 3). The failed sizing assumption was that one slice could
+  extract the commit-record and path-history readers from a 249-line
+  `pinnedMemo.ts` and also replace 11 cases in three loops (merge and rename,
+  comparison failure, profile-addition history). Delivered value stays slices
+  1–4: nine retained-answer cases and thirteen reuse-within-bounds cases,
+  published at `dbe8f349`. Remaining scope is those 11 cases plus revision
+  checks (10), listings (6), and streams (11). The story goal, examples,
+  scope, and sibling order are unchanged, so the story continues. The
+  extraction stays uncommitted for slice 5 (`commitRecordRead.ts`, optional
+  `readCommit`, optional `listPathCommits`; defaults remain the GitHub
+  readers). Nothing else was reverted. Slice 5 is the four compared cases
+  plus that parked seam. Failures are slice 6. History is slice 7. The plan
+  is 10 slices, the in-progress split cap.
 
 ## Execution identity
 
@@ -414,15 +462,14 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
   revision `9379098d55410b514abf36b8fb8e42b0c0931181`.
 - Originating checkout: that same workspace. Integration checkout: none.
 - Target selection: remote `origin`, branch `main`.
-- Published revision `18a885b9a872194fb927c8cd70c3ad9ef5e51327` accepted on
+- Published revision `dbe8f349df56748491ff1cc6850a1b987b2b6c63` accepted on
   `origin/cursor/prove-published-refresh-lifecycle-in-node-vitest`. That SHA is
   the previously published base for the next increment. The Story Branch claim
   `29e8402851ac887b9d4cdd7838b8a20db7bb08f9` remains `pendingCi: unobserved`.
 
 ## Plan review
 
-Refinement not needed: the six slices cover all 60 observed baseline cases
-across the 15 legacy specs with direct typed Node Vitest seams, minimal
-in-process HTTP witnesses for genuine wire/SSE/process behaviors, clear
-test-support deletions, and explicit reconciliation with plans 856, 853, 823,
-860, and 862. No slice-specific concern remains on the observed basis.
+Execution refined the overrun slice in place. Slices 1–4 are delivered.
+Slice 5's three proof loops are now slices 5–7. Checks, listings, and streams
+are slices 8–10. Ten slices is the in-progress split cap. Goal, examples, and
+scope are unchanged.
