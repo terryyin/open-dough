@@ -292,3 +292,16 @@ its runner outcome. The eight slices have focused proof and fit the
 active-time limit. The preparation found no remaining slice-specific
 concerns. The build proof remains one rule for new work, with startup
 and held-client joins following their existing ownership.
+
+## Execution complete
+
+Product advice: no change to priorities. The remaining SEED-413 runner
+stories (terminal attach, Cursor turn delivery, runner cutover) should
+give every poll carried over from Playwright an explicit
+`{ timeout: 5_000 }`, because Vitest's default is 1 s. They can reuse
+`cursorDashboardMachine.ts` for a machine with a development Dashboard.
+`cursorRunnerProof.ts`, `cursorRunnerJourney.ts` and `keptCursorTurn.ts`
+still assert through Playwright's `expect`. They can switch once their last
+Playwright callers convert. The Vitest selection took the same time as the
+legacy Playwright one, so its value is one engine, not speed. Process review
+is deferred into wrap-up with the Intent Coverage check.
