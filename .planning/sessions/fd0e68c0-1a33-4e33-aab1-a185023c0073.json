@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "sessionId": "fd0e68c0-1a33-4e33-aab1-a185023c0073",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-27T05:37:23.279Z",
+  "story": "SEED-413#share-completion-reporting-arrangement",
+  "ranges": [
+    {
+      "base": "b2f98b0e2662b85f672d36f64c7bc93c5f68f95a",
+      "candidate": "1bc48fabc4103893d8708b00a07f69592315b34b"
+    },
+    {
+      "base": "1bc48fabc4103893d8708b00a07f69592315b34b",
+      "candidate": "f15a8dafa4f6499202ad978e44b61162505b17a1"
+    },
+    {
+      "base": "f15a8dafa4f6499202ad978e44b61162505b17a1",
+      "candidate": "2e86e8a935bc663559d898f4d27f1e3f08bf629e"
+    }
+  ]
+}
