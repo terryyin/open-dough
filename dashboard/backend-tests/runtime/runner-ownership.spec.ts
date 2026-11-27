@@ -61,11 +61,14 @@ function startOwnSelection(runner: GroupRunnerExample, entry: Entry) {
   const others = groupRunnerExamples
     .map(({ group }) => group.prefix)
     .filter((prefix) => prefix !== group.prefix);
-  const excluding = splitExcluding(target, {
-    directory: path.relative(repoRoot, groupDirectory),
-    root: group.root,
-    job: group.job,
-  });
+  const excluding =
+    group.sharded === false
+      ? "not-a-split"
+      : splitExcluding(target, {
+          directory: path.relative(repoRoot, groupDirectory),
+          root: group.root,
+          job: group.job,
+        });
   const run = startProofCommand(direct ? process.execPath : "npm", args, cwd, {
     ...Object.fromEntries(
       others.flatMap((prefix) => [

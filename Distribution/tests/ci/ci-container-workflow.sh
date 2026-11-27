@@ -50,8 +50,8 @@ fi
 # The diagnostic image bootstraps system libraries on bare Ubuntu; native CI
 # uses the runner's libraries and the locked local Playwright package. The
 # diagnostic runs the workflow's type-check and every browser test group's
-# command together. CI type-checks once in ci.yml's lint job; each group's
-# shard installs Chromium before its own browser command.
+# command together. CI type-checks once in ci.yml's lint job. Each browser
+# job installs Chromium before it runs its suite.
 # The diagnostic lists type-check first, independently of CI's acquisition order.
 stated dashboard_steps | sed '1a\
 node scripts/setup-native.mjs browser
@@ -82,9 +82,31 @@ if ! {
       if (!suite) exit 1
       print "node scripts/setup-native.mjs browser"
     }
-  ' "${browser_workflow}" && sed -n 's/^      command: /npm run /p' "${workflow}"
+  ' "${browser_workflow}" && awk '
+    function setup(command) {
+      if (command == "node scripts/setup-native.mjs npm") installed = 1
+      else if (command == "node scripts/setup-native.mjs browser" && installed)
+        browser = 1
+    }
+    /^  [^ #]/ { frontend = ($0 == "  dashboard-frontend:") }
+    /^      - / { anchor = "" }
+    /^      - &/ { anchor = substr($0, 10) }
+    /^      command: / { print "npm run " substr($0, 16) }
+    frontend && /^      - \*/ { setup(anchored[substr($0, 10)]) }
+    /^        run: / {
+      command = substr($0, 14)
+      if (anchor != "") anchored[anchor] = command
+      if (frontend) {
+        setup(command)
+        if (command ~ /^exec npm run /) {
+          if (!browser) exit 1
+          print substr(command, 6)
+        }
+      }
+    }
+  ' "${workflow}"
 } > "${temporary_dir}/ci-dashboard" \
   || ! diff -- "${temporary_dir}/stated-dashboard" "${temporary_dir}/ci-dashboard" >&2; then
-  echo 'FAIL: the lint job must type-check after npm ci, and each shard must install Chromium before its browser test group command.' >&2
+  echo 'FAIL: the lint job must type-check after npm ci, and each browser job must install Chromium before its suite.' >&2
   exit 1
 fi

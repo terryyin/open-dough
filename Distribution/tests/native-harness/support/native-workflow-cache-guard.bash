@@ -9,7 +9,7 @@ native_workflow_cache_guard() {
           bad = 1
       }
     }
-    /^ *- (name|uses):/ {
+    /^ *- ((name|uses):|[&*])/ || /^        name:/ {
       finish()
       cache = ($0 ~ /name: Cache (Playwright Chromium|pinned watcher Codex)$/)
       if ($0 ~ /name: Cache Playwright Chromium$/) {
