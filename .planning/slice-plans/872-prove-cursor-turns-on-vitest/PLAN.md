@@ -88,7 +88,7 @@ screen option and a second `launch` on that server do not change the route.
 ### 1. Prove a ready screen receives the instruction
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: Move `agent-terminal-cursor-launch.spec.ts` (6 cases) to Node Vitest
@@ -104,6 +104,7 @@ timeout.
   instruction, and a second launch adds no session.
 - A screen that becomes ready later receives the instruction and confirms
   the record. The client stays that one process.
+- Proof recorded (2026-11-27, Node Vitest, 1 worker): `npm run test:dashboard:backend -- 'terminals/agent-terminal-cursor-launch\.spec\.ts$' --workers=1` passed 6/6 on Vitest (33.58s summed case time, 35.99s elapsed; 0 on Playwright). Native Vitest `expect` / `expect.poll` passed all 6 cases with per-case `60_000` timeouts. Refactor pass skipped (subject spec only, 8-line engine switch, 223 lines, no refactor candidate).
 
 ### 2. Prove an unsettled launch wait leaves the client
 
