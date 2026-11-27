@@ -186,6 +186,7 @@ function ConfiguredDashboardBody({
                   storyNotice={storyNotice}
                   attempt={attempt}
                   reading={reading}
+                  refresh={readAfresh}
                   withheld={withheld}
                   recoversAt={recoversAt}
                   limitedUntil={limitedUntil}

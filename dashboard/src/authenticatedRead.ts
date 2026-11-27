@@ -44,6 +44,7 @@ const okSnapshot = z.object({
   revision: commitSha,
   backlog: z.string(),
   askedAt: z.iso.datetime().optional(),
+  confirmedAt: z.iso.datetime().optional(),
 });
 const okFile = z.object({
   revision: commitSha,
@@ -57,11 +58,13 @@ const okCommitTime = z.object({
 });
 
 // When the read resolved the ref itself, `askedAt` is when the local server
-// asked for it, by that server's clock.
+// asked for it and `confirmedAt` when origin last confirmed that revision,
+// both by that server's clock.
 export type PublishedSnapshot = {
   readonly revision: string;
   readonly backlog: string;
   readonly askedAt?: string | undefined;
+  readonly confirmedAt?: string | undefined;
 };
 
 // Resolves the source's ref to one commit and reads its backlog at that

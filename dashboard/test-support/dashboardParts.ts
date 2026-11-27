@@ -34,7 +34,8 @@ export function parts(page: Page) {
     directionToggle: page.locator(".direction summary"),
     // The direction's text, shown only while the direction is open.
     directionText: direction.locator("p"),
-    // The row holding the direction, Start session, and the help.
+    // The row holding the direction, Start session, the help, and the
+    // Board's confirmation time with its Refresh (./boardRefreshPage.ts).
     projectActions: page.locator(".project-actions"),
     preparationHelp: page.getByRole("button", {
       name: "Preparation badge legend",

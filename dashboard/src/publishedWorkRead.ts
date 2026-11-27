@@ -69,7 +69,11 @@ export async function readPublishedWork(
           unreadable: "Published work could not be read.",
         },
       );
-      const { revision, backlog: markdown, askedAt } = snapshot;
+      const { revision, backlog: markdown, askedAt, confirmedAt } = snapshot;
+      const resolved = {
+        ...(askedAt === undefined ? {} : { refAskedAt: askedAt }),
+        ...(confirmedAt === undefined ? {} : { confirmedAt }),
+      };
       outcomes.pinRevision(revision);
       const sameRevision = shown !== undefined && shown.revision === revision;
       // Membership first, then preparation enrichment through the same
@@ -79,13 +83,13 @@ export async function readPublishedWork(
         ? {
             ...shown,
             retrievedAt: new Date(),
-            ...(askedAt === undefined ? {} : { refAskedAt: askedAt }),
+            ...resolved,
           }
         : awaitingOwners({
             source,
             revision,
             retrievedAt: new Date(),
-            ...(askedAt === undefined ? {} : { refAskedAt: askedAt }),
+            ...resolved,
             ...interpretPublishedBacklog(markdown, revision, source),
             done: { status: "loading" },
           });

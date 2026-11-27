@@ -162,7 +162,7 @@ later open now reaches upload-pack once.
 ### 4. Show the confirmation and refresh an unchanged Board
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: The Board shows "Checked <time>". Pressing Refresh keeps the
 backlog and time while checking origin, with the button focusable and
@@ -173,6 +173,20 @@ Proof: E2E through the dashboard page objects: drive the rendered action;
 check the pending cue, exact revision, changed time and zero fetch; two
 eligible requests join one check. Record cold and warm Git request counts
 and timing in this plan. Budget 13 active minutes.
+
+Delivered (5 active minutes): the open's answer carries `confirmedAt` to
+`PublishedWork.confirmedAt` (`askedAt` stays `refAskedAt`); the actions row
+ends with the shared `CheckedAt` note (moved to `CheckedAt.tsx`) and a
+Refresh `IconButton` that calls `readAfresh`. Proof:
+`e2e/observation/board-refresh-unchanged.spec.ts` through
+`boardRefreshPage.ts` (held check keeps focus, `aria-disabled`, backlog and
+time; a second press asks nothing more; release advances the time at the
+same revision with one upload-pack, the probe). Requests reaching origin:
+cold 2 (probe, fetch into the Board ref), warm 1 (probe only). Timing, Apple
+Git against a local-file origin at load ~19: cold ≈150 ms (69 ms probe +
+80 ms fetch); warm 39–67 ms probe (41, 39, 67). Learning: Playwright will
+not click an `aria-disabled` button, so the page object focuses and presses
+Enter.
 
 ### 5. Recover a Refresh after origin changes
 

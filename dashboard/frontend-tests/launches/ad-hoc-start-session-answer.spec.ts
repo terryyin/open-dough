@@ -68,6 +68,8 @@ function projectActions(project: PublishedSource, presented = vi.fn()) {
           launches,
           hidden,
           presentTerminal: presented,
+          checking: false,
+          refresh: () => undefined,
         }),
       ),
   };

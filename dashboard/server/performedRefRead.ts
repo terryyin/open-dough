@@ -38,10 +38,10 @@ function admit(
   { askedAt, trunk }: AskedOriginTrunk,
 ): Outcome {
   if (trunk.kind === "verified") {
-    const { revision, backlog } = trunk;
+    const { revision, backlog, confirmedAt } = trunk;
     // This backlog is the revision a later trunk is compared with.
     pinned.answeredBacklog(source, revision);
-    return answered({ revision, backlog, askedAt });
+    return answered({ revision, backlog, askedAt, confirmedAt });
   }
   throw new GhFailure({
     kind: "unavailable",

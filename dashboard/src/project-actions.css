@@ -97,3 +97,9 @@
 .direction-text {
   white-space: pre-line;
 }
+
+/* When origin last confirmed the shown revision, beside its Refresh. */
+.project-actions-end .board-checked-at {
+  margin: 0;
+  white-space: nowrap;
+}
