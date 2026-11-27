@@ -194,8 +194,12 @@ test("a reference reveals a story with a running accepted start while its protec
     ...makeMe.aMachineAnswer.observingOpen(record).please(),
     revision: "e".repeat(40),
   });
-  vi.advanceTimersByTime(checkIntervalMs);
-  await expect.element(inspection(supplierCard)).toBeEnabled();
+  await expect
+    .poll(() => {
+      vi.advanceTimersByTime(checkIntervalMs);
+      return inspection(supplierCard).query()?.matches(":enabled") ?? false;
+    })
+    .toBe(true);
   frame.expectNoHostAction();
 });
 

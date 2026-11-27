@@ -35,7 +35,12 @@ test("a follow-up stays on its source Done card as its local state changes", asy
       .observingDone(followUp(title, "2026-11-16T13:10:00.000Z"))
       .please(),
   );
-  pollNow();
+  await expect
+    .poll(() => {
+      pollNow();
+      return nested.getByText("Done", { exact: true }).query() !== null;
+    })
+    .toBe(true);
   await expect.element(nested.getByText("Done", { exact: true })).toBeVisible();
 
   const readsBeforeReopen = machine.reads();

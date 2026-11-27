@@ -194,17 +194,26 @@ test("Recently done reads, reveals 20, 40 and 45 newest first, keeps that range 
       )
       .please(),
   );
-  pollNow();
   const refreshed = [newTitle, ...titles.filter((title) => title !== removed)];
-  await expect.poll(shown.titles).toEqual(refreshed);
+  // The page sets its next poll once the last read settles.
+  await expect
+    .poll(() => {
+      pollNow();
+      return shown.titles();
+    })
+    .toEqual(refreshed);
   expect(document.activeElement).not.toBe(document.body);
   expect(document.activeElement?.isConnected).toBe(true);
   expect(document.activeElement?.textContent).not.toContain(removed);
 
   machine.fail();
   const readsBeforeFailure = machine.reads();
-  pollNow();
-  await expect.poll(machine.reads).toBeGreaterThan(readsBeforeFailure);
+  await expect
+    .poll(() => {
+      pollNow();
+      return machine.reads();
+    })
+    .toBeGreaterThan(readsBeforeFailure);
   await expect.poll(shown.titles).toEqual(refreshed);
   expect(shown.region.element().textContent).not.toContain(
     "No sessions marked done",
