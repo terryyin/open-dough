@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "sessionId": "70627985-c943-4678-ac9b-54f6471052b7",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-27T15:15:24.535Z",
+  "story": "SEED-413#authenticated-github-observation-via-vitest",
+  "ranges": [
+    {
+      "base": "4204aed6e5ff75c9739d36d7026769f339face7f",
+      "candidate": "d06381eb35df75b482d24770a8460ca535c869fa"
+    },
+    {
+      "base": "d06381eb35df75b482d24770a8460ca535c869fa",
+      "candidate": "c1b1460977428037454992becf5a5b26f8307a67"
+    },
+    {
+      "base": "c1b1460977428037454992becf5a5b26f8307a67",
+      "candidate": "8263886db1db55ce800a33af9650e34f6b4b692b"
+    },
+    {
+      "base": "8263886db1db55ce800a33af9650e34f6b4b692b",
+      "candidate": "086f506bf47b0e05ed909118ec640e54a14ac8b6"
+    },
+    {
+      "base": "086f506bf47b0e05ed909118ec640e54a14ac8b6",
+      "candidate": "b0db97567471f847c644281ee222a4ecfaa3ab55"
+    },
+    {
+      "base": "b0db97567471f847c644281ee222a4ecfaa3ab55",
+      "candidate": "8a8e6984ae49a82a8d5ab1275e8b8c88100480bd"
+    },
+    {
+      "base": "8a8e6984ae49a82a8d5ab1275e8b8c88100480bd",
+      "candidate": "fa4d5c57608966483d829faae8feba252e6c22c8"
+    },
+    {
+      "base": "fa4d5c57608966483d829faae8feba252e6c22c8",
+      "candidate": "71cc76188db2356fd0f4cd2f064cfd27be95c037"
+    },
+    {
+      "base": "71cc76188db2356fd0f4cd2f064cfd27be95c037",
+      "candidate": "6cd3227d5fa8b026810304acbaf58e6332211e5c"
+    },
+    {
+      "base": "509fe32fe4da7527d96da52e3227ab5562028445",
+      "candidate": "0b6b446f00670ae42dc07c34e95df1a5afa1b549"
+    }
+  ]
+}
