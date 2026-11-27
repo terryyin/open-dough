@@ -424,6 +424,12 @@ CI repair (run 45996706454): `intent-story-compare-done.spec.ts` asserted a
 Done story's location reads before the last arrived; trunk's fix
 `730fe3185` is applied unchanged.
 
+Launch-call waits (developer-approved allowance): `claudeVerification.ts`'s
+launch-call poll, and `agent-launch-duplicate.spec.ts`'s held and settle
+waits, allow 30 s; six of that spec's cases take a 60 s per-test timeout
+so the wait can be used. They reproduced their failures under forced load
+before and passed after (see the diagnosis record, round 2).
+
 ## Concern evidence
 
 Refinement was not needed. Each slice owns one family's proof loop. There

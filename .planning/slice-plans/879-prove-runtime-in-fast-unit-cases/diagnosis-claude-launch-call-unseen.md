@@ -137,3 +137,35 @@ Round 1 complete; cumulative active minutes ~5.
   unseen Claude launch call. The other six files' failures were load timing.
 - Disposition pending the developer: a case-local allowance on the launch-call
   waits, or a faster launch start.
+
+## Round 2 (developer-approved case-local allowance)
+
+- H6 (stop after 1 before/after pair per signature): the case-local 30-s
+  allowance on the waits for the launch start removes S1 and S2 under the
+  forced-load method (injected `yes` loops, 45-s warm-up) that reproduces them
+  before the change.
+- Change: claudeVerification.ts launch-call poll 30 s (100-ms interval);
+  agent-launch-duplicate.spec.ts `held()` poll 3 s -> 30 s and `settled()`
+  change wait 4 s -> 30 s (a heavier after-run broke it at load 56-69 with "The
+  accepted launch did not settle."), and a per-test 60-s timeout on the six
+  cases that wait on an ad hoc start (:138 :143 :160 :191 :211 :227); without it
+  Vitest's 5-s default ends them before the allowance can be used. :148 keeps
+  the default. agent-launch-claude-verification.spec.ts:196 waits on Recheck,
+  not on the launch start, so it keeps its default bound.
+- Runs (evidence r2-*):
+  S1 before, duplicate + model-boundary, 40 loops, load 53-100: 14/15 fail
+  (r2-be-before). S1 before, duplicate alone, 40 loops, load 91-94: 6/7 fail,
+  five `[]` + :209 5-s test timeout (r2-be-before-alone). After, 40 loops, load
+  62-64: 7/7 (r2-be-after-alone). After, 56 loops, load 56-69: 5/7, settled
+  4-s wait (r2-be-after-heavy) -> settled widened -> 56 loops, load 69-80: 7/7
+  (r2-be-after-heavy2; :191 23 s).
+  S2 before, 40 loops, load 58-90: :85 :176 fail at claudeVerification.ts:44
+  (r2-e2e-before). After, 40 loops, load 78-80: launch-call wait passes, both
+  cases then exceed Playwright's 30-s test timeout later in the journey
+  (r2-e2e-after). Before, 16 loops, load 54-57: same S2 failure
+  (r2-e2e-before16). After, 16 loops, load 49-51: 3/3 pass (r2-e2e-after16).
+- Result: H6 confirmed for both signatures. At load ~80 the e2e journeys as a
+  whole exceed their default 30-s test budget; that is general slowness beyond
+  the launch start, and no e2e per-test override was added.
+- Disposition: fixed by the case-local allowance; uncommitted for the
+  coordinator.
