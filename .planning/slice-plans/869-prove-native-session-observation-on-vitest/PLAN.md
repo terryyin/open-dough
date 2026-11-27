@@ -147,7 +147,7 @@ keeps the existing Playwright assertion body and shares it with Node tests.
 ### 2. Prove shared machine-session observation, reuse, catalog invalidation, and read-wait bounds on Node Vitest
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: Convert `agent-launch-codex-observation-sharing.spec.ts` (3 cases) and
@@ -170,6 +170,13 @@ place, driving `MachineSessionObservation` directly over `codexSessions` +
   `RefusedRequest(503, /not observed within .* Ask again\./)` without starting
   a second observation; a rejoined waiter receives the running observation on
   release, and an ask after the reuse window observes afresh (`[3, 3]`).
+
+Accepted proof: four Node cases passed with no retries or Playwright selections
+(`slice2-backend-repaired.json` in Git evidence), and Dashboard typecheck
+passed. The tests read the real catalog and advance controlled time to the
+reuse and wait bounds. The two specs share one native-call counter in the
+previously reviewed fixture, whose existing setup and consumers retain their
+accepted proof.
 
 ### 3. Prove Codex native-transition alerts and review gap continuity on Node Vitest
 
