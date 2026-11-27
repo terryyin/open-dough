@@ -24,7 +24,7 @@ Reconciliation with related work:
   revision-stream path.
 - [Plan 823](../823-follow-published-progress-from-local-git/PLAN.md) owns
   moving automatic observation and pinned Board reads to local Git.
-- [Plan 860](../860-prove-published-read-admission-on-vitest/PLAN.md) owns
+- [Plan 860](https://github.com/terryyin/open-dough/blob/ebdf4ebac57a7d7cd41172def1b8089a2d4fd455/.planning/slice-plans/860-prove-published-read-admission-on-vitest/PLAN.md) owns
   published read admission, and
   [plan 862](../862-prove-authenticated-github-observation-on-vitest/PLAN.md)
   owns authenticated GitHub request ownership (retaining shared callers of
@@ -218,7 +218,7 @@ planned seam, and the default call is still `touchedBetweenViaGh`.
 ### 4. Reuse unchanged records across a moved revision within bounds
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Once a process answers a project's backlog at A and its ref moves to
 B, the backlog at B is read directly while records and listings compare A→B
@@ -235,6 +235,26 @@ Proof: Direct Node Vitest cases over `PinnedTexts`, `PinnedMemo`,
 slice 2 and MakeMe `aProjectRevision` fixtures. Replaces
 `authenticated-read-revision-reuse.spec.ts` (6) and
 `authenticated-read-revision-reuse-bounds.spec.ts` (7) — 13 cases total.
+
+Accepted proof at `18a885b9` with the comparison argument and specs
+uncommitted. Promise: an unrelated commit answers other reads from A after
+one comparison; a changed seed, backlog, new seed, added done record, and
+changed plan are read at B; a removed profile is not listed from A; a removed
+record fails at B; a move past B compares from A; behind and diverged
+revisions reuse no comparison and still reuse a blob; eleven commits, a
+300-file commit, and a 300-file comparison establish nothing; a story-branch
+plan is not compared; an empty store reads B without a comparison. Boundary:
+`PinnedTexts.reader`, `lister`, and `touchedBetweenViaGh` with an injected
+comparison. Setup and observations:
+`dashboard/backend-tests/observation/revision-reuse.spec.ts` and
+`revision-reuse-bounds.spec.ts` (13 tests). Command:
+`caffeinate -s -i npm run test:dashboard:backend -- 'observation/revision-reuse(-bounds)?\.spec\.ts$' --workers=1`
+(`slice4-reuse-lint2.log.run.json`, exit 0, 13 tests, after the unused-parameter repair). Typecheck
+`slice4-typecheck.log.run.json` and `new PinnedTexts(memo)` in
+`review/shared-verified-origin-trunk.spec.ts` (`slice4-callers.log.run.json`)
+passed. `pinnedMemo.ts` stays 249 lines. `commitsBetween.ts` is 122.
+Refactor pass skipped: the optional comparison, listing, and commit-time
+arguments are the planned seams and default to the GitHub readers.
 
 ### 5. Handle merge and rename diffs, comparison failures, and history reuse
 
@@ -394,7 +414,7 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
   revision `9379098d55410b514abf36b8fb8e42b0c0931181`.
 - Originating checkout: that same workspace. Integration checkout: none.
 - Target selection: remote `origin`, branch `main`.
-- Published revision `1e2fd49f64047a1991fa8613486adefa93095bda` accepted on
+- Published revision `18a885b9a872194fb927c8cd70c3ad9ef5e51327` accepted on
   `origin/cursor/prove-published-refresh-lifecycle-in-node-vitest`. That SHA is
   the previously published base for the next increment. The Story Branch claim
   `29e8402851ac887b9d4cdd7838b8a20db7bb08f9` remains `pendingCi: unobserved`.

@@ -36,12 +36,15 @@ export type RepositoryFileRead = (
 ) => Promise<string>;
 
 export class PinnedTexts extends PinnedMemo {
-  // `readFile` defaults to GitHub and comparison to `touchedBetweenViaGh`,
-  // so `new PinnedTexts(memo)` and `new PinnedTexts(memo, readFile)` stay valid.
+  // `readFile` defaults to GitHub, comparison to `touchedBetweenViaGh`,
+  // directory listing and commit time to their GitHub readers, so
+  // `new PinnedTexts(memo)` and `new PinnedTexts(memo, readFile)` stay valid.
   constructor(
     memo: RevisionMemo,
     private readonly readFile: RepositoryFileRead = readRepositoryFileViaGh,
     touchedBetween: typeof touchedBetweenViaGh = touchedBetweenViaGh,
+    private readonly listDirectory: typeof listRepositoryDirectoryViaGh = listRepositoryDirectoryViaGh,
+    private readonly commitTime: typeof lastCommitTimeViaGh = lastCommitTimeViaGh,
   ) {
     super(memo, touchedBetween);
   }
@@ -88,12 +91,7 @@ export class PinnedTexts extends PinnedMemo {
         `${directory}/`,
         signal,
         () =>
-          listRepositoryDirectoryViaGh(
-            source.repository,
-            directory,
-            revision,
-            signal,
-          ),
+          this.listDirectory(source.repository, directory, revision, signal),
       );
   }
 
@@ -122,7 +120,7 @@ export class PinnedTexts extends PinnedMemo {
   blobReader(source: PublishedSource, revision: string, signal: AbortSignal) {
     return ({ path, sha }: ListedPath): Promise<string> =>
       this.blobRecalled(source, revision, sha, () =>
-        readRepositoryFileViaGh(source.repository, path, revision, signal),
+        this.readFile(source.repository, path, revision, signal),
       );
   }
 
@@ -136,7 +134,7 @@ export class PinnedTexts extends PinnedMemo {
         revision,
         `${path}\0committed`,
         signal,
-        () => lastCommitTimeViaGh(source.repository, path, revision, signal),
+        () => this.commitTime(source.repository, path, revision, signal),
       );
   }
 

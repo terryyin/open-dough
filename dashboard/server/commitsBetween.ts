@@ -30,14 +30,16 @@ const comparedFilesCap = 300;
 // null when GitHub's account establishes nothing: `head` does not descend
 // from `base`, more commits lie between than the bound, or the comparison's
 // or a commit's change list is not whole. A comparison GitHub does not
-// answer as one is a failure, never a guess.
+// answer as one is a failure, never a guess. `compare` defaults to GitHub's
+// own comparison (`comparisonViaGh`).
 export async function touchedBetweenViaGh(
   repository: string,
   between: { readonly base: string; readonly head: string },
   recordOf: (commit: string) => Promise<CommitRecord>,
   signal: AbortSignal,
+  compare: typeof comparisonViaGh = comparisonViaGh,
 ): Promise<readonly string[] | null> {
-  const answer = await comparisonViaGh(
+  const answer = await compare(
     repository,
     between,
     {
