@@ -670,3 +670,19 @@ model is a configured source, a selected pinned operation and its typed
 outcome. Actual wire departure, commit-history comparison and image
 fetching use their own existing production boundaries. No slice-specific
 concern remains on the observed basis.
+
+## Execution complete
+
+Product advice: Keep the current story order. Plan 823 still owns local Git
+for the remaining Board reads. The published refresh lifecycle, GitHub
+observation and Review comparisons still have their own queued proof work.
+
+The eight delivered slices account for all twelve legacy paths. The
+one-worker proof and per-slice observations above support the original
+read behavior, with the installed wire and real-Git boundaries still
+exercised. The typed seams reuse the existing policy and memo, and retained
+E2E owners like the roster journey still observe the user-visible effects.
+Two existing browser journeys received separately evidenced test-only CI
+repairs. Their published code and diagnosis records retain exact attribution.
+Process review is deferred to wrap-up's enabled Intent Coverage check of
+the relocated proof. Applicable story-branch CI is pending at this record.
