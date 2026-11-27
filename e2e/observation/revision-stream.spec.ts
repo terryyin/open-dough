@@ -1,33 +1,28 @@
 // Board streams use free slots/lowered pace; dashboardTest.ts pre-holds slots for check delivery.
 
-import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
-import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
-import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import type { Page, Request } from "@playwright/test";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
-  expect,
-  githubFor,
-  test,
-} from "../../dashboard/test-support/dashboardTest.ts";
-import {
-  shortRevision,
+  expectPublishedRevision,
   expectSettledPage,
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
-  checksAskedWhilePassing,
+  passPageMs,
   passTimeUntilAsked,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
-import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
-  callsSince,
+  isCheck,
+  untilPageReadsAnswered,
+} from "../../dashboard/test-support/pageRequestNotes.ts";
+import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
+import { backlogPath } from "../../dashboard/test-support/publishedOriginBasics.ts";
+import {
   isRevisionStream,
-  matchingRefsSince,
   openSecondStreamingAtA,
   openStreamingAtA,
   queuedSlotRequests,
   streamServerEnv,
-  untilMatchingRefsSince,
   untilStreamingAt,
   setPageVisibility,
 } from "../../dashboard/test-support/revisionStreamJourney.ts";
@@ -35,108 +30,81 @@ import {
   titlesOfA,
   titlesOfB,
 } from "../../dashboard/test-support/refreshJourney.ts";
+import { ConnectionMark } from "./connectionMark.ts";
 
 test.use({
   preholdRevisionStreamSlots: false,
   extraEnv: streamServerEnv,
 });
 
-test("a streaming page sends no since request over a quiet minute", async ({
+test("a streaming Board sends no fallback check over a quiet minute", async ({
   page,
   afterGitHubStops,
 }) => {
-  await openStreamingAtA(page, afterGitHubStops);
-  const { problem } = parts(page);
-  const before = githubFor(page).calls.length;
-  await untilMatchingRefsSince(page, before, 2);
-  const checksBefore = await page.evaluate(() => {
-    const noted = window as { revisionChecksAskedAt?: number[] };
-    return noted.revisionChecksAskedAt?.length ?? 0;
+  const checks =
+    await test.step("Given the Board's fallback requests are recorded", () => {
+      const asked: string[] = [];
+      page.on("request", (request) => {
+        if (isCheck(request.url())) asked.push(request.url());
+      });
+      return asked;
+    });
+  const connection =
+    await test.step("And the Board at A has received a stream update", async () => {
+      await openStreamingAtA(page, afterGitHubStops);
+      const mark = new ConnectionMark(page);
+      await mark.shows("connected");
+      return mark;
+    });
+  await test.step("When a quiet minute passes", async () => {
+    await passPageMs(page, 60_000);
   });
-  expect(await checksAskedWhilePassing(page, 60_000)).toBe(0);
-  expect(checksBefore).toBe(0);
-  await expect(problem).toHaveCount(0);
-  expect(
-    matchingRefsSince(page, before),
-    "the stream kept observing origin over the quiet minute",
-  ).toBeGreaterThanOrEqual(2);
+  await test.step("Then the stream still supplies updates without any fallback request", async () => {
+    await connection.shows("connected");
+    await expect(parts(page).problem).toHaveCount(0);
+    expect(checks).toEqual([]);
+  });
 });
 
-// A slow CI backlog read can otherwise interleave the next 80 ms pace listing
-// before the one-listing assertion; this journey keeps the shared-listing
-// claim with a pace longer than that read.
-test.describe("shared publication listing", () => {
-  test.use({
-    preholdRevisionStreamSlots: false,
-    extraEnv: { DOUGH_REVISION_STREAM_MS: "3000" },
-  });
-
-  test("two streaming pages show a publication from one listing with one backlog read", async ({
-    page,
-    afterGitHubStops,
-    dashboard,
-  }) => {
-    const origin = await openStreamingAtA(page, afterGitHubStops);
-    const { B: revisionB } = origin.revisions;
-    expect(
-      await remoteBranchHead(
-        gitHubRepositoryUrl(defaultRepository),
-        "refs/heads/main",
-        {
-          cwd: dashboard.home,
-          env: { HOME: dashboard.home },
-          maxBuffer: 4096,
-        },
-      ),
-    ).toBe(origin.revisions.A);
-    const other = await openSecondStreamingAtA(page, origin.revisions.A);
-    const { problem, readRevision } = parts(page);
-    await expect(problem, "the first tab's stream stayed fresh").toHaveCount(0);
-    // Finish one paced listing so `before` is not mid-flight when we publish.
-    const drained = githubFor(page).calls.length;
-    await untilMatchingRefsSince(page, drained, 1);
-    const before = githubFor(page).calls.length;
-    const pageAtB = untilStreamingAt(page, revisionB);
-    const otherAtB = untilStreamingAt(other, revisionB);
+test("two streaming tabs show the next published Board without Refresh", async ({
+  page,
+  afterGitHubStops,
+}) => {
+  const { origin, other, streamsAtB } =
+    await test.step("Given both tabs are streaming the Board at A", async () => {
+      const origin = await openStreamingAtA(page, afterGitHubStops);
+      const other = await openSecondStreamingAtA(page, origin.revisions.A);
+      return {
+        origin,
+        other,
+        streamsAtB: Promise.all([
+          untilStreamingAt(page, origin.revisions.B),
+          untilStreamingAt(other, origin.revisions.B),
+        ]),
+      };
+    });
+  await test.step("When origin publishes B", () => {
     origin.advanceTo("B");
+  });
+  await test.step("Then both tabs show the membership and revision at B", async () => {
+    await streamsAtB;
+    await Promise.all([
+      expectSettledPage(page, titlesOfB),
+      expectSettledPage(other, titlesOfB),
+    ]);
+    await Promise.all([
+      expectPublishedRevision(page, origin.revisions.B),
+      expectPublishedRevision(other, origin.revisions.B),
+    ]);
+  });
+  // The current pinned backlog remains shared until the verified stream owns
+  // the replacement operation-count proof.
+  await test.step("And the tabs share the read of the new backlog", () => {
     expect(
-      await remoteBranchHead(
-        gitHubRepositoryUrl(defaultRepository),
-        "refs/heads/main",
-        {
-          cwd: dashboard.home,
-          env: { HOME: dashboard.home },
-          maxBuffer: 4096,
-        },
-      ),
-    ).toBe(revisionB);
-    await expectSettledPage(page, titlesOfB);
-    await expectSettledPage(other, titlesOfB);
-    await expect(readRevision).toContainText(shortRevision(revisionB));
-    const calls = [...callsSince(page, before)];
-    const backlogIndex = calls.findIndex(
-      ({ request }) =>
-        request.kind === "content" &&
-        request.path === ".planning/PRODUCT-BACKLOG.md" &&
-        request.revision === revisionB,
-    );
-    expect(backlogIndex).toBeGreaterThanOrEqual(0);
-    expect(
-      calls
-        .slice(0, backlogIndex + 1)
-        .filter(({ request }) => request.kind === "matching-refs"),
-    ).toHaveLength(1);
-    expect(
-      calls.filter(
-        ({ request }) =>
-          request.kind === "content" &&
-          request.path === ".planning/PRODUCT-BACKLOG.md" &&
-          request.revision === revisionB,
+      restMembershipAsked(origin.requests).filter(
+        (read) => read === `content ${backlogPath}@${origin.revisions.B}`,
       ),
     ).toHaveLength(1);
-    await pageAtB;
-    await otherAtB;
-    await other.close();
   });
 });
 

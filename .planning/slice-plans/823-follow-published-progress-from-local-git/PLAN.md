@@ -47,6 +47,11 @@ behavior until the plan that moves them.
   from demand for the project observation. The stream registry,
   authenticated read boundary, and HTTP fallback keep their lifecycle and
   wire behavior.
+- Switch the two automatic delivery paths in order. Both use the existing
+  shared Git observation once switched. The former HTTP path can still
+  supply a revision without a durable time until its cutover. Preserve the
+  current effect of a standing REST limit on each scheduler and keep REST
+  branch reads until the branch cutover.
 - Follow North Star's
   [direct production test seams](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support),
   [act as soon as the page allows](../../NORTH-STAR.md#act-as-soon-as-the-page-allows),
@@ -131,7 +136,7 @@ Status: done
 
 Change: split `sourceRevisionStream.ts` so per-subscriber SSE delivery and
 teardown sit apart from the project's observation demand, with unchanged
-wire behavior. Enables slice 3 to swap the demand onto the verified check.
+wire behavior. Enables the stream cutover to the verified check.
 
 Proof: existing `authenticated-read-revision-stream.spec.ts` and
 `authenticated-read-revision-stream-setup-departure.spec.ts` pass unchanged.
@@ -141,26 +146,85 @@ after the extraction. Eight HTTP fallback cases, 17 browser stream and
 fallback cases, and Dashboard typecheck also passed. The independent review
 confirmed the ownership split and retained the proof without edits.
 
-### 3. Follow trunk automatically through the verified check
+### 3. Keep the browser stream proof focused on the tabs
+
+Type: Structure
+Status: done
+
+Each of the three journeys in `revision-stream.spec.ts` keeps its browser
+promise: a quiet streaming page avoids the fallback, two open tabs show
+the next published Board without Refresh, and hiding a slot holder lets a
+checking tab stream. Replace provider-specific synchronization with the
+page's observable requests, stream events or cues. Keep the independent
+origin-operation and backlog-reuse observations at the backend while
+preparing for slice 4.
+
+Proof: all three Chromium journeys and the 11 unchanged backend stream and
+departure cases. Confirm which backend observation covers the existing
+single-backlog-read assertion before removing it from the browser.
+
+Accepted proof: three Chromium cases and 11 existing boundary and
+departure cases passed, with Dashboard typecheck. The boundary still proves
+one listing per tick. The browser retains the exact single REST backlog
+read at B until the stream's verified check supplies replacement proof.
+The delivery review found no refactor candidate in the test-only change.
+
+### 4. Follow trunk through the verified revision stream
 
 Type: Behavior
 Status: planned
 
 Behavior: Visible Board at A → origin trunk advances to B → the revision
-stream or its HTTP fallback produces the same verified observation as
-Refresh, recorded through the confirmation record; an unchanged origin
-advances only the time. A departing tab releases its wait while a remaining
-tab still receives its update. The interim `confirmedAt ?? retrievedAt` in
-`publishedWorkRead.ts` retires.
+stream produces the same verified observation as Refresh, recorded through
+the confirmation record. While origin stays unchanged, only the time
+advances. Leaving one stream releases its wait while another tab still
+receives the verified observation. Keep the existing HTTP fallback in
+place until slice 6.
 
 Proof: the [revision stream boundary](../../../dashboard/backend-tests/observation/authenticated-read-revision-stream.spec.ts)
-against a real origin: count project checks for overlapping subscribers and
-the HTTP fallback, and a fresh demand during a running check joins the next
-eligible check within its wait bound. The
-[browser journey](../../../e2e/observation/revision-stream.spec.ts) shows B
-without Refresh.
+against a real origin counts project checks for overlapping subscribers
+and observes arrival, departure and the last close. The browser shows B
+without Refresh, then shows later confirmation at unchanged B. Trace and
+re-prove the affected stream-return, visibility, stopped, lost, and
+setup-departure cases. Preserve credential refusal, unavailable and
+failed-confirmation outcomes.
 
-### 4. Follow published story-branch progress
+### 5. Move fallback proof to the behavior each case owns
+
+Type: Structure
+Status: planned
+
+Before the HTTP cutover, locate the cases that count or intercept the
+REST listing. Keep delivery cadence, transport loss, project isolation and
+recovery at the boundary that exhibits them. Prove REST-only limits,
+cooldown, sharing and request turns through the detail or branch reads
+that still use REST. A case about the origin check itself keeps its
+provider observation until slice 6. Leave the product paths unchanged.
+
+Proof: the touched HTTP and browser cases pass with their intended
+behavior on the existing routes. Trace the retained provider controls
+and name the ones slice 6 must replace.
+
+### 6. Follow trunk through the verified HTTP fallback
+
+Type: Behavior
+Status: planned
+
+The fallback observes changed and unchanged trunk through the same
+verified check and durable time as the stream and Refresh. It retains the
+pace and visibility behavior and shows a current failure beside the
+former confirmed view. Remove the inferred confirmation time in
+`publishedWorkRead.ts` once both automatic delivery paths carry the real
+time.
+
+Proof: the read boundary counts one check across overlapping subscribers
+and an HTTP fallback. Fresh demand during a running check joins the next
+eligible check within its wait bound. A browser with stream delivery
+unavailable shows B without Refresh and shows the later time at unchanged
+B. Re-prove remaining affected confirmation, check-return, visibility,
+project isolation, held read and recovery cases at their owning boundaries.
+
+### 7. Follow published story-branch progress
 
 Type: Behavior
 Status: planned
@@ -177,7 +241,7 @@ a new trunk. At the read boundary hold the transport between probe and
 fetch and change the ref or withhold its objects; inspect the observed
 revision, time, and remote operation count.
 
-### 5. Report confirmed branch deletion
+### 8. Report confirmed branch deletion
 
 Type: Behavior
 Status: planned
@@ -191,12 +255,22 @@ read-boundary case for the failed probe, both against a real origin.
 
 ## Plan review
 
-Slice-plan refinement was not needed: the resplit left five slices with one
-outcome each. Premises checked on 2026-11-27 at `b3af0ad76`: `publishedWorkRead.ts`
-raises the failure only when `shown?.revision === revision` (slice 1);
-`SharedVerifiedOriginTrunk.demand` already accepts `fresh` demand (slice 3);
-branch heads still resolve through `gh` in `branchHeads.ts` (slices 4–5
-replace it). This review found no remaining slice-specific concern.
+The first preparation found that `SharedVerifiedOriginTrunk.demand`
+already accepts fresh demand, and that branch heads still resolve through
+`gh` in `branchHeads.ts`.
+
+Execution at `759d6c4d4` found a wider proof boundary than the original
+slice 3 named. Both delivery paths use `performRevisionCheck`.
+`authenticated-read-revision-check-failures.spec.ts`,
+`authenticated-read-shared-listing.spec.ts`, and
+`authenticated-read-cooldown.spec.ts` control or count REST listing.
+The Board's automatic recovery, limit and return journeys also control
+that path. A single cutover would invalidate their setup alongside
+changing the product. Prepare and switch each delivery path in turn.
+Original slices 4 and 5 are now 7 and 8. The goal and examples are
+unchanged. Before either cutover, account for the affected proof from
+the preceding Structure slice and reassess the remaining work against
+the active-time limit.
 
 ## Local gate
 
