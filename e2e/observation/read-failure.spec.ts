@@ -1,6 +1,7 @@
 import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 import {
   expect,
+  githubFor,
   pausePageClockAt,
   test,
 } from "../../dashboard/test-support/dashboardTest.ts";
@@ -13,14 +14,14 @@ import {
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
-  commitAnswer,
-  noConnection,
-  pathsRead,
   publishCommittedBacklog,
-  publishOrigin,
-  rateLimitedAnswer,
-  type Origin,
+  publishGitOriginFailure,
+  type GitOriginFailure,
 } from "../../dashboard/test-support/publishedOrigin.ts";
+import {
+  readsBesideChecks,
+  restMembershipReads,
+} from "../../dashboard/test-support/originObservation.ts";
 import {
   inspectDashboardStory,
   refreshHistory,
@@ -63,44 +64,34 @@ function backlogWith(queued: BacklogEntry[], tail = ""): string {
   return `${valid}${tail}`;
 }
 
+const unreachable =
+  "The published trunk is unavailable: Git could not read main of terryyin/open-dough from origin.";
+
 const failedOpenings: {
   when: string;
-  origin: Origin | string;
+  origin: GitOriginFailure | { readonly backlog: string };
   problem: string;
   recovery?: string;
 }[] = [
   {
-    when: "the connection fails",
-    origin: { ref: noConnection },
-    problem:
-      "The local GitHub CLI could not reach GitHub while reading main of terryyin/open-dough.",
+    when: "Git cannot reach origin though GitHub REST would answer",
+    origin: "unreachable origin",
+    problem: unreachable,
     recovery: "This page reads the published work at",
   },
   {
-    when: "GitHub limits the rate with HTTP 429",
-    origin: { ref: rateLimitedAnswer(429) },
-    problem:
-      "GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading main of terryyin/open-dough. GitHub named no wait, so reading resumes in 60 seconds.",
-    recovery:
-      "GitHub limited the rate of the local GitHub CLI's requests, so this page asks GitHub nothing until",
-  },
-  {
-    when: "the ref answer names no commit",
-    origin: { ref: commitAnswer("main") },
-    problem:
-      "GitHub's answer for main of terryyin/open-dough did not name a commit.",
-  },
-  {
     when: "one entry line among valid ones is malformed",
-    origin: backlogWith(
-      [claims],
-      "- Queue trunk integration, without a link\n",
-    ),
+    origin: {
+      backlog: backlogWith(
+        [claims],
+        "- Queue trunk integration, without a link\n",
+      ),
+    },
     problem: 'Unsupported entry in "## Backlog list" at line 14',
   },
   {
     when: "the same work is recorded in Taken and again in Backlog",
-    origin: backlogWith([claims], `${repairLine}\n`),
+    origin: { backlog: backlogWith([claims], `${repairLine}\n`) },
     // The reader's words whole, as its report, then the dashboard's own: said
     // once here, while the other refusals are told apart by the reader's words.
     problem:
@@ -108,7 +99,7 @@ const failedOpenings: {
   },
   {
     when: "an entry carries a field the shared reader does not support",
-    origin: backlogWith([], `${claimsLine} (column: review)\n`),
+    origin: { backlog: backlogWith([], `${claimsLine} (column: review)\n`) },
     problem: 'Unsupported entry detail in "## Backlog list" at line 13',
   },
 ];
@@ -117,29 +108,28 @@ for (const { when, origin, problem, recovery } of failedOpenings) {
   test(`read failure and retry shows a read problem and no snapshot when ${when}`, async ({
     page,
   }) => {
-    if (typeof origin === "string") publishCommittedBacklog(page, origin);
-    else await publishOrigin(page, origin);
+    if (typeof origin === "string") publishGitOriginFailure(page, origin);
+    else publishCommittedBacklog(page, origin.backlog);
     await page.goto("/");
     await expectProblemAndNoSnapshot(page, problem, recovery);
-    if (recovery?.includes("asks GitHub nothing until")) {
-      await expect(parts(page).problem).toContainText(
-        "This page reads the published work then, or when it is next seen.",
-      );
-    } else if (recovery?.startsWith("This page reads the published work at")) {
+    if (recovery !== undefined) {
       await expect(parts(page).problem).toContainText(
         "or when it is next seen.",
       );
     }
+    expect(
+      restMembershipReads(readsBesideChecks(githubFor(page).calls)),
+    ).toEqual([]);
   });
 }
 
-test("read failure names a missing published backlog concisely and keeps project switching available", async ({
+test("read failure names an unreadable published backlog concisely and keeps project switching available", async ({
   page,
 }) => {
   publishCommittedBacklog(page, null);
   await page.goto("/");
   const message =
-    "The published backlog (.planning/PRODUCT-BACKLOG.md) is missing or inaccessible in Open Dough (HTTP 404).";
+    "The published backlog (.planning/PRODUCT-BACKLOG.md) is unavailable at the verified trunk of Open Dough.";
   await expectProblemAndNoSnapshot(page, message);
   const { problem } = parts(page);
   await expect(problem.locator("p").first()).toHaveText(message);
@@ -190,11 +180,9 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
     afterGitHubStops,
   );
   const { A: revisionA } = origin.revisions;
-  const reconnect = origin.answerWith("main", noConnection);
+  const reconnect = origin.disconnectGit();
   await page.goto("/");
   const { problem } = parts(page);
-  const unreachable =
-    "The local GitHub CLI could not reach GitHub while reading main of terryyin/open-dough.";
   const recoversOnItsOwn = "This page reads the published work at";
   await expectProblemAndNoSnapshot(page, unreachable, recoversOnItsOwn);
   await expect(problem.locator("time").nth(0)).toHaveAttribute(
@@ -228,5 +216,5 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
     takenCards: 1,
     cards: 4,
   });
-  expect(pathsRead(origin)).toHaveLength(4);
+  expect(restMembershipReads(readsBesideChecks(origin.requests))).toEqual([]);
 });

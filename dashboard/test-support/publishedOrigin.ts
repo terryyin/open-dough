@@ -40,7 +40,9 @@ import {
 import { defaultPassingBaseCi } from "./support/baseCiActions.ts";
 import type { GhCall, RepositoryAnswerer } from "./support/fakeGitHub.ts";
 import {
+  disconnectOriginThroughServedHomes,
   expectServedHomesReach,
+  refuseOriginThroughServedHomes,
   routeServedHomesToPublication,
 } from "./support/fixtureOriginRoute.ts";
 import {
@@ -99,7 +101,48 @@ export function publishOrigin(
 // Serve the same backlog bytes from a real main commit, or a 404 when the
 // backlog is absent from that commit.
 export function publishCommittedBacklog(page: Page, backlog: string | null) {
-  const published = commitPublishedOrigin({ branch: "main", backlog });
+  const { published, github, requests } = commitServedOrigin(
+    page,
+    "main",
+    backlog,
+  );
+  const { revision } = published;
+  expectServedHomesReach(github, defaultRepository, revision);
+  return { revision, requests };
+}
+
+// How Git fails to verify the published trunk while GitHub REST would still
+// answer `main` and its backlog: origin cannot be reached, its trunk branch
+// is missing, or it refuses the credential with HTTP 401 or 403.
+export type GitOriginFailure =
+  "unreachable origin" | "missing trunk" | "refused 401" | "refused 403";
+
+export function publishGitOriginFailure(
+  page: Page,
+  failure: GitOriginFailure,
+): void {
+  const branch = failure === "missing trunk" ? "other" : "main";
+  const { published, github } = commitServedOrigin(page, branch, "");
+  if (failure === "unreachable origin")
+    disconnectOriginThroughServedHomes(
+      github,
+      published.origin,
+      defaultRepository,
+    );
+  if (failure === "refused 401")
+    refuseOriginThroughServedHomes(github, defaultRepository, 401);
+  if (failure === "refused 403")
+    refuseOriginThroughServedHomes(github, defaultRepository, 403);
+}
+
+// A real commit on `branch` holding `backlog` (absent when null), served by
+// REST as `main` and reached by Git under every served HOME.
+function commitServedOrigin(
+  page: Page,
+  branch: string,
+  backlog: string | null,
+) {
+  const published = commitPublishedOrigin({ branch, backlog });
   const { revision } = published;
   const requests = serveOrigin(
     page,
@@ -115,8 +158,7 @@ export function publishCommittedBacklog(page: Page, backlog: string | null) {
   );
   const github = githubFor(page);
   routeServedHomesToPublication(github, defaultRepository);
-  expectServedHomesReach(github, defaultRepository, revision);
-  return { revision, requests };
+  return { published, github, requests };
 }
 
 function serveOrigin(

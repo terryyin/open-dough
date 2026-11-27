@@ -88,7 +88,7 @@ Budget 14 active minutes.
 ### 2. Report cold Git failures at the Board
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: An unavailable origin, missing trunk, or unreadable backlog shows
 no cold Board and names the problem as unavailable; an explicit refusal keeps
@@ -169,6 +169,16 @@ On 2026-11-27, after the prerequisite landed, slice 1 reran on merged trunk
 now owned by slices 2–4, including two `transient-recovery-lifecycle` cases
 that the prerequisite left on the cold open. Run records `r2-backend` and
 `r2-e2e` are in the checkout's `open-dough/evidence`.
+
+Slice 2 (2026-11-27) maps an unverified trunk to one `unavailable` failure
+naming origin, trunk or backlog; only an unavailable origin recovers on its
+own. Refusal stays the check's HTTP 401/403. It removed the REST 429 and
+no-commit cold-open cases, which a Board open no longer reaches. Open for
+the developer: the seed's transport evidence calls GitHub's "Repository not
+found" a refusal, but the delivered `verifiedOriginTrunk.ts` and its spec
+treat it, and "Authentication failed", as unavailable, so they retry.
+REST `mainReads` no longer counts cold opens; slices 3–4 use
+`noteColdOpens` in `transientRecoveryPage.ts` instead.
 
 ## Local gate
 

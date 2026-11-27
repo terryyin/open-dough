@@ -91,7 +91,7 @@ test("a published-work read that fails for good ends the wait, and the membershi
 
   await page.goto("/");
   await expect(problem).toContainText(
-    `GitHub's answer for main of ${defaultRepository} did not name a commit.`,
+    `The published trunk is unavailable: origin has no branch for main of ${defaultRepository}.`,
   );
   await expect(problem).toContainText("Reload the page to read again.");
   expect(restMembership(githubFor(page).calls)).toEqual([]);

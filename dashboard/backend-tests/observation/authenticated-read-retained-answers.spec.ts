@@ -138,7 +138,7 @@ test.describe("authenticated read answers retained across dashboard processes (d
     ]);
   });
 
-  test("a logged-out gh fails the later process at the ref, and a read pinned at a revision it never heard named, with no retained text answered", async ({
+  test("a logged-out gh fails a later process's read pinned at a revision it never heard named, with no retained text answered", async ({
     machine,
   }) => {
     const project = published("logged-out", named("b3"));
@@ -150,17 +150,6 @@ test.describe("authenticated read answers retained across dashboard processes (d
     allAnswered(first.result.answers);
 
     project.serve(github, () => notLoggedIn);
-    const second = await onMachine(machine, github, (server) =>
-      asked(github, () => read(server, "")),
-    );
-    expect(second.calls).toEqual(["ref"]);
-    expect(second.result.status).toBe(502);
-    expect(JSON.stringify(second.result.body)).toContain("gh auth login");
-    expect(second.result.body).not.toHaveProperty("backlog");
-    expect(JSON.stringify(second.result.body)).not.toContain(
-      "Reuse logged-out",
-    );
-
     // A read pinned at A, which this process never heard GitHub name, asks
     // GitHub as before rather than answering from what is retained.
     const pinned = await onMachine(machine, github, (server) =>

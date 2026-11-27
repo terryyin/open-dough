@@ -3,7 +3,7 @@
 // fails locally, so no Git command run under that HOME, including one in a
 // repository the fixture never cloned, reaches the network.
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdirSync, rmSync, symlinkSync } from "node:fs";
+import { mkdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { productionSeedProjects } from "../../server/projectConfigurationSeed.ts";
 import type { FakeGitHub } from "./fakeGitHub.ts";
@@ -203,5 +203,48 @@ export function expectServedHomesReach(
       throw new Error(
         `Git under ${home} finds ${repository} ${ref} at "${reached}", not the published ${revision}.`,
       );
+  }
+}
+
+// Git under every HOME a dashboard served by `github` runs under cannot reach
+// `repository`'s `origin` until the returned reconnect routes it back.
+export function disconnectOriginThroughServedHomes(
+  github: FakeGitHub,
+  origin: string,
+  repository: string,
+): () => void {
+  routeOriginThroughServedHomes(github, `${origin}-unreachable`, repository);
+  return () => {
+    routeOriginThroughServedHomes(github, origin, repository);
+  };
+}
+
+// What Git prints when GitHub's HTTPS transport refuses the credential.
+const refusalStderr = (repository: string) => ({
+  401: `fatal: could not read Username for '${gitHubRepositoryUrl(repository)}': terminal prompts disabled\n`,
+  403: "error: RPC failed; HTTP 403 curl 22 The requested URL returned error: 403\n",
+});
+
+// Git under every HOME a dashboard served by `github` runs under has each
+// `origin` transfer of `repository` refused with HTTP `status`.
+export function refuseOriginThroughServedHomes(
+  github: FakeGitHub,
+  repository: string,
+  status: 401 | 403,
+): void {
+  for (const home of served(github).homes) {
+    const said = path.join(home, "refusal-stderr");
+    const gate = path.join(home, "refusing-upload-pack");
+    writeFileSync(said, refusalStderr(repository)[status]);
+    writeFileSync(gate, `#!/bin/sh\ncat '${said}' >&2\nexit 128\n`, {
+      mode: 0o755,
+    });
+    execFileSync("git", [
+      "config",
+      "--file",
+      path.join(home, ".gitconfig"),
+      "remote.origin.uploadpack",
+      gate,
+    ]);
   }
 }

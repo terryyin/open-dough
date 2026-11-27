@@ -1,9 +1,10 @@
 // The Board's cold open (`./performedRead.ts`). One shared verified-trunk
 // check (`./sharedVerifiedOriginTrunk.ts`) answers the backlog it read, which
-// that check has already pinned; a trunk it could not verify fails the read.
+// that check has already pinned. A trunk it could not verify fails the read
+// as unavailable; an explicit refusal is thrown by the check itself.
 
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { GhFailure } from "./ghFailure.ts";
+import { GhFailure, type UnavailableTrunkPart } from "./ghFailure.ts";
 import { observeProjectRevision } from "./observedSessionLandings.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
@@ -11,6 +12,7 @@ import type {
   AskedOriginTrunk,
   SharedVerifiedOriginTrunk,
 } from "./sharedVerifiedOriginTrunk.ts";
+import type { VerifiedOriginTrunk } from "./verifiedOriginTrunk.ts";
 
 export async function performVerifiedTrunkRead(
   trunks: SharedVerifiedOriginTrunk,
@@ -41,8 +43,20 @@ function admit(
     pinned.answeredBacklog(source, revision);
     return answered({ revision, backlog, askedAt });
   }
-  if (trunk.kind === "missing-trunk") {
-    throw new GhFailure({ kind: "no-commit" });
-  }
-  throw new GhFailure({ kind: "failed" });
+  throw new GhFailure({
+    kind: "unavailable",
+    part: unavailablePart[trunk.kind],
+  });
 }
+
+// A fetched commit other than the probed one is origin moving or failing
+// mid-read, so it is reported as origin unavailable.
+const unavailablePart: Record<
+  Exclude<VerifiedOriginTrunk["kind"], "verified">,
+  UnavailableTrunkPart
+> = {
+  unavailable: "origin",
+  rejected: "origin",
+  "missing-trunk": "trunk",
+  "unreadable-backlog": "backlog",
+};

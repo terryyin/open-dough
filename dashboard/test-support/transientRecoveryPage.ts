@@ -6,6 +6,7 @@
 // scenario names every expected time, wait and request count.
 
 import type { Page } from "@playwright/test";
+import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import { expect } from "./dashboardTest.ts";
 import {
@@ -28,6 +29,22 @@ export const detailRecovery = "this page reads it";
 
 // What the problem says while an earlier snapshot stays shown.
 const earlierSnapshot = "What is shown is the earlier snapshot, retrieved at";
+
+// The page's cold opens of project `source`, noted as they are sent: reads
+// naming only that source, before any revision of it is known.
+export function noteColdOpens(page: Page, source: string): readonly string[] {
+  const opens: string[] = [];
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (
+      url.pathname === authenticatedReadEndpoint &&
+      [...url.searchParams.keys()].join() === "source" &&
+      url.searchParams.get("source") === source
+    )
+      opens.push(request.url());
+  });
+  return opens;
+}
 
 export function mainReads(origin: {
   readonly requests: readonly ObservedRequest[];
