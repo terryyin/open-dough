@@ -178,7 +178,7 @@ Preserved behaviors:
 
 ### 1. Retire unbound Claude recovery
 Type: Structure
-Status: planned
+Status: done
 Proof: Dashboard typecheck. `git grep -w -E 'unboundRecovery|withUnboundRecovery|claudeSessionInWorkspace|keepHistoricalClaudeStart'`
 returns nothing. The startup recovery, launch attempt continuation and
 terminal admission selections pass, as does one E2E startup recovery
@@ -188,6 +188,30 @@ Delete everything finding 1 lists, along with its tests and support, plus
 `followUpBoundaryCases.ts`. Reword the four stale comments. A
 non-recoverable attempt keeps its existing Startup recovery outcome. Enables
 slice 2 by leaving only story-bound landing and continuation paths.
+
+Evidence (2026-11-27):
+- The premise was rechecked read-only and held. The store had 1,578 records,
+  and the only one with no story was closed. Of 1,598 attempts, 3 qualified,
+  and none of them had a matching open record.
+- The `onRecovered` callback and the `presentTerminal` prop of Startup
+  recovery are removed with `recoveredSession`.
+- `feedbackMaintenanceDue.ts:66` had no stale text left (`8f6a3bcdc`).
+- Proof passed:
+  - typecheck;
+  - the grep, which finds nothing outside this plan;
+  - 4 frontend startup-recovery specs;
+  - 14 backend continuation, terminal-admission and attempt-selection specs;
+  - the E2E startup-recovery and continuation journeys.
+- Two tests flaked under load 20–33, and both also flake on the base:
+  - `agent-launch-preparation-continuation-refusal.spec.ts:163`, which hits
+    its 5 s timeout;
+  - `agent-launch-ad-hoc-attachments-continuation.spec.ts:29`, which stays
+    on "Admitting a story.".
+
+  This execution repairs both as a separate increment, under the failure
+  policy.
+- E2E specs run through `npm run test:e2e -- <files>`, because
+  `scripts/test.sh` refuses `.ts` files.
 
 ### 2. Prove landing refusals in one typed table
 Type: Structure
