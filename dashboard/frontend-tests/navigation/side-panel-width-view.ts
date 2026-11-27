@@ -1,8 +1,5 @@
-import { expect, vi } from "vitest";
+import { expect } from "vitest";
 import { page, userEvent } from "vitest/browser";
-import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { publishedSessionRecordSchema } from "../../src/publishedSessionRecord.ts";
-import type { ReviewSource } from "../../src/reviewSource.ts";
 import type { WorkEntry } from "../../src/publishedWork.ts";
 import {
   sidebarKey,
@@ -10,10 +7,13 @@ import {
   withFramePreference,
 } from "../../test-support/component-mount/framePreferences.ts";
 import { browserSession } from "../review/browser-session.ts";
-import { reviewFiles } from "../review/story-review-files-view.ts";
-import { reviewSourceAnswering } from "../review/story-review-panel-page.ts";
 import { mountBoard } from "./board-mount.ts";
 import { boardReading, center } from "./board-reading-page.ts";
+import {
+  answerTerminal,
+  machineWorking,
+  openRecord,
+} from "./board-session-view.ts";
 import { boardWork, story } from "./board-work.ts";
 
 export const wide = { width: 1440, height: 900 };
@@ -23,12 +23,12 @@ export const keyStep = 32;
 export const widthKey = "open-dough.sidePanel.width";
 export { sidebarKey };
 
-const reviewStory = story("Inspect the chosen width", 60);
 const taken = story("Work in progress", 59);
 
+// A running session's terminal is the content the Side panel frame shows;
+// the review width specs read the Session review in the same frame.
 export const panel = page.getByRole("region", {
-  name: "Session review",
-  exact: true,
+  name: /^(Terminal|Session review)$/,
 });
 export const divider = panel.getByRole("separator", {
   name: "Panel divider",
@@ -41,80 +41,40 @@ export const sidebar = page.getByRole("complementary", {
 export const sessions = page.getByRole("button", { name: /^Sessions\b/ });
 export const button = (name: string) =>
   panel.getByRole("button", { name, exact: true });
-export const files = reviewFiles(panel);
 
-export async function openReview() {
-  const entry = boardReading
-    .column("Recently done")
-    .getByRole("article", { name: reviewStory.title, exact: true })
-    .getByRole("list", { name: "Published sessions" })
-    .getByRole("article");
-  const action = entry.getByRole("button", { name: "Review session changes" });
+export async function openTerminal() {
+  const action = boardReading
+    .column("Taken")
+    .getByRole("article", { name: taken.title, exact: true })
+    .getByRole("button", { name: "Open terminal", exact: true });
   await expect.element(action).toBeInTheDocument();
-  const title = entry.element().getAttribute("aria-label") ?? "";
   const control = action.element();
   if (!(control instanceof HTMLElement))
-    throw new Error("Review changes is not focusable.");
+    throw new Error("Open terminal is not focusable.");
   control.focus();
   await userEvent.keyboard("{Enter}");
   await expect
-    .element(panel.getByRole("heading", { level: 2, name: title, exact: true }))
+    .element(
+      panel.getByRole("heading", { level: 2, name: taken.title, exact: true }),
+    )
     .toBeVisible();
 }
 
-export async function mountWidthReview(
+export { files, mountWidthReview } from "./side-panel-width-review-mount.ts";
+
+export async function mountWidthTerminal(
   viewport = wide,
   backlog: readonly WorkEntry[] = [],
 ) {
-  const comparison = makeMe.aStoryReview
-    .publishedSession()
-    .adding("story.txt")
-    .modifying("unstaged.txt")
-    .please();
-  const record = publishedSessionRecordSchema.parse(
-    makeMe.aSessionRecord.forStory(reviewStory.identity).please(),
-  );
-  const completed = makeMe.aDoneRecord
-    .completed({ ...reviewStory, completedAt: record.closedAt })
-    .please();
-  const catalog = makeMe.aDoneCatalog.holding([completed]).please();
-  const review = vi.fn<ReviewSource["review"]>().mockResolvedValue(comparison);
-  const fileDiff = vi
-    .fn<ReviewSource["fileDiff"]>()
-    .mockImplementation((query) => {
-      const path = query.path ?? "story.txt";
-      return Promise.resolve(
-        makeMe.aReviewedFileDiff.adding(path, "more wide").please(),
-      );
-    });
+  answerTerminal();
   const frame = await mountBoard(
-    [
-      boardWork(backlog, {
-        revision: catalog.done.revision,
-        taken: [taken],
-        done: catalog.done,
-        publishedSessions: {
-          status: "listed",
-          revision: catalog.done.revision,
-          sessions: [record],
-        },
-      }),
-    ],
+    [boardWork(backlog, { taken: [taken] })],
     viewport,
-    {},
-    {
-      done: catalog.doneReads,
-      reviews: reviewSourceAnswering({ review, fileDiff }),
-      sessionsSidebar: "kept",
-    },
+    machineWorking(openRecord(taken)),
+    { sessionsSidebar: "kept" },
   );
-  await expect
-    .element(
-      boardReading.column("Taken").getByRole("article", { name: taken.title }),
-    )
-    .toBeInTheDocument();
-  await openReview();
-  return { ...frame, review, fileDiff, story: taken };
+  await openTerminal();
+  return { ...frame, story: taken };
 }
 
 export function measured() {

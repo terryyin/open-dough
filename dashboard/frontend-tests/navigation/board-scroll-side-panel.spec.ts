@@ -12,7 +12,7 @@ import {
   divider,
   drag,
   measured,
-  mountWidthReview,
+  mountWidthTerminal,
   panel,
   withWidthStorage,
 } from "./side-panel-width-view.ts";
@@ -30,7 +30,7 @@ test("the Board alone scrolls with an open Side panel at 1400×420", async () =>
   onTestFinished(() => {
     track.remove();
   });
-  const { story } = await mountWidthReview(
+  const { story } = await mountWidthTerminal(
     { width: 1400, height: 420 },
     longBacklog,
   );
@@ -95,7 +95,7 @@ test("the Board alone scrolls with an open Side panel at 1400×420", async () =>
 test("the Board alone scrolls after Close from a covering Side panel at 700×800", async () => {
   withWidthStorage();
   await reducedBoardMotion();
-  await mountWidthReview({ width: 700, height: 800 }, longBacklog);
+  await mountWidthTerminal({ width: 700, height: 800 }, longBacklog);
   await covering();
   const box = panel.element().getBoundingClientRect();
   expect(box.width).toBe(innerWidth);
@@ -103,7 +103,6 @@ test("the Board alone scrolls after Close from a covering Side panel at 700×800
   await button("Close").click();
   await expect.element(panel).not.toBeInTheDocument();
   await expect.element(page.getByRole("banner")).toBeVisible();
-  await board.control("Taken").click();
   await board.control("Backlog").click();
   await board.shows(["Backlog"], ["Taken 1 entry"]);
   const first = board.column("Backlog").getByRole("article").first().element();

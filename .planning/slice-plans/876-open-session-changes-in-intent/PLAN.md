@@ -98,8 +98,8 @@ Read at `0bff20a80`.
 - **Proof.** A chosen session's selected range feeds the existing selected
   range evidence (`storyCiEvidenceOptionsOf`). Where Intent shows no CI
   comparison for the story (a queued story), Proof stays as it is.
-- **Retirement.** After slice 5 no Dashboard action opens the Side panel
-  review. Slice 6 then deletes its code, styles, tests, page objects and
+- **Retirement.** After slice 6 no Dashboard action opens the Side panel
+  review. Slice 7 then deletes its code, styles, tests, page objects and
   documentation, and removes shared review options that existed only for it
   (for example the Side panel files drawer and toolbar `browser` option,
   the `session-review` panel kind, and the published-session heading). The
@@ -129,9 +129,23 @@ Read at `0bff20a80`.
   `unmeasured`. A chosen session never measures the whole story.
 - Slice 4 needed no product change: Intent's diff already carries the
   session's comparison into `fileFollowUpTarget`. `ReviewDiffs` gained
-  `followUpFromFile` and `followUpFromLine`; slice 6 removes the Side panel's
+  `followUpFromFile` and `followUpFromLine`; slice 7 removes the Side panel's
   own `ReviewChanges.followUpFromLine`.
-- Slice 6's shared-code audit decides the name of `followUpSessions.ts` and
+- Plan refined during the routing slice (then 5, now 6): the Side panel
+  frame specs used the review as content, so routing alone failed 11 cases.
+  The frame move became slice 5, delivered before the routing; the
+  unreachable review specs' deletion moved into slice 6. The routing slice
+  kept its 12 active minutes; its uncommitted work stays in the checkout.
+- Slice 5 uses a running session's terminal, not a final report: only the
+  terminal (and the review) render Maximize/Restore, which five frame cases
+  use. To keep the slice-5 commit green, `side-panel-width-review-mount.ts`
+  holds the review mount unchanged and `panel` matches
+  `/^(Terminal|Session review)$/`. Slice 6 deletes that mount and its
+  re-export from `side-panel-width-view.ts` and narrows `panel` to
+  `"Terminal"` exactly. Refactor pass skipped for slice 5: test-only change
+  to its subject specs and their view; the transitional mount is removed by
+  slice 6.
+- Slice 7's shared-code audit decides the name of `followUpSessions.ts` and
   `FollowUpSession`, which now hold a story's sessions in general (a rename
   reaches `dashboard/server/followUpStory.ts`, `followUpAdmission.ts`).
 
@@ -205,7 +219,24 @@ Proof: Move `e2e/intent/intent-published-range-source.spec.ts` (two cases) to
 open the session through Intent's Sessions choice instead of the Side panel,
 keeping its composer and first-input assertions.
 
-### 5. Review session changes opens Intent at that session
+### 5. Side panel frame specs show a final report
+Type: Structure
+Status: done
+
+Change: `dashboard/frontend-tests/navigation/side-panel-width-view.ts` opens
+a finished session's final report instead of the Side panel review, so
+`side-panel-width`, `-kept`, `-covering` and `board-scroll-side-panel` keep
+observing the Side panel frame (width, kept width, covering, board scroll)
+with content that stays after slice 7. Drop assertions that only make sense
+for the review (files toggle, review read counts). Inserted before the
+routing slice: slice 6's routing removed the review these specs used as
+content (11 cases failed, `s5-fe-width.log`), and they must stay green on
+their own.
+
+Proof: The four frame specs pass at this slice's commit with the review
+still reachable; frontend `navigation/` stays green.
+
+### 6. Review session changes opens Intent at that session
 Type: Behavior
 Status: planned
 
@@ -215,6 +246,10 @@ chooses that session; no Dashboard action opens a code review in the Side
 panel; a running session's terminal and a finished session's final report
 still open there.
 
+Slice 6 also deletes the specs that can no longer reach the Side panel
+review (moved from slice 7, so slice 6 commits green); slice 7 keeps the
+code, styles, page objects and documentation.
+
 Proof: Point `openPublishedSessionReviewChanges` in `reviewChangesPage.ts`
 at Intent and run `e2e/sessions/recently-done-published-sessions.spec.ts`,
 `e2e/sessions/admitted-session-completion.spec.ts`,
@@ -222,7 +257,7 @@ at Intent and run `e2e/sessions/recently-done-published-sessions.spec.ts`,
 `-replacement*.spec.ts`, with their Side panel review steps rewritten to the
 Intent destination and the terminal and report steps kept.
 
-### 6. Remove the retired Side panel review and its dual-UI options
+### 7. Remove the retired Side panel review and its dual-UI options
 Type: Structure
 Status: planned
 
@@ -233,8 +268,8 @@ shared review options, branches and abstractions that served only the
 Side panel (search `StoryReview`, `SessionReviewsOnPage`, `session-review`,
 `ReviewFilesDrawer`, `reviewFileSidebarWidth`, `story-review-touch`,
 `assumeReviewChanges`, `reviewChangesAfter`, `publishedSessionReviewControl`
-across `dashboard/`, `e2e/`, `docs/`). Separated from slice 5 to keep its
-routing change recoverable; it completes slice 5's change with external
+across `dashboard/`, `e2e/`, `docs/`). Separated from slice 6 to keep its
+routing change recoverable; it completes slice 6's change with external
 behavior unchanged.
 
 Proof: Old symbols and paths are gone; `npm run typecheck:dashboard`,
@@ -244,7 +279,7 @@ Proof: Old symbols and paths are gone; `npm run typecheck:dashboard`,
 
 | Promise (seed) | Slice |
 | --- | --- |
-| Review session changes opens Intent at that session, without local history | 5 (with 1 for the scope) |
+| Review session changes opens Intent at that session, without local history | 6 (with 1 for the scope) |
 | Sessions: Whole story default, each completed session once, repeated refinements named | 1 |
 | Session's recorded runs selectable; session without a landing stays chosen | 2 |
 | Source, diff use the selection | 1, 2 |
@@ -252,14 +287,14 @@ Proof: Old symbols and paths are gone; `npm run typecheck:dashboard`,
 | Shared-checkout warning; exact published ranges | 2 |
 | File and line Follow up | 4 |
 | Whole story keeps its choices | 1 (existing `intent-story-compare-*` specs stay green) |
-| Side panel review removed; terminal and report remain | 5, 6 |
+| Side panel review removed; terminal and report remain | 5, 6, 7 |
 
 Apply the shared
 [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
 Run focused specs at each slice with
 `npm run test:dashboard:frontend -- <files>` and
 `OPEN_DOUGH_E2E_PROOF_RECORD=<tmp> caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:e2e -- <files>`,
-plus `npm run typecheck:dashboard`. Because slice 6 changes shared review
+plus `npm run typecheck:dashboard`. Because slice 7 changes shared review
 code, run the review family before landing: frontend `review/` and `intent/`
 (`intent-story-*`), and E2E `e2e/review/`, `e2e/intent/`, `e2e/sessions/`
 and `e2e/navigation/side-panel-*`, on awake macOS on AC under
@@ -287,9 +322,15 @@ Reported: slice 4 — "no test opens Follow up from the file header with a sessi
 Story clause: "File and line Follow up use the shown comparison."
 Disposition: proved by slice 4: `e2e/intent/intent-published-range-source.spec.ts` "a second machine follows up on the exact published file" chooses the session and range 2 in Intent with no local launch, opens Follow up from the file header and observes the composer and Claude's first input carrying that session's range-2 comparison.
 
+### G5. Side panel frame specs and review specs fail once nothing opens the review (first reported in slice 6, then numbered 5)
+Reported: slice 6 — "11 frontend cases now fail in specs that are not on slice 6's deletion list."
+Story clause: "The Side panel's terminal and final report stay as they are."
+Disposition: return
+
 ## Plan review
 
-Slice-plan refinement was not needed: each slice owns one outcome and proof
-loop, and the six slices are within the limit. Concern evidence: none
-identified. Slice 6 is Structure that finishes slice 5's retirement rather
-than preparing a later Behavior; it is separated only for recovery.
+Each slice owns one outcome and proof loop; seven slices are within the
+limit. Slice 5 was inserted during execution (see Learnings) so the Side
+panel frame specs stay green independently of the routing. Slice 7 is
+Structure that finishes slice 6's retirement rather than preparing a later
+Behavior; it is separated only for recovery.
