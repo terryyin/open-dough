@@ -145,7 +145,7 @@ later path added to that config the same way.
 ### 2. Prove machine JSON storage, notifier setup, and project addition validation in Node Vitest
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 15–20 active minutes.
 
 Behavior: given a private machine home and real Git or synthetic notifier
@@ -162,6 +162,10 @@ Proof: Convert `machine-json-reuse.spec.ts` (6), `machine-json-revision.spec.ts`
 and `project-add-validation.spec.ts` (10) to plain Vitest. Run:
 `caffeinate -s -i npm run test:dashboard:backend -- 'configuration/(machine-json-reuse|machine-json-revision|notifier-setup|project-add-validation)\.spec\.ts$' --workers=1 --reporter=list`
 (22 Node cases, 0 Chromium cases) and `npm run typecheck:dashboard`.
+
+Accepted: 22 Node cases passed in 14.5 s on macOS (all three macOS notifier
+cases ran) and typecheck passed. Only imports and hooks changed; Vitest's
+in-file order replaces Playwright's serial mode.
 
 ### 3. Prove local settings boundaries in-process on Node Vitest
 

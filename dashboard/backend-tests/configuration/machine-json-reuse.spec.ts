@@ -8,7 +8,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { z } from "zod";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { afterEach, beforeEach, expect, test } from "vitest";
 import {
   readMachineJson,
   replaceMachineJson,
@@ -23,7 +23,7 @@ let directory: string;
 let parses: number;
 let store: MachineJsonStore<Record<string, number[]>>;
 
-test.beforeEach(() => {
+beforeEach(() => {
   directory = mkdtempSync(path.join(tmpdir(), "dough-machine-json-"));
   parses = 0;
   store = {
@@ -35,7 +35,7 @@ test.beforeEach(() => {
   };
 });
 
-test.afterEach(() => {
+afterEach(() => {
   rmSync(directory, { recursive: true, force: true });
 });
 

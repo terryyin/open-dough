@@ -6,7 +6,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { z } from "zod";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { afterEach, beforeEach, expect, test } from "vitest";
 import { machineDashboardDirectory } from "../../server/machineHome.ts";
 import {
   machineDocumentsRevision,
@@ -23,7 +23,7 @@ let home: string;
 let restoreHome: () => void;
 let store: MachineJsonStore<Record<string, number[]>>;
 
-test.beforeEach(() => {
+beforeEach(() => {
   home = mkdtempSync(path.join(tmpdir(), "dough-machine-revision-"));
   restoreHome = withRestoredEnv({ HOME: home });
   const folder = machineDashboardDirectory();
@@ -35,7 +35,7 @@ test.beforeEach(() => {
   };
 });
 
-test.afterEach(() => {
+afterEach(() => {
   restoreHome();
   rmSync(home, { recursive: true, force: true });
 });
