@@ -64,7 +64,7 @@ the same server and the same `openCodexTerminal` path.
 ### 1. Prove which Claude upgrades attach
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: Move the nine refusal cases and the two "still attaches" cases in
@@ -78,14 +78,24 @@ server:
 - A stopped session Claude Code still lists, and a listing that cannot be
   read, still attach. Closing those sockets ends the attach with SIGHUP.
 
+Accepted proof: the 11 cases now live in
+`agent-terminal-admission.spec.ts` on Node Vitest (who may attach);
+`agent-terminal-boundary.spec.ts` keeps what an admitted socket passes.
+Before: Playwright, whole file 17 cases, 22.58 s wall, 1149 ms summed for
+these 11. After: Vitest, 11 cases, 9.83 s wall, about 592 ms summed; nine
+refusals take 1–47 ms, the two real attaches 209–248 ms (they wait for the
+fake-claude attach and its SIGHUP). Records: `s1-before`, `s1-after`,
+`s1-rest` in the execution's evidence directory.
+
 ### 2. Prove an admitted socket passes terminal messages
 
 Type: Behavior
 Status: planned
 Estimate: 12–15 active minutes.
 
-Proof: Move the remaining eight cases in `agent-terminal-boundary.spec.ts`
-to the same Vitest server:
+Proof: Move the remaining six cases in `agent-terminal-boundary.spec.ts`
+(one pass-through, five bad frames; the file held 17 cases, not 19) to the
+same Vitest server:
 
 - A same-origin socket shows the attached size, echoes input, applies a
   resize, and on close ends the attach with SIGHUP while the session stays
@@ -122,6 +132,12 @@ Proof: Move `agent-terminal-close.spec.ts` and
   while the HTTP server stays listening and the native protocol receives no
   `turn/interrupt`.
 
+Refactor follow-up from slice 1: both close specs still build
+`{baseURL, origin, ...claude.controls} as unknown as DashboardServer`. On
+the move, type the server as `TerminalServer` from
+`dashboard/test-support/agentTerminalBoundary.ts` without a cast, adding the
+Codex controls beside it if the Codex helpers read them.
+
 ### 5. Prove Codex resume, missing-target refusal, and the Done mark
 
 Type: Behavior
@@ -150,7 +166,7 @@ Files are relative to `dashboard/backend-tests/terminals/`.
 | Slice | Legacy selection | Observable proof |
 | --- | --- | --- |
 | 1 | `agent-terminal-boundary` refusals and still-listed attaches (11) | Refused upgrades run no attach; a stopped or unreadable listing still attaches and socket close sends SIGHUP |
-| 2 | `agent-terminal-boundary` pass-through and bad frames (8) | Output, input, and size pass; a bad frame ends only that attach |
+| 2 | `agent-terminal-boundary` pass-through and bad frames (6) | Output, input, and size pass; a bad frame ends only that attach |
 | 3 | `agent-terminal-resize` (2) | Unavailable resize ends only the ready or starting attachment |
 | 4 | `agent-terminal-close` (1), `agent-terminal-codex-close` (1) | `closeServer` ends the Claude attach and the Codex PTY while the HTTP server stays up |
 | 5 | `agent-terminal-codex` (3) | Remote resume without replay or fork, missing-target refusal, Done cleared only for the ready Codex host |

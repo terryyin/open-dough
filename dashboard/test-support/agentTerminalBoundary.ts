@@ -7,9 +7,16 @@ import { productionSeedProjects } from "../server/projectConfigurationSeed.ts";
 import { agentTerminalEndpoint } from "../src/agentTerminal.ts";
 import { launchRequest } from "./agentLaunchBoundary.ts";
 import type { DashboardServer } from "./support/dashboardServer.ts";
+import type { FakeClaudeControls } from "./support/fakeClaude.ts";
 import { keepMoreLaunchRecordsBesideServer } from "./support/launchStore.ts";
 import { waitUntil } from "./support/waitUntil.ts";
 import { processRunning } from "./support/processGroup.ts";
+
+// What these helpers read of a server: where it answers, and the fake claude
+// behind it. A full dashboard server and the launch boundary on a plain HTTP
+// server both supply it.
+export type TerminalServer = Pick<DashboardServer, "baseURL" | "origin"> &
+  FakeClaudeControls;
 
 export type RecordedSession = {
   readonly sessionId: string;
@@ -19,7 +26,7 @@ export type RecordedSession = {
 let sessionSerial = 0;
 
 export async function composeSession(
-  server: DashboardServer,
+  server: TerminalServer,
   source = "open-dough",
   work: Partial<
     Pick<typeof launchRequest, "identity" | "title" | "workflow" | "model">
@@ -56,7 +63,7 @@ export async function composeSession(
 // Answers `request` while the project's execution checkout on the dashboard's machine is
 // missing, and puts the folder back afterwards.
 export async function withoutProjectFolder<T>(
-  server: DashboardServer,
+  server: TerminalServer,
   source: string,
   request: () => Promise<T>,
 ): Promise<T> {
@@ -71,7 +78,7 @@ export async function withoutProjectFolder<T>(
 }
 
 export function terminalUrl(
-  server: DashboardServer,
+  server: TerminalServer,
   source: string,
   session: string | undefined,
 ): string {
@@ -91,7 +98,7 @@ export type Terminal = {
 };
 
 export async function openTerminal(
-  server: DashboardServer,
+  server: TerminalServer,
   session: RecordedSession,
   source = "open-dough",
 ): Promise<Terminal> {
@@ -169,7 +176,7 @@ export function shows(terminal: Terminal, text: string): Promise<boolean> {
 // Waits for the newest attach process to end, and answers the signal that
 // ended it.
 export async function lastAttachEnded(
-  server: DashboardServer,
+  server: TerminalServer,
 ): Promise<string | undefined> {
   await waitUntil(
     () => {

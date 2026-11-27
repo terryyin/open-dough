@@ -79,7 +79,7 @@ export async function recordsOf(
   return projectRecords(await machineSessions(server), source);
 }
 
-export function openDoughFolder(server: DashboardServer): string {
+export function openDoughFolder(server: Pick<DashboardServer, "home">): string {
   return realpathSync(path.join(server.home, "git", "open-dough"));
 }
 
