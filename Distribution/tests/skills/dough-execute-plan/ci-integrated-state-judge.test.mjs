@@ -187,17 +187,23 @@ test("integrated evidence is judged only under a policy for an eligible own stat
     readCurrentAttempt: async (listed) => currentAttempt(listed),
   });
   assert.deepEqual(await noPolicy(recorded), accepted(b));
-  const { judge, listings } = judgePoll({ repoDir: writer, runs: [run] });
+  const ownAncestor = "a".repeat(40);
+  const { judge, listings } = judgePoll({
+    repoDir: writer,
+    runs: [run],
+    registered: [ownAncestor, b],
+  });
   for (const state of ["pending", "success", "failure"])
     assert.deepEqual(await judge({ ...recorded, state }), accepted(b, state));
-  // An ignored-only B is judged only while its applicable ancestor's attempt
-  // has no verdict; a proved or unresolved basis keeps its own rule.
-  const ignoredOnly = (basisState) =>
+  // An ignored-only B is judged while its applicable ancestor's attempt has
+  // no verdict, or failed as another writer's revision; a successful,
+  // unresolved or own failed basis keeps its own rule.
+  const ignoredOnly = (basisState, ancestor = ownAncestor) =>
     makeMe.aRevisionCoverage
       .with({
         sha: b,
         state: "not_required",
-        basis: { sha: "a".repeat(40), state: basisState },
+        basis: { sha: ancestor, state: basisState },
       })
       .please();
   for (const basisState of ["success", "failure", undefined])
@@ -215,6 +221,11 @@ test("integrated evidence is judged only under a policy for an eligible own stat
       ...ignoredOnly(basisState),
       integrated: validated(b, c, run),
     });
+  const othersFailure = ignoredOnly("failure", "d".repeat(40));
+  assert.deepEqual(await judge(othersFailure), {
+    ...othersFailure,
+    integrated: validated(b, c, run),
+  });
   const unavailable = judgePoll({
     repoDir: writer,
     runs: [run],
