@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Open the Board from the verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-the-board-from-the-verified-git-trunk) — SEED-430#open-the-board-from-the-verified-git-trunk ([plan](slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md))
 - [Keep the project reading until Show latest can replace it](seeds/SEED-420-unified-intent-review.md#keep-project-reading-until-show-latest) — SEED-420#keep-project-reading-until-show-latest ([plan](slice-plans/855-keep-project-reading-until-show-latest/PLAN.md))
 - [Prove Dashboard worker recovery and drain in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-worker-recovery-on-vitest) — SEED-413#prove-launch-worker-recovery-on-vitest ([plan](slice-plans/857-prove-launch-worker-recovery-on-vitest/PLAN.md))
-- [Move authenticated-read proofs off the Board's ref read](seeds/SEED-430-read-published-project-data-from-local-git.md#move-authenticated-read-proofs-off-the-board-ref-read) — SEED-430#move-authenticated-read-proofs-off-the-board-ref-read ([plan](slice-plans/858-move-authenticated-read-proofs-off-the-board-ref-read/PLAN.md))
 
 ## Backlog list
 

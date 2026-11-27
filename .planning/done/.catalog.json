@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-430_move-authenticated-read-proofs-off-the-board-ref-read.json",
+      "identity": "SEED-430#move-authenticated-read-proofs-off-the-board-ref-read",
+      "completedAt": "2026-11-27T00:21:35.531Z",
+      "blob": "d8fd7f7ccf46ca192de9445c5899b8bed44799a0"
+    },
+    {
       "fileName": "SEED-413_prove-launch-starts-and-recovery-on-vitest.json",
       "identity": "SEED-413#prove-launch-starts-and-recovery-on-vitest",
       "completedAt": "2026-11-26T14:44:54.474Z",
