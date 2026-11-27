@@ -454,6 +454,41 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
     The unit folder proves the run-directory and selection decisions from
     typed inputs.
 
+<a id="fast-runtime-unit-case-cleanup"></a>
+
+### Correct the fast runtime cases' leftovers
+
+**Identity:** SEED-413#fast-runtime-unit-case-cleanup
+
+- **Goal.** Correction of
+  [fast runtime unit cases](#fast-runtime-unit-cases) (plan 879, commits
+  `b7f5b8ff0`..`5b4c52038`). The fast runtime folder keeps its promise
+  without leaving cost elsewhere: the membership check's fail-fast rule is
+  proven by a unit case, so no E2E journey waits out a 5 s bound for it, and
+  the folder starts no Git process.
+- **Scope.**
+  - Prove that `expectMembership` fails at once, naming the titles, when the
+    published-work read fails for good, in `page-read-waits.spec.ts`, and
+    drop the block slice 8 appended to
+    `e2e/observation/transient-read-exclusions.spec.ts`.
+  - Prove `writeHomeRoutes`/`homeRoutes` by parsing and serializing config
+    text, and remove the real `git ls-remote` refusal case from
+    `committed-origin-routing.spec.ts`; Git's own refusal stays with the
+    journeys that use `expectServedHomesReach`.
+  - Remove cases that only restate a constant or stub
+    (`boundary-server` seed ids, `processOnly`'s own message,
+    `withRestoredEnv`, the `finishRouteHandlers` stub call, the one-line mode
+    table) or merge them into an observable case.
+  - Un-export `verifyPublishedCommit` and `productionBuildEnvironment`, which
+    lost their outside callers.
+  - Out of scope: production behavior changes; the backend runner cutover.
+- **Key examples.**
+  - A malformed backlog: the unit case gives a failed published-work read
+    and sees the membership check fail at once with both titles; the E2E
+    journey no longer pays a 5 s bound.
+  - A HOME's route list round-trips through its config text with no `git`
+    process.
+
 <a id="retire-legacy-dashboard-backend-runner"></a>
 
 ### Run the entire Dashboard backend unit suite on Node Vitest

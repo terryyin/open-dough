@@ -426,3 +426,26 @@ Refinement was not needed. Each slice owns one family's proof loop. There
 are eight slices, at the limit, and the density matches completed plan 868.
 This review found no remaining slice-specific concern. Slices 3–5 and 8
 carry the largest estimates; an overrun follows execution's split rule.
+
+## Execution complete
+
+Product advice:
+- The story's goal is met: the runtime folder gives feedback in seconds
+  (102 Node cases, 812 ms summed, 18 s wall against 3 min 23 s). Real
+  process, Git, npm and build behavior now sits in named checks:
+  `production-qualification-git`, `dev-server-cache-ownership` and
+  `published-development-install` E2E cases, and the `fake-gh-real-owner`
+  and `production-build-gate` runner scripts.
+- Take the [leftover correction](../884-correct-fast-runtime-case-leftovers/PLAN.md)
+  before the [runner cutover](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-backend-runner):
+  it removes a 5 s wait from an E2E journey and the folder's last Git
+  process, and the cutover touches the same folder.
+- A preview ended by the watcher's SIGHUP records `process-started` but no
+  `process-ended` (slice 1 learning), so the dashboard reads it as lost.
+  Recommend queueing it as a separate bug fix; the developer decides.
+- `agent-launch-duplicate` and `agent-launch-claude-verification` fail
+  only on this machine under heavy load (28–70), because their 3–5 s waits for the
+  Claude launch call cover a start that takes up to 6.7 s
+  ([diagnosis](diagnosis-claude-launch-call-unseen.md)). Recommend a
+  case-local 30 s allowance, matching the helper's next wait; the developer
+  decides.
