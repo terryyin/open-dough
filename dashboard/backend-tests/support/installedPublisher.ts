@@ -21,9 +21,10 @@ import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 
 // The receiver's side of the sender's one request: production admission, then
 // the landing adapter or completion delivery handing a quiet report's Done to
-// `doneMarks`; only the fetch stub and Response mapping stay here.
+// `doneMarks`; only the fetch stub and Response mapping stay here. A
+// `lostReceipt` receiver delivers, then loses its answer on the way back.
 const receiver =
-  (doneMarks: ReportedDone) =>
+  (doneMarks: ReportedDone, lostReceipt = false) =>
   async (
     input: string | URL | Request,
     init?: RequestInit,
@@ -38,14 +39,15 @@ const receiver =
     };
     const bodyText = typeof init?.body === "string" ? init.body : "";
     try {
-      if (url.pathname === completionEndpoint)
-        return Response.json(
-          await deliverCompletion(
-            admitCompletionRequest({ ...wire, body: JSON.parse(bodyText) }),
-            url.origin,
-            doneMarks,
-          ),
+      if (url.pathname === completionEndpoint) {
+        const receipt = await deliverCompletion(
+          admitCompletionRequest({ ...wire, body: JSON.parse(bodyText) }),
+          url.origin,
+          doneMarks,
         );
+        if (lostReceipt) throw new TypeError("fetch failed");
+        return Response.json(receipt);
+      }
       const { operation, submission } = admitLandingRequest({
         ...wire,
         route: url.pathname,
@@ -82,8 +84,11 @@ export type BeforePush = {
   prepared?: readonly object[] | undefined;
 };
 
-function bridgeToReceiver(doneMarks: ReportedDone = { reported: vi.fn() }) {
-  vi.stubGlobal("fetch", receiver(doneMarks));
+function bridgeToReceiver(
+  doneMarks: ReportedDone = { reported: vi.fn() },
+  lostReceipt = false,
+) {
+  vi.stubGlobal("fetch", receiver(doneMarks, lostReceipt));
   onTestFinished(() => {
     vi.unstubAllGlobals();
   });
@@ -145,13 +150,15 @@ export async function retryInstalledLanding(landingContext: string) {
 }
 
 // Reports through the installed reporting script at `script`, as its
-// reporting command runs it with `argv`, answering its printed result.
+// reporting command runs it with `argv`, answering its printed result. With
+// `lostReceipt`, the delivery happens but its receipt never reaches the script.
 export async function reportInstalled(
   script: string,
   argv: string[],
   doneMarks: ReportedDone,
+  { lostReceipt = false } = {},
 ) {
-  bridgeToReceiver(doneMarks);
+  bridgeToReceiver(doneMarks, lostReceipt);
   const reporter = (await import(pathToFileURL(script).href)) as Reporter;
   return reporter.reportCompletion(argv);
 }

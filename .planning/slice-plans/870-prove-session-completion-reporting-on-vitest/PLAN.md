@@ -184,7 +184,7 @@ before the final CI.
 ### 3. Recover an unacknowledged quiet report as reporting only
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 13–15 active minutes.
 
 Proof: With a tracked Codex execution record, a planted closure repository
@@ -197,6 +197,16 @@ receipt. A receipt dropped after delivery leaves the durable completion and
 its automatic Done, and the retry answers that receipt; a duplicate does
 too. Convert the first part of `agent-completion-quiet-closure.spec.ts` and
 the observations of `completionRecoveryFaults.ts`.
+
+Delivered: the new Node spec `agent-completion-quiet-recovery.spec.ts`
+(4 cases, 0.2–0.4 s, 248 lines) owns the first part of the legacy
+quiet-closure case and `observeCompletionFaults`; its selector joins the
+candidate run. The bridge's `reportInstalled` takes `{ lostReceipt }`, which
+drops the answer after `deliverCompletion` returns. `ReportedDone.reported`
+is called once per answered delivery, replays included. Slice 4 goes in its
+own spec, since this one is near 250 lines. It owns or retires the CLI-only
+stderr line "Keep the message and retry without repeating the work.", which
+the in-process `reportCompletion` never prints.
 
 ### 4. Keep later reports and the developer's intent apart from an old receipt
 
