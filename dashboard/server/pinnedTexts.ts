@@ -19,29 +19,51 @@ import {
   type ProfileAddition,
 } from "./ghProfileAddition.ts";
 import { PinnedMemo } from "./pinnedMemo.ts";
+import type { RevisionMemo } from "./revisionMemo.ts";
 
 // A file a pinned directory listing names, by its repository path, with the
 // sha of its Git blob.
 export type ListedPath = { readonly path: string; readonly sha: string };
 
+// One repository file at a resolved revision. GitHub answers it unless the
+// caller supplies the read this process should use instead.
+export type RepositoryFileRead = (
+  repository: string,
+  path: string,
+  revision: string,
+  signal: AbortSignal,
+) => Promise<string>;
+
 export class PinnedTexts extends PinnedMemo {
+  // `readFile` defaults to GitHub, so `new PinnedTexts(memo)` is unchanged.
+  constructor(
+    memo: RevisionMemo,
+    private readonly readFile: RepositoryFileRead = readRepositoryFileViaGh,
+  ) {
+    super(memo);
+  }
+
   // The backlog is read at the revision itself, never compared: membership
   // never waits on GitHub's account of what changed, which only the records
-  // it names wait on.
+  // it names wait on. That read is `readFile`. A compared path still asks
+  // GitHub directly.
   reader(source: PublishedSource, revision: string, signal: AbortSignal) {
     return (path: string): Promise<string> => {
-      const read = () =>
-        readRepositoryFileViaGh(source.repository, path, revision, signal);
-      return path === source.backlogPath
-        ? this.recalled(source, revision, path, read)
-        : this.recalledOrUnchanged(source, revision, path, signal, read);
+      if (path === source.backlogPath) {
+        return this.recalled(source, revision, path, () =>
+          this.readFile(source.repository, path, revision, signal),
+        );
+      }
+      return this.recalledOrUnchanged(source, revision, path, signal, () =>
+        readRepositoryFileViaGh(source.repository, path, revision, signal),
+      );
     };
   }
 
   // One file at the revision the source's ref just named to this process,
   // remembered at that revision and never compared with another: the
-  // feedback maintenance check (`./feedbackMaintenanceCheck.ts`) asks GitHub
-  // for it once per revision.
+  // feedback maintenance check (`./feedbackMaintenanceCheck.ts`) asks
+  // `readFile` for it once per revision.
   namedRevisionText(
     source: PublishedSource,
     revision: string,
@@ -50,7 +72,7 @@ export class PinnedTexts extends PinnedMemo {
   ): Promise<string> {
     this.heardNamed(source, revision);
     return this.recalled(source, revision, path, () =>
-      readRepositoryFileViaGh(source.repository, path, revision, signal),
+      this.readFile(source.repository, path, revision, signal),
     );
   }
 

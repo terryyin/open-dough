@@ -154,7 +154,7 @@ class stays at 115 lines, and no second store representation was found.
 ### 2. Answer a later process from pins it has heard
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A second `PinnedTexts` on the same retained directory, once this
 process has heard the revision, answers a pinned read from the store and does
@@ -183,6 +183,21 @@ unbounded or failed comparison.
 Proof: Direct Node Vitest on the slice 2 seam. Replaces
 `authenticated-read-retained-answers-moved.spec.ts` (3). Delete that spec in
 this slice. Leave `retainedAnswersJourney.ts`.
+
+Accepted proof at `a81c910` with the reader and spec uncommitted. Promise:
+a second `PinnedTexts` on the same directory, after hearing the revision,
+returns the stored backlog text and does not call the file reader again;
+another directory calls the reader; an unheard revision calls the reader even
+when the bytes are on disk; a rejected unheard read does not answer that
+text. Boundary: `namedRevisionText` and `reader()` at `source.backlogPath`.
+Comparison still calls `readRepositoryFileViaGh` directly. Setup and
+observations: `dashboard/backend-tests/observation/retained-answers-heard.spec.ts`
+(4 tests). Command: `caffeinate -s -i npm run test:dashboard:backend -- 'observation/retained-answers-heard.spec.ts$' --workers=1`
+(`slice2-heard.log.run.json`, exit 0). Typecheck
+`slice2-typecheck.log.run.json` and `new PinnedTexts(memo)` in
+`review/shared-verified-origin-trunk.spec.ts` (`slice2-callers.log.run.json`)
+passed. Refactor pass skipped: the optional reader is the planned seam on
+`pinnedTexts.ts`, and `pinnedMemo.ts` was not edited.
 
 ### 4. Reuse unchanged records across a moved revision within bounds
 
@@ -357,10 +372,10 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
   revision `9379098d55410b514abf36b8fb8e42b0c0931181`.
 - Originating checkout: that same workspace. Integration checkout: none.
 - Target selection: remote `origin`, branch `main`.
-- Published revision `29e8402851ac887b9d4cdd7838b8a20db7bb08f9` accepted on
+- Published revision `a81c91082977318384f25935779cf86b473875e7` accepted on
   `origin/cursor/prove-published-refresh-lifecycle-in-node-vitest`. That SHA is
-  the current candidate; there is no unpublished rewrite. The Story Branch
-  claim is `pendingCi: unobserved`.
+  the previously published base for the next increment. The Story Branch claim
+  `29e8402851ac887b9d4cdd7838b8a20db7bb08f9` remains `pendingCi: unobserved`.
 
 ## Plan review
 
