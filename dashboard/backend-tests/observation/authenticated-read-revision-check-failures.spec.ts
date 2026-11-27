@@ -4,7 +4,7 @@
 // (./revisionCheckBoundary.ts): a failed listing is classified as a failure;
 // a rate limit passes on the wait GitHub directs, or the process's own when
 // GitHub directs none, each met on a server of its own because it holds back
-// that server's later reads (./authenticated-read-cooldown.spec.ts); an
+// that server's later reads (./authenticated-read-admission.spec.ts); an
 // answer spending the last allowance is still an answer; and a listing that
 // fails for any reason but a rate limit reports the ref's commit alone,
 // naming no branch head, for that check only. Answers and GitHub's 304:

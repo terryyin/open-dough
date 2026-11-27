@@ -117,7 +117,7 @@ still proves delivery to the page.
 Consumer starting points: browser `revision-stream*.spec.ts`,
 `auto-refresh-rate-limit`, `auto-refresh-visibility`, `limited-reading-*`,
 `limit-recovery-*`; backend `authenticated-read-revision-stream*.spec.ts`,
-`authenticated-read-backoff.spec.ts`, request-owner wire/admission/client tests
+`authenticated-read-admission.spec.ts`, request-owner wire/admission/client tests
 under `src/skills/dough-execute-plan/scripts/`, and shared GitHub requests used
 by dashboard reads and CI observers. Inspect setup/assertions and trace changed
 protocols into those observers before selecting their focused regression proof.

@@ -4,7 +4,7 @@
 // reads wait their turn; once the answers come, both tabs settle on their
 // projects' facts. The page, its local read boundary, and the `gh`
 // invocation are the production ones. The bound itself, turn by turn:
-// ../../dashboard/backend-tests/observation/authenticated-read-turns.spec.ts.
+// ../../dashboard/backend-tests/observation/authenticated-read-request-turns.spec.ts.
 
 import type { Page, Request } from "@playwright/test";
 import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";

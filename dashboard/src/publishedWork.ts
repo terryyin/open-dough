@@ -96,6 +96,18 @@ export type PublishedWorkProgress = (
   answered: PublishedWork,
 ) => void;
 
+// The shown snapshot when it is the read project's at the read revision.
+// Every repository may be published at the same commit, so the revision alone
+// does not name a snapshot.
+export function shownAtRevision(
+  shown: PublishedWork | undefined,
+  read: Pick<PublishedWork, "source" | "revision">,
+): PublishedWork | undefined {
+  return shown?.source.id === read.source.id && shown.revision === read.revision
+    ? shown
+    : undefined;
+}
+
 // A revision as it is said inside a sentence. Pinned links keep the whole
 // revision.
 export function shortRevision(revision: string): string {

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_authenticated-github-observation-via-vitest.json",
+      "identity": "SEED-413#authenticated-github-observation-via-vitest",
+      "completedAt": "2026-11-27T14:48:46.637Z",
+      "blob": "dd8d68403ae9693bbfda5e504edc3f6b722938a0"
+    },
+    {
       "fileName": "SEED-413_diagnose-dashboard-ci-probe-flakes.json",
       "identity": "SEED-413#diagnose-dashboard-ci-probe-flakes",
       "completedAt": "2026-11-27T14:42:25.481Z",
