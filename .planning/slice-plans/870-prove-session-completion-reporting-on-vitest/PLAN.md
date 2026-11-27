@@ -374,6 +374,25 @@ over 100 ms are those running real Git, a real host start or the in-process
 installed script; the longest takes 5.6 s. The retained E2E journeys passed
 11 Chromium cases with zero retries in 66.73 s wall and 57.2 s summed.
 
+## Execution complete
+
+Product advice:
+- Decide whether the plan's "zero test-support wrappers" also forbids a
+  shared arrangement built only from production operations. The private
+  HOME and kept Codex reporting launch repeat in the identity, refusals,
+  quiet-recovery and later-reports specs, about 120–150 lines. Recommended:
+  allow it, and add one small Structure correction to
+  `installedPublisher.ts`. It can also drop `submitCompletion`'s second
+  origin check.
+- Small follow-up: four specs bound the held-push wait with fixed polls
+  instead of `PushHold.whenHeld()`.
+- Route MakeMe's fixed `receivedAt` default, which is outside the 30-day
+  real-clock retention, to `SEED-413#prove-session-retention-and-input-on-vitest`.
+- When plan 867 lands, switch `agent-completion-binding`'s Mark as done to
+  its Claude Code Done composition.
+- Hypothesis: the held `attemptRun` composition repeats in 22 backend specs
+  while `AgentLaunches.runAttempt` is private; the saving is unmeasured.
+
 ## Proof ownership and local gate
 
 Files in this map are relative to `dashboard/backend-tests/sessions/`.
