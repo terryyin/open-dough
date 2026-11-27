@@ -4,7 +4,6 @@
 // preparation in its own default 30 seconds. Each is loaded only by a worker
 // that takes it.
 import type { Fixtures } from "@playwright/test";
-import type { PinnedDeployment } from "./pinnedDeployment.ts";
 import type { PublishedMainFixture } from "./publishedMainFixture.ts";
 import type { PublishedMainSourceProfile } from "./publishedMainSource.ts";
 
@@ -35,7 +34,6 @@ async function requestPublishedMainSource(profile: PublishedMainSourceProfile) {
 export type PublishedMainWorkerFixtures = {
   publishedApplicationSourceReady: undefined;
   publishedRepositorySourceReady: undefined;
-  pinnedDeployment: PinnedDeployment;
   ownerlessPublishedMain: PublishedMainFixture;
   pinnedWatcherCodex: string;
 };
@@ -60,21 +58,6 @@ export const publishedMainWorkerFixtures: Fixtures<
     async ({}, use) => {
       await requestPublishedMainSource("repository");
       await use(undefined);
-    },
-    coldInputPreparation,
-  ],
-  // Installing and building the pinned commit (./pinnedDeployment.ts) is the
-  // worker's; its reader only serves and inspects what was staged.
-  pinnedDeployment: [
-    async ({ publishedApplicationSourceReady }, use) => {
-      await Promise.resolve(publishedApplicationSourceReady);
-      const { stagePinnedDeployment } = await import("./pinnedDeployment.ts");
-      const deployment = await stagePinnedDeployment();
-      try {
-        await use(deployment);
-      } finally {
-        await deployment.cleanup();
-      }
     },
     coldInputPreparation,
   ],

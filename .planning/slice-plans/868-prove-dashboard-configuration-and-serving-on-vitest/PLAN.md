@@ -255,7 +255,7 @@ Playwright `expect`, so both runners can use it.
 ### 6. Prove production deployment, preview lifecycle, and watcher refusals in Node Vitest
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 20–25 active minutes.
 
 Behavior: given real published main fixtures, `resolvePublishedMain` and
@@ -277,6 +277,15 @@ Vitest, with per-test timeout overrides only on individual cases exceeding
 Vitest's 5 s default. Run:
 `caffeinate -s -i npm run test:dashboard:backend -- 'runtime/(production-deployment|production-watcher-preview|production-watcher-refusals)\.spec\.ts$' --workers=1 --reporter=list`
 (8 Node cases, 0 Chromium cases) and `npm run typecheck:dashboard`.
+
+Accepted: 8 Node cases passed three times (33 s) and typecheck passed; the
+E2E `runtime/production-watcher*` consumers passed 26 cases. The unused
+`pinnedDeployment` worker fixture is removed; `productionDeployments` moved
+to `machineRecordNames.ts`. Carried to slice 7: `production-deployment.spec.ts`
+copies the brand-icon and own-origin checks because `brandIcons.ts` and
+`localOriginReads.ts` take Playwright's request context; make those checks
+usable from both runners and remove the copy. The refusals spec's `afterEach`
+registry cleans a late resource with the next case rather than refusing it.
 
 ### 7. Prove boundary server, dev cache ownership, and serving modes in Node Vitest and remove dead support
 

@@ -1,8 +1,7 @@
 // One deployment staged (../../server/productionDeployment.mjs) from the
 // application source's pinned origin/main commit after main advanced: the
 // pinned commit supplies its page title and cartoon portrait. Later main changes
-// both, and the development checkout holds a local raw photo and notes. The
-// worker installs and builds the pinned commit once (./publishedMainWorkerFixtures.ts).
+// both, and the development checkout holds a local raw photo and notes.
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
@@ -16,10 +15,6 @@ import { repoRoot } from "./repositoryRoot.ts";
 const avatarRoot = "dashboard/public/agent-avatars";
 const nerdsAvatarPath = `${avatarRoot}/odd-e-nerds`;
 const cartoonFile = `${nerdsAvatarPath}/cartoon/stanly.webp`;
-
-export type PinnedDeployment = Awaited<
-  ReturnType<typeof stagePinnedDeployment>
->;
 
 export async function stagePinnedDeployment() {
   const fixture = await publishedMainFixture(true, "application");

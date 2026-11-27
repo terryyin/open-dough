@@ -7,6 +7,7 @@ import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { dashboardCommand } from "./dashboardCommand.ts";
 import type { DashboardServer } from "./dashboardServer.ts";
+import { productionDeployments } from "./machineRecordNames.ts";
 import { processRunning } from "./processGroup.ts";
 import { recordedBuilds } from "./productionBuildGate.ts";
 import { waitForWatcherFile, waitForWatcherOutput } from "./watcherEvents.ts";
@@ -75,9 +76,7 @@ export function startProductionWatcher(
   };
 }
 
-export function productionDeployments(home: string) {
-  return path.join(home, ".open-dough/dashboard/deployments");
-}
+export { productionDeployments };
 
 // The deployment checkout a commit is staged in: named by its commit prefix.
 export function deploymentCheckout(commit: string) {

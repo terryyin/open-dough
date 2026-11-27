@@ -11,6 +11,11 @@ import path from "node:path";
 
 const incidentRecordDirectory = "incidents";
 
+// Where the production watcher stages its deployments under a home directory.
+export function productionDeployments(home: string) {
+  return path.join(home, ".open-dough/dashboard/deployments");
+}
+
 // The incident record's folder, relative to a home directory.
 export const incidentRecordInHome = path.join(
   ".open-dough",
