@@ -88,6 +88,13 @@ published records only for the project whose work is shown, so a row from
 another project judges its review status from the local `doneAt` rather than
 the published `closedAt` until that project is shown.
 
+Also weigh when refining, from the retrospective of
+SEED-418#keep-session-review-proof-after-retirement:
+- Intent's `StorySummary` carries both `sessionChosen` and `session` from one
+  chosen-session key. Choosing several sessions should make that one value.
+- The Review scope dropdown is disabled while a read is pending, and choosing
+  several sessions may mean several reads.
+
 <a id="recover-expired-session-reviews"></a>
 
 ### Recover expired session reviews from Git history
