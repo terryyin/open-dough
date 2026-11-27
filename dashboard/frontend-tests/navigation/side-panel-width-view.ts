@@ -25,10 +25,10 @@ export { sidebarKey };
 
 const taken = story("Work in progress", 59);
 
-// A running session's terminal is the content the Side panel frame shows;
-// the review width specs read the Session review in the same frame.
+// A running session's terminal is the content the Side panel frame shows.
 export const panel = page.getByRole("region", {
-  name: /^(Terminal|Session review)$/,
+  name: "Terminal",
+  exact: true,
 });
 export const divider = panel.getByRole("separator", {
   name: "Panel divider",
@@ -59,8 +59,6 @@ export async function openTerminal() {
     )
     .toBeVisible();
 }
-
-export { files, mountWidthReview } from "./side-panel-width-review-mount.ts";
 
 export async function mountWidthTerminal(
   viewport = wide,

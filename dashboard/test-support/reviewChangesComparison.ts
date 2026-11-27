@@ -120,6 +120,25 @@ export class ReviewComparison {
     return this;
   }
 
+  // The scope at `position` under Sessions is the chosen one; without a
+  // position, some session rather than Whole story is.
+  async expectSessionChosen(position?: number) {
+    const radios = this.#sessions().getByRole("radio");
+    await (position === undefined
+      ? expect(radios.first()).not.toBeChecked()
+      : expect(radios.nth(position)).toBeChecked());
+    return this;
+  }
+
+  // The comparison summary counts its changed files as `files`, such as
+  // "1 changed file".
+  async expectSummaryCounts(files: string) {
+    await expect(
+      this.#review.getByRole("group", { name: "Comparison summary" }),
+    ).toContainText(` — ${files}`);
+    return this;
+  }
+
   #sessions() {
     return this.#review.getByRole("radiogroup", { name: "Sessions" });
   }

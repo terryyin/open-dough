@@ -6,15 +6,19 @@ import {
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
 
-// The review the server answers once `control` is activated.
+// The review the server answers once `control` is activated; with `of`
+// "session", the read of a published session rather than of its story.
 export async function reviewAfter(
   page: Page,
   control: Locator,
   using: "mouse" | "keyboard" = "mouse",
   until?: "settled",
+  of: "any" | "session" = "any",
 ) {
   const answer = page.waitForResponse(async (response) => {
-    if (new URL(response.url()).pathname !== storyReviewEndpoint) return false;
+    const url = new URL(response.url());
+    if (url.pathname !== storyReviewEndpoint) return false;
+    if (of === "session" && !url.searchParams.has("published")) return false;
     if (until === undefined) return true;
     return (
       storyReviewSchema.safeParse(await response.json()).data?.kind !==

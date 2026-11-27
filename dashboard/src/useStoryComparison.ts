@@ -57,11 +57,13 @@ export function useStoryComparison({
   const [lastOpening, setLastOpening] = useState(opening);
   if (sequence !== undefined && sequence !== lastOpening?.sequence)
     setLastOpening(opening);
-  const explicitOpening =
-    sequence ??
-    (lastOpening?.identity === identity && lastOpening.project === source
-      ? lastOpening.sequence
-      : undefined);
+  const explicit =
+    sequence !== undefined
+      ? opening
+      : lastOpening?.identity === identity && lastOpening.project === source
+        ? lastOpening
+        : undefined;
+  const explicitOpening = explicit?.sequence;
   const keyedBy = JSON.stringify([
     source,
     identity,
@@ -107,6 +109,7 @@ export function useStoryComparison({
     round,
     enabled,
     keyedBy,
+    opened: explicit?.session,
   });
   const { sessions, session, onSession, scopeKey, ranges } = sessionScope;
   // The reviewed scope: the chosen session, otherwise the whole story.

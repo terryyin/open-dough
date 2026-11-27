@@ -18,7 +18,6 @@ import { ReviewComparison } from "./reviewChangesComparison.ts";
 import { ReviewContext } from "./reviewChangesContext.ts";
 import { ReviewLandedRun } from "./reviewChangesLandedRun.ts";
 import { ReviewDiffs } from "./reviewChangesDiffs.ts";
-import { reviewChanges } from "./storyCardControls.ts";
 import {
   intentDiffReading,
   intentStory,
@@ -31,7 +30,7 @@ import { reviewRefresh } from "./support/reviewControls.ts";
 import { IntentReviewFiles } from "./intentReviewFiles.ts";
 import { fileSource, sourceRevision } from "./intentCodeBrowsePage.ts";
 
-class IntentReviewChanges {
+export class IntentReviewChanges {
   readonly #intent: Locator;
   readonly #header: Locator;
   readonly comparison: ReviewComparison;
@@ -47,7 +46,7 @@ class IntentReviewChanges {
     this.#intent = parts(page).intent;
     this.#header = storySummary(this.#intent);
     const reach = () => showComparisonDetails(this.#header);
-    this.comparison = new ReviewComparison(this.#header, reach);
+    this.comparison = intentReviewComparison(this.#intent);
     this.landedRun = new ReviewLandedRun(this.#header, reach);
     this.context = new ReviewContext(this.#header, reach);
     this.files = new IntentReviewFiles(this.#intent);
@@ -204,7 +203,12 @@ class IntentReviewChanges {
   }
 }
 
-export type { IntentReviewChanges };
+// The comparison Intent's story summary shows; its choices sit in the
+// details the summary's eye reveals.
+export function intentReviewComparison(intent: Locator) {
+  const header = storySummary(intent);
+  return new ReviewComparison(header, () => showComparisonDetails(header));
+}
 
 export const expectIntentReviewOpened = (intent: Locator) =>
   expect(storySummary(intent)).toBeVisible();
@@ -219,22 +223,3 @@ export const expectIntentReviewFocused = (
 
 export const returnToIntentReviewHome = (intent: Locator) =>
   goToStoryHome(intent, "keyboard");
-
-// The card offers Review changes once its startup enables the fieldset.
-export async function expectReviewChangesOffered(card: Locator) {
-  await expect(reviewChanges(card)).toBeEnabled();
-}
-
-export async function openIntentReviewChanges(page: Page, card: Locator) {
-  const action = reviewChanges(card);
-  // The card can display the action before its startup enables the fieldset.
-  await expectReviewChangesOffered(card);
-  const answer = await reviewAfter(page, action, "keyboard", "settled");
-  return new IntentReviewChanges(page, answer);
-}
-
-export async function beginIntentReviewChanges(page: Page, card: Locator) {
-  await expectReviewChangesOffered(card);
-  const answer = await reviewAfter(page, reviewChanges(card), "keyboard");
-  return new IntentReviewChanges(page, answer);
-}

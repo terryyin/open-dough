@@ -1,6 +1,7 @@
 // A published comparison without a retained launch on this Done card.
 import type { PublishedSessionRecord } from "./publishedSessionRecord.ts";
-import { useOpenSessionReview } from "./pageSessionReviews.ts";
+import { followUpSessionKey } from "./followUpRequest.ts";
+import { useOpenStoryChanges } from "./pageStoryReviewOpening.tsx";
 import { ReviewChangesButton } from "./ReviewChangesButton.tsx";
 import "./agent-launch.css";
 import "./story-review.css";
@@ -35,22 +36,18 @@ export function PublishedSessionReviewAction({
   readonly record: PublishedSessionRecord;
   readonly sourceId: string;
 }) {
-  const openSessionReview = useOpenSessionReview();
+  const openStoryChanges = useOpenStoryChanges();
   if (record.story === undefined) return null;
-  const story = { project: sourceId, identity: record.story };
+  const story = record.story;
+  // Intent opens the story with this session chosen.
   return (
     <ReviewChangesButton
       label="Review session changes"
-      onClick={(event) => {
-        openSessionReview({
-          subject: {
-            source: sourceId,
-            identity: story.identity,
-            published: record.sessionId,
-          },
-          story,
-          title: `${publishedSessionTitle} ${record.sessionId}`,
-          control: event.currentTarget,
+      onClick={() => {
+        openStoryChanges?.({
+          project: sourceId,
+          identity: story,
+          session: followUpSessionKey({ published: record.sessionId }),
         });
       }}
     />

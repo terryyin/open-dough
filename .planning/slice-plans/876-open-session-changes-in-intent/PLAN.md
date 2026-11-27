@@ -145,6 +145,19 @@ Read at `0bff20a80`.
   `"Terminal"` exactly. Refactor pass skipped for slice 5: test-only change
   to its subject specs and their view; the transitional mount is removed by
   slice 6.
+- Slice 6: an opening from **Review session changes** carries the session
+  on `pageStoryReviewOpening.tsx`; it becomes the keyed initial scope. Intent
+  opening helpers live in `intentReviewChangesOpening.ts`; `ReviewComparison`
+  owns `expectSessionChosen`. `reviewChangesAfter` and
+  `Board.expectPublishedReviewFocused` are already gone. Slice 7 also removes
+  `support/reviewPanes.ts` `openLargeReview`, `storyReviewTouchJourney.ts`,
+  `storyReviewTouchContext.ts`, `assumeReviewChanges` and its callers, and
+  the stale header comment in `reviewChangesPage.ts`.
+- `e2e/sessions/admitted-session-completion.spec.ts:91` timed out at 31 s in
+  a combined four-spec rerun at load 24–29 and passed alone in 22 s (13.8 s
+  earlier at lower load); its setup is unchanged by slice 6. Published on
+  targeted proof with the branch CI verdict deciding; a CI timeout there is
+  this execution's repair.
 - Slice 7's shared-code audit decides the name of `followUpSessions.ts` and
   `FollowUpSession`, which now hold a story's sessions in general (a rename
   reaches `dashboard/server/followUpStory.ts`, `followUpAdmission.ts`).
@@ -238,7 +251,7 @@ still reachable; frontend `navigation/` stays green.
 
 ### 6. Review session changes opens Intent at that session
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A Done card shows **Review session changes** for a retained or
 published session → activating it selects the story, shows Intent and
@@ -325,7 +338,7 @@ Disposition: proved by slice 4: `e2e/intent/intent-published-range-source.spec.t
 ### G5. Side panel frame specs and review specs fail once nothing opens the review (first reported in slice 6, then numbered 5)
 Reported: slice 6 — "11 frontend cases now fail in specs that are not on slice 6's deletion list."
 Story clause: "The Side panel's terminal and final report stay as they are."
-Disposition: return
+Disposition: proved by slice 6: `dashboard/frontend-tests/navigation/side-panel-width*.spec.ts` and `board-scroll-side-panel.spec.ts` observe the frame on a running terminal (`s6-fe.log`); `e2e/navigation/side-panel-content-switching.spec.ts` and `side-panel-content-replacement.spec.ts` observe the terminal and final report still opening in the Side panel beside Intent (`s5-e2e-c.proof.json`); specs whose only subject was the Side panel review are deleted.
 
 ## Plan review
 

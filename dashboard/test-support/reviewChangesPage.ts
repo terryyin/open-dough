@@ -9,7 +9,7 @@
 // `frame`. An operation that needs a control the details hold reveals them
 // first, so a scenario names what it chooses, never where the choice sits.
 //
-// `openPublishedSessionReviewChanges` opens the review from a session entry.
+// `openPublishedSessionReviewChanges` opens Intent at a session entry's session.
 // `assumeReviewChanges` resumes a session review already open.
 
 import { expect, type Locator, type Page } from "@playwright/test";
@@ -19,7 +19,6 @@ import {
   type StoryReview,
 } from "../src/storyReviewContract.ts";
 import { closeSidePanel } from "./sidePanelFrame.ts";
-import { reviewAfter } from "./support/launchLandingReview.ts";
 import {
   expectToggleLeadsToolbar,
   filesToggle,
@@ -47,14 +46,19 @@ import { ReviewFrame } from "./reviewChangesFrame.ts";
 export type { Using };
 export { intentReviewFiles } from "./intentReviewFiles.ts";
 export {
-  beginIntentReviewChanges,
   expectIntentReviewFocused,
   expectIntentReviewOpened,
+  intentReviewComparison,
   returnToIntentReviewHome,
-  expectReviewChangesOffered,
-  openIntentReviewChanges,
   type IntentReviewChanges,
 } from "./intentReviewChangesPage.ts";
+export {
+  beginIntentReviewChanges,
+  expectReviewChangesOffered,
+  openIntentReviewChanges,
+  openPublishedSessionReviewChanges,
+  publishedSessionReviewControl,
+} from "./intentReviewChangesOpening.ts";
 
 async function activate(control: Locator, using: Using) {
   if (using === "keyboard") await control.press("Enter");
@@ -208,24 +212,8 @@ class ReviewChanges {
 
 export type { ReviewChanges };
 
-// The review a control other than a card's Review changes opens or rereads,
-// such as a session entry's review action.
-export async function reviewChangesAfter(page: Page, control: Locator) {
-  return new ReviewChanges(page, await reviewAfter(page, control));
-}
-
 // The review already open, as the reader now faces it.
 export async function assumeReviewChanges(page: Page) {
   await expect(reviewRegion(page)).toBeVisible();
   return new ReviewChanges(page);
-}
-
-export const publishedSessionReviewControl = (entry: Locator) =>
-  entry.getByRole("button", { name: "Review session changes", exact: true });
-
-export async function openPublishedSessionReviewChanges(
-  page: Page,
-  entry: Locator,
-) {
-  return reviewChangesAfter(page, publishedSessionReviewControl(entry));
 }

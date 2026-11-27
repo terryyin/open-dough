@@ -22,6 +22,7 @@ export function useStorySessionScope({
   round,
   enabled,
   keyedBy,
+  opened,
 }: {
   // This machine's retained launches, which name the story's sessions.
   readonly records?: readonly LaunchRecord[] | undefined;
@@ -31,11 +32,13 @@ export function useStorySessionScope({
   readonly enabled: boolean;
   // A changed key returns to the whole story.
   readonly keyedBy: string;
+  // The session a card's opening chose, otherwise the whole story.
+  readonly opened?: string | undefined;
 }) {
   // The chosen scope, a session's key or the whole story.
   const { value: session, set: onSession } = useStateKeyedBy<
     string | undefined
-  >(undefined, keyedBy);
+  >(opened, keyedBy);
   const sessions = storySessionScopes(
     records,
     useCurrentPublishedSessions(source),

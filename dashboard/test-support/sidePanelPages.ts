@@ -16,7 +16,10 @@
 
 import type { Page } from "@playwright/test";
 import { parts } from "./dashboardParts.ts";
-import { expectIntentReviewFocused } from "./reviewChangesPage.ts";
+import {
+  expectIntentReviewFocused,
+  intentReviewComparison,
+} from "./reviewChangesPage.ts";
 import { FinalReport } from "./finalReportPages.ts";
 import { PageObject } from "./fluentPageObject.ts";
 import { box } from "./pageLayout.ts";
@@ -76,6 +79,16 @@ export class Intent extends PageObject {
     return this.cueHere(`Intent: reads ${identity} as the Selected story`, () =>
       expect(this.#intent).toHaveAttribute("data-selected-story", identity),
     );
+  }
+
+  // A session, not Whole story, is chosen under Sessions, and the comparison
+  // summary counts `files` changed, as "1 changed file".
+  expectSessionChosen(files: string) {
+    return this.cueHere(`Intent: a session is chosen, ${files}`, async () => {
+      const comparison = intentReviewComparison(this.#intent);
+      await comparison.expectSessionChosen();
+      await comparison.expectSummaryCounts(files);
+    });
   }
 
   expectFocusedPathReading() {

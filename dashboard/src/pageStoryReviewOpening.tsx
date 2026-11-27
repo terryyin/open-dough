@@ -1,4 +1,5 @@
-// A card asks Intent to open one story's comparison at a file.
+// A card asks Intent to open one story's comparison at a file, scoped to the
+// whole story or to one of its sessions.
 import {
   createContext,
   useCallback,
@@ -14,12 +15,16 @@ import {
   type SelectedStory,
 } from "./pageStorySelection.tsx";
 
-type Opening = SelectedStory & {
+// The story and, from a session's card, that session's scope key.
+type OpeningRequest = SelectedStory & {
+  readonly session?: string | undefined;
+};
+type Opening = OpeningRequest & {
   readonly sequence: number;
 };
 const OpeningControl = createContext<
   | {
-      readonly open: (story: SelectedStory) => void;
+      readonly open: (request: OpeningRequest) => void;
       readonly opening: Opening | undefined;
       readonly finish: (opening: Opening) => void;
     }
@@ -55,9 +60,12 @@ export function StoryReviewOpeningProvider({
   return (
     <OpeningControl
       value={{
-        open: (story) => {
-          selection?.select(story);
-          setOpening({ ...story, sequence: ++next.current });
+        open: (request) => {
+          selection?.select({
+            project: request.project,
+            identity: request.identity,
+          });
+          setOpening({ ...request, sequence: ++next.current });
           showIntent?.();
         },
         opening: matched ? opening : undefined,

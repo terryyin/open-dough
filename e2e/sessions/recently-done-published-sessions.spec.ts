@@ -128,7 +128,7 @@ test("Recently done reads the same published ranges with and without this machin
     });
   });
   const review =
-    await test.step("When this machine, with no launch of it, opens Review changes on that session", async () => {
+    await test.step("When this machine, with no launch of it, opens Review session changes on that session", async () => {
       await page.setViewportSize({ width: 1600, height: 900 });
       await page.goto("/");
       return openPublishedSessionReviewChanges(
@@ -140,21 +140,26 @@ test("Recently done reads the same published ranges with and without this machin
         ),
       );
     });
-  await test.step("Then the first range shows only its own file", async () => {
-    await review.files.chooseShown(`Added ${firstRangeFile}`);
-    await review.expectNoText(secondRangeFile);
-    await review.expectNoText(betweenFile);
+  await test.step("Then Intent shows that session chosen and its first range's own file", async () => {
+    await review.expectStory(storyTitle);
+    await review.comparison.expectSessionChosen(1);
+    await review.files.expectOnlyChangedFile(`Added ${firstRangeFile}`);
+    await review.files.expectTreeLacksText(secondRangeFile, betweenFile);
   });
   await test.step("When it selects the second range", () =>
     review.comparison.choosePublishedRange("Published range 2 of 2"));
   await test.step("Then only the second range's file shows", async () => {
-    await review.files.chooseShown(`Added ${secondRangeFile}`);
-    await review.expectNoText(firstRangeFile);
-    await review.expectNoText(betweenFile);
+    await review.files.expectOnlyChangedFile(`Added ${secondRangeFile}`);
+    await review.files.choose(`Added ${secondRangeFile}`);
     await review.diffs.expectLines("added", ["+trunk moved on"]);
-    await review.expectNoText(laterFile);
+    await review.files.expectTreeLacksText(
+      firstRangeFile,
+      betweenFile,
+      laterFile,
+    );
   });
   await test.step("The same published session appears once with its local launch and native actions", async () => {
+    await review.returnToDevelopment();
     const nativeSession = listed(dashboard, Date.now(), title, 60 * 60_000);
     keepLaunchStore(dashboard, {
       "open-dough": [doneLaunch(nativeSession, dashboard.origin, session)],
@@ -176,13 +181,13 @@ test("Recently done reads the same published ranges with and without this machin
     await expect(sessionDetailsControl(entry)).toBeVisible();
     await expect(openTerminalControl(entry)).toBeVisible();
     const localReview = await openPublishedSessionReviewChanges(page, entry);
-    await localReview.files.chooseShown(`Added ${firstRangeFile}`);
+    await localReview.comparison.expectSessionChosen(1);
+    await localReview.files.expectOnlyChangedFile(`Added ${firstRangeFile}`);
     await localReview.comparison.choosePublishedRange("Published range 2 of 2");
-    await localReview.files.chooseShown(`Added ${secondRangeFile}`);
-    await localReview.files.expectSelected(`Added ${secondRangeFile}`);
+    await localReview.files.expectOnlyChangedFile(`Added ${secondRangeFile}`);
+    await localReview.files.choose(`Added ${secondRangeFile}`);
     await localReview.diffs.expectLines("added", ["+trunk moved on"]);
-    await localReview.expectNoText(betweenFile);
-    await localReview.expectNoText(laterFile);
+    await localReview.files.expectTreeLacksText(betweenFile, laterFile);
   });
 });
 
@@ -229,14 +234,14 @@ test("Recently done warns that another machine's published session may include a
       publishedSessionOnDoneStory(recent, storyTitle, sharedSession),
     );
     await review.context.expectSharedCheckoutWarning(true);
-    await review.close();
+    await review.returnToDevelopment();
   });
   await test.step("And the other session's review carries no warning", async () => {
     const review = await openPublishedSessionReviewChanges(
       page,
       publishedSessionOnDoneStory(recent, storyTitle, otherSession),
     );
-    await review.expectText(otherFile);
+    await review.files.expectOnlyChangedFile(`Added ${otherFile}`);
     await review.context.expectSharedCheckoutWarning(false);
   });
 });
