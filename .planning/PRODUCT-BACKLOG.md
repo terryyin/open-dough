@@ -32,6 +32,7 @@ intent introduced or affected by a newly developed story.
 - [Prove Dashboard configuration and serving in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-dashboard-configuration-and-serving-on-vitest) — SEED-413#prove-dashboard-configuration-and-serving-on-vitest ([plan](slice-plans/868-prove-dashboard-configuration-and-serving-on-vitest/PLAN.md))
 - [Prove Cursor runner lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-cursor-runner-lifecycle-on-vitest) — SEED-413#prove-cursor-runner-lifecycle-on-vitest ([plan](slice-plans/873-prove-cursor-runner-lifecycle-on-vitest/PLAN.md))
 - [Prove session retention, one-shot starts and input in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-retention-and-input-on-vitest) — SEED-413#prove-session-retention-and-input-on-vitest ([plan](slice-plans/874-prove-session-retention-and-input-on-vitest/PLAN.md))
+- [Speed up the selectable story review tree tests](seeds/SEED-446-ad-hoc-work.md#ad-hoc-work) — SEED-446#ad-hoc-work
 
 ## Backlog list
 
