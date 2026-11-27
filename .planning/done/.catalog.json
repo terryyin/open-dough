@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_share-completion-reporting-arrangement.json",
+      "identity": "SEED-413#share-completion-reporting-arrangement",
+      "completedAt": "2026-11-27T05:25:29.337Z",
+      "blob": "e3feceb5599c01e73eb873c70ede370417f47055"
+    },
+    {
       "fileName": "SEED-413_prove-session-retention-and-input-on-vitest.json",
       "identity": "SEED-413#prove-session-retention-and-input-on-vitest",
       "completedAt": "2026-11-27T04:22:58.100Z",
