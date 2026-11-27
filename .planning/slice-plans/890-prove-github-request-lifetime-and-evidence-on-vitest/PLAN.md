@@ -232,7 +232,7 @@ The short bound was set before `ghRead.ts` loaded. Command:
 ### 3. Release owned work when the boundary closes
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Boundary close releases a held pinned read and a held revision
 check, including one read that two requests still wait on. Closing ends
@@ -248,7 +248,22 @@ Legacy: the close case in `authenticated-read-shared-waiters.spec.ts`,
 the server-shutdown cases in
 `authenticated-read-subprocess-lifecycle.spec.ts`,
 `authenticated-read-plugin-hooks.spec.ts`, and the close case in
-`authenticated-read-turns.spec.ts`.
+`authenticated-read-turns.spec.ts`. Those files stay until each one's
+last replacement is green.
+
+Accepted at `221d5527` with this spec uncommitted. Refactor pass skipped:
+the only new file is this slice's spec. It calls the production close
+hook and does not add a test-support wrapper.
+`dashboard/backend-tests/observation/authenticated-read-owned-close.spec.ts`
+(249 lines) passed 5/5. The held client is an `abandonedRequest` that is
+never cut. After `closeBoundary()` and before fixture `close()`, the CLI
+child is not running for a held pinned read, a held revision check, one
+read two requests still wait on (one upstream call), and eight outstanding
+reads whose four queued paths never appear. A later read is HTTP 503
+`This dashboard is closing.` with the call count unchanged. Command:
+`caffeinate -s -i npm run test:dashboard:backend -- dashboard/backend-tests/observation/authenticated-read-owned-close.spec.ts --workers=1`
+(exit 0). `npm run typecheck:dashboard` exited 0. Records:
+`slice-3-close.log.run.json` and `slice-3-close-typecheck.log.run.json`.
 
 ### 4. Share one authenticated owner across two Dashboards and CI
 
@@ -399,8 +414,8 @@ its delivered slices share only test patterns with these slices.
   Trunk: `origin/main`.
 - Published claim: `735c60a52ea2cd88e8746df5e06edfcb1d9f81b2` on that story
   branch. `pendingCi: unobserved` — the claim published before this observer
-  was armed. Slice 1 is published at
-  `b9d068eda11119a4a37510e9f09d91d724d9c788` on the same branch. That SHA is
+  was armed. Slice 2 is published at
+  `221d5527ff33234c838de5af5943c2efd26a3b63` on the same branch. That SHA is
   the previously published base for the next increment. Unpublished
   candidate: none.
 - CI: GitHub Actions, workflow `ci.yml` (display name `CI`, id `351271804`),
