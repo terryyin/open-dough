@@ -95,19 +95,57 @@ touch panes.
 ### Choose review scope from a compact dropdown
 
 **Identity:** SEED-418#review-scope-dropdown
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-418#review-scope-dropdown","dependencies":[{"supplier":{"identity":"SEED-418#select-a-story-session-for-review","href":"seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review"},"implementation":"Single-session scope in Intent review","rationale":"Current Intent has no story-to-session selector or session-card entry into that review. Reusing the published listing alone would still require the consumer to build the supplier's scope and route, and concurrent selectors would duplicate ownership of the active comparison.","condition":"Intent review opens from story and session cards and can switch between the whole story and the available individual sessions using one scope that drives the comparison.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/878-choose-review-scope-from-a-compact-dropdown/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6655adc07ea231e8f0f086b027c3a2eba0e7a5e4d3a9b1d50de46bc3bd500f09","plan":"6aa952490dcf54ef0236c99369e42baf8d2369beb8309d0cab6ccb82c3d3e40f"}}
 ```
 
-A developer can switch review scope from a compact dropdown in Intent, even
-at narrow widths where the radio buttons run out of room. The dropdown shows
-the current scope and offers the whole story and its available sessions.
-Label an ad hoc session with a simple icon with an accessible name and the
-session's own title in place of the generic Ad hoc label and timestamp.
+**Goal.** A developer reviewing a story in Intent can identify the scope of
+the evidence and switch to the intended session on a narrow screen, even
+when several session titles are long.
 
-Given a story with several long session titles, the scope selector fits on a
-narrow screen, lets the reviewer choose the intended ad hoc session by title,
-and shows the selected scope after it closes.
+**Scope.** Use a compact dropdown for the whole story and the individual
+sessions available to the existing Intent review. Its closed state identifies
+the current scope, including a scope set by opening review from a session
+card. The open dropdown makes long titles readable and options reachable by
+touch and keyboard. Moving through choices and dismissing the dropdown
+preserves the selected comparison. Confirming a choice applies that scope
+through the existing review and leaves the picker available for the next
+choice. Show an ad hoc session's own title from its retained launch and
+communicate its ad hoc identity through a simple icon with an accessible
+name. When the title is unavailable, say so and show the published close
+time if available so the reviewer can tell sessions apart.
+
+Multi-session selection, ad hoc details on Intent Home, and saving
+per-session review status belong to the following stories in this seed.
+
+**Key examples.**
+
+- On a narrow screen, a story opens at whole-story scope and lists several
+  sessions with long titles. The developer opens the dropdown, reads the
+  full title of the intended follow-up and chooses it. The dropdown closes
+  within the available width and identifies the selected follow-up, and the
+  review shows that session's comparison.
+- A session card opens Intent with its session selected. The developer
+  opens the dropdown with the keyboard, moves to another option, and
+  presses Escape. Focus returns to the picker and the original scope and
+  comparison still show. Reopening and choosing the whole story switches
+  the label and comparison together.
+- A published ad hoc session is available on a machine without its launch
+  history. Opening the dropdown shows **Title unavailable**, the ad hoc
+  icon, and the session's close time. Selecting that option keeps the
+  session selected and shows its recorded comparison.
+
+**Architecture.** Intent owns the selected story or session scope shared by
+its review surfaces. Choose by the existing session identity so label
+similarity or title availability cannot change the comparison.
+[ADR 0008 — Project dashboard domain and architecture](../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md#domain-concepts-and-relationships)
+defines the shared scope and the role of published and machine-local facts.
+Read titles from the existing retained launch associated with the session.
+Use the published close record for the session's workflow, close time, and
+comparison. Titles remain machine-local.
 
 <a id="show-selected-session-in-review-home"></a>
 
