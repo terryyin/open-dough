@@ -11,11 +11,12 @@ import { routedOrigin } from "./support/fixtureOriginRoute.ts";
 import { homeReviewRepository } from "./support/reviewRepositoryFixture.ts";
 
 // Every later Git transfer of `repository`'s trunk check under `home`, after
-// the Board already opened from it, waits at the origin's upload-pack.
-// `untilHeld` waits until one waits; `fail` ends each waiting and later
-// transfer as an origin that hung up; `releaseAt` lets them through to a
-// copy of the origin whose trunk is still `revision`, and `release` to the
-// origin itself.
+// the Board already opened from it, waits at the origin's upload-pack; so
+// does a Review's own fetch, which shares that repository. `untilHeld` waits
+// until one waits; `held` counts those that waited; `fail` ends each waiting
+// and later transfer as an origin that hung up; `releaseAt` lets them through
+// to a copy of the origin whose trunk is still `revision`, and `release` to
+// the origin itself.
 export function holdLaterTrunkTransfers(home: string, repository: string) {
   const origin = routedOrigin(home, repository);
   const at = (name: string) => path.join(home, `later-upload-pack-${name}`);
@@ -44,11 +45,11 @@ exec git upload-pack "$@"
     "remote.origin.uploadpack",
     gate,
   );
+  const held = () =>
+    readFileSync(log, "utf8").split("\n").filter(Boolean).length;
   return {
-    untilHeld: () =>
-      expect
-        .poll(() => readFileSync(log, "utf8"), { timeout: 30_000 })
-        .toContain("held"),
+    held,
+    untilHeld: () => expect.poll(held, { timeout: 30_000 }).toBeGreaterThan(0),
     fail: () => {
       writeFileSync(failing, "");
     },

@@ -27,6 +27,7 @@ import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
 import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { avatarPathsRead } from "../../dashboard/test-support/avatarAnswers.ts";
 import { loadedWidth } from "../../dashboard/test-support/agentPortrait.ts";
+import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   avatarHost,
   credited,
@@ -139,11 +140,7 @@ test("each assignment credits the committer who added its profile's current allo
 
   await test.step("showing the avatar again, after Back and a reload at the same revision, reads the avatar host no more", async () => {
     await back.click();
-    const refsRead = () =>
-      origin.requests.filter(({ request }) => request.kind === "ref").length;
-    const before = refsRead();
-    await page.reload();
-    await expect.poll(refsRead).toBeGreaterThan(before);
+    await reloadUntilRead(page);
     await expect(reading).toHaveCount(0);
     const shown = { width: creditedWidth, revision: firstRevision.revision };
     await expectHumanAvatar(

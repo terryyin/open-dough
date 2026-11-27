@@ -164,7 +164,7 @@ export function expectRoute(
 }
 
 export const backlogUnreadable =
-  "The published backlog (.planning/PRODUCT-BACKLOG.md) is missing or inaccessible in Pygardon (HTTP 404).";
+  "The published backlog (.planning/PRODUCT-BACKLOG.md) is unavailable at the verified trunk of Pygardon.";
 
 export async function expectOpenDoughAssignments(
   members: Locator,

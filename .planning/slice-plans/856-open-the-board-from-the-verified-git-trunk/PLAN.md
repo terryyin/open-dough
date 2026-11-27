@@ -191,7 +191,7 @@ Budget 14 active minutes.
 ### 9. Publish story and review journeys through Git
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Story readiness, agent roster, recently-done navigation and
 review journeys open the Board from a published Git origin.
@@ -283,6 +283,14 @@ Slice 8 (2026-11-27): every session fixture already published through Git;
 only REST backlog `?ref=` assertions and a REST backlog hold changed. The
 navigation journey now offers `holdPygardonOpen`, through
 `dashboard/test-support/heldTrunkTransfer.ts`. All of `e2e/sessions` passed.
+
+Slice 9 (2026-11-27): a Review upload-pack hold also gates the Board's Git
+open, because both use the review repository; start it after the Board
+opens. Full suites at load 8–16: backend 1308 passed, with 5 review
+initial-sync cases failing in 3 files that each pass alone (and passed in
+slice 5's full run); E2E 787 of 788, with `agent-launch-codex.spec.ts:73`
+passing alone. `agent-launch-claude-verification.spec.ts:176` passed in the
+full run. Hosted CI decides the load-classified cases.
 
 ## Local gate
 

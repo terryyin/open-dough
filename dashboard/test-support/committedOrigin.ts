@@ -233,14 +233,11 @@ export function publishCommittedOrigin(
   });
 }
 
+// The files origin was asked for, in order, as `<path>?ref=<revision>`.
 export function contentPathsRead(origin: CommittedOrigin): string[] {
-  return origin.requests.map(({ request }) => {
-    if (request.kind === "ref") {
-      return request.ref;
-    }
-    if (request.kind === "content") {
-      return `${request.path}?ref=${request.revision}`;
-    }
-    return "unknown";
-  });
+  return origin.requests.flatMap(({ request }) =>
+    request.kind === "content"
+      ? [`${request.path}?ref=${request.revision}`]
+      : [],
+  );
 }
