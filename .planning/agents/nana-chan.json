@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Nana-chan",
+  "email": "nana-chan@example.org",
+  "identity": "SEED-370#close-preview-incident-record-on-sighup",
+  "mode": "story-branch",
+  "branch": "claude/close-the-preview-s-incident-record-when-the-wat",
+  "host": "claude"
+}
