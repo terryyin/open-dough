@@ -17,7 +17,7 @@ import { deliverCompletion } from "./completionDelivery.ts";
 import type { ReportedDone } from "./doneMarks.ts";
 import { jsonBody } from "./jsonRequestBody.ts";
 import { admitCompletionRequest } from "./completionAdmission.ts";
-import { verifyLocalOrigin } from "./localOrigin.ts";
+import { verifyLoopbackSocket } from "./localOrigin.ts";
 import { shellCommand } from "../src/sessionCapabilities.ts";
 import { machineDashboardPath } from "./machineHome.ts";
 import { preparesReporting } from "./launchWorkspaceReporting.ts";
@@ -122,16 +122,13 @@ export async function submitCompletion(
   req: IncomingMessage,
   doneMarks: ReportedDone,
 ) {
-  verifyLocalOrigin(req);
-  const report = admitCompletionRequest({
+  verifyLoopbackSocket(req);
+  const report = await admitCompletionRequest({
     method: req.method,
     origin: req.headers.origin,
     host: req.headers.host,
     fetchSite: req.headers["sec-fetch-site"],
-    body:
-      req.method === "POST"
-        ? await jsonBody(req, undefined, 128 * 1024)
-        : undefined,
+    body: () => jsonBody(req, undefined, 128 * 1024),
   });
   return deliverCompletion(report, `http://${req.headers.host}`, doneMarks);
 }

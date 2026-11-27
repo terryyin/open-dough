@@ -1,7 +1,7 @@
 // An ad hoc Codex Start admitted through production `attemptRun` closes with
 // no change through the installed wrap-up children, run from the borrowed
 // default checkout given as an alias. The installed reporting script runs in
-// process (../support/installedPublisher.ts) against the kept record.
+// process (../support/installedReporting.ts) against the kept record.
 import { randomUUID } from "node:crypto";
 import { existsSync, symlinkSync } from "node:fs";
 import path from "node:path";
@@ -35,7 +35,7 @@ import { git } from "../../test-support/support/storyReviewWorktree.ts";
 import {
   reportInstalled,
   reportingInvocation,
-} from "../support/installedPublisher.ts";
+} from "../support/installedReporting.ts";
 import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
 
 const source = makeMe.aPublishedSource.openDough.please();

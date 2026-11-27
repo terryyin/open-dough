@@ -202,33 +202,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   observation while an ordinary ask still reuses a held observation. A full
   answer accepted as gzip decodes to the plain response.
 
-
-<a id="share-completion-reporting-arrangement"></a>
-
-### Share the completion reporting arrangement in Node Vitest
-
-**Identity:** SEED-413#share-completion-reporting-arrangement
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/875-share-completion-reporting-arrangement/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8e4f24f50ed5d35713a49774edff8dd0809459af0d30bdfe01148dcf838bbd5f","plan":"7cf6a68c747ca618be1d68af81a612ad02dea6f9aa7f26183e1e5825228ad8b7"}}
-```
-
-- **Goal.** Developers changing completion reporting read and extend the
-  four Node completion specs without repeating their private-HOME and kept
-  Codex reporting launch arrangement, and the HTTP completion path checks the
-  origin headers once.
-- **Scope.** A bounded Structure correction from the completed
-  [session completion reporting](https://github.com/terryyin/open-dough/blob/1308a09321731e3b91077cd93968609cecf3c803/.planning/slice-plans/870-prove-session-completion-reporting-on-vitest/PLAN.md)
-  story. Compose the arrangement repeated in
-  `sessions/agent-completion-{identity,refusals,quiet-recovery,later-reports}.spec.ts`
-  once, from production operations only, as a domain-named export of the
-  existing `dashboard/backend-tests/support/installedPublisher.ts`. Remove the
-  duplicated same-origin check from `submitCompletion` while keeping its
-  loopback-connection check. Add no server, request or boundary wrapper and no
-  support file. Product behavior and every existing case's observations stay
-  unchanged.
-
-**Plan.** [Share the completion reporting arrangement in Node Vitest](../slice-plans/875-share-completion-reporting-arrangement/PLAN.md)
-
 <a id="published-read-admission-via-vitest"></a>
 
 ### Prove published read admission in Node Vitest

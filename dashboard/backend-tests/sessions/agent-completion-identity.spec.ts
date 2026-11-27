@@ -7,66 +7,34 @@ import { randomUUID } from "node:crypto";
 import {
   chmodSync,
   mkdirSync,
-  mkdtempSync,
   readFileSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, onTestFinished, test, vi } from "vitest";
+import { expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { submissionSchema } from "../../server/completionAdmission.ts";
-import { reportingContext } from "../../server/completionReporting.ts";
-import { keepAttempt, keptAttempts } from "../../server/launchAttemptStore.ts";
-import { installedSkillPath } from "../../server/launchHosts.ts";
-import { bindRecord } from "../../server/launchRecordBinding.ts";
+import { keptAttempts } from "../../server/launchAttemptStore.ts";
 import {
   keptSession,
   setRecordDoneAt,
 } from "../../server/launchRecordStore.ts";
-import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import { completionReceiptSchema } from "../../src/completionReport.ts";
 import {
-  installPublisherScripts,
+  keptReportingLaunch,
+  reportingHome,
   reportInstalled,
-  reportingInvocation,
-} from "../support/installedPublisher.ts";
+} from "../support/installedReporting.ts";
 
 const origin = "http://127.0.0.1:4173";
 // A kept session that neither a completion nor a Done has closed.
 const open = { receipt: undefined, doneAt: undefined };
 
-// A private machine home with its catalog, its dashboard directory, and a
-// workspace holding the installed reporting scripts where a Codex launch
-// workspace has them.
-function privateWorkspace() {
-  const root = mkdtempSync(path.join(tmpdir(), "dough-completion-identity-"));
-  onTestFinished(() => {
-    rmSync(root, { recursive: true, force: true });
-  });
-  vi.stubEnv("HOME", path.join(root, "home"));
-  onTestFinished(() => {
-    vi.unstubAllEnvs();
-  });
-  onTestFinished(mountProjectConfiguration("production"));
-  const workspace = path.join(root, "workspace");
-  installPublisherScripts(
-    installedSkillPath(
-      "codex",
-      { path: workspace, shown: workspace },
-      "dough-execute-plan",
-      "scripts",
-    ),
-  );
-  const dashboard = path.join(root, "home", ".open-dough", "dashboard");
-  return { root, workspace, dashboard };
-}
-
 // A kept Codex launch on `sessionId` whose installed reporting script, run as
 // its reporting command, reports to `reported`.
 async function keptLaunch(
-  { workspace }: ReturnType<typeof privateWorkspace>,
+  { workspace }: ReturnType<typeof reportingHome>,
   sessionId: string,
   reported = vi.fn(),
 ) {
@@ -76,20 +44,16 @@ async function keptLaunch(
     .reportingTo(origin)
     .withId(randomUUID())
     .please();
-  const prepared = await reportingContext(accepted, {
-    path: workspace,
-    shown: workspace,
-  });
-  if (prepared === undefined) throw new Error("No reporting prepared");
-  const { reporting } = prepared;
-  await keepAttempt({ ...accepted, reporting });
-  const record = makeMe.aLaunchRecord
-    .adHoc({ instruction, title: instruction })
-    .inCodexSession({ sessionId })
-    .reportingThrough(reporting)
-    .please();
-  await bindRecord("open-dough", record);
-  const { script, argv } = reportingInvocation(reporting.command);
+  const { record, script, argv } = await keptReportingLaunch(
+    workspace,
+    accepted,
+    (reporting) =>
+      makeMe.aLaunchRecord
+        .adHoc({ instruction, title: instruction })
+        .inCodexSession({ sessionId })
+        .reportingThrough(reporting)
+        .please(),
+  );
   return {
     session: record.session,
     // The kept session's completion receipt and Done time.
@@ -118,7 +82,7 @@ async function keptLaunch(
 }
 
 test("an older launch's report reaches only its session, and its duplicates write nothing", async () => {
-  const home = privateWorkspace();
+  const home = reportingHome("dough-completion-identity");
   const reported = vi.fn();
   const older = await keptLaunch(home, "older-native-session", reported);
   const newer = await keptLaunch(home, "later-native-session");
@@ -185,7 +149,7 @@ test("an older launch's report reaches only its session, and its duplicates writ
 });
 
 test("an older quiet retry cannot close a newer unfinished report whose record write failed", async () => {
-  const home = privateWorkspace();
+  const home = reportingHome("dough-completion-identity");
   const launch = await keptLaunch(home, "reporting-thread");
   const recordsLock = path.join(home.dashboard, "agent-launches.json.lock");
   // Holds the record store once the report has reserved its receipt, while

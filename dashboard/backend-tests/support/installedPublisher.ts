@@ -41,7 +41,10 @@ const receiver =
     try {
       if (url.pathname === completionEndpoint) {
         const receipt = await deliverCompletion(
-          admitCompletionRequest({ ...wire, body: JSON.parse(bodyText) }),
+          await admitCompletionRequest({
+            ...wire,
+            body: () => Promise.resolve(JSON.parse(bodyText) as unknown),
+          }),
           url.origin,
           doneMarks,
         );
@@ -84,7 +87,8 @@ export type BeforePush = {
   prepared?: readonly object[] | undefined;
 };
 
-function bridgeToReceiver(
+// Answers every `fetch` in this test through the receiver.
+export function bridgeToReceiver(
   doneMarks: ReportedDone = { reported: vi.fn() },
   lostReceipt = false,
 ) {
@@ -157,7 +161,10 @@ export async function deliverInstalled(
   );
 }
 
-type Reporter = { reportCompletion(argv: string[]): Promise<unknown> };
+// An installed reporting entry, as its module exports it.
+export type Reporter = {
+  reportCompletion(argv: string[]): Promise<unknown>;
+};
 
 // Retries the landing input the sender's handoff retained beside
 // `landingContext`, through its surviving reporting entry, as
@@ -178,30 +185,6 @@ export async function retryInstalledLanding(landingContext: string) {
       pending,
     ]),
   );
-}
-
-// The installed reporting script and its arguments, as the host's shell
-// splits a launch's reporting command `node <script> ...argv`.
-export function reportingInvocation(command: string) {
-  const [, script = "", ...argv] = Array.from(
-    command.matchAll(/'((?:[^']|'\\'')*)'/g),
-    ([, part = ""]) => part.replaceAll("'\\''", "'"),
-  );
-  return { script, argv };
-}
-
-// Reports through the installed reporting script at `script`, as its
-// reporting command runs it with `argv`, answering its printed result. With
-// `lostReceipt`, the delivery happens but its receipt never reaches the script.
-export async function reportInstalled(
-  script: string,
-  argv: string[],
-  doneMarks: ReportedDone,
-  { lostReceipt = false } = {},
-) {
-  bridgeToReceiver(doneMarks, lostReceipt);
-  const reporter = (await import(pathToFileURL(script).href)) as Reporter;
-  return reporter.reportCompletion(argv);
 }
 
 const publisherScripts = [

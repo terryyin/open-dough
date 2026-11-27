@@ -32,7 +32,7 @@ import { keepStartedOrigin } from "../../test-support/support/startOriginPrepara
 import {
   reportInstalled,
   reportingInvocation,
-} from "../support/installedPublisher.ts";
+} from "../support/installedReporting.ts";
 
 const source = makeMe.aPublishedSource.openDough.please();
 const repository = queuedReadyRepository().please();
