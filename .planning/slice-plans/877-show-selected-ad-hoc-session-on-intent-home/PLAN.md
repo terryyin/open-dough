@@ -86,7 +86,7 @@ named "Title unavailable" that still selects its own comparison.
 ### 1. Read the selected ad hoc session on Intent Home
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A story has completed ad hoc sessions → the developer selects one
 and opens Home → the title, Ad hoc workflow, session identifier and original
@@ -134,3 +134,41 @@ supplier revision; the Home owner is 71 lines at `bae6287ee`.
 Slice-plan refinement was unnecessary. The details, their unavailable state,
 and removal on scope change are one Home behavior with one proof boundary.
 No slice-specific concerns were identified.
+
+## Accepted proof
+
+Slice 1, on `12226ea1b` plus the uncommitted slice change:
+`dashboard/frontend-tests/intent/intent-story-session-details.spec.ts` and
+`intent-story-session-details-kept.spec.ts` observe the details leading the CI panel, their replacement on reselection,
+the kept scope after reading a file, the unavailable title and request,
+retained-only details beside the CI tab, the details while the session's
+review read is still pending, and the usual Home for Whole story and another
+workflow. The focused run of 41 frontend files (113 tests), including the
+consumer-traced specs, `intent-story-compare-evidence`,
+`recently-done-card-membership-mount` and `intent-ci-status-layout`, and
+`npm run typecheck:dashboard` passed. After the refactor pass split the spec,
+both session-details specs, `intent-session-scope-titles`,
+`intent-session-review-opening` and `follow-up-session-choices` (14 tests)
+and typecheck passed again.
+
+## Story obligations
+
+### G1. Details vanish while the chosen session's comparison is reading
+Reported: slice 1 — "So the details may disappear briefly while loading"
+Story clause: "Resolve the details from the current review scope."
+Disposition: proved by slice 1: intent-story-session-details-kept.spec.ts "while the chosen session's comparison is still reading, Home already shows its details" observes the pending session read before the details
+
+### G2. Composed input absent from the test data
+Reported: slice 1 — "The composed firstInput.instruction that differs from the request is not in the test data"
+Story clause: "the original instruction from its retained launch, when available"
+Disposition: proved by slice 1: intent-story-session-details.spec.ts first case gives the launch a different composed input and asserts its absence from the details
+
+### G3. Rendered line breaks unobserved
+Reported: slice 1 — "Line breaks are proven only by the text containing the newline plus the pre-wrap rule"
+Story clause: "the original instruction from its retained launch, when available"
+Disposition: proved by slice 1: intent-story-session-details.spec.ts first case asserts the request element's innerText equals the multiline request
+
+### G4. Retained-only session summary in the Board mount names published changes
+Reported: slice 1 — "The summary said \"Published changes of this session … 1 changed file\" and CI said it \"could not be read\""
+Story clause: "Keep the CI comparison accessible on the same page."
+Disposition: excluded "review status and comparison changes are outside this story"
