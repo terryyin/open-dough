@@ -202,6 +202,26 @@ to Git-origin publishing; retire `contentPathsRead`'s `ref` branch if
 story-readiness was its last caller. Then run the Dashboard Backend Test and
 E2E Test full suites. Budget 14 active minutes.
 
+## Execution complete
+
+Product advice:
+- Refresh ([plan 853](../853-refresh-published-board-in-place/PLAN.md)) now
+  starts with two correction slices from this review: bound the shared
+  trunk check so a stalled transfer cannot hold later opens, keep launch
+  reconciliation's read fresh within the production reuse window, and keep
+  the Board check's fetch apart from Review's. Refresh's fetch elision and
+  explicit fresh path build on those.
+- Published progress ([plan 823](../823-follow-published-progress-from-local-git/PLAN.md))
+  must first settle who owns the shared review repository; `FETCH_HEAD`,
+  creation and the upload-pack gate are shared today, and journeys pin the
+  Board only through `keepsOpenedTrunk`.
+- For the developer: whether GitHub's "Repository not found" and
+  "Authentication failed" stay an unavailable origin that retries, as now, or
+  become a refusal with access guidance, as the seed's transport evidence
+  says; and whether the new Git-hold test support (`heldTrunkTransfer.ts`,
+  `laterTrunkTransfers.ts`, `fixtureOriginRefusal.ts`) is an accepted seam
+  despite the plan's "no wrapper" decision.
+
 ## Learnings
 
 On 2026-11-26 plan 828 slices 1–4 overran. Slices 1–3 of that plan were

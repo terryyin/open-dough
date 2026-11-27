@@ -42,7 +42,54 @@ observation stays on its current path until
 
 ## Provisional ordered slices
 
-### 1. Publish one durable confirmation
+Slices 1–2 correct the delivered Board open
+([plan 856](../856-open-the-board-from-the-verified-git-trunk/PLAN.md),
+retrospective 2026-11-27, revision `55b4be2bf`) before Refresh extends the
+same check.
+
+### 1. Bound the verified trunk check and keep reconciliation's read fresh
+
+Type: Behavior
+Status: planned
+
+Behavior: A Git transfer that stalls past the Board's read deadline is ended,
+so the next open or reload of that project starts a new check instead of
+joining the stalled one. Launch reconciliation's fresh read is answered only
+by a check begun after it was asked, so a launch that settles with no
+publication is reconciled on that read even within the reuse window.
+
+Evidence: `SharedVerifiedOriginTrunk.check` creates an `AbortController` it
+never aborts, and nothing times out the Git calls; the REST read it replaced
+ended at `readTimeoutMs`. `demand` never passes `SharedObservation`'s `fresh`
+flag, and production reuses a settled check for `checkReuseMs` (14 s), so
+`askedAt` can precede the settlement that `readAfresh` waits past. Tests run
+at reuse 0 and the stalled-read case releases its hold first. Also remove the
+second `observeProjectRevision` call (`performedRefRead.ts` `admit`; the
+check already observes it).
+
+Proof: Backend cases: a held transfer past the deadline is aborted and a later
+demand starts afresh; with production reuse, a fresh demand after a settled
+check starts a new one while a staggered tab still shares. One E2E
+reconciliation case at production reuse. Budget 14 active minutes.
+
+### 2. Keep the Board check's fetch apart from Review's
+
+Type: Behavior
+Status: planned
+
+Behavior: The Board's verified check and a Review sync on the same project
+never read each other's fetch or race creating the review repository.
+
+Evidence: the check reads `FETCH_HEAD` (`verifiedOriginTrunk.ts:96`) that
+Review's `fetchPublishedRef` also writes, and both run `createIfMissing`.
+`story-review-initial-sync.spec.ts` needs a 10-minute reuse window to keep
+the Board out of Review's upload-pack gate.
+
+Proof: Backend case: a Review fetch of another commit concurrent with the
+check leaves the check's verified revision intact; concurrent first use
+creates one repository. Budget 13 active minutes.
+
+### 3. Publish one durable confirmation
 
 Type: Structure
 Status: planned
@@ -56,7 +103,7 @@ Proof: Observe A, move origin to B, interrupt publication after B is local,
 restart; show A and its time, then B after retry; with origin at B, a later
 time and no fetch. Budget 14 active minutes.
 
-### 2. Show the confirmation and refresh an unchanged Board
+### 4. Show the confirmation and refresh an unchanged Board
 
 Type: Behavior
 Status: planned
@@ -69,7 +116,7 @@ Proof: Drive the rendered action; check pending, exact revision, changed time
 and zero fetch; record cold and warm counts and timing; two eligible
 requests join one check. Budget 13 active minutes.
 
-### 3. Recover a Refresh after origin changes
+### 5. Recover a Refresh after origin changes
 
 Type: Behavior
 Status: planned
@@ -84,5 +131,5 @@ restart case. Budget 14 active minutes.
 
 ## Resumption
 
-Resume through slice-plan refinement after plan 828 lands: settle the durable store design against the landed confirmation seam,
+Resume through slice-plan refinement after plan 856 lands: settle the durable store design against the landed confirmation seam,
 and measure the warm Refresh path before recording readiness.
