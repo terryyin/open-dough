@@ -39,7 +39,10 @@ export class PinnedMemo {
   private readonly heard = new HeardRevisions();
   private readonly outstanding = new OutstandingReads<string>(readTimeoutMs());
 
-  constructor(private readonly memo: RevisionMemo) {}
+  constructor(
+    private readonly memo: RevisionMemo,
+    private readonly touchedBetween: typeof touchedBetweenViaGh = touchedBetweenViaGh,
+  ) {}
 
   // Notes that GitHub named `revision` to this process, as the source's ref
   // or a branch's head.
@@ -56,8 +59,7 @@ export class PinnedMemo {
     return `${source.repository}\0${revision}\0${path}`;
   }
 
-  // A blob is kept in place of a revision under `blob`, which no commit sha
-  // ever is.
+  // A blob is kept under `blob`, which no commit sha ever is.
   private static blobKey(source: PublishedSource, sha: string) {
     return `${source.repository}\0blob\0${sha}`;
   }
@@ -212,7 +214,7 @@ export class PinnedMemo {
     const text = await this.outstanding.waitFor(key, waiter, (signal) =>
       this.memo.recalled(key, this.retainedAt(source, revision), async () =>
         JSON.stringify(
-          await touchedBetweenViaGh(
+          await this.touchedBetween(
             source.repository,
             { base, head: revision },
             this.commitRecorder(source, revision, signal),

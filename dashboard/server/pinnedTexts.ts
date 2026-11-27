@@ -18,6 +18,7 @@ import {
   listPathCommitsViaGh,
   type ProfileAddition,
 } from "./ghProfileAddition.ts";
+import { touchedBetweenViaGh } from "./commitsBetween.ts";
 import { PinnedMemo } from "./pinnedMemo.ts";
 import type { RevisionMemo } from "./revisionMemo.ts";
 
@@ -35,28 +36,27 @@ export type RepositoryFileRead = (
 ) => Promise<string>;
 
 export class PinnedTexts extends PinnedMemo {
-  // `readFile` defaults to GitHub, so `new PinnedTexts(memo)` is unchanged.
+  // `readFile` defaults to GitHub and comparison to `touchedBetweenViaGh`,
+  // so `new PinnedTexts(memo)` and `new PinnedTexts(memo, readFile)` stay valid.
   constructor(
     memo: RevisionMemo,
     private readonly readFile: RepositoryFileRead = readRepositoryFileViaGh,
+    touchedBetween: typeof touchedBetweenViaGh = touchedBetweenViaGh,
   ) {
-    super(memo);
+    super(memo, touchedBetween);
   }
 
   // The backlog is read at the revision itself, never compared: membership
   // never waits on GitHub's account of what changed, which only the records
-  // it names wait on. That read is `readFile`. A compared path still asks
-  // GitHub directly.
+  // it names wait on. That read, and a compared path, ask `readFile`.
   reader(source: PublishedSource, revision: string, signal: AbortSignal) {
     return (path: string): Promise<string> => {
+      const read = () =>
+        this.readFile(source.repository, path, revision, signal);
       if (path === source.backlogPath) {
-        return this.recalled(source, revision, path, () =>
-          this.readFile(source.repository, path, revision, signal),
-        );
+        return this.recalled(source, revision, path, read);
       }
-      return this.recalledOrUnchanged(source, revision, path, signal, () =>
-        readRepositoryFileViaGh(source.repository, path, revision, signal),
-      );
+      return this.recalledOrUnchanged(source, revision, path, signal, read);
     };
   }
 

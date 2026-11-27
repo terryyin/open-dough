@@ -171,10 +171,26 @@ unheard-revision cases in `authenticated-read-retained-answers.spec.ts` (4).
 Delete that spec once these cases and slice 1's store cases cover it. Leave
 `retainedAnswersJourney.ts`.
 
+Accepted proof at `a81c910` with the reader and spec uncommitted, published
+in `1e2fd49`. Promise: a second `PinnedTexts` on the same directory, after
+hearing the revision, returns the stored backlog text and does not call the
+file reader again; another directory calls the reader; an unheard revision
+calls the reader even when the bytes are on disk; a rejected unheard read
+does not answer that text. Boundary: `namedRevisionText` and `reader()` at
+`source.backlogPath`. Comparison still calls `readRepositoryFileViaGh`
+directly. Setup and observations:
+`dashboard/backend-tests/observation/retained-answers-heard.spec.ts` (4 tests).
+Command: `caffeinate -s -i npm run test:dashboard:backend -- 'observation/retained-answers-heard.spec.ts$' --workers=1`
+(`slice2-heard.log.run.json`, exit 0). Typecheck
+`slice2-typecheck.log.run.json` and `new PinnedTexts(memo)` in
+`review/shared-verified-origin-trunk.spec.ts` (`slice2-callers.log.run.json`)
+passed. Refactor pass skipped: the optional reader is the planned seam on
+`pinnedTexts.ts`, and `pinnedMemo.ts` was not edited.
+
 ### 3. Reuse retained records across a moved revision
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Across a moved revision, a later instance reuses untouched retained
 records via comparison while still asking upstream for an unheard pin or an
@@ -184,20 +200,20 @@ Proof: Direct Node Vitest on the slice 2 seam. Replaces
 `authenticated-read-retained-answers-moved.spec.ts` (3). Delete that spec in
 this slice. Leave `retainedAnswersJourney.ts`.
 
-Accepted proof at `a81c910` with the reader and spec uncommitted. Promise:
-a second `PinnedTexts` on the same directory, after hearing the revision,
-returns the stored backlog text and does not call the file reader again;
-another directory calls the reader; an unheard revision calls the reader even
-when the bytes are on disk; a rejected unheard read does not answer that
-text. Boundary: `namedRevisionText` and `reader()` at `source.backlogPath`.
-Comparison still calls `readRepositoryFileViaGh` directly. Setup and
-observations: `dashboard/backend-tests/observation/retained-answers-heard.spec.ts`
-(4 tests). Command: `caffeinate -s -i npm run test:dashboard:backend -- 'observation/retained-answers-heard.spec.ts$' --workers=1`
-(`slice2-heard.log.run.json`, exit 0). Typecheck
-`slice2-typecheck.log.run.json` and `new PinnedTexts(memo)` in
-`review/shared-verified-origin-trunk.spec.ts` (`slice2-callers.log.run.json`)
-passed. Refactor pass skipped: the optional reader is the planned seam on
-`pinnedTexts.ts`, and `pinnedMemo.ts` was not edited.
+Accepted proof at `1e2fd49` with the comparison collaborator and spec
+uncommitted. Promise: after the backlog is answered at A and the ref names B,
+an untouched path returns A's retained text and the file reader is not called;
+a touched path is read at B; a null comparison reads at B; an unheard B reads
+at B even when A's text is on disk. Boundary: `reader()` for a non-backlog
+path after `answeredBacklog` and `namedByRef`. Setup and observations:
+`dashboard/backend-tests/observation/retained-answers-moved.spec.ts` (4 tests).
+Command: `caffeinate -s -i npm run test:dashboard:backend -- 'observation/retained-answers-moved.spec.ts$' --workers=1`
+(`slice3-moved.log.run.json`, exit 0). Typecheck
+`slice3-typecheck.log.run.json`, `new PinnedTexts(memo)` in
+`review/shared-verified-origin-trunk.spec.ts` (`slice3-callers.log.run.json`),
+and the heard spec (`slice3-heard.log.run.json`) passed. `pinnedMemo.ts` is
+249 lines. Refactor pass skipped: the optional comparison argument is the
+planned seam, and the default call is still `touchedBetweenViaGh`.
 
 ### 4. Reuse unchanged records across a moved revision within bounds
 
@@ -361,6 +377,12 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
   open the store seam and also port heard-revision reads and moved-revision
   comparison. Those are separate proof loops. Nothing was reverted. The store
   loop is slice 1; heard pins are slice 2; moved retained records are slice 3.
+- Slice 3's proof passed at 14.9 active minutes. Pausing after that return
+  recorded 15.4 minutes, so `storyOverruns` is 2. Delivered value is the nine
+  retained-answer cases on the Node seams. Remaining scope is slices 4–8, the
+  other 51 cases, already one proof loop each. The second overrun is handoff
+  time after a finished proof. Continue slice 4 on that plan; do not split
+  again for this overrun.
 
 ## Execution identity
 
@@ -372,7 +394,7 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
   revision `9379098d55410b514abf36b8fb8e42b0c0931181`.
 - Originating checkout: that same workspace. Integration checkout: none.
 - Target selection: remote `origin`, branch `main`.
-- Published revision `a81c91082977318384f25935779cf86b473875e7` accepted on
+- Published revision `1e2fd49f64047a1991fa8613486adefa93095bda` accepted on
   `origin/cursor/prove-published-refresh-lifecycle-in-node-vitest`. That SHA is
   the previously published base for the next increment. The Story Branch claim
   `29e8402851ac887b9d4cdd7838b8a20db7bb08f9` remains `pendingCi: unobserved`.
