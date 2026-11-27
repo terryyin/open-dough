@@ -147,7 +147,7 @@ Reuse the existing boundary only for the wire response and dispatch control.
 ### 4. Carry the selected one-shot policy into a new session
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 15 active minutes.
 
 Proof: Replace all ten `agent-launch-session-options` cases. Exercise all
@@ -164,6 +164,8 @@ beside the receiving contract. The
 [session choices](../../../e2e/launches/agent-launch-session-choices.spec.ts)
 and [isolated start journey](../../../e2e/launches/agent-launch-start-session-isolated-boundary.spec.ts)
 retain browser selection and launch behavior.
+
+- Proof recorded (2026-11-27, Node Vitest, 1 worker): all ten `agent-launch-session-options` cases run on Node Vitest through `withSessionPolicy` and `attemptRun` with `launchHost`, the real installed start, worktree and bare origin; eight Claude combinations through the fake executable and two Codex cases through the fake protocol (`thread/start` cwd, `turn/start` input). Each observes cwd, command and policy flags, the formatted context, the reporting block through `expectReportingBlock` (absolute completion command under the case HOME) and the attempt-id reference, the kept record's policy and start or preparation, empty `keptStarts()`, and unchanged origin refs, profiles and backlog. Passed 10/10; typecheck exited 0. At load ~30 the legacy rerun summed 50.920 s and Vitest 23.099 s (20.8 s at load ~25); about 2.1 s per case goes to the real start, origin copy and fake host processes. Removed `expectEstablishedOneShot` and `blockLines` from `oneShotLaunch.ts` (no callers left); it now holds only `oneShot` and no Playwright import. Refactor pass skipped: subject spec plus removal of uncalled support.
 
 ### 5. Continue the one-shot workspace kept after a refusal
 
