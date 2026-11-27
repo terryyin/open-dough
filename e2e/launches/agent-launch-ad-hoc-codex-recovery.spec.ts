@@ -5,7 +5,6 @@ import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   test,
   expect,
-  openCatalogLaunchBoard,
   stored,
 } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
@@ -23,6 +22,8 @@ import {
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { keepLaunchStore } from "../../dashboard/test-support/support/launchStore.ts";
 import { expectAdHocReportingInput } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
+import { catalogOrigin } from "../../dashboard/test-support/support/catalogProjectOrigin.ts";
 
 const request = makeMe.aLaunchRequest.adHoc({ host: "codex" }).please();
 test.use({ projectFolders: ["open-dough"] });
@@ -37,7 +38,7 @@ for (const blank of [true, false]) {
   }) => {
     const native = codexProtocol;
     if (native === undefined) throw new Error("Missing native fixture.");
-    await openCatalogLaunchBoard(page, dashboard.home);
+    await openInstalledStoryBoard(page, catalogOrigin(dashboard.home));
     const own = blank
       ? request
       : { ...request, instruction: "Keep this exact question." };

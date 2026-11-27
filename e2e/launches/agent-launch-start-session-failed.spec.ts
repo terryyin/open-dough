@@ -26,9 +26,8 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import { expectReportingBlock } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
+import { expectAdHocReportingInput } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 import {
-  openBacklog,
   originMain,
   radio,
 } from "../../dashboard/test-support/support/sessionDialog.ts";
@@ -39,6 +38,7 @@ import {
   worktree,
   worktrees,
 } from "../../dashboard/test-support/support/startSessionLanding.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 
 const text = "Tidy the README wording";
 const slug = "tidy-the-readme-wording";
@@ -54,7 +54,7 @@ test("a failed established session is offered for recovery and the identical Sta
   const starts = recordStarts(origin);
   const before = await originMain(origin);
   dashboard.claudeScenario("refused");
-  await openBacklog(page, origin, true);
+  await openInstalledStoryBoard(page, origin);
   expectServedHomesReach(dashboard.github, defaultRepository, before);
   await startSession(page, "Open Dough").click();
   const dialog = startSessionDialog(page, "Open Dough");
@@ -116,13 +116,16 @@ test("a failed established session is offered for recovery and the identical Sta
   expect(dashboard.claudeLaunchCalls()).toHaveLength(2);
   const call = dashboard.claudeLaunchCalls().at(-1);
   expect(call?.cwd).toBe(realpathSync(worktree(origin.project, slug)));
-  const [block, reporting, ...developer] = (call?.argv.at(-1) ?? "").split(
-    "\n\n",
-  );
-  expect(block).toBe(sessionBlock(session));
   if (record === undefined) throw new Error("Missing launch record.");
-  expectReportingBlock(reporting, record.request, dashboard);
-  expect(developer).toEqual([`Taken story: ${admitted.identity}`, text]);
+  expect(
+    expectAdHocReportingInput(
+      call?.argv.at(-1) ?? "",
+      text,
+      record.request,
+      dashboard,
+      sessionBlock(session),
+    ),
+  ).toEqual([]);
   expect(starts().map(({ argv }) => argv)).toEqual([
     expect.arrayContaining(isolatedAdmissionFlags(origin.project, slug)),
   ]);

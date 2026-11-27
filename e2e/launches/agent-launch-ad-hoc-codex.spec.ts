@@ -9,7 +9,6 @@ import {
   expect,
   expectCodexAdHocInput,
   expectOneThreadStarted,
-  openCodexLaunchBoard,
   stored,
 } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
@@ -44,6 +43,8 @@ import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.t
 import { startedSessionTerminal } from "../../dashboard/test-support/support/startedSessionTerminal.ts";
 import { publishCommittedMembership } from "../../dashboard/test-support/localTakenSessions.ts";
 import { pygardonRepository } from "../../dashboard/test-support/pygardonProject.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
+import { catalogOrigin } from "../../dashboard/test-support/support/catalogProjectOrigin.ts";
 
 test.use({
   projectFolders: ["open-dough", "pygardon"],
@@ -73,7 +74,7 @@ for (const text of ["why is the\nCI\t slow?", ""]) {
           intent: "blank",
         });
     };
-    await openCodexLaunchBoard(page, dashboard.home);
+    await openInstalledStoryBoard(page, catalogOrigin(dashboard.home));
     const start = startSession(page, "Open Dough");
     await start.click();
     const dialog = page.getByRole("dialog");

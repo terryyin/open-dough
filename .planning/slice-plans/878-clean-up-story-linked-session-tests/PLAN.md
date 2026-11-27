@@ -436,12 +436,27 @@ Evidence (2026-11-27):
 
 ### 8. Open an installed Board and read the reporting input through one owner each
 Type: Structure
-Status: planned
+Status: done
 Proof: one fixture step opens an installed Board, replacing
 `openBacklog(…, true)`, `openCatalogLaunchBoard` and
 `openCodexLaunchBoard`. The "Taken story:" line is asserted only through
 `expectAdHocReportingInput`. The touched E2E files pass, and the full E2E
 suite passes locally before landing.
+
+Evidence (2026-11-27):
+- `openInstalledStoryBoard` in `installedStoryCardPage.ts` is now the one
+  step that opens an installed Board, with the trunk Git-open gate from
+  `c4a757d83`. It takes `BoardOrigin`.
+- `catalogOrigin(home)` names the catalog project.
+- `openCatalogLaunchBoard` and `openCodexLaunchBoard` are deleted, and
+  `openBacklog` drops `follows`. 20 specs and `adHocTerminalStartup.ts` use
+  the one step.
+- `expectAdHocReportingInput` now checks "Taken story:" in both prompt
+  layouts. 6 E2E specs and two support assertions use it.
+- The 47 consumer specs pass. `agent-terminal-theme.spec.ts` now waits for
+  "attached" within `launchWaitMs`, the start-answer bound, after one failure
+  at load 21.
+- See G3 for the backend specs.
 
 ### 9. Arrange records on a published story through MakeMe
 Type: Structure
@@ -476,3 +491,8 @@ Disposition: no user cost "keep each story-linked session behavior proven once, 
 Reported: slice 3 — "the E2E spec started 2 dashboard servers before this slice (the preparation `dashboard` fixture plus the `openFreshClone` reader) and still starts 2"
 Story clause: "keep each story-linked session behavior proven once, at the cheapest level that observes it"
 Disposition: no user cost "keep each story-linked session behavior proven once, at the cheapest level that observes it": the fresh-clone Review needs its own reader server, and the journey is the only one that proves it. Each of its facts is still proven once. One server would mean admitting in process inside the Playwright worker, a fixture redesign that would add no proof.
+
+### G3. Backend launch specs still read the Taken story line themselves
+Reported: slice 8 — "Five backend specs in `dashboard/backend-tests/launches/` still check the "Taken story:" line by hand"
+Story clause: "give session placement, the installed Board, the reporting input and "on a published story" setup one test-support owner each"
+Disposition: no user cost "keep each story-linked session behavior proven once, at the cheapest level that observes it": `expectAdHocReportingInput` is a Playwright assertion over E2E native input. Each backend case checks the line in a different handoff or developer-part shape at its own boundary, as part of that case's own fact. Their output is the same either way.

@@ -23,7 +23,6 @@ import {
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import {
-  openBacklog,
   originMain,
   radio,
 } from "../../dashboard/test-support/support/sessionDialog.ts";
@@ -33,6 +32,7 @@ import {
   recordStarts,
   worktree,
 } from "../../dashboard/test-support/support/startSessionLanding.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 
 const inNew = "The session runs in a new workspace under .worktrees/";
 
@@ -42,7 +42,7 @@ test("with existing changes in the execution checkout, Isolated workspace · Aut
   origin,
 }) => {
   const starts = recordStarts(origin);
-  await openBacklog(page, origin, true);
+  await openInstalledStoryBoard(page, origin);
   const before = await originMain(origin);
   dirty(origin.project);
   const changes = status(origin.project);

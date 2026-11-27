@@ -24,7 +24,6 @@ import {
   sessionNamedBy,
   sessionStateOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { openCatalogLaunchBoard } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   expectRevealsSince,
   recordReveals,
@@ -43,6 +42,8 @@ import {
   takenAdHocSession,
   startAdHocAndClose,
 } from "../../dashboard/test-support/support/startedAdHocSession.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
+import { catalogOrigin } from "../../dashboard/test-support/support/catalogProjectOrigin.ts";
 test.use({
   projectFolders: ["open-dough", "pygardon"],
 });
@@ -53,7 +54,7 @@ test("its Sessions sidebar Session entry opens Open Dough's stories, the termina
 }) => {
   dashboard.claudeScenario("launched");
   await recordReveals(page);
-  await openCatalogLaunchBoard(page, dashboard.home);
+  await openInstalledStoryBoard(page, catalogOrigin(dashboard.home));
   const text = "why is the CI slow on main?";
   const openDoughStories = { taken: [text], backlog: ["Story A", "Story B"] };
   const { button, entries, entry } = sessionsSidebarParts(page);

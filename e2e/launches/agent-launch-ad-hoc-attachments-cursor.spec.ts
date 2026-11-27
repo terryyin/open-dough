@@ -14,8 +14,10 @@ import {
   expect,
   keptRecord,
 } from "../../dashboard/test-support/support/cursorStart.ts";
-import { launchStoryIdentity } from "../../dashboard/test-support/support/unattachedLaunchAssertions.ts";
-import { expectReportingBlock } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
+import {
+  adHocDeveloperInput,
+  expectAdHocReportingInput,
+} from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 import {
   expectCopiedAttachmentPath,
   pickImagesInDialog,
@@ -67,12 +69,11 @@ test("Cursor Start session with a chosen model and only an image is admitted", a
   expect(record.request.model).toBe("gpt-5.2");
 
   const expectedPrefix = "Attached images:\n1. ";
-  expect(prompt.startsWith(expectedPrefix)).toBe(true);
-  const rest = prompt.slice(expectedPrefix.length);
-  const [attachedPath, reporting, ...extra] = rest.split("\n\n");
-  expect(extra).toEqual([`Taken story: ${launchStoryIdentity(record)}`]);
-  expectCopiedAttachmentPath(attachedPath ?? "", dashboard.home, "1-card.png");
-  expectReportingBlock(reporting, record.request, dashboard);
+  const images = adHocDeveloperInput(prompt);
+  expect(images.startsWith(expectedPrefix)).toBe(true);
+  const attachedPath = images.slice(expectedPrefix.length);
+  expectAdHocReportingInput(prompt, images, record.request, dashboard);
+  expectCopiedAttachmentPath(attachedPath, dashboard.home, "1-card.png");
   expect(record.request.attachments).toEqual([attachedPath]);
   expect(client.args).toEqual(
     expect.arrayContaining([

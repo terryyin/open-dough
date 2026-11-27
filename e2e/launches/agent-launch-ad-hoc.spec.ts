@@ -39,12 +39,12 @@ import {
   launchStoryIdentity,
 } from "../../dashboard/test-support/support/unattachedLaunchAssertions.ts";
 import { test as installedTest } from "../../dashboard/test-support/support/preparationPage.ts";
-import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 import { admittedStory } from "../../dashboard/test-support/support/isolatedSessionAdmissionProof.ts";
 import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 import { serveInstalledCatalogProject } from "../../dashboard/test-support/installedCatalogPublication.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 
 test.use({
   projectFolders: ["open-dough", "pygardon"],
@@ -60,7 +60,7 @@ installedTest.describe("installed catalog", () => {
     async ({ page, dashboard, origin }) => {
       dashboard.claudeScenario("launched");
       await origin.takenByAnotherAgent();
-      await openBacklog(page, origin, true);
+      await openInstalledStoryBoard(page, origin);
       const text = "why is the CI slow on main?";
       const dialog = startSessionDialog(page, "Open Dough");
       const { recentlyDone } = parts(page);
@@ -124,7 +124,7 @@ installedTest.describe("installed catalog", () => {
     "starting with an empty field sends no instruction",
     async ({ page, dashboard, origin }) => {
       dashboard.claudeScenario("launched");
-      await openBacklog(page, origin, true);
+      await openInstalledStoryBoard(page, origin);
       const dialog = startSessionDialog(page, "Open Dough");
 
       await startSession(page, "Open Dough").click();

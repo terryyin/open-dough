@@ -41,9 +41,8 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import { expectReportingBlock } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
+import { expectAdHocReportingInput } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 import {
-  openBacklog,
   originMain,
   radio,
 } from "../../dashboard/test-support/support/sessionDialog.ts";
@@ -54,6 +53,7 @@ import {
   worktree,
   worktrees,
 } from "../../dashboard/test-support/support/startSessionLanding.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 
 const text = "Tidy the README wording";
 const slug = "tidy-the-readme-wording";
@@ -69,7 +69,7 @@ test("an Isolated workspace start that outlasts its wait names its worktree and 
 }) => {
   const starts = recordStarts(origin);
   const hold = holdStarts(origin, "after");
-  await openBacklog(page, origin, true);
+  await openInstalledStoryBoard(page, origin);
   const before = await originMain(origin);
   await startSession(page, "Open Dough").click();
   const dialog = startSessionDialog(page, "Open Dough");
@@ -157,12 +157,15 @@ test("an Isolated workspace start that outlasts its wait names its worktree and 
   const [call, ...others] = dashboard.claudeLaunchCalls();
   expect(others).toEqual([]);
   expect(call?.cwd).toBe(realpathSync(worktree(origin.project, slug)));
-  const [block, reporting, ...developer] = (call?.argv.at(-1) ?? "").split(
-    "\n\n",
-  );
-  expect(block).toBe(sessionBlock(session));
-  expectReportingBlock(reporting, record.request, dashboard);
-  expect(developer).toEqual([`Taken story: ${admitted.identity}`, text]);
+  expect(
+    expectAdHocReportingInput(
+      call?.argv.at(-1) ?? "",
+      text,
+      record.request,
+      dashboard,
+      sessionBlock(session),
+    ),
+  ).toEqual([]);
   const card = parts(page).taken.getByRole("article", { name: text });
   const entries = storyCardSessions(card);
   await expect(entries).toHaveCount(1);

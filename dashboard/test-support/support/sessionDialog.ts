@@ -5,23 +5,21 @@
 import type { Locator, Page } from "@playwright/test";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
 import { parts } from "../dashboardPage.ts";
-import type { StartOrigin } from "./startOrigin.ts";
+import { git } from "./startOriginObservation.ts";
 
-export async function originMain(origin: StartOrigin) {
-  return (await origin.originGit("rev-parse", "main")).trim();
-}
+// A bare origin a Board reads: a start origin, or an installed catalog
+// project's origin (./catalogProjectOrigin.ts).
+export type BoardOrigin = { readonly origin: string };
 
-// With `follows`, the published trunk follows the origin's main as it moves.
-export async function openBacklog(
-  page: Page,
-  origin: StartOrigin,
-  follows = false,
-) {
+export const originMain = (origin: BoardOrigin) =>
+  git(origin.origin, "rev-parse", "main");
+
+// Story A's card on a Board published at the origin's main as it is now.
+export async function openBacklog(page: Page, origin: BoardOrigin) {
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
     revision: await originMain(origin),
     repository: "terryyin/open-dough",
-    follows,
   });
   await page.goto("/");
   return parts(page).backlog.getByRole("article", { name: "Story A" });
