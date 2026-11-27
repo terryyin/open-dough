@@ -7,7 +7,7 @@
 **Source:** [Prove Cursor turns in Node Vitest](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-cursor-turns-on-vitest)
 
 This plan is provisional input from the split of
-[terminal attach](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-terminal-attach-and-cursor-turns-on-vitest).
+[terminal attach](https://github.com/terryyin/open-dough/blob/0f91c70c84ffdbcd0d79126cdb741b4c2879f236/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-terminal-attach-and-cursor-turns-on-vitest).
 Story refinement resumes it. The slice list below is the mapped remainder,
 not an execution plan.
 
