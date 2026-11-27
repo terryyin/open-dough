@@ -36,6 +36,18 @@ Findings, rechecked at `f6092ebf8`:
 
 ## Direction and current decisions
 
+- The Dashboard start took this correction on Story Branch Mode with
+  Rina-chan in the named worktree and published
+  `3e5ebed61c025bfbb57fd2efe11f79bf52701786` on `origin/main` and the
+  execution branch. The seed and revised plan agree on all four outcomes.
+  The readiness review remains marked changed. The checkout's locked install
+  and dashboard typecheck passed.
+- Execution pushes target `origin/codex/correct-the-fast-runtime-cases-leftovers`.
+  GitHub Actions `ci.yml` is observed there from this checkout by
+  `rina-205c04b8` in `/tmp/dough-ci-501/watch-OWCpDU` (Codex cell
+  `g752:9`, session `52471`, PID `49439`). The trunk claim itself was
+  unobserved.
+
 - Plan 879's decisions hold: plain Vitest for unit tests, one case per rule,
   MakeMe and page-object conventions, no `test.slow()`, default timeouts.
 - [Make production code directly testable instead of growing test support](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support)
@@ -67,7 +79,7 @@ Findings, rechecked at `f6092ebf8`:
 
 ### 1. Prove staging refuses a checkout that is not the selected commit
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: a staged checkout whose fetched HEAD is not the selected commit →
 `stageDeployment` refuses with `Fetched commit … did not match selected main
@@ -80,6 +92,16 @@ stays the default, so the watcher journeys are unchanged.
 Proof: `dashboard/backend-tests/runtime/production-deployment.spec.ts`.
 Removing the `expectSelectedCommit` call from the sequence fails the case.
 `npx vitest run --config dashboard/backend.vitest.config.mts dashboard/backend-tests/runtime/production-deployment.spec.ts`
+
+Accepted proof: Both Node cases passed. The staging test supplied a different
+HEAD through the injected command, observed both SHAs in the rejection,
+and saw no npm command. Removing the comparison made staging resolve
+instead of rejecting and failed the test. The comparison was restored.
+The comparison now has only its internal staging caller and is private.
+The focused check passed again after spelling the command substitute's
+promise explicitly for the project lint rule.
+Hosted watcher and qualification journeys exercise the default command,
+which retains its arguments and behavior.
 
 ### 2. Prove the membership check fails at once when the read fails for good
 Type: Behavior
