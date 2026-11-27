@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Sola-chan",
+  "email": "sola-chan@example.org",
+  "identity": "SEED-413#prove-native-session-observation-on-vitest",
+  "mode": "story-branch",
+  "branch": "codex/prove-native-session-observation-and-alerts-in-n",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
