@@ -6,7 +6,14 @@
 import { mkdtempSync, realpathSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { afterAll, beforeAll, beforeEach, expect, test } from "vitest";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  expect,
+  onTestFinished,
+  test,
+} from "vitest";
 import { machineSessions } from "../../test-support/agentLaunchBoundary.ts";
 import {
   refusedResponse,
@@ -59,6 +66,14 @@ const resumeEnvironments = () =>
   codexEnvironments(native, "resume").slice(resumesBefore);
 const stored = () => keptLaunchRecords(server) as LaunchRecord[];
 
+async function openTerminal() {
+  const terminal = await openCodexTerminal(server, native.threadId);
+  onTestFinished(() => {
+    terminal.socket.terminate();
+  });
+  return terminal;
+}
+
 const nativeTurnCalls = (calls: FakeCodex["calls"]) =>
   calls.filter((call) =>
     ["thread/start", "thread/resume", "turn/start", "turn/interrupt"].includes(
@@ -77,9 +92,12 @@ beforeAll(async () => {
   const started = await startCodexTerminalBoundary(["open-dough"]);
   ({ server, native } = started);
   stop = async () => {
-    await started.stop();
-    restoreEnv();
-    start.remove();
+    try {
+      await started.stop();
+    } finally {
+      restoreEnv();
+      start.remove();
+    }
   };
 });
 
@@ -101,7 +119,7 @@ test("saved context supplies native resume, transport and detach without replay 
   if (record?.session.host !== "codex")
     throw new Error("Missing saved Codex record.");
   const before = [...native.calls];
-  const terminal = await openCodexTerminal(server, native.threadId);
+  const terminal = await openTerminal();
   expect(await shows(terminal, "original retained history")).toBe(true);
   const attach = attaches()[0];
   expect(attach).toMatchObject({
@@ -193,13 +211,13 @@ test("failed exit and unconfigured startup preserve done intent; native ready cl
     ],
   }));
   codexTerminalMode(native, "fail");
-  const failed = await openCodexTerminal(server, native.threadId);
+  const failed = await openTerminal();
   expect(await failed.closed).toBe(1011);
   expect(codexEnded(native, attaches()[0]?.pid ?? 0)).toBe("refused");
   await expect.poll(() => processRunning(attaches()[0]?.pid ?? 0)).toBe(false);
   expect(stored().map((entry) => entry.doneAt)).toEqual([doneAt, doneAt]);
   codexTerminalMode(native, "unready");
-  const pending = await openCodexTerminal(server, native.threadId);
+  const pending = await openTerminal();
   expect(await shows(pending, "Input disabled.")).toBe(true);
   pending.send({
     cursorVisible: true,
@@ -221,7 +239,7 @@ test("failed exit and unconfigured startup preserve done intent; native ready cl
   const pendingPid = attaches().at(-1)?.pid ?? 0;
   await expect.poll(() => codexEnded(native, pendingPid)).toBe("SIGHUP");
   codexTerminalMode(native, "ready");
-  const ready = await openCodexTerminal(server, native.threadId);
+  const ready = await openTerminal();
   expect(await shows(ready, "GPT-6.1-Sol default")).toBe(true);
   ready.send({
     cursorVisible: true,

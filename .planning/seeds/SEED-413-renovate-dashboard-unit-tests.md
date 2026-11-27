@@ -344,7 +344,7 @@ are outside this deterministic proof.
 
 **Identity:** SEED-413#published-read-admission-via-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/860-prove-published-read-admission-on-vitest/PLAN.md"}
 ```
 
 - **For / why.** Give Board and Review maintainers fast proof that an admitted project can read its published records and that invalid source, revision, or path admission is refused.
@@ -362,7 +362,7 @@ are outside this deterministic proof.
 
 **Identity:** SEED-413#published-refresh-lifecycle-via-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/861-prove-published-refresh-lifecycle-on-vitest/PLAN.md"}
 ```
 
 - **For / why.** Give developers observing published progress fast proof that refresh advances to a confirmed readable revision and recovers after failures.
@@ -380,7 +380,7 @@ are outside this deterministic proof.
 
 **Identity:** SEED-413#authenticated-github-observation-via-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md"}
 ```
 
 - **For / why.** Give maintainers fast proof that the authenticated GitHub workload shares eligible requests, reports failures, and releases its callers and processes.
@@ -398,7 +398,7 @@ are outside this deterministic proof.
 
 **Identity:** SEED-413#published-review-comparisons-via-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/863-prove-published-review-comparisons-on-vitest/PLAN.md"}
 ```
 
 - **For / why.** Give developers inspecting Review fast proof that comparison and file evidence belong to the selected story and its published or landed pair.
@@ -416,7 +416,7 @@ are outside this deterministic proof.
 
 **Identity:** SEED-413#landing-capture-evidence-via-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/864-prove-landing-capture-evidence-on-vitest/PLAN.md"}
 ```
 
 - **For / why.** Give developers fast proof that a publication’s landing pair stays bound to the launch that published it.
@@ -434,7 +434,7 @@ are outside this deterministic proof.
 
 **Identity:** SEED-413#published-intent-evidence-via-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/865-prove-published-intent-evidence-on-vitest/PLAN.md"}
 ```
 
 - **For / why.** Give developers reading Intent fast proof that evidence comes from the selected project and revision and that unavailable evidence has an explicit outcome.
@@ -452,7 +452,7 @@ are outside this deterministic proof.
 
 **Identity:** SEED-413#machine-observation-via-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/866-prove-machine-observation-on-vitest/PLAN.md"}
 ```
 
 - **For / why.** Give Dashboard maintainers fast proof that local checkout invalidation and machine status reflect changes in their actual sources.
