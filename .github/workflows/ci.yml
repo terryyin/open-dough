@@ -182,6 +182,7 @@ jobs:
       command: test:e2e
       settings: OPEN_DOUGH_E2E
       root: e2e
+      html-report: true
       # Job-count rule: .agents/skills/rebalance-ci-shards/SKILL.md.
       shards: "[1, 2, 3, 4, 5, 6]"
       specs: |
@@ -207,6 +208,7 @@ jobs:
       command: test:dashboard:backend
       settings: OPEN_DOUGH_DASHBOARD_BACKEND
       root: dashboard/backend-tests
+      html-report: true
       shards: "[1, 2, 3]"
       specs: |
         1: dashboard/backend-tests/launches/** dashboard/backend-tests/runtime/**

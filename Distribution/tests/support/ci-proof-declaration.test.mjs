@@ -26,10 +26,10 @@ const attempt = "${{ github.run_attempt }}";
 
 const declared = jobs(workflow);
 
-// The unit of a fragments step's results: a Playwright record's tests are
+// The unit of a fragments step's results: a browser record's tests are
 // test cases; an outcomes report's lines are in the unit the step declares.
 const unitOf = (step) =>
-  input(step, "report-format") === "playwright-record"
+  input(step, "report-format") === "browser-record"
     ? "case"
     : input(step, "unit");
 

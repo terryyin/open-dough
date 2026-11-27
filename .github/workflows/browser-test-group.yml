@@ -1,16 +1,10 @@
 name: Browser test group
 
-# One Playwright test group's CI producer, called once per group by ci.yml:
-# E2E Test, Dashboard Frontend Test and Dashboard Backend Test each run
-# here under their own npm command, settings
-# prefix, shard matrix, outputs and CI proof entry, so changing one group's
-# shards or settings leaves the others' selection and settings unchanged.
-# Each group runs against controlled GitHub responses (no credentials, no live
-# project contents) as one shard job per matrix shard, each running the spec
-# files its shard's `specs` patterns in ci.yml select (the last shard the
-# rest; dashboard/test-support/support/testFiles.mjs) and failing on its own failing
-# test. Tests that serve the production app share a build within their shard
-# and fail if the build fails.
+# Each browser test group supplies its npm command, settings prefix,
+# shard matrix, output directory and CI proof entry from ci.yml.
+# Each shard runs the spec files selected by its `specs` patterns there.
+# The last shard runs the remaining files.
+# Tests that serve the production app share a build within their shard.
 on:
   workflow_call:
     inputs:
@@ -27,9 +21,13 @@ on:
         type: string
         required: true
       root:
-        description: The group's root, its CI proof entry (Intent location path) and the directory holding its `playwright-report/` and `test-results/`.
+        description: The group's spec and output directory, also its CI proof entry (Intent location path).
         type: string
         required: true
+      html-report:
+        description: Whether the group's runner produces a Playwright HTML report.
+        type: boolean
+        default: false
       shards:
         description: The group's shard matrix, a JSON array such as `[1, 2, 3]`.
         type: string
@@ -177,7 +175,7 @@ jobs:
           part: ${{ matrix.shard }}
           parts: ${{ strategy.job-total }}
           entries: ${{ inputs.root }}
-          report-format: playwright-record
+          report-format: browser-record
           report: ${{ runner.temp }}/browser-proof.json
       # Keep browser diagnostics, including screenshots, traces and HTML
       # reports where the runner produces them, even when the suite fails.
@@ -187,7 +185,7 @@ jobs:
         with:
           name: ${{ inputs.group }}-failure-output-${{ matrix.shard }}
           path: |
-            ${{ inputs.root }}/playwright-report/
+            ${{ inputs.html-report && format('{0}/playwright-report/', inputs.root) || '' }}
             ${{ inputs.root }}/test-results/
           if-no-files-found: ignore
           retention-days: 7

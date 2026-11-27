@@ -4,7 +4,6 @@ import {
   painted,
 } from "../../test-support/composedColours.ts";
 
-// Playwright evaluates this probe in the page. Mounted cases call it directly.
 export function clippedSettingContent(
   element: Element,
   contents: "control" | "text",

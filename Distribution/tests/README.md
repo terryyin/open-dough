@@ -2,14 +2,13 @@
 
 Prepare [native prerequisites](../evaluation/native-setup.md) once per lockfile version.
 
-Three browser test groups run with Playwright, each under its own command,
-configuration, setup, settings, outputs and CI producer; `npm test` does not
-discover their specs:
+Each browser test group has its own command, configuration, settings, outputs
+and CI producer. Use the group's command to discover and run its specs.
 
 | Group | Command | Sources |
 | --- | --- | --- |
 | **E2E Test** | `npm run test:e2e` | representative product [workflows](../../e2e/README.md) in `e2e/` |
-| **Dashboard Frontend Test** | `npm run test:dashboard:frontend` | [frontend-only tests](../../dashboard/frontend-tests/README.md) in `dashboard/frontend-tests/` |
+| **Dashboard Frontend Test** | `npm run test:dashboard:frontend` | [frontend-only Vitest specs](../../dashboard/frontend-tests/README.md) in `dashboard/frontend-tests/` |
 | **Dashboard Backend Test** | `npm run test:dashboard:backend` | [backend tests](../../dashboard/backend-tests/README.md) in `dashboard/backend-tests/` |
 
 Before delivering a change to a group's specs or shared browser support, run

@@ -19,14 +19,14 @@ inputs:
     description: Space-separated proof entries (Intent location paths) in the report.
     required: true
   report-format:
-    description: "`outcomes` (scripts/test.sh) or `playwright-record` (dashboard proof record, whose tests are test cases)."
+    description: "`outcomes` (scripts/test.sh) or `browser-record` (browser-group proof record, whose tests are test cases)."
     required: true
   unit:
     description: >-
       With `outcomes`, what each line's outcome is: `file`, one test file's
       aggregate outcome however many cases the file holds (scripts/test.sh
       writes one line per check file it ran as one job), or `case`, one test
-      case's. Empty for a Playwright record.
+      case's. Empty for a browser record.
     required: false
     default: ""
   report:
@@ -73,6 +73,8 @@ runs:
           --by-file "${entries[@]}" --part "${PART}" --of "${PARTS}"
           --attempt "${GITHUB_RUN_ATTEMPT}" --revision "${CI_PROOF_REVISION}"
           --out "${RUNNER_TEMP}/ci-proof")
+        # The installed CLI uses its original flag for the shared record format.
+        if [[ "${FORMAT}" == browser-record ]]; then FORMAT=playwright-record; fi
         node "${proof[@]}" "--${FORMAT}" "${REPORT}" "${unit[@]}" "${times[@]}"
         if [[ -n ${CASE_REPORT} && -f ${CASE_REPORT} ]]; then
           node "${proof[@]}" --outcomes "${CASE_REPORT}" --unit case

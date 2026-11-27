@@ -33,7 +33,7 @@ const summaryEntryComparisonCues = [
     countReason: "removed",
     durationReason: "removed",
   },
-  // Renamed from a shell check's test file into a Playwright test case.
+  // A shell check's file outcome becomes a test case after the rename.
   {
     count: "none",
     duration: "none",

@@ -34,9 +34,8 @@ export const entryComparisonRows = [
     "removed",
     "removed",
   ],
-  // A shell check's own file outcome renamed into a Playwright spec's test
-  // case: the units differ, so neither its count nor its time compares; each
-  // endpoint keeps its own time, with no signed change.
+  // The rename changes the unit from a test file to a test case.
+  // Each endpoint keeps its own time without a signed change.
   [
     "renamed.spec.ts",
     "renamed",
