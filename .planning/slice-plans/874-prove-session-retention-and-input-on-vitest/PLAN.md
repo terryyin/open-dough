@@ -231,7 +231,7 @@ own browser capture and recovery observations.
 ### 8. Refuse a terminal whose saved workspace disappears at startup
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 8 active minutes.
 
 Proof: Replace the single `session-workspace-retirement-startup` case.
@@ -243,6 +243,8 @@ reason, absence of attached readiness, and that ending attachments sends
 no second close. The
 [saved workspace Done journey](../../../e2e/sessions/session-workspace-retirement-done.spec.ts)
 retains proof of the visible Done behavior.
+
+- Proof recorded (2026-11-27, Node Vitest, 1 worker): the `session-workspace-retirement-startup` case runs on Node Vitest through `TerminalAttachments.connect` with only `@lydell/node-pty` spawn replaced (`vi.mock`, as in `agent-terminal-resize.spec.ts`); the replacement confirms the saved cwd existed, removes it and calls the real spawn. It keeps every legacy observation: the missing-workspace control, close code `terminalWorkspaceUnavailableCode` with "Saved workspace unavailable.", no attached readiness, one close after `endAttachments`, and the directory gone. Passed; typecheck exited 0. Case time 0.876 s → 0.064–0.440 s at load 19–27. Refactor pass skipped: subject spec only.
 
 ## Proof ownership and local gate
 
@@ -268,6 +270,8 @@ Run long checks on awake macOS on AC under `caffeinate -s -i` per
 [AGENTS.md](../../../AGENTS.md). Set `backend_proof` to a disposable output
 path in advance. Compare on one worker and repeat the baseline on a
 comparable revision or load if either materially changes.
+
+- Local gate recorded (2026-11-27, load 18–26, `caffeinate -s -i`, one worker): the selection above on the slice 8 candidate selected 27 Node Vitest cases and 0 Chromium, all passed with zero retries: 34.972 s summed case time, 51.47 s elapsed. The legacy selection rerun at the starting revision `43c08a78c` at the same load selected 27 Chromium cases, all passed: 79.535 s summed, 101.03 s elapsed. Remaining cost sits in the real installed start and origin of `agent-launch-session-options` (23.5 s), `kept-start` (4.9 s) and `refusal` (4.6 s); the other six files sum to 1.9 s.
 
 ```sh
 selection='sessions/(launch-history-(aged-out|removed)|agent-launch-retention-scope|agent-launch-session-(kept-start|options|refusal)|session-(attachment-boundary|instruction-voice-boundary|workspace-retirement-startup))\.spec\.ts$'
