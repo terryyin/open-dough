@@ -299,6 +299,19 @@ behavior unchanged.
 Proof: Old symbols and paths are gone; `npm run typecheck:dashboard`,
 `npm run lint`, and the review family below stay green.
 
+## Execution complete
+
+Product advice: The outcome is delivered, with gaps the retrospective
+planned as the correction
+[SEED-418#keep-session-review-proof-after-retirement](../882-keep-session-review-proof-after-retirement/PLAN.md):
+reselecting a story after **Review session changes** returns to that
+session, Proof briefly measures the whole story while a session is read,
+and the retirement deleted the only proof of Intent's diff context
+expansion and of published sessions kept across a refresh. Take that
+correction before the other SEED-418 stories, which extend the same session
+list. For the compact dropdown story, note that two sessions of one
+workflow closed in the same second share a label today.
+
 ## Proof ownership and local gate
 
 | Promise (seed) | Slice |

@@ -90,6 +90,26 @@ touch panes.
   panel. A running session's terminal and a finished session's final report
   still open there.
 
+<a id="keep-session-review-proof-after-retirement"></a>
+
+### Keep Intent's session review and its proof whole after the retirement
+
+**Identity:** SEED-418#keep-session-review-proof-after-retirement
+
+**Goal.** A developer reviewing a story in Intent gets the scope the story
+promised, and its maintainers keep the proof the retired Side panel review
+used to carry, so Intent's diff and session review cannot regress silently.
+
+**Scope.** Correct what the retrospective of
+[Open session changes in Intent and retire the Side panel review](#select-a-story-session-for-review)
+found: a story selected again after **Review session changes** returns to
+that session instead of **Whole story**; Proof measures the whole story
+while a chosen session is first read; the retirement deleted the only proof
+of Intent's diff context expansion and of published sessions kept across a
+refresh; the story's session list lives in Follow up's module; and some
+test support and one E2E case are left over or redundant.
+[Plan](../slice-plans/882-keep-session-review-proof-after-retirement/PLAN.md).
+
 <a id="review-scope-dropdown"></a>
 
 ### Choose review scope from a compact dropdown
