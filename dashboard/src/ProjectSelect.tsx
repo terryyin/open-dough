@@ -1,4 +1,5 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef } from "react";
+import { CompactSelect } from "./CompactSelect.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { useVisibleProjects } from "./projectList.tsx";
 import "./project-select.css";
@@ -87,6 +88,9 @@ function useTabsFit() {
   return { slot, tabs };
 }
 
+// The project catalog offered through the shared compact select; the root
+// and button classes and the project ID stay what banner styles and page-wide
+// arrows read.
 function ProjectCompactSelect({
   source,
   onSelect,
@@ -95,153 +99,17 @@ function ProjectCompactSelect({
   readonly onSelect: (next: PublishedSource) => void;
 }) {
   const projects = useVisibleProjects();
-  const listId = useId();
-  const root = useRef<HTMLDivElement>(null);
-  const button = useRef<HTMLButtonElement>(null);
-  const list = useRef<HTMLUListElement>(null);
-  const [open, setOpen] = useState(false);
-  const [active, setActive] = useState(source.id);
-
-  useEffect(() => {
-    if (!open) {
-      setActive(source.id);
-    }
-  }, [open, source.id]);
-
-  useLayoutEffect(() => {
-    if (open) {
-      list.current?.focus();
-    }
-  }, [open]);
-
-  const dismiss = () => {
-    setOpen(false);
-    button.current?.focus();
-  };
-
-  useEffect(() => {
-    if (!open) return;
-    const onPointer = (event: PointerEvent) => {
-      if (
-        event.target instanceof Node &&
-        root.current?.contains(event.target)
-      ) {
-        return;
-      }
-      dismiss();
-    };
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      event.preventDefault();
-      event.stopPropagation();
-      dismiss();
-    };
-    window.addEventListener("pointerdown", onPointer);
-    window.addEventListener("keydown", onKey, true);
-    return () => {
-      window.removeEventListener("pointerdown", onPointer);
-      window.removeEventListener("keydown", onKey, true);
-    };
-  }, [open]);
-
-  const choose = (id: string) => {
-    const next = projects.find((option) => option.id === id);
-    dismiss();
-    if (next !== undefined && next.id !== source.id) onSelect(next);
-  };
-
-  const moveActive = (step: number) => {
-    const index = Math.max(
-      0,
-      projects.findIndex((option) => option.id === active),
-    );
-    const next =
-      projects[(index + step + projects.length) % projects.length]?.id ??
-      source.id;
-    setActive(next);
-  };
-
   return (
-    <div className={projectCompactSelectClass} ref={root}>
-      <button
-        type="button"
-        ref={button}
-        className="project-title-select-button"
-        data-project-id={source.id}
-        aria-label="Project"
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-controls={listId}
-        onClick={() => {
-          setOpen((was) => !was);
-        }}
-        onKeyDown={(event) => {
-          if (
-            (event.key === "ArrowDown" ||
-              event.key === "Enter" ||
-              event.key === " ") &&
-            !open
-          ) {
-            event.preventDefault();
-            setOpen(true);
-            setActive(source.id);
-          }
-        }}
-      >
-        {source.label}
-      </button>
-      {open ? (
-        <ul
-          id={listId}
-          ref={list}
-          className="project-title-select-list"
-          role="listbox"
-          aria-label="Project"
-          tabIndex={-1}
-          aria-activedescendant={`${listId}-${active}`}
-          onKeyDown={(event) => {
-            if (event.key === "ArrowDown") {
-              event.preventDefault();
-              moveActive(1);
-              return;
-            }
-            if (event.key === "ArrowUp") {
-              event.preventDefault();
-              moveActive(-1);
-              return;
-            }
-            if (event.key === "Home") {
-              event.preventDefault();
-              setActive(projects[0]?.id ?? source.id);
-              return;
-            }
-            if (event.key === "End") {
-              event.preventDefault();
-              setActive(projects[projects.length - 1]?.id ?? source.id);
-              return;
-            }
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              choose(active);
-            }
-          }}
-        >
-          {projects.map((option) => (
-            <li
-              key={option.id}
-              id={`${listId}-${option.id}`}
-              role="option"
-              aria-selected={option.id === source.id}
-              data-active={option.id === active ? "true" : undefined}
-              onClick={() => {
-                choose(option.id);
-              }}
-            >
-              {option.label}
-            </li>
-          ))}
-        </ul>
-      ) : null}
-    </div>
+    <CompactSelect
+      name="Project"
+      options={projects}
+      value={source.id}
+      current={source.label}
+      onCommit={onSelect}
+      rootClassName={projectCompactSelectClass}
+      buttonClassName="project-title-select-button"
+      listClassName="project-title-select-list"
+      buttonData={{ "data-project-id": source.id }}
+    />
   );
 }

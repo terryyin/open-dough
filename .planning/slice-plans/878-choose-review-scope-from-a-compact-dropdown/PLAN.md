@@ -75,7 +75,7 @@ caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_DASHBOARD
 ### 1. Share the existing compact selection behavior
 
 Type: Structure
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Separate the compact Project dropdown's listbox, highlighting, commit and
@@ -93,6 +93,14 @@ page-wide arrows and the project switch while reading Intent. Trace the
 production selectors and banner layout through `pageLayout.ts`,
 `dashboardParts.ts` and their enclosing test readers. Run affected E2E
 project-hide and narrow banner journeys for any changed contracts they read.
+
+Delivered: `dashboard/src/CompactSelect.tsx` is the shared generic select
+(`{ id, label: string }` options, `onCommit(option)`); `ProjectSelect.tsx`
+passes its projects through. Project DOM is unchanged. Slice 3 widens the
+option label to a rendered node with its own accessible name. Proof: the
+local-gate navigation run plus `project-keyboard-navigation.spec.ts`, 14
+passed, and the dashboard typecheck. The consumer trace found no changed
+contract for the E2E project-hide or narrow banner journeys.
 
 ### 2. Choose the story or session from the compact Intent picker
 
