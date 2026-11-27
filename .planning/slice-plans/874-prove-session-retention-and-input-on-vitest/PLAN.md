@@ -287,3 +287,14 @@ share the record document and history rule, with separate behavior for
 archive failure. Fresh and kept starts share the same policy and established
 context. The eight bounded slices each own their corresponding legacy
 observations. The preparation found no remaining slice-specific concerns.
+
+## Execution complete
+
+Product advice: no change to this story's outcome; all 27 cases run on
+Node Vitest with every legacy observation kept or owned elsewhere, at
+less than half the same-load time. Carry one candidate into the SEED-413
+campaign: a typed launch-admission entry, so about ten backend specs stop
+hand-building `IncomingMessage` to reach `answer()` (see the slice 3 note).
+The remaining per-case cost of about 2 s in the start specs comes from the
+real installed start and origin they observe. Process review is deferred
+into wrap-up with the Intent Coverage check.
