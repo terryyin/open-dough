@@ -17,7 +17,6 @@ import {
   noteRequestsInOpenPage,
   type PageScripts,
 } from "../../test-support/pageRequestNoting.ts";
-import { finishRouteHandlers } from "../../test-support/support/routeHandlerTeardown.ts";
 import { parseRequest } from "../../test-support/support/ghRequest.ts";
 
 // A page whose scripts run here, on a window that has shown its first
@@ -120,21 +119,6 @@ test("a held detail read holds the settled page's read wait but not the first-op
 
   detail.answer();
   await settled.done;
-});
-
-test("a page still open finishes its route handlers before teardown; a closed one has none", async () => {
-  const finished = (closed: boolean) => {
-    const asked: unknown[] = [];
-    return finishRouteHandlers({
-      isClosed: () => closed,
-      unrouteAll: (options) => {
-        asked.push(options);
-        return Promise.resolve();
-      },
-    }).then(() => asked);
-  };
-  expect(await finished(false)).toEqual([{ behavior: "wait" }]);
-  expect(await finished(true)).toEqual([]);
 });
 
 test("a held group has reached its raw handlers only after every listed profile arrives", () => {

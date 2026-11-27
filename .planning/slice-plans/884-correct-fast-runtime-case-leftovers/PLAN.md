@@ -162,12 +162,17 @@ order, including the quoted origin, and the retained user config setting.
 The reader and runnable route cases no longer invoke Git. Real Git's
 published-revision checks remain in the hosted journeys, and the plan's
 retired unrouted-path assertion was removed.
+Published on the execution branch at `222cea979b93445870e6f3c75b107d38168bd65d`.
+GitHub cancelled slice 2's run when that newer run started, with zero failed
+jobs. The newer run's frontend job lost its browser connection. The
+[diagnosis](diagnosis-frontend-browser-connection.md) records the matching
+active repair owner and the applicable CI gate.
 
 ### 4. Remove restated cases and unused exports
 Type: Structure
-Status: planned
+Status: done
 
-Change: remove the four restating cases named in the findings. Un-export
+Change: remove the five restating cases across the four specs named in the findings. Un-export
 `verifyPublishedCommit` and `productionBuildEnvironment`. In the commit
 message, name the surviving owner of each removed case: the mounted-server
 refusal cases for `processOnly`, the helper's callers for `withRestoredEnv`,
@@ -180,7 +185,40 @@ removed is cases and exports that only restate a constant, a stub, or a
 function with no outside caller.
 
 Proof: the runtime folder passes and `npm run typecheck:dashboard` passes.
-`npx vitest run --config dashboard/backend.vitest.config.mts dashboard/backend-tests/runtime`
+`caffeinate -s -i env NODE_DISABLE_COMPILE_CACHE=1 npx vitest run --config dashboard/backend.vitest.config.mts dashboard/backend-tests/runtime`
+
+Accepted proof: 97 Node cases passed across 28 files, and
+`caffeinate -s -i npm run typecheck:dashboard` passed. Direct Vitest initially
+omitted the compile-cache disable required by its existing contract case.
+The prepared invocation supplies the same value the backend group launcher
+provides. The new trace found two import-time incident revision lookups,
+owned by slice 5. No route or deployment case launched Git.
+
+### 5. Isolate runtime boundary cases from the incident revision lookup
+Type: Structure
+Status: planned
+
+Change: the mounted-boundary and serving-mode specs use the real boundary
+table but never call the incident record. Keep each spec's incident-record
+import from initializing its Git-backed revision lookup. Use test-local
+Vitest substitution for that unused module. Keep the real boundary table,
+configuration, and existing observations.
+
+Preserved behavior: the mounted fixture excludes the incident lifecycle,
+while the serving configuration registers every boundary in table order.
+Real incident revision attribution remains on its existing server path.
+
+Proof: rerun the 28-file runtime selection with the normal compile-cache
+disable and a fresh Git Trace2 event file. The previous calibrated run
+found both `git rev-parse HEAD` calls. Neither should recur and no Git
+command should be recorded. The same retained runtime cases must pass.
+
+## Story obligations
+
+### G1. The runtime folder performs incident revision lookups
+Reported: slice 4 — "The folder's incidental import-time revision lookups predate these changes and still run."
+Story clause: "The folder starts no Git process."
+Disposition: receiving slice 5
 
 ## Decisive premises
 
@@ -190,6 +228,7 @@ Proof: the runtime folder passes and `npm run typecheck:dashboard` passes.
 | P2 `homeRoutes`' Git read returns the routes `writeHomeRoutes` wrote, including a quoted origin | Slice 3's parser, which must return that same list | Node v24.21.0, Apple Git 2.50.1, at `f6092ebf8`: `writeHomeRoutes` then `homeRoutes` on `/explicit` and `/with "quote"` | File text and the Git read were the same two routes. The file is `[url "<origin>"]` / `insteadOf = <url>`, with `"` escaped |
 | P3 The fail-fast rule is the immediate title comparison once the page says the read failed for good | Slice 2's comparison, called by `expectMembership` | Source at `f6092ebf8`: `dashboardPage.ts` compares shown titles with `toEqual` when the problem contains `Reload the page to read again.`; that line is the no-work branch in `PublishedReadFailure.tsx`. The E2E block then awaits the Board count. Not re-timed | The comparison is synchronous once the failed-for-good fact is known. The 5 s cost is the unconditional Board wait the slice deletes |
 | P4 The two exports have no outside caller | Slice 4's un-export, then `tsc` and loading the module | Scratch removal of both `export` keywords at `f6092ebf8`, reverted afterward. `npx tsc --build dashboard/tsconfig.json` (18.8 s). `import * as deployment from "./dashboard/server/productionDeployment.mjs"` | Typecheck passed. The module no longer exposed `verifyPublishedCommit` and still exposed `stageDeployment`, `resolvePublishedMain`, and `expectSelectedCommit` |
+| P5 Two runtime imports reach Git while loading the incident record | Slice 5's fixture isolation | Slice 4's runtime trace and child-process call stacks | Two `git rev-parse HEAD` calls originate at `incidentRecord.ts` via `readDiagnostics.ts`. The runtime roots are `mounted-boundary-server.spec.ts` and `serving-modes.spec.ts`, whose cases do not read or write incidents |
 
 ## Proof ownership and local gate
 
@@ -197,23 +236,21 @@ Proof: the runtime folder passes and `npm run typecheck:dashboard` passes.
 | --- | --- |
 | Staging refuses a mismatched checkout before install or build, with no Git or npm process | 1 |
 | Membership fails at once, naming both titles, when the read fails for good; the journey no longer waits out the Board count | 2 |
-| A HOME's routes round-trip through config text and the runtime folder starts no Git | 3 |
+| A HOME's routes round-trip through config text without starting Git | 3 |
 | Restating cases and the two unused exports are gone; remaining runtime cases and the dashboard typecheck pass | 4 |
+| The entire runtime folder starts no Git | 5 |
 
 Apply the shared
 [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
 Focused Vitest uses the commands on the slices. The one E2E file and any
 longer local check run on awake macOS on AC under `caffeinate -s -i`, per
 [AGENTS.md](../../../AGENTS.md). The runtime folder is the broadest local
-unit check, because slice 4 deletes cases across it. Hosted CI still runs
+unit check for slice 4's deletions and slice 5's no-Git check. Hosted CI still runs
 the watcher and `expectServedHomesReach` journeys; this plan does not make
 them a local gate.
 
 ## Plan review
 
-Slice-plan refinement was not needed after this write. The route round-trip,
-the restatement removal, and the un-export are separate proof loops, so they
-are slices 3 and 4 rather than one combined cleanup. Four slices are within
-the limit. Each fits one 15-minute active slice: the command seam, the
-comparison move, the config parse, and the deletions. No remaining
-slice-specific concern. No early probe.
+Keep slice 4's deletion proof and give the discovered import-side-effect
+check its own slice. The five slices retain the correction's test-only
+scope and existing behavior. Each fits one 15-minute active slice.

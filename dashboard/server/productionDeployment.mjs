@@ -52,7 +52,7 @@ export function publishedMainFrom(origin, listed) {
   return { origin, commit };
 }
 /** @param {string} directory @param {PublishedCommit} published @param {NodeJS.ProcessEnv} [env] @param {typeof command} [runCommand] */
-export async function verifyPublishedCommit(
+async function verifyPublishedCommit(
   directory,
   published,
   env,

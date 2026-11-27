@@ -5,10 +5,8 @@ import { expect, test } from "vitest";
 import { localBoundaries } from "../../server/localBoundaries.ts";
 import {
   mountedBoundaries,
-  processOnly,
   withMountedDashboard,
 } from "../../test-support/support/mountedDashboardServer.ts";
-import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
 
 const aDashboard = () => ({ close: () => Promise.resolve() });
 
@@ -43,18 +41,4 @@ test("a start refused at its port releases the worker", async () => {
   ).rejects.toThrow(/EADDRINUSE/);
   const next = await withMountedDashboard(() => Promise.resolve(aDashboard()));
   await next.close();
-});
-
-test("process-only observations name the live-server request", () => {
-  expect(() => processOnly("pid")).toThrow(/no pid.*liveServer/);
-  expect(() => processOnly("output")).toThrow(/no output.*liveServer/);
-});
-
-test("the mount's environment overrides are undone exactly", () => {
-  const setting = "DOUGH_TEST_MOUNTED_SERVER_SENTINEL";
-  const before = process.env[setting];
-  const restore = withRestoredEnv({ [setting]: "mounted" });
-  expect(process.env[setting]).toBe("mounted");
-  restore();
-  expect(process.env[setting]).toBe(before);
 });

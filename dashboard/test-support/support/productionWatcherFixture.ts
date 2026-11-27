@@ -12,7 +12,7 @@ import { linkInstalledDevelopmentRuntime } from "./publishedDevelopmentRuntime.t
 
 // Real deployment builds run beside another worker. Keep their two native
 // Rolldown pools bounded unless the caller chose their concurrency.
-export function productionBuildEnvironment(
+function productionBuildEnvironment(
   environment: NodeJS.ProcessEnv,
 ): NodeJS.ProcessEnv {
   const env = { ...environment };
