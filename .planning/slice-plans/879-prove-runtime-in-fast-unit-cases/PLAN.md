@@ -339,7 +339,7 @@ and `servedHomes` additions; keep both (they read the same `.gitconfig`).
 
 ### 7. Decide runner ownership and quiet reporting from typed run inputs
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 15–20 active minutes.
 Proof: `runner-ownership` and `quiet-reporter` cases run in about 100 ms or
 less. `dashboard-concurrent-runs.sh` passes.
@@ -356,6 +356,19 @@ Behavior:
 
 Concurrent real runs stay with the test-runner scripts, under the
 slice-7 premise row.
+
+Result: `runner-ownership` 4 cases (31.9 s) and `quiet-reporter` 6 cases
+(2.5 s) now sum to 64 ms over 10 cases (load 24–27). `runnerSettings.mjs`
+owns `groupRunSettings` and `vitestRunDirectory`; `groupRunOptions` and
+`focusedRun` (taking a typed spec list and shard declaration) decide each
+group's selection, records, run directory and CI HTML report, proven in
+one table. The unregistered artifact is refused by the in-process owner;
+run output failing the run is proven on the reporter's watched stdout. The
+direct-config run from another directory stays with
+`intent/proof-record-entry.spec.ts`. Premise remainder: no extra real
+concurrent run is needed — the frontend and E2E settings come from the
+same `runDashboardGroup`/`runnerSettings` code the backend run exercises,
+differing only in data the table covers.
 
 ### 8. Prove page waiting helpers once and leave the folder fast
 Type: Behavior
