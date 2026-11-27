@@ -261,3 +261,24 @@ them a local gate.
 Keep slice 4's deletion proof and give the discovered import-side-effect
 check its own slice. The five slices retain the correction's test-only
 scope and existing behavior. Each fits one 15-minute active slice.
+
+## Execution complete
+
+Product advice: no change. The maintenance goal stays aligned with the
+current emphasis on readable intent and justified proof cost.
+
+The five accepted increments end at `09eb9ddec3e64ac3c733303479c0e8469d516431`.
+The replacement mismatch case caught removal of the staging guard. The
+membership case distinguishes synchronous failure with both titles, and the
+six retained Chromium journeys passed with the Board wait removed. The
+full runtime selection passed 97 cases in 28 files and recorded zero Git
+processes after the bounded import isolation. The dashboard typecheck
+passed. These observations establish the process and wait removals without
+claiming a measured before-and-after wall-time improvement.
+
+The test-only substitutions retain the same runtime boundaries and
+representations under [ADR 0002](../../../docs/adrs/0002-software-development-lifecycle-principles-accepted.md#5-use-a-clear-domain-model-and-map-directly-to-it-throughout-the-solution).
+The process evidence is bounded as [ADR 0010](../../../docs/adrs/0010-definition-of-improvement-accepted.md)
+requires. Hosted default-watcher and real routing coverage remains with
+the applicable branch CI. The earlier frontend disconnect remains assigned
+to the [active repair owner](diagnosis-frontend-browser-connection.md).

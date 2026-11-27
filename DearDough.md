@@ -956,6 +956,10 @@ Other — Plan 876's list of Side-panel-only tests came from imports of Side pan
 
 Other — A same-ref cancelled CI run reaches the coordinator as an unexplained incomplete, so the coordinator lists runs to establish supersession. [Shared account](docs/maintainer/findings/ODF-455.md).
 
+### Occurrences
+
+- Execution: SEED-413#fast-runtime-unit-case-cleanup (plan 884, first implementation `a7e3119ee`). Timestamp: 2026-11-27T15:34:12Z, 2026-11-27T15:37:58Z, and 2026-11-27T15:51:12Z (provider cancellation updates). Tool: Codex. Model: gpt-6.2-sol. Open Dough release: 0.3.117 (installed dough-update VERSION at Take `3e5ebed61`). Evidence: `CI_INCOMPLETE` for runs 46025235458, 46026024101, and 46028073081. The exact same-branch successor runs started around the updates, the CI workflow cancels earlier pushes on that ref, and the diagnostic found zero failed jobs in each cancelled run. Observed effect: three bounded inspections to classify routine supersession.
+
 ## DD-653 — The CI diagnostic does not recognize Vitest's failed-test lines <a id="dd-653"></a>
 
 Concrete defect — `ci-github-diagnostic.mjs` builds its failure inventory from "the formats this project's checks print"; its `test` patterns cover `scripts/test.sh`, TAP, node and Playwright lines but not Vitest's `FAIL  <project>  <file>:<line> > <name>`. A Vitest-only failure returns no failures with gap `no-recognized-failure`, and the bounded excerpt can hold only trace rows. Related to ODF-380 (complete failed-test inventory), but a missing format rather than a bounded tail.
