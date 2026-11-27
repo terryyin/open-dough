@@ -1,4 +1,4 @@
-// Shared support for ../../backend-tests/observation/authenticated-read-shared.spec.ts,
+// Shared support for ../../backend-tests/observation/authenticated-read-shared-requests.spec.ts,
 // ../../backend-tests/observation/authenticated-read-shared-waiters.spec.ts,
 // ../../backend-tests/observation/authenticated-read-shared-failures.spec.ts,
 // ../../backend-tests/observation/authenticated-read-shared-listing.spec.ts, and
@@ -107,7 +107,7 @@ export function sharedReadsPublished(revision: string): RepositoryAnswerer {
 // Once released, the first held answer is `firstHeld` when given, and every
 // other one as published.
 export async function servedHolding(
-  server: DashboardServer,
+  server: BoundaryAt,
   revision: string,
   isHeld: (request: GhRequest) => boolean,
   warm: readonly string[] = [],
@@ -127,6 +127,9 @@ export async function servedHolding(
   server.github.serve(everyRepository, held.answer);
   return { release: held.release, before: server.github.calls.length };
 }
+
+// A boundary over real HTTP, launched or in process, and its fake GitHub.
+type BoundaryAt = Pick<DashboardServer, "baseURL" | "origin" | "github">;
 
 // A read of `source` (by default open-dough) with `query` appended.
 export type SharedRead =
@@ -181,7 +184,7 @@ export function pinnedAt(
 
 // A request the boundary refuses before asking GitHub. Once it is answered,
 // every request sent before it waits on its `gh` call.
-export async function refusedMarker(server: DashboardServer): Promise<void> {
+export async function refusedMarker(server: BoundaryAt): Promise<void> {
   assert.equal((await readAt(server, "&revision=main")).status, 400);
 }
 
@@ -214,7 +217,7 @@ export function askedSince(
 // only once it is answered: the reads coincide on what is held. `whileHeld`
 // is what reached GitHub since `before` once `heldCount` questions had.
 export async function answeredTogether(
-  server: DashboardServer,
+  server: BoundaryAt,
   {
     release,
     before,

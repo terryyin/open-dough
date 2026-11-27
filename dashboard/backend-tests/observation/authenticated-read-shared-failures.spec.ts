@@ -1,12 +1,10 @@
-// A shared read that GitHub refuses or that stalls, at the local
-// authenticated read boundary (../../server/ghRead.ts): every request waiting
-// on it is answered as it would be alone, with any wait GitHub directed;
-// nothing is kept, so the next request asks again, once any wait GitHub
-// directed has passed; and no request, however
-// late it joins, waits past its own bound or keeps the `gh` call running
-// past the call's. Tested directly against real HTTP and the synthetic
-// `gh`, with the requests made to coincide on a held answer as
-// ./authenticated-read-shared.spec.ts makes them (../../test-support/support/sharedReads.ts).
+// A shared read that stalls, at the local authenticated read boundary
+// (../../server/ghRead.ts): no request, however late it joins, waits past
+// its own bound or keeps the `gh` call running past the call's, and the next
+// request asks again. Tested directly against real HTTP and the synthetic
+// `gh`, with the requests made to coincide on a held answer
+// (../../test-support/support/sharedReads.ts). A refused shared read:
+// ./authenticated-read-shared-requests.spec.ts.
 // One request's refusals: ./authenticated-read-revision-check-failures.spec.ts;
 // its bound: ./authenticated-read-subprocess-lifecycle.spec.ts.
 
@@ -19,17 +17,13 @@ import {
 import { waitUntil } from "../../test-support/support/waitUntil.ts";
 import type { GhRequest } from "../../test-support/support/ghRequest.ts";
 import { processAlive } from "../../test-support/support/processGroup.ts";
-import { rateLimitedAnswer } from "../../test-support/originAnswers.ts";
-import { untilReported } from "../../test-support/support/directedWait.ts";
 import {
-  answeredTogether,
   askedSince,
   readAt,
   refusedMarker,
   servedHolding,
   sharedSeedPath,
   sharedSeedRead,
-  sharedSeedText,
 } from "../../test-support/support/sharedReads.ts";
 
 test.describe.configure({ mode: "serial" });
@@ -44,95 +38,6 @@ const failed = (body: string) => JSON.parse(body) as unknown;
 // A read's answer and when it arrived.
 const answeredAt = (server: DashboardServer, query: string) =>
   readAt(server, query).then((answer) => ({ answer, at: Date.now() }));
-
-test.describe("authenticated read boundary: a refused shared read fails every waiter alike (development environment)", () => {
-  let server: DashboardServer;
-
-  test.beforeAll(async () => {
-    server = await startDashboardServer({
-      ...developmentBoundary,
-      ghTransport: "cli",
-    });
-  });
-
-  test.afterAll(async () => {
-    await server.close();
-  });
-
-  test("two requests waiting on a refused read both report the refusal, and the next request asks again and is answered", async () => {
-    const revision = revisionOf("7a");
-    const holding = await servedHolding(
-      server,
-      revision,
-      isSeed,
-      [`&revision=${revision}`],
-      {
-        status: 500,
-        contentType: "application/json; charset=utf-8",
-        body: JSON.stringify({ message: "Server Error" }),
-      },
-    );
-    const { answers, whileHeld } = await answeredTogether(
-      server,
-      holding,
-      [sharedSeedRead(revision), sharedSeedRead(revision)],
-      1,
-    );
-    expect(whileHeld).toEqual([`content ${sharedSeedPath}@${revision}`]);
-    expect(answers.map(({ status }) => status)).toEqual([502, 502]);
-    expect(failed(answers[0]?.body ?? "")).toEqual({
-      error: `GitHub answered HTTP 500 to the local GitHub CLI while reading ${sharedSeedPath} at ${revision}.`,
-      recovery: "transient",
-    });
-    expect(answers[1]?.body).toBe(answers[0]?.body);
-
-    const next = await readAt(server, sharedSeedRead(revision));
-    expect(next.status).toBe(200);
-    expect(JSON.parse(next.body)).toMatchObject({ text: sharedSeedText });
-    expect(askedSince(server, holding.before)).toEqual([
-      `content ${sharedSeedPath}@${revision}`,
-      `content ${sharedSeedPath}@${revision}`,
-    ]);
-  });
-
-  test("two checks waiting on a listing GitHub rate-limits both report the wait it directed, and the next check after it asks again", async () => {
-    const revision = revisionOf("7b");
-    const since = (checked: string) => `&since=${checked}`;
-    const holding = await servedHolding(
-      server,
-      revision,
-      isListing,
-      [since(revision)],
-      rateLimitedAnswer(429, { "Retry-After": "2" }),
-    );
-    const { answers, whileHeld } = await answeredTogether(
-      server,
-      holding,
-      [since(revision), since(revisionOf("7c"))],
-      1,
-    );
-    const answeredAt = Date.now();
-    expect(whileHeld).toEqual(["matching-refs"]);
-    const waited = {
-      error:
-        "GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading main of terryyin/open-dough. GitHub asked to wait 2 seconds before asking again.",
-      retryAfterSeconds: 2,
-    };
-    expect(answers.map(({ status }) => status)).toEqual([502, 502]);
-    expect(answers.map(({ body }) => failed(body))).toEqual([waited, waited]);
-
-    // GitHub's wait holds back every read of this server until it has passed
-    // (./authenticated-read-admission.spec.ts).
-    await untilReported(answeredAt, waited.retryAfterSeconds);
-    const next = await readAt(server, since(revision));
-    expect(next.status).toBe(200);
-    expect(JSON.parse(next.body)).toMatchObject({ revision, changed: false });
-    expect(askedSince(server, holding.before)).toEqual([
-      "matching-refs",
-      "matching-refs",
-    ]);
-  });
-});
 
 test.describe("authenticated read boundary: a stalled shared read ends at its own bound for every waiter", () => {
   let server: DashboardServer;

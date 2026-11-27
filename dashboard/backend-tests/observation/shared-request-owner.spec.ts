@@ -1,7 +1,7 @@
 // Two dashboards over real HTTP and the CI diagnostic share one GitHub
 // request owner. It limits upstream turns, shares concurrent reads and rate
 // limits, and keeps other reads running when a dashboard stops waiting.
-// Single-process turns and waits are covered by authenticated-read-turns.spec.ts
+// Single-process turns and waits are covered by authenticated-read-request-turns.spec.ts
 // and authenticated-read-admission.spec.ts.
 
 import { expect, test as base } from "../../test-support/support/pageTest.ts";

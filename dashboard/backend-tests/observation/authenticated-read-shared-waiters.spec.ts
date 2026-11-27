@@ -3,7 +3,7 @@
 // leaves it running for the other, the last one leaving ends its `gh`
 // process, and closing the server ends it for every request. Tested
 // directly against real HTTP and the synthetic `gh`, with the requests made
-// to coincide on a held answer as ./authenticated-read-shared.spec.ts makes
+// to coincide on a held answer as ./authenticated-read-shared-requests.spec.ts makes
 // them (../../test-support/support/sharedReads.ts). A single request's disconnect, bound, and
 // shutdown: ./authenticated-read-subprocess-lifecycle.spec.ts.
 

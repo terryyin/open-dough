@@ -1,8 +1,7 @@
-// Shared support for ../../backend-tests/observation/authenticated-read-turns.spec.ts and
-// ../../backend-tests/observation/authenticated-read-turns-timing.spec.ts: a published revision whose
+// Support for ../../backend-tests/observation/authenticated-read-turns.spec.ts: a published revision whose
 // backlog names twelve seeds, each a different pinned read, GitHub holding
 // every seed read until released one at a time (./heldGitHubAnswer.ts), and
-// how a test sends reads that reach GitHub in order and sees how many have.
+// how a test sees how many reads have reached GitHub.
 
 import { expect } from "@playwright/test";
 import type { DashboardServer } from "./dashboardServer.ts";
@@ -68,19 +67,3 @@ export const arrived = (
   expect
     .poll(() => askedSince(server, before).length, { timeout: 10_000 })
     .toBe(count);
-
-// Sends one read for each of `paths` at `revision`, each reaching GitHub
-// before the next is sent, so they arrive in order.
-export async function underWay(
-  server: DashboardServer,
-  revision: string,
-  before: number,
-  paths: readonly string[],
-) {
-  const answers = [];
-  for (const path of paths) {
-    answers.push(readAt(server, seedRead(revision, path)));
-    await arrived(server, before, askedSince(server, before).length + 1);
-  }
-  return answers;
-}

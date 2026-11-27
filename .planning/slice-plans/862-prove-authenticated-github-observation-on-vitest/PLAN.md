@@ -230,7 +230,7 @@ briefly before the new project's membership replaces it.
 ### 3. Share matching questions and report the cost of a turn
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Concurrent matching content, directory, history and head-listing
 asks share eligible work. Distinct repository, revision, path and kind
@@ -255,6 +255,22 @@ Legacy: `authenticated-read-shared.spec.ts`,
 retry from `authenticated-read-shared-failures.spec.ts` and the admission
 cases from `authenticated-read-turns.spec.ts`. Slice 4 owns late-join bounds
 and close.
+
+Delivered: `authenticated-read-request-turns.spec.ts` (4 Node cases, 0.2–1.2 s)
+drives `GitHubRequests.request` with the real CLI for the eight-call cap,
+arrival order, sharing and isolation, queued departure and queued timeout.
+`authenticated-read-shared-requests.spec.ts` (5 Node cases) uses the in-process
+production boundary over HTTP for shared pinned, directory and history reads,
+reuse, per-check listing answers, isolation and retry after a refused or
+rate-limited shared ask. `authenticated-read-server-timing.spec.ts`
+(1 Node case, 0.3 s) owns `Server-Timing` attribution, including zero
+upstream time for cached and locally refused answers. `shared.spec.ts` and
+`turns-timing.spec.ts` are retired. Three Chromium cases stay for slice 4:
+the late-join case (2 cases) in `authenticated-read-shared-failures.spec.ts`
+and the close case in `authenticated-read-turns.spec.ts`. Follow-up: a
+directed wait of 1 s reads "wait 1 seconds" in the boundary error.
+
+CI on `8263886d` met the plan 881 frontend closure again.
 
 ### 4. End owned subprocesses when their last owner leaves
 
