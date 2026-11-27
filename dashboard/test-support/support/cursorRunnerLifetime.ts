@@ -1,5 +1,5 @@
-// The runner's lifetime on one machine: a detached follow-up prompt stays
-// while the dashboard is down, and a new resume after the runner is stopped.
+// The runner's lifetime on one machine: a new resume after the runner is
+// stopped.
 import { mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -7,53 +7,12 @@ import { expect } from "./pageTest.ts";
 import { launch } from "../agentLaunchBoundary.ts";
 import { openCursorTerminal } from "./cursorTerminal.ts";
 import { installFakeCursor } from "./fakeCursor.ts";
-import {
-  keptCursor,
-  startCursorDashboard,
-  stayedUp,
-} from "./keptCursorTurn.ts";
+import { keptCursor, startCursorDashboard } from "./keptCursorTurn.ts";
 import { developmentBoundary } from "./dashboardServer.ts";
 import { instruction } from "./cursorRunnerJourney.ts";
 import { processRunning } from "./processGroup.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
-
-export async function detachedPromptStaysWhileDashboardIsDown(): Promise<void> {
-  const cursor = installFakeCursor({ screen: "working", becomeReady: true });
-  const machine = path.join(
-    tmpdir(),
-    `dough-cursor-idle-${process.pid.toString(36)}`,
-  );
-  mkdirSync(machine);
-  const server = await startCursorDashboard(
-    developmentBoundary,
-    cursor,
-    machine,
-  );
-  try {
-    expect(
-      (
-        await launch(server, {
-          source: "open-dough",
-          workflow: "ad-hoc",
-          host: "cursor",
-          instruction,
-        })
-      ).status,
-    ).toBe(200);
-    const pid = cursor.attaches()[0]?.pid ?? 0;
-    await server.close();
-    await stayedUp(cursor, pid, 400);
-    expect(cursor.signals(pid)).not.toContain("SIGHUP");
-    cursor.showReady();
-    await stayedUp(cursor, pid, 500);
-    expect(readCursorRunnerAddress(path.join(machine, "home"))).toBeDefined();
-  } finally {
-    await stopCursorRunner(path.join(machine, "home"));
-    cursor.cleanup();
-    rmSync(machine, { recursive: true, force: true });
-  }
-}
 
 export async function stoppingRunnerResumesOnNextOpen(): Promise<void> {
   const cursor = installFakeCursor({ working: true });

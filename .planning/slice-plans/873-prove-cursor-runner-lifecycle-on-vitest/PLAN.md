@@ -219,7 +219,7 @@ took 7.7–17.3 s at load 13–28, the bridge case under 3.4 s.
 ### 7. Close Dashboard attachments according to their owner
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12 active minutes.
 
 Proof: Move the detached-prompt and cross-host close cases to
@@ -228,6 +228,12 @@ Dashboard leaves the detached Cursor client ready to continue, and
 ends attached Claude Code and Codex clients. Observe the scoped
 signals and process liveness after the real Dashboard has stopped, using
 `codexEndOnceGone` for the Codex attachment.
+
+Delivered: both close cases moved to `cursor-runner-dashboard-close`.
+`cursorDashboardMachine.ts` now owns the machine, development Dashboard,
+held Cursor launch and cleanup for the close and rejoin specs;
+`cursorRunnerHosts.ts` is deleted. At load 27–38 the close and restart
+cases took about 17–24 s, matching an unrefactored baseline.
 
 ### 8. Resume after deliberately stopping the runner
 
