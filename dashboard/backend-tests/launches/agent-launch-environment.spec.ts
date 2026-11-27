@@ -10,7 +10,7 @@ import { localFolder } from "../../server/localFolder.ts";
 import { installFakeClaude } from "../../test-support/support/fakeClaude.ts";
 import {
   deploymentLikeStart,
-  expectDeveloperShellEnvironment,
+  developerShellViolations,
 } from "../../test-support/support/launchEnvironment.ts";
 
 test("a deployed Dashboard launches Claude with the developer's shell environment", async () => {
@@ -48,5 +48,5 @@ test("a deployed Dashboard launches Claude with the developer's shell environmen
   expect(answer.kind).toBe("launched");
   const observed = native.controls.claudeLaunchEnvironments();
   expect(observed).toHaveLength(1);
-  expectDeveloperShellEnvironment(observed[0]);
+  expect(developerShellViolations(observed[0])).toEqual([]);
 });

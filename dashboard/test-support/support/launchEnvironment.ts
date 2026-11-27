@@ -4,11 +4,11 @@
 // sets `NODE_ENV` inside the server itself, in both modes. The expectation
 // reads a fake host's recorded environment for the launch environment rule
 // (`../../server/developerShellEnvironment.ts`): every start-up addition
-// removed, the fake's own directory and the rest kept.
+// removed, the fake's own directory and the rest kept. Each caller asserts
+// the violations empty with its own runner's `expect`.
 
 import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
-import { expect } from "@playwright/test";
 import { fakeClaudeHost } from "./fakeClaude.ts";
 
 export const passThroughMarker = "kept-from-the-dashboard";
@@ -59,25 +59,30 @@ export type FakeHostWiring = {
   readonly wiring: string;
 };
 
-export function expectDeveloperShellEnvironment(
+export function developerShellViolations(
   env: Readonly<Record<string, string>> | undefined,
   host: FakeHostWiring = fakeClaudeHost,
-): void {
-  expect(env).toBeDefined();
-  const recorded = env ?? {};
-  expect(Object.keys(recorded).filter((key) => key.startsWith("npm_"))).toEqual(
-    [],
-  );
-  expect(recorded["NODE_ENV"]).toBeUndefined();
-  expect(recorded["INIT_CWD"]).toBeUndefined();
+): string[] {
+  if (env === undefined) return ["no recorded environment"];
+  const violations: string[] = [];
+  for (const key of Object.keys(env))
+    if (key.startsWith("npm_")) violations.push(`kept ${key}`);
+  for (const key of ["NODE_ENV", "INIT_CWD"])
+    if (env[key] !== undefined) violations.push(`kept ${key}`);
   // The start's PATH directories, and any other npm put there, are gone.
-  const entries = (recorded["PATH"] ?? "").split(path.delimiter);
-  expect(entries.filter((entry) => entry.endsWith("node-gyp-bin"))).toEqual([]);
-  expect(
-    entries.filter((entry) => entry.endsWith(`node_modules${path.sep}.bin`)),
-  ).toEqual([]);
+  const entries = (env["PATH"] ?? "").split(path.delimiter);
+  for (const entry of entries)
+    if (
+      entry.endsWith("node-gyp-bin") ||
+      entry.endsWith(`node_modules${path.sep}.bin`)
+    )
+      violations.push(`kept PATH entry ${entry}`);
   // The fake's own directory stays on PATH.
-  expect(entries.map((entry) => path.basename(entry))).toContain(host.binDir);
-  expect(recorded["DOUGH_SPEC_PASSTHROUGH"]).toBe(passThroughMarker);
-  expect(recorded[host.wiring]).toEqual(expect.any(String));
+  if (!entries.some((entry) => path.basename(entry) === host.binDir))
+    violations.push(`lost PATH entry ${host.binDir}`);
+  if (env["DOUGH_SPEC_PASSTHROUGH"] !== passThroughMarker)
+    violations.push("lost DOUGH_SPEC_PASSTHROUGH");
+  if (typeof env[host.wiring] !== "string")
+    violations.push(`lost ${host.wiring}`);
+  return violations;
 }

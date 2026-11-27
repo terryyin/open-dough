@@ -42,7 +42,7 @@ import {
 import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 import {
   deploymentLikeStart,
-  expectDeveloperShellEnvironment,
+  developerShellViolations,
 } from "../../dashboard/test-support/support/launchEnvironment.ts";
 import { processRunning } from "../../dashboard/test-support/support/processGroup.ts";
 
@@ -242,6 +242,7 @@ test.describe("the terminal beside the page", () => {
     ).toEqual(new Set([shortId(first), shortId(second)]));
     const attachEnvironments = dashboard.claudeAttachEnvironments();
     expect(attachEnvironments.length).toBeGreaterThan(0);
-    for (const env of attachEnvironments) expectDeveloperShellEnvironment(env);
+    for (const env of attachEnvironments)
+      expect(developerShellViolations(env)).toEqual([]);
   });
 });

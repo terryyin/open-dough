@@ -1,8 +1,7 @@
 // Drive the attachment controller and real host adapters. Only native PTY and
 // WebSocket dependencies are replaced to hold the closed-fd/onExit race still.
 import { EventEmitter } from "node:events";
-import { createRequire } from "node:module";
-import { expect, test as base } from "../../test-support/support/pageTest.ts";
+import { expect, test, vi } from "vitest";
 import type { IPty } from "@lydell/node-pty";
 import type { WebSocket } from "ws";
 import {
@@ -10,31 +9,16 @@ import {
   terminalEndedCode,
 } from "../../src/agentTerminal.ts";
 import type { TerminalSession } from "../../server/agentTerminals.ts";
+import { TerminalAttachments } from "../../server/terminalAttachments.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-const native = createRequire(import.meta.url)(
-  "@lydell/node-pty",
-) as typeof import("@lydell/node-pty");
-const originalSpawn = native.spawn;
+
 const terminals: IPty[] = [];
-let TerminalAttachments: typeof import("../../server/terminalAttachments.ts").TerminalAttachments;
-// A worker fixture gives this native-module replacement its own module cache,
-// including when another spec statically imports the real host adapters.
-const test = base.extend<object, { nativeSpawn: boolean }>({
-  nativeSpawn: [
-    // Playwright requires destructuring even for a fixture with no dependencies.
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => {
-      native.spawn = (...args) => terminals.shift() ?? originalSpawn(...args);
-      try {
-        ({ TerminalAttachments } =
-          await import("../../server/terminalAttachments.ts"));
-        await use(true);
-      } finally {
-        native.spawn = originalSpawn;
-      }
-    },
-    { scope: "worker", auto: true },
-  ],
+vi.mock(import("@lydell/node-pty"), async (original) => {
+  const native = await original();
+  return {
+    ...native,
+    spawn: (...args) => terminals.shift() ?? native.spawn(...args),
+  };
 });
 
 class Socket extends EventEmitter {

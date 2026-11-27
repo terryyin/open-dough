@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_prove-terminal-attach-and-cursor-turns-on-vitest.json",
+      "identity": "SEED-413#prove-terminal-attach-and-cursor-turns-on-vitest",
+      "completedAt": "2026-11-27T01:50:34.363Z",
+      "blob": "e892b5d4cd0fb8cca1a2975fd9e8949a46329b9e"
+    },
+    {
       "fileName": "SEED-413_prove-published-dashboard-reads-on-vitest.json",
       "identity": "SEED-413#prove-published-dashboard-reads-on-vitest",
       "completedAt": "2026-11-27T01:28:13.989Z",

@@ -28,7 +28,7 @@ import {
 } from "../../dashboard/test-support/support/cursorStart.ts";
 import { runnerEnvironment } from "../../dashboard/test-support/support/cursorRunnerJourney.ts";
 import { fakeCursorHost } from "../../dashboard/test-support/support/fakeCursor.ts";
-import { expectDeveloperShellEnvironment } from "../../dashboard/test-support/support/launchEnvironment.ts";
+import { developerShellViolations } from "../../dashboard/test-support/support/launchEnvironment.ts";
 import { openTerminalControl } from "../../dashboard/test-support/terminalScreenPage.ts";
 
 const omitted = ["--model", "-w", "--worktree", "--trust", "--force", "--yolo"];
@@ -135,7 +135,7 @@ for (const text of ["", "why is the CI slow?"]) {
     expect(created.executable.endsWith(`${path.sep}cursor-agent`)).toBe(true);
     expect(created.cwd).toBe(realpathSync(origin.project));
     expect(created.stored).toBeNull();
-    expectDeveloperShellEnvironment(created.env, fakeCursorHost);
+    expect(developerShellViolations(created.env, fakeCursorHost)).toEqual([]);
     await expect.poll(() => cursor.attaches()).toHaveLength(1);
     const client = cursor.attaches()[0];
     if (client === undefined) {
@@ -148,11 +148,13 @@ for (const text of ["", "why is the CI slow?"]) {
       cursor.sessionId,
     ]);
     expect(client.cwd).toBe(realpathSync(origin.project));
-    expectDeveloperShellEnvironment(client.env, fakeCursorHost);
-    expectDeveloperShellEnvironment(
-      runnerEnvironment(dashboard.home),
-      fakeCursorHost,
-    );
+    expect(developerShellViolations(client.env, fakeCursorHost)).toEqual([]);
+    expect(
+      developerShellViolations(
+        runnerEnvironment(dashboard.home),
+        fakeCursorHost,
+      ),
+    ).toEqual([]);
     for (const flag of omitted) expect(client.args).not.toContain(flag);
     if (blank) {
       expect(cursor.input(client.pid)).toBe("");

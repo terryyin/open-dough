@@ -12,7 +12,6 @@ import { agentDoneEndpoint } from "../src/doneMark.ts";
 import { settledOutcome } from "./acceptedAttempts.ts";
 import {
   alertsAnswered,
-  alertsSettled,
   attempts,
   attemptsAttending,
   attemptsInHistory,
@@ -31,7 +30,6 @@ import type { StoryLaunchRequest } from "../src/launchRequest.ts";
 
 export {
   alertsAnswered,
-  alertsSettled,
   attempts,
   attemptsAttending,
   attemptsInHistory,

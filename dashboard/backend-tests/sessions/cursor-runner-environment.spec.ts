@@ -22,7 +22,7 @@ import {
 } from "../../test-support/support/fakeCursor.ts";
 import {
   deploymentLikeStart,
-  expectDeveloperShellEnvironment,
+  developerShellViolations,
 } from "../../test-support/support/launchEnvironment.ts";
 import {
   endGroup,
@@ -78,7 +78,9 @@ test("a runner started with a deployment's start-up additions starts cursor-agen
       stdout: `${cursor.sessionId}\n`,
     });
     expect(cursor.calls()).toHaveLength(1);
-    expectDeveloperShellEnvironment(cursor.calls()[0]?.env, fakeCursorHost);
+    expect(
+      developerShellViolations(cursor.calls()[0]?.env, fakeCursorHost),
+    ).toEqual([]);
 
     const resume = ["--workspace", workspace, "--resume", cursor.sessionId];
     const kept = await keepCursorClient(
@@ -99,7 +101,9 @@ test("a runner started with a deployment's start-up additions starts cursor-agen
     );
     expect(kept).toMatchObject({ kind: "kept" });
     await expect.poll(() => cursor.attaches()).toHaveLength(1);
-    expectDeveloperShellEnvironment(cursor.attaches()[0]?.env, fakeCursorHost);
+    expect(
+      developerShellViolations(cursor.attaches()[0]?.env, fakeCursorHost),
+    ).toEqual([]);
   } finally {
     await stopCursorRunner(home);
     await endGroup(runner);

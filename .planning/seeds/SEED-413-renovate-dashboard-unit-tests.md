@@ -284,84 +284,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Plan.** [Prove session completion reporting in Node Vitest](../slice-plans/870-prove-session-completion-reporting-on-vitest/PLAN.md)
 
-<a id="prove-terminal-attach-and-cursor-turns-on-vitest"></a>
-
-### Prove terminal attach in Node Vitest
-
-**Identity:** SEED-413#prove-terminal-attach-and-cursor-turns-on-vitest
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/871-prove-terminal-attach-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f0a0046816220705e1accca8d94f81fa6a17b8dfd7e75775ed33993b3d6c617c","plan":"6a729061e4b1ed061cefbe27a54eafe51bb06bfc88ed730cae5db07e999e4fb1"}}
-```
-
-- **Goal.** Developers changing a session terminal get fast Node Vitest
-  feedback on who may attach, what a socket passes through, and when that
-  attachment ends.
-- **Scope.** Move these five legacy specs (24 cases) off backend Playwright
-  and account for each observation:
-  `terminals/agent-terminal-boundary.spec.ts` (17),
-  `terminals/agent-terminal-close.spec.ts` (1),
-  `terminals/agent-terminal-codex-close.spec.ts` (1),
-  `terminals/agent-terminal-codex.spec.ts` (3), and
-  `terminals/agent-terminal-resize.spec.ts` (2).
-  - Prove a same-origin Claude upgrade attaches the recorded session and
-    passes output, input, and size. Socket close ends that attach with
-    SIGHUP and leaves the session available. A malformed frame closes the
-    socket and ends the attach. A stopped session Claude Code still lists,
-    and a listing that cannot be read, still attach. A completed automatic
-    feedback URL, a foreign origin or Host, an unknown project or session,
-    a missing session, another project's session, a session Claude Code no
-    longer lists, and a missing checkout are refused before any attach.
-  - Prove `closeServer`, called alone, ends the Claude attach while the
-    socket and HTTP server stay open, and closes an admitted Codex socket
-    and its PTY while the HTTP server and native protocol stay alive.
-  - Prove an unavailable PTY resize ends only that ready or starting
-    attachment, does not escape the socket handler, and leaves a later
-    attachment able to take input.
-  - Prove saved Codex context resumes on the recorded remote transport and
-    detaches without replay or fork. Exact missing-target evidence refuses
-    attachment with the Codex explanation and starts no attach. A failed
-    exit or a screen that is not ready preserves Done on both the Codex
-    record and a same-id Claude record; a ready Codex screen clears only
-    the Codex mark.
-  - Keep a real socket and the host stand-in PTY where attach,
-    pass-through, or close is the observation. Drive upgrade admission
-    through `AgentTerminals` and `admittedAttach`, and attachment lifetime
-    through `TerminalAttachments`, on a plain HTTP server.
-  - Product behavior stays unchanged. Add zero new server, request, or
-    boundary wrappers to `dashboard/test-support/`, compose records with
-    MakeMe, and remove a test-support helper or export only when dashboard
-    and end-to-end tests have no remaining caller.
-  - Browser page journeys stay in `e2e/terminals/`. Cursor instruction,
-    keep, and exit belong to
-    [Cursor turns](#prove-cursor-turns-on-vitest). Cursor runner start,
-    replacement, and survival across runner death belong to
-    [Cursor runner lifecycle](#prove-cursor-runner-lifecycle-on-vitest).
-    Done, stop, delete, and reopen belong to their sibling story.
-- **Key examples.**
-  - Given a recorded Claude session, a same-origin socket shows the
-    attached size, echoes input, and applies a resize. Closing it ends the
-    attach with SIGHUP and leaves the session available. Plain text, a
-    command, non-text input, an oversized resize, or binary data closes
-    the socket and ends the attach. A foreign origin or Host, an unknown
-    project or session, a missing session, another project's session, a
-    completed automatic-feedback URL, a session Claude Code no longer
-    lists, and a missing checkout are refused and run no attach.
-  - Given an admitted Claude or Codex socket, `closeServer` alone ends
-    that attach while the HTTP server stays open. The Codex native
-    protocol stays alive. An unavailable PTY resize closes only that
-    ready or starting attachment; a later attachment still accepts input.
-  - Given saved Codex context, opening the terminal resumes that
-    conversation on its recorded remote transport and detaches without
-    replay or fork. Exact missing-target evidence refuses the upgrade
-    with the Codex explanation. A failed exit or a screen that is not
-    ready keeps both hosts' Done marks; a ready Codex screen clears only
-    the Codex mark.
-- **Replacement trace.** Split from [native session and terminal lifecycle](https://github.com/terryyin/open-dough/blob/23c09d6e4d18b5113b45f3aed28f09e986083072/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-and-terminal-lifecycle-on-vitest).
-  Cursor turn specs moved to [Cursor turns](#prove-cursor-turns-on-vitest)
-  so this story stays within one plan.
-
-**Plan.** [Prove terminal attach in Node Vitest](../slice-plans/871-prove-terminal-attach-on-vitest/PLAN.md)
-
 <a id="prove-cursor-turns-on-vitest"></a>
 
 ### Prove Cursor turns in Node Vitest
@@ -410,7 +332,7 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
     remove a helper only when dashboard and end-to-end tests have no
     remaining caller.
   - Terminal attach, Codex resume, and `closeServer` belong to
-    [terminal attach](#prove-terminal-attach-and-cursor-turns-on-vitest).
+    [terminal attach](https://github.com/terryyin/open-dough/blob/0f91c70c84ffdbcd0d79126cdb741b4c2879f236/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-terminal-attach-and-cursor-turns-on-vitest).
     Runner start, replacement, and survival across runner death belong to
     [Cursor runner lifecycle](#prove-cursor-runner-lifecycle-on-vitest).
     Browser page journeys stay in `e2e/terminals/`.
@@ -435,7 +357,7 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
     second socket, a dropped connection, server close, and a restarted
     server joining the same process. An unknown session and a foreign
     origin add no attach.
-- **Replacement trace.** Split from [terminal attach and Cursor turns](#prove-terminal-attach-and-cursor-turns-on-vitest)
+- **Replacement trace.** Split from [terminal attach and Cursor turns](https://github.com/terryyin/open-dough/blob/0f91c70c84ffdbcd0d79126cdb741b4c2879f236/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-terminal-attach-and-cursor-turns-on-vitest)
   during this preparation, because the two outcomes do not fit one plan.
 
 **Plan.** [Prove Cursor turns in Node Vitest](../slice-plans/872-prove-cursor-turns-on-vitest/PLAN.md)
@@ -818,7 +740,7 @@ or removed once its behavior or duplicate is accounted for.
 | 14 Done, stop, delete and reopen specs | [Marking sessions done, stopping, deleting and reopening](https://github.com/terryyin/open-dough/blob/499d3b82bfe3b987b927c3f77aaece6d0f68fd2d/.planning/slice-plans/867-prove-marking-sessions-done-on-vitest/PLAN.md), completed on Node Vitest with the terminal and deletion journeys retained in E2E |
 | 11 completion reporting specs | [Session completion reporting](#prove-session-completion-reporting-on-vitest) |
 | Nine observation, alert and replay specs | [Native session observation and alerts](https://github.com/terryyin/open-dough/blob/0e82130ff6693e0f9a7b936aa8871aacb6ebbfee/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-observation-on-vitest) |
-| Five Claude and Codex terminal attach specs | [Terminal attach](#prove-terminal-attach-and-cursor-turns-on-vitest) |
+| Five Claude and Codex terminal attach specs | [Terminal attach](https://github.com/terryyin/open-dough/blob/0f91c70c84ffdbcd0d79126cdb741b4c2879f236/.planning/slice-plans/871-prove-terminal-attach-on-vitest/PLAN.md), completed on Node Vitest |
 | Six Cursor turn specs | [Cursor turns](#prove-cursor-turns-on-vitest) |
 | Seven Cursor runner specs | [Cursor runner lifecycle](#prove-cursor-runner-lifecycle-on-vitest) |
 | Nine retention, one-shot start and input specs | [Session retention, one-shot starts and input](#prove-session-retention-and-input-on-vitest) |

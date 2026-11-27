@@ -14,7 +14,7 @@ import {
 import { givenSavedCodexSession } from "./codexObservation.ts";
 import {
   codexAttaches,
-  expectCodexHungUp,
+  codexEndOnceGone,
   openCodexTerminal,
 } from "./codexTerminal.ts";
 import {
@@ -72,7 +72,9 @@ export async function serverCloseLeavesCursorAndHangsUpOtherHosts(): Promise<voi
     await server.close();
     await stayedUp(cursor, cursorPid, 500);
     expect(await lastAttachEnded(server)).toBe("SIGHUP");
-    await expectCodexHungUp(server.codex, codexPid);
+    await expect
+      .poll(() => codexEndOnceGone(server.codex, codexPid))
+      .toBe("SIGHUP");
   } finally {
     await server.close();
     await stopCursorRunner(server.home);

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Ai-chan",
-  "email": "ai-chan@example.org",
-  "identity": "SEED-413#prove-terminal-attach-and-cursor-turns-on-vitest",
-  "mode": "story-branch",
-  "branch": "claude/prove-terminal-attach-in-node-vitest",
-  "host": "claude"
-}
