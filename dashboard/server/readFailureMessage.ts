@@ -13,6 +13,7 @@ import {
   rateLimitStop,
   readTimeoutMs,
 } from "./ghRead.ts";
+import type { UnavailableTrunkPart } from "./ghFailure.ts";
 
 // Upstream HTTP statuses the page may recover from on its own. Validated here
 // from GitHub's included status (`github-request-answer.mjs`), never from the
@@ -39,6 +40,8 @@ function recoveryOf(reason: GhFailureReason): "transient" | undefined {
     case "unreachable":
     case "timed-out":
       return "transient";
+    case "unavailable":
+      return reason.part === "origin" ? "transient" : undefined;
     case "http":
       return transientHttpStatuses.has(reason.status) ? "transient" : undefined;
     default:
@@ -105,6 +108,8 @@ function failureMessage(
     }
     case "held-back":
       return `${notAskedOfGitHub(reading)} Reading resumes in ${String(reason.waitSeconds)} seconds.`;
+    case "unavailable":
+      return unavailableMessage(reason.part, source, reading);
     case "no-commit":
       return `GitHub's answer for ${reading} did not name a commit.`;
     case "timed-out":
@@ -123,5 +128,22 @@ function failureMessage(
     }
     case "failed":
       return `The local authenticated read failed while reading ${reading}. ${checkAccess}`;
+  }
+}
+
+// A cold Board open whose trunk origin could not verify: named as
+// unavailable, with the part that failed.
+function unavailableMessage(
+  part: UnavailableTrunkPart,
+  source: PublishedSource,
+  reading: string,
+): string {
+  switch (part) {
+    case "origin":
+      return `The published trunk is unavailable: Git could not read ${reading} from origin.`;
+    case "trunk":
+      return `The published trunk is unavailable: origin has no branch for ${reading}.`;
+    case "backlog":
+      return `The published backlog (${source.backlogPath}) is unavailable at the verified trunk of ${source.label}.`;
   }
 }

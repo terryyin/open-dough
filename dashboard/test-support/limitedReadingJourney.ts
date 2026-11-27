@@ -41,7 +41,10 @@ import {
 } from "./support/publishedRepository.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
 import { projectTab } from "./projectChoice.ts";
-import { expectEarlierSnapshotKept } from "./transientRecoveryPage.ts";
+import {
+  expectEarlierSnapshotKept,
+  noteColdOpens,
+} from "./transientRecoveryPage.ts";
 
 // GitHub's limit, directing a wait no journey waits out.
 export const waitSeconds = 900;
@@ -144,9 +147,10 @@ const doughnutWithheld =
 // limit the first page met stands until `resumesAt`, page time: the first
 // page, hidden and seen again, asks no check; the second tab learns the limit
 // from its next check and says the same time while keeping its snapshot; the
-// first page, switched to Doughnut and then reloaded, shows nothing read and
-// the same time; and as page time passes, both hidden and seen again, neither
-// page asks a check. GitHub is asked nothing throughout.
+// first page, switched to Doughnut, shows nothing read and the same time,
+// and reloaded, opens Doughnut's Board from Git; and as page time passes,
+// both hidden and seen again, neither page asks a check. GitHub is asked
+// nothing throughout.
 export async function whileTheLimitStands(
   page: Page,
   other: Page,
@@ -191,16 +195,12 @@ export async function whileTheLimitStands(
     expect(sent).toEqual([]);
   });
 
-  await test.step("a reload asks the boundary once, which asks GitHub nothing, and shows that nothing has been read, with the same limit and time", async () => {
+  await test.step("a reload opens Doughnut's Board once from its verified Git trunk and asks GitHub nothing", async () => {
+    const opens = noteColdOpens(page, "doughnut");
     await page.reload();
-    await expectProblemAndNoSnapshot(
-      page,
-      doughnutWithheld,
-      "This page reads the published work then, or when it is next seen.",
-      "Doughnut",
-    );
-    await expectSameResumeTime(page, resumesAt, refusedAt);
-    expect(sent).toHaveLength(1);
+    await expectSettledPage(page, doughnutTitles);
+    expect(opens).toHaveLength(1);
+    expect(github.calls.slice(asked)).toEqual([]);
   });
 
   await test.step("as page time passes, hidden and seen again, neither page asks a check, and GitHub is asked nothing", async () => {

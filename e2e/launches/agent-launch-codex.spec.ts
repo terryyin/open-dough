@@ -79,13 +79,12 @@ test("shared host choice uses own installation/defaults, keeps equal IDs distinc
 }) => {
   const native = codexProtocol;
   if (native === undefined) throw new Error("Missing native fixture.");
-  const board = await openInstalledStoryBoard(page, origin, { follows: false });
+  const board = await openInstalledStoryBoard(page, origin, {
+    keepsOpenedTrunk: true,
+  });
   const card = board.card(notRefinedStory);
   dashboard.claudeScenario("launched");
-  const claude = await board.open(notRefinedStory, "Refinement");
-  await claude.chooseOneShot();
-  await claude.submit();
-  await expect(storyCardSessions(card)).toHaveCount(1);
+  await board.startOneShot(notRefinedStory, "Refinement");
   const claudeSession = String(dashboard.claudeListing()[0]?.["sessionId"]);
   idleBetweenSteps(dashboard, claudeSession);
   await markDoneAnyway(storyCardSessions(card));

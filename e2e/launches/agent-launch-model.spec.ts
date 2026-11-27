@@ -176,7 +176,7 @@ test("a refused launch with Opus says Launch failed beside its action, closes th
   origin,
 }) => {
   dashboard.claudeScenario("refused");
-  const board = await openInstalledStoryBoard(page, origin, { follows: false });
+  const board = await openInstalledStoryBoard(page, origin);
   const { dialog, submit } = await board.open(readyStory, "Execution");
   await storyLaunchChoices(dialog).chooseModel("opus");
   await submit();

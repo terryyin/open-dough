@@ -17,6 +17,7 @@ import {
 } from "./launchJourney.ts";
 import { composeSession } from "./agentTerminalBoundary.ts";
 import { publishMovingHistory } from "./publishedMovingOrigin.ts";
+import { holdTrunkTransfer } from "./heldTrunkTransfer.ts";
 import {
   pygardonHistory,
   pygardonRepository,
@@ -177,8 +178,9 @@ export async function openNavigationJourney(
     ...journey,
     sessions,
     pygardon,
-    // Holds Pygardon's stories back until the returned release is called.
-    holdPygardonStories: () => pygardon.hold(pygardon.revisions.published),
+    // Holds Pygardon's Git open until the returned transfer is released.
+    holdPygardonOpen: () =>
+      holdTrunkTransfer(dashboard.home, pygardonRepository),
   };
 }
 

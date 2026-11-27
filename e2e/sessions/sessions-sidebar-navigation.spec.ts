@@ -13,7 +13,7 @@ import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
-import { pathsRead } from "../../dashboard/test-support/publishedOrigin.ts";
+import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
 import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import {
   terminalPanel,
@@ -68,7 +68,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
     dashboard,
     afterGitHubStops,
   }) => {
-    const { card, sessions, holdPygardonStories, pygardon } =
+    const { card, sessions, holdPygardonOpen, pygardon } =
       await openNavigationJourney(
         page,
         dashboard,
@@ -91,7 +91,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
 
     await test.step("from Open Dough's roster, the Pygardon entry shows Pygardon's stories as one history entry, opens its session with the keyboard in it, and once those stories are read reveals and marks its card", async () => {
       const before = await historyLength(page);
-      const release = holdPygardonStories();
+      const pygardonOpen = holdPygardonOpen();
       await entry(pygardonStory.title).click();
       await expectProjectChoice(page, "Pygardon");
       expectRoute(page, { project: "pygardon", view: null });
@@ -108,7 +108,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
       // Nothing is brought into view while Pygardon's stories are unread.
       expect(await revealsOf(page)).toEqual([]);
 
-      release();
+      await pygardonOpen.release();
       await expectMembership(page, {
         taken: [],
         backlog: pygardonBacklogTitles,
@@ -124,9 +124,7 @@ test.describe("opening a Sessions sidebar Session entry", () => {
           },
         ),
       ).toBe(pygardon.revisions.published);
-      expect(pathsRead(pygardon)).toContain(
-        `PRODUCT-BACKLOG.md?ref=${pygardon.revisions.published}`,
-      );
+      expect(restMembershipAsked(pygardon.requests)).toEqual([]);
       await expect(pygardonStoryCard).toBeInViewport();
       // Asked to be brought into view smoothly, and kept there as the page
       // settled.

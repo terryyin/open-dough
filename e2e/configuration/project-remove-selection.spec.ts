@@ -7,6 +7,10 @@ import { readFileSync } from "node:fs";
 import type { ConfiguredProject } from "../../dashboard/server/projectConfiguration.ts";
 import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
 import { projectAddMachine } from "../../dashboard/test-support/support/projectAddMachine.ts";
+import {
+  readsOfRepository,
+  restMembershipAsked,
+} from "../../dashboard/test-support/originObservation.ts";
 import { expectProjectChoice } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   openUntilRead,
@@ -68,6 +72,7 @@ test("removing the first project selects its next neighbor and reads that projec
   await expect(
     page.getByRole("radio", { name: removed.label, exact: true }),
   ).toBeChecked();
+  const asked = server.github.calls.length;
   await settings(page).click();
   await removeProject(page, removed.label);
   await back(page).click();
@@ -76,15 +81,18 @@ test("removing the first project selects its next neighbor and reads that projec
   ).toBeChecked();
   await expect(settings(page)).toBeFocused();
   await expectProjectChoice(page, nextProject.label);
+  // Opened from its verified Git trunk, the neighbor's records are read from
+  // its own repository, and REST never resolves its ref or backlog.
   await expect
-    .poll(() => server.ghCalls(), { timeout: 5_000 })
-    .toContainEqual([
-      "api",
-      "--include",
-      `repos/${nextProject.repository}/commits/${nextProject.ref}`,
-      "--jq",
-      ".sha",
-    ]);
+    .poll(
+      () =>
+        readsOfRepository(
+          server.github.calls.slice(asked),
+          nextProject.repository,
+        ).length,
+    )
+    .toBeGreaterThan(0);
+  expect(restMembershipAsked(server.github.calls)).toEqual([]);
   expect(
     (JSON.parse(readFileSync(file, "utf8")) as ConfiguredProject[]).map(
       ({ id }) => id,

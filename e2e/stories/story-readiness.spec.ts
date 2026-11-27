@@ -46,6 +46,7 @@ import {
 } from "../../dashboard/test-support/queuedPlanNavigation.ts";
 import { publishTwoSlicesDone } from "../../dashboard/test-support/storyReadinessPublications.ts";
 import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
 
 const openDoughRepository = "terryyin/open-dough";
 const doughnutRepository = "nerds-odd-e/doughnut";
@@ -121,12 +122,9 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
   );
   await expectAgreeingFragment(taken, openDoughRepository, openDough.revision);
 
-  await test.step("the gh request budget is 3 + S + P for three stories in one seed with two plans (the third is the agent setting file)", () => {
+  await test.step("the gh request budget is S + P + 1 for three stories in one seed with two plans (the one is the agent setting file), with the backlog read from Git", () => {
+    expect(restMembershipAsked(openDoughOrigin.requests)).toEqual([]);
     const paths = contentPathsRead(openDoughOrigin);
-    expect(paths[0]).toBe("main");
-    expect(paths).toContain(
-      `.planning/PRODUCT-BACKLOG.md?ref=${openDough.revision}`,
-    );
     expect(paths).toContain(
       `.planning/seeds/SEED-075-readiness.md?ref=${openDough.revision}`,
     );
@@ -139,11 +137,8 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
     expect(paths).toContain(
       `.planning/open-dough.json?ref=${openDough.revision}`,
     );
-    expect(paths).toHaveLength(6);
-    const distinctFiles = new Set(
-      paths.filter((path) => path !== "main").map((path) => path.split("?")[0]),
-    );
-    expect(distinctFiles.size).toBe(5);
+    expect(paths).toHaveLength(4);
+    expect(new Set(paths.map((path) => path.split("?")[0])).size).toBe(4);
   });
 
   await test.step("opening already-loaded preparation facts and identity costs no extra read", async () => {
@@ -205,11 +200,14 @@ test("story readiness shows labeled preparation on backlog cards from CLI-commit
     // The project setting file is read last, with the agent profiles, which
     // no card here shows as reading.
     await untilPageReadsAnswered(page);
+    expect(restMembershipAsked(doughnutOrigin.requests)).toEqual([]);
+    // planless seed + legacy + malformed + external seeds + the agent
+    // setting file, each at the verified trunk.
     const doughnutPaths = contentPathsRead(doughnutOrigin);
-    expect(doughnutPaths[0]).toBe("main");
-    // main + backlog + planless seed + legacy + malformed + external seeds
-    // + the agent setting file.
-    expect(doughnutPaths).toHaveLength(7);
+    expect(doughnutPaths).toContain(
+      `.planning/open-dough.json?ref=${doughnut.revision}`,
+    );
+    expect(doughnutPaths).toHaveLength(5);
   });
   await chooseProject(page, "Open Dough");
   // Preparation may arrive before profiles. The no-extra-read check below

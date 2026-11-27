@@ -4,12 +4,12 @@
 // conditional check, every published branch head at once. How `gh` runs and
 // fails is `./ghRead.ts`.
 
-import { askGh, execGh, GhFailure, isNotFound, runGh } from "./ghRead.ts";
+import { execGh, GhFailure, isNotFound, runGh } from "./ghRead.ts";
 import { commitShaPattern } from "../src/authenticatedReadRules.ts";
 
-// Which commit a ref alone names, asked for `.sha` alone: what a membership
-// read resolves before reading the backlog, and what a revision check asks
-// when the branch-head listing fails.
+// Which commit a ref alone names, asked for `.sha` alone: what a revision
+// check asks when the branch-head listing fails, and what feedback maintenance
+// and a follow-up story resolve before reading at that commit.
 function refEndpoint(repository: string, ref: string): string {
   return `repos/${repository}/commits/${ref.split("/").map(encodeURIComponent).join("/")}`;
 }
@@ -22,18 +22,15 @@ function commitNamedBy(sha: string): string {
   return revision;
 }
 
-// Which commit `ref` names, and when GitHub was asked: a request that joined
-// a resolution another request started answers that resolution's time.
+// Which commit `ref` names.
 export async function resolveRevisionViaGh(
   repository: string,
   ref: string,
   signal: AbortSignal,
-): Promise<{ readonly revision: string; readonly askedAt: string }> {
-  const { stdout, askedAt } = await askGh(
-    ["api", refEndpoint(repository, ref), "--jq", ".sha"],
-    signal,
+): Promise<string> {
+  return commitNamedBy(
+    await runGh(["api", refEndpoint(repository, ref), "--jq", ".sha"], signal),
   );
-  return { revision: commitNamedBy(stdout), askedAt };
 }
 
 // Which commit the published branch `branch` names now, or undefined when

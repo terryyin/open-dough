@@ -31,7 +31,10 @@ import {
   passingActionsAnswer,
   targetHistoryAnswer,
 } from "./support/baseCiActions.ts";
-import { routeOriginThroughServedHomes } from "./support/fixtureOriginRoute.ts";
+import {
+  disconnectOriginThroughServedHomes,
+  routeOriginThroughServedHomes,
+} from "./support/fixtureOriginRoute.ts";
 
 export type ActionsAnswerer = (
   argv: readonly string[],
@@ -52,6 +55,8 @@ export type CommittedOrigin = {
   // Overrides the default passing Actions answer until restore.
   serveActions(answerer: ActionsAnswerer): () => void;
   advanceTo(revision: string): void;
+  // Git under every served HOME cannot reach the origin until reconnect.
+  disconnectGit(): () => void;
 };
 
 export function publishCommittedOrigin(
@@ -223,17 +228,16 @@ export function publishCommittedOrigin(
       revision = next;
       if (!follows) publishBranch(repoDir, branch, next);
     },
+    disconnectGit: () =>
+      disconnectOriginThroughServedHomes(github, repoDir, repository),
   });
 }
 
+// The files origin was asked for, in order, as `<path>?ref=<revision>`.
 export function contentPathsRead(origin: CommittedOrigin): string[] {
-  return origin.requests.map(({ request }) => {
-    if (request.kind === "ref") {
-      return request.ref;
-    }
-    if (request.kind === "content") {
-      return `${request.path}?ref=${request.revision}`;
-    }
-    return "unknown";
-  });
+  return origin.requests.flatMap(({ request }) =>
+    request.kind === "content"
+      ? [`${request.path}?ref=${request.revision}`]
+      : [],
+  );
 }

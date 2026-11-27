@@ -49,10 +49,14 @@ import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 import { preparationFacts } from "../../dashboard/test-support/storyCardFacts.ts";
 import {
   expectRecoversAfter,
-  mainReads,
+  noteColdOpens,
   openThenFailCheck,
+  originUnreachable,
   transientRecovery,
 } from "../../dashboard/test-support/transientRecoveryPage.ts";
+import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
+import { unansweredWithinReadWait } from "../../dashboard/src/readWaitBound.ts";
+import { holdTrunkTransfer } from "../../dashboard/test-support/heldTrunkTransfer.ts";
 
 const opened = new Date("2026-09-20T08:30:00.000Z");
 
@@ -65,17 +69,18 @@ test("a hidden page asks no recovery, retains its due time through hide/reveal, 
   await pausePageClockAt(page, opened);
   const origin = await publishMovingHistory(page, rawA, "A", afterGitHubStops);
   const { A: revisionA } = origin.revisions;
-  const restore = origin.answerWith("main", httpErrorAnswer(503));
+  const opens = noteColdOpens(page, "open-dough");
+  const reconnect = origin.disconnectGit();
   await page.goto("/");
   await expectProblemAndNoSnapshot(
     page,
-    "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
+    originUnreachable(),
     transientRecovery,
   );
   await untilPageReadsAnswered(page);
   const failed = await failedAt(page);
   await expectRecoversAfter(page, failed, 15);
-  expect(mainReads(origin)).toBe(1);
+  expect(opens).toHaveLength(1);
 
   await test.step("repeated hide/reveal before the due time does not reset the backoff step", async () => {
     await setPageVisibility(page, "hidden");
@@ -83,36 +88,38 @@ test("a hidden page asks no recovery, retains its due time through hide/reveal, 
     await setPageVisibility(page, "visible");
     await setPageVisibility(page, "hidden");
     await setPageVisibility(page, "visible");
-    expect(mainReads(origin)).toBe(1);
+    expect(opens).toHaveLength(1);
     await expectRecoversAfter(page, failed, 15);
   });
 
   await test.step("hidden across the due time, the page asks nothing and keeps the recovery notice", async () => {
     await setPageVisibility(page, "hidden");
     await page.clock.runFor(15_000);
-    expect(mainReads(origin)).toBe(1);
+    expect(opens).toHaveLength(1);
     await expect(parts(page).problem).toContainText(transientRecovery);
     await expectRecoversAfter(page, failed, 15);
   });
 
   await test.step("seen again when due, one recovery is asked and heals without reload", async () => {
-    restore();
+    reconnect();
     await setPageVisibility(page, "visible");
     await page.clock.runFor(1);
     await untilPageReadsAnswered(page);
-    expect(mainReads(origin)).toBe(2);
+    expect(opens).toHaveLength(2);
     await inspectDashboardStory(page);
     await expectSettledPage(page, titlesOfA);
     await expect(parts(page).readRevision).toContainText(
       shortRevision(revisionA),
     );
     await expect(parts(page).problem).toHaveCount(0);
+    expect(restMembershipAsked(origin.requests)).toEqual([]);
   });
 });
 
 test("two pages share a recovery read: one hides while the other finishes; the first recovers once when seen again", async ({
   page,
   afterGitHubStops,
+  dashboard,
 }) => {
   await pausePageClockAt(page, opened);
   const origin = await publishMovingHistory(
@@ -121,46 +128,40 @@ test("two pages share a recovery read: one hides while the other finishes; the f
     "A",
     afterGitHubStops,
   );
-  const restore = origin.answerWith("main", httpErrorAnswer(503));
-  await page.goto("/");
-  await expectProblemAndNoSnapshot(
-    page,
-    "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-    transientRecovery,
-  );
-  await untilPageReadsAnswered(page);
+  const transfer = holdTrunkTransfer(dashboard.home, "terryyin/open-dough");
   const other = await page.context().newPage();
-  await other.goto("/");
-  await expectProblemAndNoSnapshot(
-    other,
-    "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-    transientRecovery,
-  );
-  await untilPageReadsAnswered(other);
-  restore();
-  const releaseMain = origin.hold("main");
+  const opens = [page, other].map((tab) => noteColdOpens(tab, "open-dough"));
+  await Promise.all([page.goto("/"), other.goto("/")]);
+  await transfer.held;
+  await page.clock.runFor(30_000);
+  for (const tab of [page, other])
+    await expectProblemAndNoSnapshot(
+      tab,
+      unansweredWithinReadWait,
+      transientRecovery,
+    );
   await page.clock.runFor(15_250);
 
-  await test.step("both pages' recovery waits reach the held ref", async () => {
-    await expect.poll(() => mainReads(origin)).toBeGreaterThanOrEqual(3);
+  await test.step("both pages' recovery waits reach the held transfer", async () => {
+    await expect.poll(() => opens.map((asked) => asked.length)).toEqual([2, 2]);
   });
 
   await test.step("hiding one page leaves the other to finish the shared read", async () => {
     await setPageVisibility(page, "hidden");
-    releaseMain();
+    await transfer.release();
     await expectSettledPage(other, titlesOfA);
     await expect(parts(other).problem).toHaveCount(0);
     await expect(parts(page).problem).toBeVisible();
   });
 
   await test.step("the hidden page recovers once when seen again", async () => {
-    const before = mainReads(origin);
     await setPageVisibility(page, "visible");
     await page.clock.runFor(1);
     await untilPageReadsAnswered(page);
     await expectSettledPage(page, titlesOfA);
     await expect(parts(page).problem).toHaveCount(0);
-    expect(mainReads(origin)).toBeGreaterThan(before);
+    expect(opens[0]).toHaveLength(3);
+    expect(restMembershipAsked(origin.requests)).toEqual([]);
   });
 });
 

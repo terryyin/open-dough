@@ -19,22 +19,19 @@ import {
   storyCard,
 } from "../../dashboard/test-support/storyCardControls.ts";
 import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
-import {
-  backlogPath,
-  pathsRead,
-  rateLimitedAnswer,
-} from "../../dashboard/test-support/publishedOrigin.ts";
+import { backlogPath } from "../../dashboard/test-support/publishedOrigin.ts";
+import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
+import type { GhCall } from "../../dashboard/test-support/support/fakeGitHub.ts";
+import { holdTrunkTransfer } from "../../dashboard/test-support/heldTrunkTransfer.ts";
 
 import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
 import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 
-const openDoughSharedTitleFirst =
-  "Open Dough's first telling of the shared story";
-const openDoughSharedTitleSecond =
-  "Open Dough's second telling of the shared story";
-const openDoughSharedTitleThird =
-  "Open Dough's third telling of the shared story";
+const telling = (n: string) => `Open Dough's ${n} telling of the shared story`;
+const openDoughSharedTitleFirst = telling("first");
+const openDoughSharedTitleSecond = telling("second");
+const openDoughSharedTitleThird = telling("third");
 
 const sharedStoryTold = (title: string) =>
   makeMe.aBacklogEntry
@@ -60,9 +57,12 @@ const doughnutHistory = makeMe.aRepository
   .withRevision("published", { files: { [backlogPath]: doughnutBacklog } })
   .please();
 
+// Doughnut's cold open is held at its Git transfer.
 async function openBothOrigins(
   page: Page,
+  home: string,
   afterGitHubStops: (cleanup: () => Promise<void>) => void,
+  doughnutPublished: typeof doughnutHistory = doughnutHistory,
 ) {
   const openDough = await publishMovingHistory(
     page,
@@ -72,33 +72,41 @@ async function openBothOrigins(
   );
   const doughnut = await publishMovingHistory(
     page,
-    doughnutHistory,
+    doughnutPublished,
     "published",
     afterGitHubStops,
     doughnutRepository,
   );
+  const doughnutTransfer = holdTrunkTransfer(home, doughnutRepository);
   await page.goto("/");
   await expectMembership(page, {
     taken: [],
     backlog: [openDoughSharedTitleFirst],
   });
-  return { openDough, doughnut };
+  return { openDough, doughnut, doughnutTransfer };
 }
+
+const expectNoRestMembership = (...origins: { requests: GhCall[] }[]) => {
+  expect(
+    origins.flatMap(({ requests }) => restMembershipAsked(requests)),
+  ).toEqual([]);
+};
 
 test.describe("project read isolation", () => {
   test("a late success from a deselected project's outstanding read never replaces the newly selected project's shown work, and the selector stays keyboard-operable throughout", async ({
     page,
     afterGitHubStops,
+    dashboard,
   }) => {
-    const { openDough, doughnut } = await openBothOrigins(
+    const { openDough, doughnut, doughnutTransfer } = await openBothOrigins(
       page,
+      dashboard.home,
       afterGitHubStops,
     );
     const { project, backlog, readRevision } = parts(page);
 
-    const releaseDoughnut = doughnut.hold("main");
     await projectTab(page, "Doughnut").check();
-    await expect.poll(() => doughnut.requests.length).toBeGreaterThan(0);
+    await doughnutTransfer.held;
 
     await test.step("the selector is never blocked while Doughnut's read is outstanding", async () => {
       const selectedProject = project.getByRole("radio", { checked: true });
@@ -127,14 +135,14 @@ test.describe("project read isolation", () => {
     await expect(secondLink).toBeFocused();
 
     await test.step("Doughnut's held read answers late with success, after Open Dough is already shown", async () => {
-      releaseDoughnut();
+      await doughnutTransfer.releaseIfHeld();
       // Switching aborted the old read, so release cannot revive it.
       await expect(page.locator("body")).not.toContainText(doughnutSharedTitle);
       await expect(readRevision).toContainText(
         shortRevision(openDough.revisions.second),
       );
       await expect(projectTab(page, "Open Dough")).toBeChecked();
-      expect(doughnut.requests).toHaveLength(1);
+      expectNoRestMembership(openDough, doughnut);
     });
 
     await test.step("focus stayed in the selection context: the late response did not pull it onto Doughnut's cards or the board", async () => {
@@ -146,17 +154,17 @@ test.describe("project read isolation", () => {
   test("a late failure from a deselected project's outstanding read never surfaces as the newly selected project's failure", async ({
     page,
     afterGitHubStops,
+    dashboard,
   }) => {
-    const { openDough, doughnut } = await openBothOrigins(
+    // Doughnut's trunk has no backlog, so its released open fails.
+    const { openDough, doughnut, doughnutTransfer } = await openBothOrigins(
       page,
+      dashboard.home,
       afterGitHubStops,
+      makeMe.aRepository.withRevision("published", { files: {} }).please(),
     );
-    const { readRevision } = parts(page);
-
-    doughnut.answerWith("main", rateLimitedAnswer());
-    const releaseDoughnut = doughnut.hold("main");
     await projectTab(page, "Doughnut").check();
-    await expect.poll(() => doughnut.requests.length).toBeGreaterThan(0);
+    await doughnutTransfer.held;
 
     openDough.advanceTo("second");
     await projectTab(page, "Open Dough").check();
@@ -166,16 +174,16 @@ test.describe("project read isolation", () => {
     });
 
     await test.step("Doughnut's held read answers late with a failure, after Open Dough is already shown", async () => {
-      releaseDoughnut();
+      await doughnutTransfer.releaseIfHeld();
       await expect(page.getByRole("alert")).toHaveCount(0);
       await expectMembership(page, {
         taken: [],
         backlog: [openDoughSharedTitleSecond],
       });
-      await expect(readRevision).toContainText(
+      await expect(parts(page).readRevision).toContainText(
         shortRevision(openDough.revisions.second),
       );
-      expect(doughnut.requests).toHaveLength(1);
+      expectNoRestMembership(openDough, doughnut);
     });
   });
 
@@ -184,8 +192,9 @@ test.describe("project read isolation", () => {
     afterGitHubStops,
     dashboard,
   }) => {
-    const { openDough, doughnut } = await openBothOrigins(
+    const { openDough, doughnut, doughnutTransfer } = await openBothOrigins(
       page,
+      dashboard.home,
       afterGitHubStops,
     );
     const pins = openDough.revisions;
@@ -201,9 +210,9 @@ test.describe("project read isolation", () => {
     );
     const { backlog, readRevision } = parts(page);
 
-    const releaseDoughnut = doughnut.hold("main");
     await projectTab(page, "Doughnut").check();
-    await expect.poll(() => doughnut.requests.length).toBeGreaterThan(0);
+    await doughnutTransfer.held;
+    const doughnutTransfers = doughnutTransfer.log();
 
     openDough.advanceTo("third");
     expect(await routedHead("terryyin/open-dough")).toBe(pins.third);
@@ -219,14 +228,9 @@ test.describe("project read isolation", () => {
         openDoughSharedTitleFirst,
       );
       await expect(page.locator("body")).not.toContainText(doughnutSharedTitle);
-      // The mount and return read Open Dough; Doughnut is never retried.
-      expect(pathsRead(openDough)).toEqual([
-        "main",
-        `PRODUCT-BACKLOG.md?ref=${pins.first}`,
-        "main",
-        `PRODUCT-BACKLOG.md?ref=${pins.third}`,
-      ]);
-      expect(doughnut.requests).toHaveLength(1);
+      // Open Dough is read from Git; Doughnut's transfer is never retried.
+      expectNoRestMembership(openDough, doughnut);
+      expect(doughnutTransfer.log()).toBe(doughnutTransfers);
     });
 
     const thirdCard = backlog.getByRole("article", {
@@ -235,7 +239,7 @@ test.describe("project read isolation", () => {
     const record = await focusCanonicalRecord(thirdCard);
 
     await test.step("Doughnut's stale first-round read answers even later; the third Open Dough read still stands", async () => {
-      releaseDoughnut();
+      await doughnutTransfer.releaseIfHeld();
       await expectMembership(page, {
         taken: [],
         backlog: [openDoughSharedTitleThird],

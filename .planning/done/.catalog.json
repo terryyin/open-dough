@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-430_open-the-board-from-the-verified-git-trunk.json",
+      "identity": "SEED-430#open-the-board-from-the-verified-git-trunk",
+      "completedAt": "2026-11-27T07:52:35.229Z",
+      "blob": "b0490370e15c6523f7e4b10e7b1fb56184350b84"
+    },
+    {
       "fileName": "SEED-413_intent-story-cases-at-component-speed.json",
       "identity": "SEED-413#intent-story-cases-at-component-speed",
       "completedAt": "2026-11-27T06:12:14.186Z",
@@ -3486,12 +3492,6 @@
       "identity": "SEED-157#check-stalled-delegated-verification",
       "completedAt": "2026-10-28T08:42:24.360Z",
       "blob": "fe23f46be8d0a84b99752cd6749daf2d7c7cc17f"
-    },
-    {
-      "fileName": "SEED-159_cursor-start-opens-the-session.json",
-      "identity": "SEED-159#cursor-start-opens-the-session",
-      "completedAt": "2026-10-28T07:48:54.651Z",
-      "blob": "ea8e44305461c61f20a050cb9e407e1955bcf2e8"
     }
   ],
   "unreadable": []

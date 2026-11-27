@@ -210,7 +210,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     dashboard,
     afterGitHubStops,
   }) => {
-    const { holdPygardonStories } = await openNavigationJourney(
+    const { holdPygardonOpen } = await openNavigationJourney(
       page,
       dashboard,
       columnsJourney,
@@ -221,7 +221,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
     const panel = terminalPanel(page);
     await button.click();
 
-    const release = holdPygardonStories();
+    const pygardonOpen = holdPygardonOpen();
     await entry(pygardonStory.title).click();
     await expect(panel.getByRole("heading")).toHaveText(pygardonStory.title);
     if (await sidebar.isVisible()) await button.click();
@@ -231,7 +231,7 @@ test.describe("opening a Sessions sidebar Session entry, in its other cases", ()
       taken: [],
       backlog: [doughnutSharedTitle],
     });
-    release();
+    await pygardonOpen.release();
 
     await chooseProject(page, "Pygardon");
     await expect(

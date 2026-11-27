@@ -12,16 +12,22 @@ import path from "node:path";
 
 type FixtureOrigin = { readonly machine: string; readonly project: string };
 
-export const fixtureReviewRepository = (machine: string) =>
+// The Review repository a dashboard running under `home` keeps for
+// `repository`.
+export const homeReviewRepository = (
+  home: string,
+  repository = "terryyin/open-dough",
+) =>
   path.join(
-    machine,
-    "home",
+    home,
     ".open-dough",
     "dashboard",
     "review-repositories",
-    "terryyin",
-    "open-dough.git",
+    `${repository}.git`,
   );
+
+export const fixtureReviewRepository = (machine: string) =>
+  homeReviewRepository(path.join(machine, "home"));
 
 const git = (cwd: string, env: NodeJS.ProcessEnv, ...args: string[]) =>
   execFileSync("git", args, { cwd, env, encoding: "utf8" }).trim();

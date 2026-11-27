@@ -1,9 +1,10 @@
-// An empty dashboard recovers from eligible temporary GitHub failures on its
-// own: a visible page says when it will read again, waits 15, 30, 60, then 60
-// seconds after settlement, and obtains membership when GitHub answers. The
-// page, local boundary, and `gh` invocation are the production ones; only
-// GitHub's answers are supplied. Page time is paused. Access and other
-// non-retry cases live in ./transient-read-exclusions.spec.ts.
+// An empty dashboard recovers from eligible temporary failures on its own: a
+// visible page says when it will read again, waits 15, 30, 60, then 60 seconds
+// after settlement, and opens the Board at the verified Git trunk when origin
+// answers, never asking REST for membership. The page, local boundary, Git and
+// `gh` invocations are the production ones; only origin is supplied. Page time
+// is paused. Access and other non-retry cases live in
+// ./transient-read-exclusions.spec.ts.
 
 import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 import {
@@ -19,10 +20,9 @@ import {
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   detailContentPaths,
-  httpErrorAnswer,
   noConnection,
-  pathsRead,
 } from "../../dashboard/test-support/publishedOrigin.ts";
+import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
 import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   inspectDashboardStory,
@@ -36,42 +36,45 @@ import {
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   expectRecoversAfter,
-  mainReads,
+  noteColdOpens,
   openThenFailCheck,
+  originUnreachable,
   transientRecovery,
 } from "../../dashboard/test-support/transientRecoveryPage.ts";
+import { holdTrunkTransfer } from "../../dashboard/test-support/heldTrunkTransfer.ts";
 
 const opened = new Date("2026-09-20T08:30:00.000Z");
 
 const rawA = refreshHistory({ filesAtA: {} });
 
-test("an empty page's continuing 503s wait 15, then 30, then 60, then 60 seconds after settlement, and a later answer publishes membership without reload", async ({
+test("an empty page's unavailable origin waits 15, then 30, then 60, then 60 seconds after settlement, and a later answer opens the Board without reload", async ({
   page,
   afterGitHubStops,
 }) => {
   await pausePageClockAt(page, opened);
   const origin = await publishMovingHistory(page, rawA, "A", afterGitHubStops);
   const { A: revisionA } = origin.revisions;
-  const restore = origin.answerWith("main", httpErrorAnswer(503));
+  const opens = noteColdOpens(page, "open-dough");
+  const reconnect = origin.disconnectGit();
   await page.goto("/");
   await expectProblemAndNoSnapshot(
     page,
-    "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
+    originUnreachable(),
     transientRecovery,
   );
   await untilPageReadsAnswered(page);
-  expect(mainReads(origin)).toBe(1);
+  expect(opens).toHaveLength(1);
   await expectRecoversAfter(page, await failedAt(page), 15);
 
   await test.step("the second attempt is not asked before 15 seconds", async () => {
     await page.clock.runFor(14_000);
-    expect(mainReads(origin)).toBe(1);
+    expect(opens).toHaveLength(1);
     await page.clock.runFor(1_250);
     await untilPageReadsAnswered(page);
-    expect(mainReads(origin)).toBe(2);
+    expect(opens).toHaveLength(2);
     await expectProblemAndNoSnapshot(
       page,
-      "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
+      originUnreachable(),
       transientRecovery,
     );
     await expectRecoversAfter(page, await failedAt(page), 30);
@@ -79,22 +82,22 @@ test("an empty page's continuing 503s wait 15, then 30, then 60, then 60 seconds
 
   await test.step("the third attempt waits 30 seconds, then 60, then 60", async () => {
     await page.clock.runFor(29_000);
-    expect(mainReads(origin)).toBe(2);
+    expect(opens).toHaveLength(2);
     await page.clock.runFor(1_250);
     await untilPageReadsAnswered(page);
-    expect(mainReads(origin)).toBe(3);
+    expect(opens).toHaveLength(3);
     await expectRecoversAfter(page, await failedAt(page), 60);
 
     await page.clock.runFor(59_000);
-    expect(mainReads(origin)).toBe(3);
+    expect(opens).toHaveLength(3);
     await page.clock.runFor(1_250);
     await untilPageReadsAnswered(page);
-    expect(mainReads(origin)).toBe(4);
+    expect(opens).toHaveLength(4);
     await expectRecoversAfter(page, await failedAt(page), 60);
   });
 
-  await test.step("GitHub's later answer is read on its own and membership is shown", async () => {
-    restore();
+  await test.step("origin's later answer is read on its own and the Board is shown", async () => {
+    reconnect();
     await page.clock.runFor(61_250);
     await untilPageReadsAnswered(page);
     await inspectDashboardStory(page);
@@ -104,53 +107,7 @@ test("an empty page's continuing 503s wait 15, then 30, then 60, then 60 seconds
       [],
     );
     await expect(parts(page).problem).toHaveCount(0);
-  });
-});
-
-test("a pinned backlog's eligible failure recovers on its own; a later successful ref does not reset that wait", async ({
-  page,
-  afterGitHubStops,
-}) => {
-  await pausePageClockAt(page, opened);
-  const origin = await publishMovingHistory(page, rawA, "A", afterGitHubStops);
-  const { A: revisionA } = origin.revisions;
-  const restoreBacklog = origin.answerWith(revisionA, httpErrorAnswer(503));
-  await page.goto("/");
-  await expectProblemAndNoSnapshot(
-    page,
-    `GitHub answered HTTP 503 to the local GitHub CLI while reading .planning/PRODUCT-BACKLOG.md at ${revisionA}.`,
-    transientRecovery,
-  );
-  await untilPageReadsAnswered(page);
-  expect(mainReads(origin)).toBe(1);
-
-  await test.step("the next attempt is asked after 15 seconds, the ref answers, and the backlog still fails", async () => {
-    await page.clock.runFor(15_250);
-    await untilPageReadsAnswered(page);
-    expect(mainReads(origin)).toBe(2);
-    await expectProblemAndNoSnapshot(
-      page,
-      `GitHub answered HTTP 503 to the local GitHub CLI while reading .planning/PRODUCT-BACKLOG.md at ${revisionA}.`,
-      transientRecovery,
-    );
-    await expectRecoversAfter(page, await failedAt(page), 30);
-  });
-
-  await test.step("the unresolved backlog wait stays 30 seconds despite the successful ref", async () => {
-    await page.clock.runFor(14_000);
-    expect(mainReads(origin)).toBe(2);
-    await page.clock.runFor(1_250);
-    expect(mainReads(origin)).toBe(2);
-    restoreBacklog();
-    await page.clock.runFor(15_000);
-    await untilPageReadsAnswered(page);
-    await inspectDashboardStory(page);
-    await expectWholeSnapshot(
-      page,
-      { revision: revisionA, titles: titlesOfA },
-      [],
-    );
-    expect(mainReads(origin)).toBe(3);
+    expect(restMembershipAsked(origin.requests)).toEqual([]);
   });
 });
 
@@ -183,15 +140,17 @@ test("a lost connection is recovered on its own at the next check", async ({
 test("a stalled read at the wait bound recovers on its own without a reload", async ({
   page,
   afterGitHubStops,
+  dashboard,
 }) => {
   await page.clock.install({ time: opened });
   const origin = await publishMovingHistory(page, rawA, "A", afterGitHubStops);
   const { A: revisionA } = origin.revisions;
-  const releaseRef = origin.hold("main");
+  const transfer = holdTrunkTransfer(dashboard.home, "terryyin/open-dough");
+  const opens = noteColdOpens(page, "open-dough");
   await page.goto("/");
   const { problem, status } = parts(page);
   await expect(status).toHaveText("Reading published work…");
-  await expect.poll(() => pathsRead(origin)).toEqual(["main"]);
+  await transfer.held;
   await page.clock.pauseAt(new Date(opened.getTime() + 5_000));
 
   await test.step("before the bound the read is still awaited", async () => {
@@ -212,10 +171,10 @@ test("a stalled read at the wait bound recovers on its own without a reload", as
   await test.step("the late first answer publishes nothing; the next read is asked after settlement", async () => {
     const failed = await failedAt(page);
     await expectRecoversAfter(page, failed, 15);
-    releaseRef();
+    await transfer.release();
     const remaining = failed + 15_000 - (await page.evaluate(() => Date.now()));
     await page.clock.runFor(Math.max(0, remaining - 1_000));
-    expect(pathsRead(origin)).toEqual(["main"]);
+    expect(opens).toHaveLength(1);
     expect(headsChecks(githubFor(page).calls)).toEqual([]);
     await expect(problem).toBeVisible();
   });
@@ -229,12 +188,9 @@ test("a stalled read at the wait bound recovers on its own without a reload", as
       [],
     );
     await expect(problem).toHaveCount(0);
-    // Membership stays ref+backlog; detail is established absence, not lost.
-    expect(pathsRead(origin)).toEqual([
-      "main",
-      "main",
-      `PRODUCT-BACKLOG.md?ref=${revisionA}`,
-    ]);
+    expect(opens).toHaveLength(2);
+    // Membership is Git's; detail is established absence, not lost.
+    expect(restMembershipAsked(origin.requests)).toEqual([]);
     expect(detailContentPaths(githubFor(page).calls).sort()).toEqual(
       [
         `PLAN.md?ref=${revisionA}`,

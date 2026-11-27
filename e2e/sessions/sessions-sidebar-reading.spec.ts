@@ -109,7 +109,7 @@ test.describe("the Sessions sidebar's reading", () => {
     dashboard.claudeScenario("launched");
     const { answer } = await holdSessionReads(page);
     const boardPage = await openInstalledStoryBoard(page, origin, {
-      follows: false,
+      keepsOpenedTrunk: true,
     });
     const { sidebar, button, entries } = sessionsSidebarParts(page);
     const { recentlyDone, board } = parts(page);

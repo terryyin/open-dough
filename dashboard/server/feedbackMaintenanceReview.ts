@@ -27,10 +27,10 @@ export function publishedReview(): ReviewRead {
   return async (source, signal) => {
     let revision: string;
     try {
-      ({ revision } = await withReadDiagnosticContext(
+      revision = await withReadDiagnosticContext(
         { source: source.id, category: "ref" },
         () => resolveRevisionViaGh(source.repository, source.ref, signal),
-      ));
+      );
     } catch {
       return { kind: "unread" };
     }

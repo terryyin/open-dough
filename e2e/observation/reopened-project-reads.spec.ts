@@ -133,7 +133,6 @@ test("reopening an unchanged project asks only which commits its ref and story b
   const firstRead = askedSince(origin, 0);
   expect(firstRead).toEqual(
     expect.arrayContaining([
-      `content ${backlogPath}@${revisionA}`,
       `content ${seedPath}@${revisionA}`,
       `content ${planPath}@${branchHead}`,
       ...reopenedAtA,
@@ -164,7 +163,7 @@ test("reopening an unchanged project asks only which commits its ref and story b
     expect(askedSince(origin, before)).toEqual(reopenedAtA);
   });
 
-  await test.step("after a new commit is published, a reload reads that commit's changed backlog and record, reuses the unchanged seed, and shows them", async () => {
+  await test.step("after a new commit is published, a reload shows that commit's backlog from the trunk and reads only the record the commit changed", async () => {
     origin.moveTrunk(origin.published.B, [
       { ...reopenedChange, sha: revisionB },
     ]);
@@ -185,10 +184,10 @@ test("reopening an unchanged project asks only which commits its ref and story b
         `branch ${branch}`,
         "compare",
         `commit ${revisionB}`,
-        `content ${backlogPath}@${revisionB}`,
         `content ${missingSeedPath}@${revisionB}`,
       ]),
     );
+    expect(asked).not.toContain(`content ${backlogPath}@${revisionB}`);
     const unchangedSeed = `content ${seedPath}@${revisionB}`;
     expect(
       asked.filter(

@@ -1,6 +1,6 @@
 import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
 import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
-import { pathsRead } from "../../dashboard/test-support/publishedOrigin.ts";
+import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
 import { pygardonRepository } from "../../dashboard/test-support/pygardonProject.ts";
 import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 // Cursor reopen from Recently done sessions: held attach keeps membership;
@@ -68,9 +68,7 @@ test("a held Cursor attach from Recently done keeps Done membership", async ({
       },
     ),
   ).toBe(pygardon.revisions.published);
-  expect(pathsRead(pygardon)).toContain(
-    `PRODUCT-BACKLOG.md?ref=${pygardon.revisions.published}`,
-  );
+  expect(restMembershipAsked(pygardon.requests)).toEqual([]);
   const shown = await showRecentlyDone(page);
   await shown.open(title).click();
   await expect(terminalPanel(page)).toBeVisible();

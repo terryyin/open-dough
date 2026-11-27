@@ -85,7 +85,7 @@ test("direction starts collapsed and opens by pointer and keyboard without readi
   await expect(directionToggle).toBeFocused();
   expect(
     pathsRead(origin).filter((path) => path.includes("PRODUCT-BACKLOG")),
-  ).toEqual([`PRODUCT-BACKLOG.md?ref=${revisionA}`]);
+  ).toEqual([]);
 });
 
 test("the opened direction reads across the whole project actions row beneath Start session, which stays in place, and closing restores the row", async ({
@@ -225,15 +225,15 @@ test("changing projects removes previous direction while reading and starts each
   await expect(body).toHaveText("No near-future direction is recorded.");
   expect(
     pathsRead(doughnut).filter((path) => path.includes("PRODUCT-BACKLOG")),
-  ).toHaveLength(1);
+  ).toEqual([]);
 
   await chooseProject(page, "Open Dough");
   await expect(readRevision).toContainText(shortRevision(revisionA));
   await expect(body).toBeHidden();
   await openDirection(page);
   await expect(body).toHaveText(fullDirection);
-  // Returning does not ask the backlog already read at revision A.
+  // Returning does not ask REST for the backlog the trunk already read.
   expect(
     pathsRead(origin).filter((path) => path.includes("PRODUCT-BACKLOG")),
-  ).toEqual([`PRODUCT-BACKLOG.md?ref=${revisionA}`]);
+  ).toEqual([]);
 });

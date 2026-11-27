@@ -7,6 +7,7 @@
 // that follow the checks themselves read them from every `gh` call
 // (./autoRefreshJourney.ts's `headsChecks`).
 
+import { backlogPath } from "./publishedOriginBasics.ts";
 import type { GhCall } from "./support/fakeGitHub.ts";
 
 // One `gh` invocation that asked an origin for its ref or a file.
@@ -42,6 +43,33 @@ export function readsBesideChecks(calls: readonly GhCall[]): string[] {
     });
 }
 
+// What `repository` alone was asked besides the checks, named as
+// `readsBesideChecks` names them.
+export function readsOfRepository(
+  calls: readonly GhCall[],
+  repository: string,
+): string[] {
+  return readsBesideChecks(
+    calls.filter(
+      ({ request }) =>
+        "repository" in request && request.repository === repository,
+    ),
+  );
+}
+
+// The Board's REST membership reads among `readsBesideChecks` output: `main`
+// resolved, or the backlog read at a revision.
+export function restMembershipReads(reads: readonly string[]): string[] {
+  return reads.filter(
+    (read) => read === "ref main" || read.startsWith(`content ${backlogPath}@`),
+  );
+}
+
+// The Board's REST membership reads among `calls`, besides the checks.
+export function restMembershipAsked(calls: readonly GhCall[]): string[] {
+  return restMembershipReads(readsBesideChecks(calls));
+}
+
 // Notes a call among what an origin was asked, unless it is a revision check.
 export function observe(observed: ObservedRequest[], call: GhCall): void {
   if (!isHeadsCheck(call)) {
@@ -49,20 +77,15 @@ export function observe(observed: ObservedRequest[], call: GhCall): void {
   }
 }
 
-// What origin was asked for, in order: the ref, or the file at a revision.
-// Revision checks are not among them (see `isHeadsCheck`).
+// The files origin was asked for, in order, each at its revision.
 export function pathsRead(origin: {
   readonly requests: readonly ObservedRequest[];
 }): string[] {
-  return origin.requests.map(({ request }) => {
-    if (request.kind === "ref") {
-      return request.ref;
-    }
-    if (request.kind === "content") {
-      return contentPathRead(request.path, request.revision);
-    }
-    return "unknown";
-  });
+  return origin.requests.flatMap(({ request }) =>
+    request.kind === "content"
+      ? [contentPathRead(request.path, request.revision)]
+      : [],
+  );
 }
 
 // Content paths among every `gh` call except the backlog membership read,

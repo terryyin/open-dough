@@ -38,11 +38,13 @@ import {
   publishedTarget,
 } from "./publishedOriginBasics.ts";
 import { defaultPassingBaseCi } from "./support/baseCiActions.ts";
-import type { RepositoryAnswerer } from "./support/fakeGitHub.ts";
+import type { GhCall, RepositoryAnswerer } from "./support/fakeGitHub.ts";
 import {
+  disconnectOriginThroughServedHomes,
   expectServedHomesReach,
   routeServedHomesToPublication,
 } from "./support/fixtureOriginRoute.ts";
+import { refuseOriginThroughServedHomes } from "./support/fixtureOriginRefusal.ts";
 import {
   commitPublishedOrigin,
   type PublishedOrigin,
@@ -86,8 +88,6 @@ export type Origin = {
     readonly revision: string;
     readonly answer: OriginAnswer;
   };
-  // Holds the ref answer back until the test lets it go.
-  readonly refHeldUntil?: Promise<void>;
 };
 
 export function publishOrigin(
@@ -99,13 +99,50 @@ export function publishOrigin(
 }
 
 // Serve the same backlog bytes from a real main commit, or a 404 when the
-// backlog is absent from that commit, with the raw publisher's ref hold.
-export function publishCommittedBacklog(
+// backlog is absent from that commit.
+export function publishCommittedBacklog(page: Page, backlog: string | null) {
+  const { published, github, requests } = commitServedOrigin(
+    page,
+    "main",
+    backlog,
+  );
+  const { revision } = published;
+  expectServedHomesReach(github, defaultRepository, revision);
+  return { revision, requests };
+}
+
+// How Git fails to verify the published trunk while GitHub REST would still
+// answer `main` and its backlog: origin cannot be reached, its trunk branch
+// is missing, or it refuses the credential with HTTP 401 or 403.
+export type GitOriginFailure =
+  "unreachable origin" | "missing trunk" | "refused 401" | "refused 403";
+
+export function publishGitOriginFailure(
   page: Page,
+  failure: GitOriginFailure,
+): void {
+  const branch = failure === "missing trunk" ? "other" : "main";
+  const { published, github } = commitServedOrigin(page, branch, "");
+  if (failure === "unreachable origin")
+    disconnectOriginThroughServedHomes(
+      github,
+      published.origin,
+      defaultRepository,
+    );
+  if (failure === "refused 401")
+    refuseOriginThroughServedHomes(github, defaultRepository, 401);
+  if (failure === "refused 403")
+    refuseOriginThroughServedHomes(github, defaultRepository, 403);
+}
+
+// A real commit on `branch` holding `backlog` (absent when null), served by
+// REST as `main` and reached by Git under every served HOME.
+function commitServedOrigin(
+  page: Page,
+  branch: string,
   backlog: string | null,
-  refHeldUntil?: Promise<void>,
 ) {
-  const published = commitPublishedOrigin({ branch: "main", backlog });
+  const published = commitPublishedOrigin({ branch, backlog });
   const { revision } = published;
   const requests = serveOrigin(
     page,
@@ -115,15 +152,13 @@ export function publishCommittedBacklog(
         revision,
         answer: backlog === null ? notFoundAnswer() : rawFileAnswer(backlog),
       },
-      ...(refHeldUntil === undefined ? {} : { refHeldUntil }),
     },
     defaultRepository,
     published,
   );
   const github = githubFor(page);
   routeServedHomesToPublication(github, defaultRepository);
-  expectServedHomesReach(github, defaultRepository, revision);
-  return { revision, requests };
+  return { published, github, requests };
 }
 
 function serveOrigin(
@@ -133,12 +168,11 @@ function serveOrigin(
   published?: PublishedOrigin,
 ): ObservedRequest[] {
   const observed: ObservedRequest[] = [];
-  const { ref, refHeldUntil, backlog } = origin;
-  const respond: RepositoryAnswerer = async (call) => {
+  const { ref, backlog } = origin;
+  const answerFor = (call: GhCall): OriginAnswer => {
     const target = publishedTarget(call);
     if (target === "main") {
       observe(observed, call);
-      await refHeldUntil;
       return call.request.kind === "matching-refs" ? asHeadsListing(ref) : ref;
     }
     if (target !== undefined && target === backlog?.revision) {
@@ -176,6 +210,8 @@ function serveOrigin(
         : undefined);
     return defaultPassingBaseCi(request, headSha) ?? noConnection;
   };
+  const respond: RepositoryAnswerer = (call) =>
+    Promise.resolve(answerFor(call));
   githubFor(page).serve(
     repository,
     published === undefined ? respond : Object.assign(respond, published),
