@@ -22,6 +22,7 @@ import {
   openSettledAtA,
   passTimeUntilAsked,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { untilPageRequestsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { holdLaterTrunkTransfers } from "../../dashboard/test-support/laterTrunkTransfers.ts";
 import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
 import {
@@ -123,29 +124,32 @@ test("Refresh after origin moved keeps A and its time through failures, then pub
   });
 });
 
-test("an automatic check begun before Refresh and settled after it leaves the Refresh's confirmation shown", async ({
+test("an automatic check that named B before Refresh published C cannot replace C or the Refresh's time", async ({
   page,
   afterGitHubStops,
 }) => {
-  const { origin, shownAt, releaseCheck } =
-    await test.step("Given the Board at A and an automatic check held after origin moved to B", async () => {
+  const { origin, releaseCheck } =
+    await test.step("Given the Board at A and an automatic check held after it found origin at B", async () => {
       const origin = await openSettledAtA(page, afterGitHubStops);
-      const shownAt = await boardConfirmedAt(page);
       origin.advanceTo("B");
       const releaseCheck = origin.hold("main");
       await passTimeUntilAsked(page);
-      return { origin, shownAt, releaseCheck };
+      return { origin, releaseCheck };
     });
   const refreshedAt =
-    await test.step("When Refresh publishes B before that check settles", async () => {
+    await test.step("When origin moves to C and Refresh publishes it before that check settles", async () => {
+      const shownAt = await boardConfirmedAt(page);
+      origin.advanceTo("C");
       await pressBoardRefresh(page);
-      await expectShownMembership(page, titlesOfB);
+      await expectPublishedRevision(page, origin.revisions.C);
       await expectBoardConfirmedAfter(page, shownAt);
       return boardConfirmedAt(page);
     });
-  await test.step("Then the settled check leaves B and the Refresh's time", async () => {
+  await test.step("Then the check settling with B leaves C and the Refresh's time", async () => {
     releaseCheck();
-    await expectPublishedRevision(page, origin.revisions.B);
+    await untilPageRequestsAnswered(page);
+    await passTimeUntilAsked(page);
+    await expectPublishedRevision(page, origin.revisions.C);
     expect(await boardConfirmedAt(page)).toBe(refreshedAt);
   });
 });

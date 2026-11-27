@@ -234,7 +234,7 @@ removed and the check never aborted, so it did not observe the promise.
 ### 6. Keep a Refresh's confirmation against an earlier automatic read
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: An automatic read begun before a Refresh and settled after it
 cannot replace the Refresh's revision or confirmation time.
@@ -246,6 +246,16 @@ late automatic result could reach the shown confirmation (the check's
 and show it fails with the protecting guard removed. If no path can reach
 it, record that with the evidence instead of a vacuous case. Budget 10
 active minutes.
+
+Delivered (3 active minutes, refactor pass skipped: subject spec only, no
+product change): the reachable path is an automatic check naming a revision
+older than the one Refresh published, whose read would show its own time.
+The case "an automatic check that named B before Refresh published C cannot
+replace C or the Refresh's time" holds the check's answer of B, publishes C
+by Refresh, then releases it. With `revisionCheckSchedule.ts`'s aborted-check
+guards removed it failed (shown time became the late read's); with them it
+passes. A read already under way when Refresh is pressed is the Refresh's
+read, and a superseded request is dropped by its aborted signal.
 
 ## Story obligations
 
