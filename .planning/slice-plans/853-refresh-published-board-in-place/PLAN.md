@@ -4,9 +4,9 @@
 
 **Identity:** SEED-430#refresh-published-board-in-place
 
-**State:** Awaiting plan realignment — not ready for execution. These mapped slices are provisional until
-[plan 856](../856-open-the-board-from-the-verified-git-trunk/PLAN.md) lands
-the verified Board open they extend.
+**State:** Awaiting plan realignment — not ready for execution. These mapped slices are provisional;
+realign them with the verified Board open that
+[plan 856](https://github.com/terryyin/open-dough/blob/d71b0c6d6dc3c767a80efc93ac03247f467d7881/.planning/slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md) delivered.
 
 **Split from:** Plan 828 on 2026-11-26
 (`6b267497e02efe0c5c24f0fdcccd17b900641fee:.planning/slice-plans/828-open-and-refresh-board-at-verified-trunk/PLAN.md`),
@@ -43,7 +43,7 @@ observation stays on its current path until
 ## Provisional ordered slices
 
 Slices 1–2 correct the delivered Board open
-([plan 856](../856-open-the-board-from-the-verified-git-trunk/PLAN.md),
+([plan 856](https://github.com/terryyin/open-dough/blob/d71b0c6d6dc3c767a80efc93ac03247f467d7881/.planning/slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md),
 retrospective 2026-11-27, revision `55b4be2bf`) before Refresh extends the
 same check.
 
@@ -131,5 +131,5 @@ restart case. Budget 14 active minutes.
 
 ## Resumption
 
-Resume through slice-plan refinement after plan 856 lands: settle the durable store design against the landed confirmation seam,
+Resume through slice-plan refinement: settle the durable store design against the landed confirmation seam,
 and measure the warm Refresh path before recording readiness.
