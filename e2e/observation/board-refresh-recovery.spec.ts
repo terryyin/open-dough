@@ -17,6 +17,7 @@ import {
   expectPublishedRevision,
   expectShownMembership,
 } from "../../dashboard/test-support/dashboardPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardParts.ts";
 import { test as base } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   openSettledAtA,
@@ -104,13 +105,10 @@ test("Refresh after origin moved keeps A and its time through failures, then pub
     transfers.release();
     await pressBoardRefresh(page);
   });
-  await test.step("Then A and its time stay beside that failure", async () => {
-    await expectBoardRefreshFailed(
-      page,
-      shownAt,
+  await test.step("Then the Board reports that the confirmation could not be saved", async () => {
+    await expect(parts(page).problem).toContainText(
       "The check of main of terryyin/open-dough could not be saved.",
     );
-    await expectShownMembership(page, titlesOfA);
   });
   await test.step("When Refresh is pressed once the record can be written", async () => {
     confirmationRecords.allow();

@@ -33,6 +33,7 @@ export async function readPublishedWork(
   fresh = false,
 ): Promise<PublishedWork> {
   return withinReadWait(signal, async (untilEither, bound) => {
+    let confirmationFailure: ReadProblem | undefined;
     try {
       // Every catalog source is read through the one local authenticated
       // boundary: one resolved revision and its raw backlog text first.
@@ -71,12 +72,13 @@ export async function readPublishedWork(
         },
       );
       const { revision, backlog: markdown, askedAt, confirmedAt } = snapshot;
-      // Origin's newer answer was not recorded, so the shown confirmation
-      // stands and this read adds nothing to it.
-      if (snapshot.unrecorded && shown?.revision === revision) {
-        throw new ReadProblem(
+      if (snapshot.unrecorded) {
+        confirmationFailure = new ReadProblem(
           `The check of ${readingRefOf(source)} could not be saved.`,
         );
+        // Keep the current view. On open, show the former confirmation
+        // through the normal progress reports before reporting the failure.
+        if (shown !== undefined) throw confirmationFailure;
       }
       const resolved = {
         ...(askedAt === undefined ? {} : { refAskedAt: askedAt }),
@@ -109,7 +111,7 @@ export async function readPublishedWork(
       // its own answers replace them; another project starts afresh.
       const carriedFrom =
         !sameRevision && shown?.source.id === source.id ? shown : undefined;
-      return await readPublishedDetails(
+      const details = await readPublishedDetails(
         reads,
         work,
         sameRevision,
@@ -120,14 +122,19 @@ export async function readPublishedWork(
         outcomes,
         onPartial,
       );
+      if (confirmationFailure !== undefined) throw confirmationFailure;
+      return details;
     } catch (error) {
       // The browser-owned wait bound, not caller departure: eligible for
       // project-local transient recovery. Departure keeps its abort reason.
       if (bound.aborted && !signal.aborted) {
-        throw new ReadProblem(
-          `${unansweredWithinReadWait}, so the read was given up.`,
-          undefined,
-          "transient",
+        throw (
+          confirmationFailure ??
+          new ReadProblem(
+            `${unansweredWithinReadWait}, so the read was given up.`,
+            undefined,
+            "transient",
+          )
         );
       }
       throw error;

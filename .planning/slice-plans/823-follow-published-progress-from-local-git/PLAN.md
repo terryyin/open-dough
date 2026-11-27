@@ -69,12 +69,27 @@ for new behavior. Use the
 before removing a REST path from Board observation or publication
 reconciliation.
 
+## Execution context
+
+Story Branch Mode in the `follow-published-progress-from-local-git` worktree
+on `codex/follow-published-progress-from-local-git`, with `origin/main` as
+trunk. The Take at `67ea32dc937aca15bbcce14f5066bf6811fc1fff` was accepted
+on trunk and on the execution branch. The starting revision was
+`111d8d6f96ed8a8090c2882a74f122eae7422546`, under publisher
+`dashboard-territory.local-open-dough` as Honoka-chan.
+
+Checkout readiness passed with repository-pinned Node 24.21.0, locked npm
+dependencies, headless Chromium, and `npm run typecheck:dashboard`. The
+Codex observer follows push workflow `ci.yml` on the execution branch,
+coordinator `honoka-430-2bf89426`, directory
+`/tmp/dough-ci-501/watch-McSdYZ`, PID 94590, session 12567, cell `g743:10`.
+
 ## Ordered slices
 
 ### 1. Report a failed confirmation whatever revision is shown
 
 Type: Behavior
-Status: planned
+Status: done
 Correction from the [plan 853 retrospective](https://github.com/terryyin/open-dough/blob/07e7c56a89041f123d48d79a5dba7ddd23e72f7b/.planning/slice-plans/853-refresh-published-board-in-place/PLAN.md#execution-complete)
 (SEED-430#refresh-published-board-in-place, `d56cd6957..e5fcbb39b`).
 
@@ -93,6 +108,14 @@ time at the same revision advances. Then narrow
 confirmation" step and `board-refresh-unchanged.spec.ts` to what only a
 browser journey proves, keeping the new unit and `board-confirmation.spec.ts`
 cases.
+
+Accepted proof: the warm and cold regressions failed before the production
+change. The candidate passed the three `published-work-confirmation` cases,
+their six frontend consumer cases, both `board-confirmation` backend cases,
+eight browser cases covering Board and launch recovery, and Dashboard
+typecheck. The independent refactor reused the shared endpoint in the
+unchanged-Board case, which passed again with typecheck. The browser proof
+retains the warning and recovery through a real failed confirmation write.
 
 ### 2. Separate stream delivery from observation demand
 
