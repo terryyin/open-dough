@@ -1,7 +1,6 @@
 // The shared-checkout evidence beside a session's published comparison.
 
-import type { Locator } from "@playwright/test";
-import { expectSharedCheckoutNote } from "./support/reviewComparisonContext.ts";
+import { expect, type Locator } from "@playwright/test";
 
 export class ReviewContext {
   readonly #review: Locator;
@@ -16,7 +15,10 @@ export class ReviewContext {
   // absence.
   async expectSharedCheckoutWarning(shown: boolean) {
     await this.#reveal();
-    await expectSharedCheckoutNote(this.#review, shown);
+    const note = this.#review.getByText(
+      "the comparison may include that session's work.",
+    );
+    await (shown ? expect(note).toBeVisible() : expect(note).toHaveCount(0));
     return this;
   }
 }

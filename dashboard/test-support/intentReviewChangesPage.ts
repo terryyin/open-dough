@@ -15,6 +15,7 @@ import {
   goToStoryHome,
 } from "./intentModePage.ts";
 import { ReviewComparison } from "./reviewChangesComparison.ts";
+import { ReviewContext } from "./reviewChangesContext.ts";
 import { ReviewLandedRun } from "./reviewChangesLandedRun.ts";
 import { ReviewDiffs } from "./reviewChangesDiffs.ts";
 import { reviewChanges } from "./storyCardControls.ts";
@@ -37,6 +38,7 @@ class IntentReviewChanges {
   readonly files: IntentReviewFiles;
   readonly diffs: ReviewDiffs;
   readonly landedRun: ReviewLandedRun;
+  readonly context: ReviewContext;
 
   constructor(
     readonly page: Page,
@@ -47,6 +49,7 @@ class IntentReviewChanges {
     const reach = () => showComparisonDetails(this.#header);
     this.comparison = new ReviewComparison(this.#header, reach);
     this.landedRun = new ReviewLandedRun(this.#header, reach);
+    this.context = new ReviewContext(this.#header, reach);
     this.files = new IntentReviewFiles(this.#intent);
     const diff = intentDiffReading(this.#intent);
     this.diffs = new ReviewDiffs(this.#intent, (file) =>

@@ -118,9 +118,11 @@ Read at `0bff20a80`.
   `useCurrentPublishedSessions` (`recentlyDoneShownLinks.ts`).
 - E2E records written with `trunkAdvancedWith` need the tip published with
   `publishCommittedOrigin(..., follows: true)`.
-- Slice 2 adds sessions known only from a retained launch (the list now
-  keeps published ones only) and the range choice (a session shows range 1).
-  Untested so far: the story's chosen run surviving a session visit.
+- Slice 2: `useStorySessionScope.ts` owns the chosen session, the list
+  (`storySessionScopes`, launch-only sessions keyed by `followUpSessionKey`
+  so a later published record merges), its review selection, `ranges` and
+  the no-comparison explanation. The launch-only case has frontend proof
+  only. Untested: the story's chosen run surviving a session visit.
 - Follow-up for slice 4: `followUpSessions.ts` and `FollowUpSession` now hold
   a story's sessions in general; rename when slice 4 reshapes that module
   (reaches `dashboard/server/followUpStory.ts`, `followUpAdmission.ts`).
@@ -157,7 +159,7 @@ excludes the others' files.
 
 ### 2. Show a session's recorded runs and shared-checkout warning in Intent
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A chosen session recorded two ranges, or shared its checkout, or
 is known only from a retained launch → Intent offers both runs under the

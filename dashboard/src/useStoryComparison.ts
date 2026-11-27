@@ -1,9 +1,7 @@
 // Keep a story's displayed published comparison while refreshing its evidence.
 
 import { useRef, useState } from "react";
-import { publishedSessionScopes } from "./followUpSessions.ts";
 import type { LaunchRecord } from "./launchRecord.ts";
-import { useCurrentPublishedSessions } from "./recentlyDoneShownLinks.ts";
 import {
   storyComparisonShown,
   type ShownStoryComparison,
@@ -11,6 +9,7 @@ import {
 import { useStoryReviewOpening } from "./pageStoryReviewOpening.tsx";
 import type { StoryReview } from "./storyReviewContract.ts";
 import { useStoryReviewSelection } from "./useStoryReviewSelection.ts";
+import { useStorySessionScope } from "./useStorySessionScope.ts";
 import type { ReviewedWorkSubject } from "./reviewedWorkSubject.ts";
 import type { StoryCompare } from "./IntentStoryCompare.tsx";
 import type { UnreadComparison } from "./StoryReviewFeedback.tsx";
@@ -70,19 +69,7 @@ export function useStoryComparison({
     taken,
     explicitOpening,
   ]);
-  // The chosen scope, a published session's UUID or the whole story.
-  const { value: session, set: setSession } = useStateKeyedBy<
-    string | undefined
-  >(undefined, keyedBy);
-  const publishedRecords = useCurrentPublishedSessions(source);
-  const sessions = publishedSessionScopes(
-    records,
-    publishedRecords,
-    source,
-    identity,
-  );
   const storySubject: ReviewedWorkSubject = { source, identity };
-  const scopeKey = JSON.stringify([keyedBy, session]);
   const { value: round, set: setRound } = useStateKeyedBy(0, keyedBy);
   const { value: includeMerged, set: setIncludeMerged } = useStateKeyedBy(
     false,
@@ -113,17 +100,17 @@ export function useStoryComparison({
     followsDefault: true,
     followInitialSync: explicitOpening !== undefined,
   });
-  // The reviewed scope: the chosen session, otherwise the whole story.
-  const subject: ReviewedWorkSubject =
-    session === undefined
-      ? storySubject
-      : { source, identity, published: session };
-  const sessionSelection = useStoryReviewSelection({
-    subject,
+  const sessionScope = useStorySessionScope({
+    records,
+    source,
+    identity,
     round,
-    enabled: enabled && session !== undefined,
-    keyedBy: scopeKey,
+    enabled,
+    keyedBy,
   });
+  const { sessions, session, onSession, scopeKey, ranges } = sessionScope;
+  // The reviewed scope: the chosen session, otherwise the whole story.
+  const subject = sessionScope.subject ?? storySubject;
   const defaultReview = storySelection.defaultReview;
   const {
     review,
@@ -133,10 +120,11 @@ export function useStoryComparison({
     onRun,
     runs,
     selectedRun,
+    runKey,
     runUnread,
     published,
     initialSync,
-  } = session === undefined ? storySelection : sessionSelection;
+  } = sessionScope.selection ?? storySelection;
   if (!enabled)
     return {
       review: undefined,
@@ -182,7 +170,8 @@ export function useStoryComparison({
       reviewKept?.kind === "published-taken") &&
     reviewKept.withMerged !== undefined;
   const unreadable =
-    readingNow || shownKept !== undefined ? undefined : runUnread;
+    sessionScope.unreadable ??
+    (readingNow || shownKept !== undefined ? undefined : runUnread);
   const hasPublishedChoice =
     published !== undefined ||
     (completed && defaultReview?.kind === "unavailable");
@@ -217,7 +206,8 @@ export function useStoryComparison({
           reading: readingNow,
           sessions,
           session,
-          onSession: setSession,
+          onSession,
+          ...(ranges === undefined ? {} : { ranges, runKey }),
         },
   };
 }

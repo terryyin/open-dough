@@ -26,14 +26,3 @@ export async function expectLandedContext(
   await expect(review.getByText(facts.base, { exact: true })).toBeVisible();
   await expect(review.getByText(facts.revision, { exact: true })).toBeVisible();
 }
-
-export async function expectSharedCheckoutNote(
-  review: Locator,
-  shown: boolean,
-) {
-  const note = review.getByText(
-    "the comparison may include that session's work.",
-  );
-  await showReviewDetails(review);
-  await (shown ? expect(note).toBeVisible() : expect(note).toHaveCount(0));
-}

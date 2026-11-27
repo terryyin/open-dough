@@ -16,7 +16,6 @@ import { untilPageRequestsAnswered } from "./pageRequestNotes.ts";
 import { reviewBody } from "./support/reviewContextLine.ts";
 import {
   expectLandedContext,
-  expectSharedCheckoutNote,
   type LandedContextFacts,
 } from "./support/reviewComparisonContext.ts";
 import { reviewRegion } from "./support/reviewControls.ts";
@@ -59,14 +58,6 @@ export class StoryReview extends PageObject {
   expectLandedContext(facts: LandedContextFacts) {
     return this.cueHere("Story review: shows the landed context", () =>
       expectLandedContext(this.#review, facts),
-    );
-  }
-
-  // The shared-checkout sentence beside the two revisions, or its absence.
-  expectSharedCheckoutNote(shown: boolean) {
-    return this.cueHere(
-      `Session review: ${shown ? "notes" : "does not note"} a shared checkout`,
-      () => expectSharedCheckoutNote(this.#review, shown),
     );
   }
 

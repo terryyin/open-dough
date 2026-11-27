@@ -7,7 +7,9 @@ import {
   type ComparisonChoice,
 } from "./StoryReviewComparison.tsx";
 import { launchKindName } from "./launchWorkflow.ts";
+import { PublishedRangeSwitch } from "./StoryReviewSessionRuns.tsx";
 import type { ReviewRunChoice } from "./storyReviewLandedRun.ts";
+import type { SessionScope } from "./followUpSessions.ts";
 
 export type StoryCompare = {
   readonly shown: ComparisonChoice | undefined;
@@ -21,14 +23,14 @@ export type StoryCompare = {
   readonly onIncludeMergedChanges: (include: boolean) => void;
   readonly onRefresh: () => void;
   readonly reading: boolean;
-  // The story's published sessions, oldest first, and the chosen one's UUID;
-  // none chosen is the whole story.
-  readonly sessions?: readonly {
-    readonly key: string;
-    readonly label: string;
-  }[];
+  // The story's sessions, oldest first, and the chosen one's key; none
+  // chosen is the whole story.
+  readonly sessions?: readonly SessionScope[];
   readonly session?: string | undefined;
   readonly onSession?: (session: string | undefined) => void;
+  // A chosen session's recorded runs, and the chosen one's position key.
+  readonly ranges?: number;
+  readonly runKey?: string | undefined;
 };
 
 const wholeStory = "whole-story";
@@ -73,6 +75,13 @@ export function IntentStoryCompare({
           onChoose={(key) => {
             compare.onSession?.(key === wholeStory ? undefined : key);
           }}
+        />
+      )}
+      {compare.ranges !== undefined && (
+        <PublishedRangeSwitch
+          ranges={compare.ranges}
+          selected={compare.runKey}
+          onSelect={compare.onRun}
         />
       )}
       {choices.length > 1 && (

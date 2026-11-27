@@ -75,29 +75,41 @@ export function storySessions(
   return [...sessions.values()];
 }
 
-// A story's published sessions as Intent's review scopes, oldest first by
-// when each started, as retained, otherwise when it closed: each keyed by its
-// UUID and named by its workflow and that time, so repeated workflows are
+// A session as one of Intent's review scopes: keyed once by its reporting
+// reference, named by its workflow and time, and carrying its published
+// record's UUID when one is listed.
+export type SessionScope = {
+  readonly key: string;
+  readonly label: string;
+  readonly published?: string;
+};
+
+// A story's sessions as Intent's review scopes, oldest first by when each
+// started, as retained, otherwise when it closed, so repeated workflows are
 // named apart.
-export function publishedSessionScopes(
+export function storySessionScopes(
   records: readonly LaunchRecord[] | undefined,
   published: readonly PublishedSessionRecord[],
   sourceId: string,
   identity: string,
-): readonly { readonly key: string; readonly label: string }[] {
+): readonly SessionScope[] {
   return storySessions(records, published, sourceId, identity)
-    .flatMap(({ retained, published: record }) => {
-      if (record === undefined) return [];
-      const time = retained?.launchedAt ?? record.closedAt;
+    .map(({ choice, retained, published: record }) => {
+      const time = retained?.launchedAt ?? record?.closedAt ?? "";
       const kind =
         retained === undefined
           ? sessionWorkflowName(record.workflow)
           : launchKindName(retained.request.workflow);
       const label = `${kind} — ${new Date(time).toLocaleString()}`;
-      return [{ time, key: record.sessionId, label }];
+      const key = followUpSessionKey(choice);
+      const scope: SessionScope =
+        record === undefined
+          ? { key, label }
+          : { key, label, published: record.sessionId };
+      return { time, scope };
     })
     .toSorted((a, b) => a.time.localeCompare(b.time))
-    .map(({ key, label }) => ({ key, label }));
+    .map(({ scope }) => scope);
 }
 
 // Follow up targets a story's sessions other than follow-ups themselves.
