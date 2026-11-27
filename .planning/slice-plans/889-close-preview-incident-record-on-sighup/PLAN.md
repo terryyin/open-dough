@@ -119,3 +119,9 @@ average 7–12, under the local gate's `caffeinate -s -i` commands:
 Slice-plan refinement was unnecessary. The change and its preservation checks
 share one production shutdown path and fit one Behavior slice without new
 test infrastructure. No unresolved slice boundary or proof-route concern.
+
+## Execution complete
+
+Product advice: no change. The fix restores accurate shutdown diagnostics
+inside the watcher's existing lifecycle. The queued sibling, "Remove old
+dashboard deployments automatically", keeps its place.
