@@ -21,7 +21,17 @@ export type StoryCompare = {
   readonly onIncludeMergedChanges: (include: boolean) => void;
   readonly onRefresh: () => void;
   readonly reading: boolean;
+  // The story's published sessions, oldest first, and the chosen one's UUID;
+  // none chosen is the whole story.
+  readonly sessions?: readonly {
+    readonly key: string;
+    readonly label: string;
+  }[];
+  readonly session?: string | undefined;
+  readonly onSession?: (session: string | undefined) => void;
 };
+
+const wholeStory = "whole-story";
 
 // A landed run's name: its launch kind and, when known, when it launched.
 export function landedRunName(run: ReviewRunChoice) {
@@ -52,6 +62,19 @@ export function IntentStoryCompare({
   ];
   return (
     <div className="intent-story-compare" aria-label="Compare" role="group">
+      {(compare.sessions?.length ?? 0) > 0 && (
+        <ComparisonChoices
+          label="Sessions"
+          choices={[
+            { key: wholeStory, label: "Whole story" },
+            ...(compare.sessions ?? []),
+          ]}
+          shown={compare.session ?? wholeStory}
+          onChoose={(key) => {
+            compare.onSession?.(key === wholeStory ? undefined : key);
+          }}
+        />
+      )}
       {choices.length > 1 && (
         <ComparisonChoices
           choices={choices}

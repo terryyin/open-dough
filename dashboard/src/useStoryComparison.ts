@@ -1,6 +1,9 @@
 // Keep a story's displayed published comparison while refreshing its evidence.
 
 import { useRef, useState } from "react";
+import { publishedSessionScopes } from "./followUpSessions.ts";
+import type { LaunchRecord } from "./launchRecord.ts";
+import { useCurrentPublishedSessions } from "./recentlyDoneShownLinks.ts";
 import {
   storyComparisonShown,
   type ShownStoryComparison,
@@ -8,7 +11,7 @@ import {
 import { useStoryReviewOpening } from "./pageStoryReviewOpening.tsx";
 import type { StoryReview } from "./storyReviewContract.ts";
 import { useStoryReviewSelection } from "./useStoryReviewSelection.ts";
-import type { ReviewedStorySubject } from "./reviewedWorkSubject.ts";
+import type { ReviewedWorkSubject } from "./reviewedWorkSubject.ts";
 import type { StoryCompare } from "./IntentStoryCompare.tsx";
 import type { UnreadComparison } from "./StoryReviewFeedback.tsx";
 import { useStateKeyedBy } from "./stateKeyedBy.ts";
@@ -20,7 +23,10 @@ export function useStoryComparison({
   completed,
   taken,
   enabled,
+  records,
 }: {
+  // This machine's retained launches, which name the story's sessions.
+  readonly records?: readonly LaunchRecord[] | undefined;
   readonly source: string;
   readonly identity: string;
   readonly completed: boolean;
@@ -44,7 +50,6 @@ export function useStoryComparison({
   // Reread publication evidence, keeping the choice.
   readonly onRefresh: () => void;
 } {
-  const subject: ReviewedStorySubject = { source, identity };
   // The choice and its refreshes belong to the story in its project. A story
   // becoming Done opens on its result.
   const opening = useStoryReviewOpening(source);
@@ -65,6 +70,19 @@ export function useStoryComparison({
     taken,
     explicitOpening,
   ]);
+  // The chosen scope, a published session's UUID or the whole story.
+  const { value: session, set: setSession } = useStateKeyedBy<
+    string | undefined
+  >(undefined, keyedBy);
+  const publishedRecords = useCurrentPublishedSessions(source);
+  const sessions = publishedSessionScopes(
+    records,
+    publishedRecords,
+    source,
+    identity,
+  );
+  const storySubject: ReviewedWorkSubject = { source, identity };
+  const scopeKey = JSON.stringify([keyedBy, session]);
   const { value: round, set: setRound } = useStateKeyedBy(0, keyedBy);
   const { value: includeMerged, set: setIncludeMerged } = useStateKeyedBy(
     false,
@@ -82,8 +100,32 @@ export function useStoryComparison({
       }
     | undefined
   >(undefined);
+  // The story's selection keeps its choices while a session is chosen; its
+  // default answer owns the story's completed result either way.
+  const storySelection = useStoryReviewSelection({
+    subject: storySubject,
+    round,
+    completed,
+    taken,
+    enabled,
+    historical: completed,
+    keyedBy,
+    followsDefault: true,
+    followInitialSync: explicitOpening !== undefined,
+  });
+  // The reviewed scope: the chosen session, otherwise the whole story.
+  const subject: ReviewedWorkSubject =
+    session === undefined
+      ? storySubject
+      : { source, identity, published: session };
+  const sessionSelection = useStoryReviewSelection({
+    subject,
+    round,
+    enabled: enabled && session !== undefined,
+    keyedBy: scopeKey,
+  });
+  const defaultReview = storySelection.defaultReview;
   const {
-    defaultReview,
     review,
     reading,
     problem,
@@ -94,17 +136,7 @@ export function useStoryComparison({
     runUnread,
     published,
     initialSync,
-  } = useStoryReviewSelection({
-    subject,
-    round,
-    completed,
-    taken,
-    enabled,
-    historical: completed,
-    keyedBy,
-    followsDefault: true,
-    followInitialSync: explicitOpening !== undefined,
-  });
+  } = session === undefined ? storySelection : sessionSelection;
   if (!enabled)
     return {
       review: undefined,
@@ -124,10 +156,10 @@ export function useStoryComparison({
   // A selection read keeps the previous answer until the new one arrives.
   // That answer belongs to this story only when this story already showed a
   // comparison; another story's answer must not become this story's.
-  const sameStory = shownMemory.current?.key === keyedBy;
+  const sameStory = shownMemory.current?.key === scopeKey;
   const carry = !reading || sameStory;
   if (storyShown !== undefined && !reading)
-    shownMemory.current = { key: keyedBy, shown: storyShown, review };
+    shownMemory.current = { key: scopeKey, shown: storyShown, review };
   const remembered = sameStory && reading ? shownMemory.current : undefined;
   const shownKept = !carry
     ? undefined
@@ -183,6 +215,9 @@ export function useStoryComparison({
           onIncludeMergedChanges: setIncludeMerged,
           onRefresh,
           reading: readingNow,
+          sessions,
+          session,
+          onSession: setSession,
         },
   };
 }

@@ -6,6 +6,7 @@
 
 import {
   executionSessionWorkflow,
+  refinementSessionWorkflow,
   sessionRecordVersion,
   sharedCheckoutUncertainty,
 } from "../../src/skills/dough-execute-plan/scripts/session-record.mjs";
@@ -44,6 +45,12 @@ export class SessionRecordBuilder {
   /** @param {string} identity */
   forExecutionOf(identity) {
     this.#workflow = executionSessionWorkflow;
+    return this.forStory(identity);
+  }
+
+  /** @param {string} identity */
+  forRefinementOf(identity) {
+    this.#workflow = refinementSessionWorkflow;
     return this.forStory(identity);
   }
 

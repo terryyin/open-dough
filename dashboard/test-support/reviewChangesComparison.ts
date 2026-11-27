@@ -105,6 +105,25 @@ export class ReviewComparison {
     return this;
   }
 
+  // The review scopes listed under Sessions, in order, by name: Whole story,
+  // then each session by its workflow name, which its time follows.
+  async expectSessions(names: readonly string[]) {
+    await expect(this.#sessions().locator("label")).toHaveText(
+      names.map((name) => new RegExp(`^\\s*${name}( — |$)`)),
+    );
+    return this;
+  }
+
+  // Chooses the scope listed at `position` under Sessions, Whole story first.
+  async chooseSession(position: number) {
+    await this.#sessions().getByRole("radio").nth(position).check();
+    return this;
+  }
+
+  #sessions() {
+    return this.#review.getByRole("radiogroup", { name: "Sessions" });
+  }
+
   #mergedCheck() {
     return this.#review.getByRole("checkbox", {
       name: "Include merged changes",

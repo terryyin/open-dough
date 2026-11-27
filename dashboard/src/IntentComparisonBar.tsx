@@ -32,13 +32,18 @@ export function comparisonSummaryName(
   comparison: Extract<LensComparison, { state: "compared" }>,
 ) {
   const run = comparison.compare?.selectedRun;
+  const session = comparison.compare?.sessions?.find(
+    ({ key }) => key === comparison.compare?.session,
+  );
   const name =
-    run !== undefined
-      ? landedRunName(run)
-      : comparisonName(
-          comparison.compare?.shown ??
-            (comparison.review?.kind === "landed" ? "landed" : "published"),
-        );
+    session !== undefined
+      ? session.label
+      : run !== undefined
+        ? landedRunName(run)
+        : comparisonName(
+            comparison.compare?.shown ??
+              (comparison.review?.kind === "landed" ? "landed" : "published"),
+          );
   const count = comparison.shown.comparison.files.length;
   return `${name} — ${count} changed file${count === 1 ? "" : "s"}`;
 }

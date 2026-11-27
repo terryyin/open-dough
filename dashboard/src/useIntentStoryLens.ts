@@ -142,6 +142,7 @@ export function useIntentStoryLens({
     completed: story?.completed ?? false,
     taken: taken !== undefined,
     enabled: offered === true,
+    records,
   });
   const comparison: LensComparison =
     offered === undefined

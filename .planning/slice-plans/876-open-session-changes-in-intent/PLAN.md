@@ -107,6 +107,24 @@ Read at `0bff20a80`.
   them.
 - Story Branch Mode or Trunk Mode is chosen at Take; no slice acts from trunk.
 
+## Learnings
+
+- Slice 1: `publishedSessionScopes` (`followUpSessions.ts`) lists a story's
+  published sessions oldest first; `useStoryComparison.ts` keeps a second
+  `useStoryReviewSelection` for the chosen session so the story's
+  `defaultReview` (historical locations, CI evidence) stays the story's.
+  Published records name their workflow by skill; `sessionWorkflowName`
+  (`launchWorkflow.ts`) maps it. Published records reach Intent through
+  `useCurrentPublishedSessions` (`recentlyDoneShownLinks.ts`).
+- E2E records written with `trunkAdvancedWith` need the tip published with
+  `publishCommittedOrigin(..., follows: true)`.
+- Slice 2 adds sessions known only from a retained launch (the list now
+  keeps published ones only) and the range choice (a session shows range 1).
+  Untested so far: the story's chosen run surviving a session visit.
+- Follow-up for slice 4: `followUpSessions.ts` and `FollowUpSession` now hold
+  a story's sessions in general; rename when slice 4 reshapes that module
+  (reaches `dashboard/server/followUpStory.ts`, `followUpAdmission.ts`).
+
 ## Decisive premises
 
 | Premise | Consuming operation | Observation | Result |
@@ -119,7 +137,7 @@ Read at `0bff20a80`.
 
 ### 1. Choose one published session as Intent's review scope
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A Done story has two refinements, an execution and an ad hoc
 follow-up published from another machine, and this machine has no launch of
