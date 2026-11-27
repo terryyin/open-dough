@@ -61,7 +61,7 @@ Read at `3494989eb`.
 
 ### 1. Narrow the Side panel journey to its final-report frame
 Type: Structure
-Status: planned
+Status: done
 
 Change: In `e2e/navigation/side-panel-content-replacement.spec.ts`, remove the
 held first-session read, the phase that opens the first session, and the step
@@ -81,6 +81,15 @@ typecheck:dashboard` and `npm run lint` pass. `git grep -n
 holdPublishedReviewOf` finds nothing outside `.planning`. No discrimination
 proof is owed for removed coverage: P1–P4 show the step guarded nothing
 reachable, and P6 is the retained proof of the guard.
+
+Accepted proof (2026-11-27, load 7.5 → 7.1): the E2E gate command on the
+narrowed spec ran 3 tests, strict status passed; `typecheck:dashboard` and
+`lint` passed; `git grep -n holdPublishedReviewOf` finds only this plan. The
+fixture's remaining session is named `session`, and the opening phase keeps
+the empty Side panel check. The refactor pass merged the now single-caller
+`holdReviewOf` into `holdStoryReviewOf` (signature unchanged); its only
+consumer, `e2e/review/story-card-review-arrival-race.spec.ts`, passed 3 of 3
+with strict status (load about 11.8), and typecheck and lint passed again.
 
 ## Decisive premises
 
