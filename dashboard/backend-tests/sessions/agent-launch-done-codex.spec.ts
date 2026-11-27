@@ -12,7 +12,7 @@ import { shows } from "../../test-support/agentTerminalBoundary.ts";
 import {
   codexAttaches,
   codexLines,
-  expectCodexHungUp,
+  codexEndOnceGone,
   openCodexTerminal,
 } from "../../test-support/support/codexTerminal.ts";
 
@@ -98,7 +98,7 @@ for (const status of ["active", "idle", "notLoaded"] as const) {
       if (terminal !== undefined) {
         expect(await terminal.closed).toBe(4000);
         const pid = codexAttaches(native)[0]?.pid ?? 0;
-        await expectCodexHungUp(native, pid);
+        await expect.poll(() => codexEndOnceGone(native, pid)).toBe("SIGHUP");
         expect(codexLines(native, pid)).toEqual([]);
       }
       expect(await recordsOf(dashboard, "open-dough")).toContainEqual(

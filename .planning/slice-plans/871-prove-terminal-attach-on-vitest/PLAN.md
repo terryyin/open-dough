@@ -133,7 +133,7 @@ other representation of what it adds.
 ### 4. Prove closeServer ends the attachment while the server stays up
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–12 active minutes.
 
 Proof: Move `agent-terminal-close.spec.ts` and
@@ -145,18 +145,19 @@ Proof: Move `agent-terminal-close.spec.ts` and
   while the HTTP server stays listening and the native protocol receives no
   `turn/interrupt`.
 
-Slice 2's refactor composed the shared Claude terminal setup once in
-`startClaudeTerminalBoundary` (`dashboard/test-support/claudeTerminalBoundaryHttp.ts`):
-it composes the existing fake, projects and plain launch-boundary server and
-returns them unchanged, so it is not a server wrapper. The close specs reuse
-it only if it also exposes the boundary's close apart from HTTP; decide that
-here when they move.
-
-Refactor follow-up from slice 1: both close specs still build
-`{baseURL, origin, ...claude.controls} as unknown as DashboardServer`. On
-the move, type the server as `TerminalServer` from
-`dashboard/test-support/agentTerminalBoundary.ts` without a cast, adding the
-Codex controls beside it if the Codex helpers read them.
+Accepted proof: both specs converted in place on `startClaudeTerminalBoundary`,
+which now also returns `closeBoundary` (the plugin's `closeServer` alone),
+and the servers are typed `TerminalServer` with no cast. The old Claude close
+spec's fake gh and GitHub were not needed for attach and close. The Codex
+case checks that HTTP still answers (GET / is 404) in place of
+`server.listening`. Before: Playwright 2072 ms summed, 6.31 s wall
+(`s4-before`). After: Vitest 2185 ms summed, 3.75 s wall (`s4-after2`); each
+case stays about 1.1 s because it waits for a real PTY attach and hang-up.
+Its refactor replaced the Playwright-only `expectCodexHungUp` with the
+runner-neutral reader `codexEndOnceGone` in `codexTerminal.ts` (five
+Playwright callers updated and run). If slice 5's Codex spec repeats the
+fake-Codex setup on top of `startClaudeTerminalBoundary`, compose it once
+there, for example as an option that also returns the fake Codex.
 
 ### 5. Prove Codex resume, missing-target refusal, and the Done mark
 

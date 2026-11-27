@@ -1,5 +1,6 @@
 // The launch boundary mounted on a plain HTTP server for terminal specs, with
 // fake-claude on PATH and the given catalog projects configured in its HOME.
+// `closeBoundary` is Vite's close hook alone, leaving HTTP and sockets open.
 
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -20,6 +21,7 @@ export async function startClaudeTerminalBoundary(
   projects: readonly string[],
 ): Promise<{
   readonly server: TerminalServer;
+  readonly closeBoundary: () => Promise<void>;
   readonly stop: () => Promise<void>;
 }> {
   const tempRoot = mkdtempSync(path.join(tmpdir(), "dough-terminal-"));
@@ -42,6 +44,7 @@ export async function startClaudeTerminalBoundary(
   };
   return {
     server,
+    closeBoundary: boundary.closeBoundary,
     stop: async () => {
       await boundary.closeHttp();
       await boundary.closeBoundary();
@@ -49,7 +52,13 @@ export async function startClaudeTerminalBoundary(
       await ensureCursorRunner(server.home);
       await stopCursorRunner(server.home);
       restoreEnv();
-      rmSync(tempRoot, { recursive: true, force: true });
+      // A closed PTY's process may still be writing its last files there.
+      rmSync(tempRoot, {
+        recursive: true,
+        force: true,
+        maxRetries: 5,
+        retryDelay: 100,
+      });
     },
   };
 }

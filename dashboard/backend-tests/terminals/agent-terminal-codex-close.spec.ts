@@ -1,118 +1,64 @@
-// closeServer alone (not OS process-group shutdown) detaches the native client.
+// closeServer alone (not OS process-group shutdown) detaches the native client:
+// the launch boundary on a plain HTTP server, with fake-codex serving the
+// native protocol, keeps listening while the admitted Codex socket closes.
+
 import { mkdtempSync, rmSync } from "node:fs";
-import http from "node:http";
-import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { installAgentLaunchMiddleware } from "../../server/launchBoundary.ts";
-import { localBoundaryPlugin } from "../../server/localBoundaryPlugin.ts";
-import {
-  ensureCursorRunner,
-  stopCursorRunner,
-} from "../../server/hosts/cursor/runnerClient.ts";
+import { expect, test } from "vitest";
 import {
   shows,
   type Terminal,
 } from "../../test-support/agentTerminalBoundary.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
-import { installFakeClaude } from "../../test-support/support/fakeClaude.ts";
-import { prepareCatalogProjects } from "../../test-support/support/catalogProjectOrigin.ts";
-import { installFakeCodex } from "../../test-support/support/fakeCodex.ts";
-import {
-  codexAttaches,
-  expectCodexHungUp,
-  openCodexTerminal,
-} from "../../test-support/support/codexTerminal.ts";
+import { startClaudeTerminalBoundary } from "../../test-support/claudeTerminalBoundaryHttp.ts";
 import {
   observationRecord,
   saveObservations,
 } from "../../test-support/support/codexObservation.ts";
+import {
+  codexAttaches,
+  codexEndOnceGone,
+  openCodexTerminal,
+} from "../../test-support/support/codexTerminal.ts";
+import { installFakeCodex } from "../../test-support/support/fakeCodex.ts";
 import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
-import { configureDevelopmentProjects } from "../../test-support/support/projectConfiguration.ts";
 
-type StoredHandler = (
-  req: http.IncomingMessage,
-  res: http.ServerResponse,
-  next: () => void,
-) => void;
 test("closeServer closes an admitted Codex socket and its PTY while the HTTP server/native protocol remain alive", async () => {
-  const tempRoot = mkdtempSync(path.join(tmpdir(), "dough-codex-close-"));
-  const claude = installFakeClaude(
-    tempRoot,
-    { binDir: tempRoot, path: process.env["PATH"] ?? "" },
-    {},
-  );
-  await prepareCatalogProjects(claude.controls.home, ["open-dough"]);
+  const { server, closeBoundary, stop } = await startClaudeTerminalBoundary([
+    "open-dough",
+  ]);
+  const codexRoot = mkdtempSync(path.join(tmpdir(), "dough-codex-close-"));
   const native = await installFakeCodex(
-    tempRoot,
-    claude.env["PATH"] ?? "",
+    codexRoot,
+    process.env["PATH"] ?? "",
     true,
   );
-  configureDevelopmentProjects(claude.controls.home);
-  const restore = withRestoredEnv({ ...claude.env, ...native.env });
-  let handler: StoredHandler | undefined;
-  const middlewares = {
-    use(fn: StoredHandler) {
-      handler = fn;
-    },
-  };
-  const server = http.createServer((req, res) =>
-    handler?.(req, res, () => {
-      res.writeHead(404);
-      res.end();
-    }),
-  );
-  const plugin = localBoundaryPlugin({
-    name: "dough-agent-launch",
-    install: installAgentLaunchMiddleware,
-  });
-  const configure = plugin.configureServer as unknown as (value: {
-    middlewares: typeof middlewares;
-    httpServer: http.Server;
-  }) => void;
-  const close = plugin.closeServer as unknown as () => void;
-  configure({ middlewares, httpServer: server });
-  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
-  const url = `http://127.0.0.1:${String((server.address() as AddressInfo).port)}`;
-  const local = {
-    baseURL: url,
-    origin: url,
-    ...claude.controls,
-  } as unknown as DashboardServer;
+  const restoreEnv = withRestoredEnv(native.env);
   let terminal: Terminal | undefined;
   try {
-    saveObservations(local, [
-      observationRecord(local, native, native.threadId),
+    saveObservations(server, [
+      observationRecord(server, native, native.threadId),
     ]);
-    terminal = await openCodexTerminal(local, native.threadId);
+    terminal = await openCodexTerminal(server, native.threadId);
     expect(await shows(terminal, "original retained history")).toBe(true);
     const pid = codexAttaches(native)[0]?.pid ?? 0;
-    close();
+
+    await closeBoundary();
+
     expect(await terminal.closed).toBe(1006);
-    await expectCodexHungUp(native, pid);
-    expect(server.listening).toBe(true);
+    await expect.poll(() => codexEndOnceGone(native, pid)).toBe("SIGHUP");
+    expect(await fetch(server.baseURL).then(({ status }) => status)).toBe(404);
     expect(
       native.calls.filter((call) => call.method === "turn/interrupt"),
     ).toHaveLength(0);
     await expect.poll(() => native.sockets.size).toBe(0);
   } finally {
     terminal?.socket.terminate();
-    close();
-    server.closeAllConnections();
-    await new Promise<void>((resolve) =>
-      server.close(() => {
-        resolve();
-      }),
-    );
-    // The plugin started this HOME's Cursor runner, which outlives it; once
-    // that start settles, the runner is stopped before its directory goes.
-    await ensureCursorRunner(claude.controls.home);
-    await stopCursorRunner(claude.controls.home);
+    restoreEnv();
     await native.close();
-    restore();
+    await stop();
     // A closed PTY's process may still be writing its last files there.
-    rmSync(tempRoot, {
+    rmSync(codexRoot, {
       recursive: true,
       force: true,
       maxRetries: 5,

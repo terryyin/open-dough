@@ -20,7 +20,7 @@ import {
   codexEnded,
   codexLines,
   codexTerminalMode,
-  expectCodexHungUp,
+  codexEndOnceGone,
   openCodexTerminal,
 } from "../../test-support/support/codexTerminal.ts";
 import { processRunning } from "../../test-support/support/processGroup.ts";
@@ -96,7 +96,9 @@ test.describe(`Codex native terminal boundary`, () => {
     expect(await shows(terminal, "resized 120x40")).toBe(true);
     expect(codexLines(native, attach?.pid ?? 0)).toEqual(["answer"]);
     terminal.socket.close();
-    await expectCodexHungUp(native, attach?.pid ?? 0);
+    await expect
+      .poll(() => codexEndOnceGone(native, attach?.pid ?? 0))
+      .toBe("SIGHUP");
     expect(await machineSessions(dashboard)).toHaveLength(1);
     expect(
       native.calls.filter((call) =>

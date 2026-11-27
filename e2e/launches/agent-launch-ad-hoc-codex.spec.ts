@@ -35,7 +35,7 @@ import {
   codexAttaches,
   codexEnded,
   codexLines,
-  expectCodexHungUp,
+  codexEndOnceGone,
 } from "../../dashboard/test-support/support/codexTerminal.ts";
 import {
   sharedDashboardBuild,
@@ -238,7 +238,9 @@ for (const text of ["why is the\nCI\t slow?", "", " \t\n "]) {
       ).toEqual([]);
       await closeSidePanel(panel);
       for (const attach of codexAttaches(native)) {
-        await expectCodexHungUp(native, attach.pid);
+        await expect
+          .poll(() => codexEndOnceGone(native, attach.pid))
+          .toBe("SIGHUP");
       }
     } finally {
       await restarted.close();

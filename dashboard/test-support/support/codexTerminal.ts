@@ -1,10 +1,12 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect } from "@playwright/test";
 import WebSocket from "ws";
 import type { FakeCodex } from "./fakeCodex.ts";
-import type { DashboardServer } from "./dashboardServer.ts";
-import { terminalUrl, type Terminal } from "../agentTerminalBoundary.ts";
+import {
+  terminalUrl,
+  type Terminal,
+  type TerminalServer,
+} from "../agentTerminalBoundary.ts";
 import { processRunning } from "./processGroup.ts";
 import { appendedRecords } from "./appendedRecords.ts";
 
@@ -28,12 +30,10 @@ export const codexAttaches = (native: FakeCodex): CodexAttach[] =>
   appendedRecords<CodexAttach>(read(native, "attaches.jsonl"));
 export const codexEnded = (native: FakeCodex, pid: number) =>
   read(native, `${String(pid)}.ended`);
-// The attached codex recorded the hang-up and is gone. It records the reason
-// before exiting, so whether it is gone is only known once it stops running.
-export async function expectCodexHungUp(native: FakeCodex, pid: number) {
-  await expect.poll(() => codexEnded(native, pid)).toBe("SIGHUP");
-  await expect.poll(() => processRunning(pid)).toBe(false);
-}
+// How the attached codex ended, read only once it is gone: it records the
+// reason before exiting, so a codex that has recorded a hang-up may still run.
+export const codexEndOnceGone = (native: FakeCodex, pid: number) =>
+  processRunning(pid) ? "running" : codexEnded(native, pid);
 export const codexLines = (native: FakeCodex, pid: number): string[] =>
   appendedRecords<string>(read(native, `${String(pid)}.lines`));
 export function codexTerminalMode(
@@ -46,7 +46,7 @@ export function codexTerminalMode(
   );
 }
 export async function openCodexTerminal(
-  server: DashboardServer,
+  server: TerminalServer,
   id: string,
 ): Promise<Terminal> {
   const url = new URL(terminalUrl(server, "open-dough", id));

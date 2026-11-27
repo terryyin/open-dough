@@ -14,7 +14,7 @@ import {
 import {
   codexAttaches,
   codexLines,
-  expectCodexHungUp,
+  codexEndOnceGone,
   openCodexTerminal,
 } from "../../test-support/support/codexTerminal.ts";
 
@@ -53,7 +53,9 @@ test("done ends every Codex attachment while an equal Claude ID keeps its attach
   expect(response.status).toBe(200);
   for (const terminal of terminals) expect(await terminal.closed).toBe(4000);
   for (const attach of codexAttaches(native)) {
-    await expectCodexHungUp(native, attach.pid);
+    await expect
+      .poll(() => codexEndOnceGone(native, attach.pid))
+      .toBe("SIGHUP");
     expect(codexLines(native, attach.pid)).toEqual([]);
   }
   expect(dashboard.claudeCalls()).toHaveLength(before);
