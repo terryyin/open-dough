@@ -137,6 +137,16 @@ bad body 400. The completion-reporting bridge now lives in
 pass named the landing path's same double origin check
 (`launchLandingReporting.ts` `submitLanding`) as a follow-up for wrap-up.
 
+## Execution complete
+
+Product advice: no change. The correction delivered its outcome without
+changing behavior. For wrap-up: the seed's Scope still says the arrangement
+is an export of `installedPublisher.ts` with no new support file, which the
+27 November plan decision superseded; and the landing path's double origin
+check (`submitLanding` plus `admitLandingRequest`) is a low-impact
+redundancy that this correction left out of scope, which can take the same
+`verifyLoopbackSocket` correction if it is ever worth the cost.
+
 ## Proof ownership and local gate
 
 | Observable proof | Owner |
