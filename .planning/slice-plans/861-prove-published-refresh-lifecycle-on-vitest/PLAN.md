@@ -23,7 +23,9 @@ Reconciliation with related work:
   records, keeping automatic observation on the current revision-check and
   revision-stream path.
 - [Plan 823](../823-follow-published-progress-from-local-git/PLAN.md) owns
-  moving automatic observation and pinned Board reads to local Git.
+  moving automatic observation to local Git, and
+  [plan 887](../887-read-board-records-at-published-pins/PLAN.md) pinned
+  Board reads.
 - [Plan 860](https://github.com/terryyin/open-dough/blob/ebdf4ebac57a7d7cd41172def1b8089a2d4fd455/.planning/slice-plans/860-prove-published-read-admission-on-vitest/PLAN.md) owns
   published read admission, and
   [plan 862](../862-prove-authenticated-github-observation-on-vitest/PLAN.md)
@@ -333,7 +335,7 @@ Refactor pass: none — the harness is the test double, and production is unchan
 ### 7. Reuse profile-addition history across a moved revision
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: An unrelated commit answers profile additions and last-committed
 times at B from A without listing history. A touched profile and plan are
@@ -347,6 +349,21 @@ Proof: Direct Node Vitest on `PinnedTexts.adder` and the injected
 `revisionReuseBoundary.ts` only after a search shows zero remaining callers.
 Leave `revisionReuseOrigin.ts`, `revisionReuseAnswers.ts`, and
 `revisionReuseCalls.ts`; the preview-reload E2E still reaches them.
+
+Accepted proof at `694f6fae` with the spec uncommitted. Promise: an unrelated
+commit answers both profile additions and the plan's last-committed time from
+A and lists no history; a touched profile and plan are walked at B while the
+other profile's addition stays A's; a remove and identical re-add credits the
+re-adding commit. Boundary: `PinnedTexts.adder` with injected path-commit and
+commit-record readers. Setup and observations:
+`dashboard/backend-tests/observation/revision-reuse-history.spec.ts` (3 tests)
+and `revisionReuseHistoryHarness.ts`. Command:
+`caffeinate -s -i npm run test:dashboard:backend -- 'observation/revision-reuse-history\.spec\.ts$' --workers=1`
+(`slice7-history-lint.log.run.json`, exit 0, 3 tests, after the unbound-method repair). Typecheck
+`slice7-typecheck.log.run.json`, exit 0. No production file changed.
+`revisionReuseBoundary.ts` has no remaining importer and is deleted. The spec
+is 235 lines and the harness is 188. Refactor pass: none — the harness is the
+test double, and production is unchanged.
 
 ### 8. Check published revisions with conditional ETags, fallback, and rate-limit waits
 
@@ -489,6 +506,10 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
   (`slice5-typecheck-repair.log.run.json`, `slice5-compared-repair.log.run.json`).
   The proof loop was already written, and the plan is at the ten-slice cap, so
   it is not split again. Slices 6–10 stay as they are.
+- Slice 7's three history cases and typecheck had already passed when the
+  clock was still running across the later coordinator gap. Pausing then
+  recorded 54.6 active minutes, so `storyOverruns` is 5. That gap is not a
+  failed sizing of the history loop. The plan stays at ten slices.
 
 ## Execution identity
 
@@ -500,7 +521,7 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
   revision `9379098d55410b514abf36b8fb8e42b0c0931181`.
 - Originating checkout: that same workspace. Integration checkout: none.
 - Target selection: remote `origin`, branch `main`.
-- Published revision `61c12e9dd1e36d9aa342584814c2d05f46cd4f73` accepted on
+- Published revision `694f6fae0e7d71bbed0d94e34bccba58c4cbea20` accepted on
   `origin/cursor/prove-published-refresh-lifecycle-in-node-vitest`. That SHA is
   the previously published base for the next increment. The Story Branch claim
   `29e8402851ac887b9d4cdd7838b8a20db7bb08f9` remains `pendingCi: unobserved`.
