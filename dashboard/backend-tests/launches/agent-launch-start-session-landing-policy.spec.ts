@@ -1,9 +1,14 @@
 import { execFileSync } from "node:child_process";
-import { readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { readFileSync, realpathSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { completionReceiptSchema } from "../../src/completionReport.ts";
-import { launch } from "../../test-support/agentLaunchBoundary.ts";
+import { markDoneAnswerSchema } from "../../src/doneMark.ts";
+import {
+  deleteRecord,
+  launch,
+  markDone,
+} from "../../test-support/agentLaunchBoundary.ts";
 import { expect, stored, test } from "../../test-support/support/codexStart.ts";
 import {
   quote,
@@ -17,30 +22,13 @@ import {
 } from "../../test-support/support/launchLanding.ts";
 import { originMain } from "../../test-support/support/sessionDialog.ts";
 import { keptRecord } from "../../test-support/support/startSessionLandingCapture.ts";
-import { landingHandoff } from "../../test-support/support/startSessionLandingContext.ts";
+import {
+  landingHandoff,
+  readCodexHandoff as readHandoff,
+} from "../../test-support/support/startSessionLandingContext.ts";
 import { launchStoryIdentity } from "../../test-support/support/unattachedLaunchAssertions.ts";
 
 test.use({ serverMode: "boundary" });
-
-function readHandoff(
-  home: string,
-  workspace: string,
-  id?: string,
-  ...args: string[]
-) {
-  const env = {
-    ...process.env,
-    HOME: home,
-    CODEX_THREAD_ID: id,
-    CLAUDE_CODE_SESSION_ID: undefined,
-    CURSOR_CONVERSATION_ID: undefined,
-  };
-  return execFileSync(
-    process.execPath,
-    [join(scripts(workspace), "session-landing-handoff.mjs"), ...args],
-    { cwd: workspace, env, encoding: "utf8" },
-  );
-}
 
 test("a blank Start hands Automatically land to its native conversation alone", async ({
   dashboard,
@@ -48,8 +36,7 @@ test("a blank Start hands Automatically land to its native conversation alone", 
 }) => {
   if (!codexProtocol) throw new Error("No native fixture");
   await launch(dashboard, {
-    ...makeMe.aLaunchRequest.adHoc().please(),
-    host: "codex",
+    ...makeMe.aLaunchRequest.adHoc({ host: "codex" }).please(),
     policy: { workspace: "default-checkout", landing: "auto-land" },
   });
   const record = stored(dashboard.home)[0];
@@ -70,6 +57,27 @@ test("a blank Start hands Automatically land to its native conversation alone", 
   expect(handoff("other-conversation")).toBe("");
   expect(handoff()).toBe("");
   expect(handoff("other-conversation", codexProtocol.threadId)).toBe("");
+
+  const launches = join(
+    dashboard.home,
+    ".open-dough/dashboard/agent-launches.json",
+  );
+  const parked = `${launches}.parked`;
+  renameSync(launches, parked);
+  try {
+    expect(handoff(codexProtocol.threadId)).toBe(bound);
+  } finally {
+    renameSync(parked, launches);
+  }
+  const done = await markDone(dashboard, {
+    source: record.request.source,
+    host: "codex",
+    session: codexProtocol.threadId,
+  });
+  expect(
+    markDoneAnswerSchema.parse(JSON.parse(done.body)).record.doneAt,
+  ).toBeDefined();
+  expect(handoff(codexProtocol.threadId)).toBe("");
 });
 
 const childPublication = test.extend({
@@ -81,8 +89,7 @@ childPublication(
   async ({ dashboard, origin, codexProtocol }) => {
     if (!codexProtocol) throw new Error("No native fixture");
     await launch(dashboard, {
-      ...makeMe.aLaunchRequest.adHoc().please(),
-      host: "codex",
+      ...makeMe.aLaunchRequest.adHoc({ host: "codex" }).please(),
       policy: { workspace: "isolated", landing: "auto-land" },
     });
     const record = stored(dashboard.home)[0];
@@ -94,11 +101,9 @@ childPublication(
     expect(
       codexProtocol.calls.some(({ method }) => method === "turn/start"),
     ).toBe(false);
-    const handoff = readHandoff(
-      dashboard.home,
-      workspace,
-      codexProtocol.threadId,
-    );
+    const probeHandoff = () =>
+      readHandoff(dashboard.home, workspace, codexProtocol.threadId);
+    const handoff = probeHandoff();
     expect(handoff).toContain("- landing: auto-land");
     expect(handoff).toContain(`Taken story: ${identity}`);
     expect(handoff).toContain(`- startingRevision: ${base}`);
@@ -120,12 +125,11 @@ childPublication(
         realpathSync(workspace),
       );
       expect(git(workspace, "symbolic-ref", "--short", "HEAD")).toBe(branch);
-      expect(
-        readHandoff(dashboard.home, workspace, codexProtocol.threadId),
-      ).toBe("");
+      expect(probeHandoff()).toBe("");
     } finally {
       writeFileSync(gitFile, ownedGit);
     }
+    expect(probeHandoff()).toBe(handoff);
 
     const candidate = commit(workspace, "verified-isolated-session.txt");
     const publication = capturedPublicationSchema.parse(
@@ -199,5 +203,41 @@ childPublication(
       outcome: "unfinished",
       message,
     });
+    Object.assign(codexProtocol, { readError: true });
+    const deleted = await deleteRecord(dashboard, {
+      source: record.request.source,
+      host: "codex",
+      session: codexProtocol.threadId,
+    });
+    expect(JSON.parse(deleted.body)).toEqual({ kind: "deleted" });
+    expect(probeHandoff()).toBe("");
   },
 );
+
+for (const [landing, instruction] of [
+  ["auto-land", "Summarize the project"],
+  ["review", undefined],
+] as const) {
+  test(`a ${instruction ? "non-blank" : "blank"} ${landing} Start keeps no ready handoff`, async ({
+    dashboard,
+  }) => {
+    await launch(dashboard, {
+      ...makeMe.aLaunchRequest
+        .adHoc({
+          host: "codex",
+          ...(instruction === undefined ? {} : { instruction }),
+        })
+        .please(),
+      policy: { workspace: "isolated", landing },
+    });
+    const { session, establishedSession } = stored(dashboard.home)[0] ?? {};
+    if (!session || !establishedSession) throw new Error("No settled Start");
+    expect(
+      readHandoff(
+        dashboard.home,
+        establishedSession.workspace,
+        session.sessionId,
+      ),
+    ).toBe("");
+  });
+}

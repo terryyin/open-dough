@@ -85,11 +85,23 @@ Read at `c1c80a3a0`.
 | The shared-checkout mark is computed at delivery and stored on the accepted-launches range, whose only reader is admitted closure | Slice 2's adopted mark | Read at `c1c80a3a0`: `resolveLaunchLanding` calls `rangeUncertainty(note, new Date())`; `recordAcceptedIncrement` copies `uncertainty` onto `open-dough/accepted-launches/<reference>.json`; `readAcceptedLaunchEvidence` is called only from `adoptAdmittedSession` | Removing the file loses the mark unless the acceptance time is kept with the retained landing. |
 | A blank Automatically land handoff is derived by re-reading the private launch store | Slice 1's script | Read at `c1c80a3a0`: `retainedHandoff` in `session-landing-handoff.mjs` parses `agent-launches.json`; no other ready-handoff record is written | Slice 1 writes the record at settlement and the script prints it. |
 
+## Execution context
+
+- Story Branch Mode. Owned workspace `/Users/terryyin/git/open-dough/.worktrees/read-the-blank-start-handoff-and-admitted-landin`,
+  branch `codex/read-the-blank-start-handoff-and-admitted-landin`; starting revision
+  `7f32e19b14a7fbbd59db171cf60257a88048a5bc`. Integration checkout
+  `/Users/terryyin/git/open-dough`; integration target `origin/main`.
+- Take and initial branch candidate `6ecdca66a761efe7046bedc9bb43a0eb1832e89b`, accepted on
+  `origin/main` and the remote execution branch.
+- Checkout readiness passed with `npm ci` and `npm run typecheck:dashboard`.
+- The execution branch observer uses GitHub Actions `ci.yml`, coordinator
+  `koharu-423-627e2271`, directory `/tmp/dough-ci-501/watch-ZwcvKe`.
+
 ## Ordered slices
 
 ### 1. Print the blank Start handoff the Dashboard saved
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A blank Automatically land Start has settled for a native session →
 the handoff script prints the established session, the taken story, the
@@ -101,6 +113,14 @@ that directory is restored.
 Proof: `dashboard/backend-tests/launches/agent-launch-start-session-landing-policy.spec.ts`,
 extended so a done launch and a deleted launch withdraw the handoff. The
 existing blank, other-conversation, and replaced-Git-directory cases stay.
+
+Observed through the installed shell and Cursor hook after real Dashboard
+Starts. Six focused backend cases passed, including a read
+while the private launch document was unavailable, Done and deletion, the
+replacement and restoration of the Git directory, and nonblank and review
+Starts and the unchanged reporting header in a native first input. Dashboard
+typecheck passed. Existing eligible launches gain the
+ready handoff on the next successful launch-record write.
 
 ### 2. Adopt the admitted landing from the retained comparison
 Type: Behavior
