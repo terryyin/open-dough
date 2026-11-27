@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-423_read-handoff-and-admitted-landing-from-dashboard-records.json",
+      "identity": "SEED-423#read-handoff-and-admitted-landing-from-dashboard-records",
+      "completedAt": "2026-11-27T08:58:20.107Z",
+      "blob": "b4e7491832858f46e4f51d96f2d9df7091f5527d"
+    },
+    {
       "fileName": "SEED-413_intent-story-cases-at-component-speed.json",
       "identity": "SEED-413#intent-story-cases-at-component-speed",
       "completedAt": "2026-11-27T06:12:14.186Z",
@@ -3474,24 +3480,6 @@
       "identity": "SEED-161#cursor-runner-keeps-its-terminal-helper",
       "completedAt": "2026-10-28T09:33:20.860Z",
       "blob": "c41fcfcde760dfdc42e49c6c87a362d798a255d9"
-    },
-    {
-      "fileName": "SEED-158_publish-awaiting-hosted-proof.json",
-      "identity": "SEED-158#publish-awaiting-hosted-proof",
-      "completedAt": "2026-10-28T08:44:49.402Z",
-      "blob": "9cf19a2d2792483c06f0241f4c730ccb58d0dd8e"
-    },
-    {
-      "fileName": "SEED-157_check-stalled-delegated-verification.json",
-      "identity": "SEED-157#check-stalled-delegated-verification",
-      "completedAt": "2026-10-28T08:42:24.360Z",
-      "blob": "fe23f46be8d0a84b99752cd6749daf2d7c7cc17f"
-    },
-    {
-      "fileName": "SEED-159_cursor-start-opens-the-session.json",
-      "identity": "SEED-159#cursor-start-opens-the-session",
-      "completedAt": "2026-10-28T07:48:54.651Z",
-      "blob": "ea8e44305461c61f20a050cb9e407e1955bcf2e8"
     }
   ],
   "unreadable": []
