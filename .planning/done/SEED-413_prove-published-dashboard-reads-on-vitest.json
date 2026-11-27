@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-413#prove-published-dashboard-reads-on-vitest",
+  "title": "Prove published Follow up evidence in Node Vitest",
+  "completedAt": "2026-11-27T01:28:13.989Z",
+  "developer": "Terry Yin",
+  "agent": "Koharu-chan",
+  "host": "claude",
+  "intentCoverage": {
+    "report": "Dough Intent Coverage: SEED-413#prove-published-dashboard-reads-on-vitest, slice 6 of plan 859, at e6d4758bc451dc9687addf8e16cc0ca6d4441e5b\n\nVerdict: Caught.\n\nPromise: when a follow-up Start was refused and kept, Continue sends exactly the saved first input, even after the original session record is gone. It must not rebuild the input from the records that exist now.\n\nFault: in dashboard/server/agentLaunchAccept.ts, `continueKeptAttempt` wrapped the run it hands to `owner.continueAttempt`, cleared `followUp.context` on the kept request and rebuilt it with `withFollowUpContext` from the admission input last passed to `acceptLaunchRequest` and a `pendingInputOf` that finds nothing. Fixtures and assertions unchanged. A first attempt that rebuilt through the production `publishedDoneStory` threw \"not published\" on the wrong path and was discarded.\n\nChecks examined:\n- dashboard/backend-tests/launches/agent-launch-follow-up-selection.spec.ts:105, `expect(continuedInput).toBe(initial)`\n- dashboard/backend-tests/launches/agent-launch-follow-up-published-sessions.spec.ts:99, `expect(continuedInput).toBe(combined)`\n\nRuns (focused command `npm run test:dashboard:backend -- 'launches/agent-launch-follow-up-(selection|published-sessions)\\.spec\\.ts$'` in a detached scratch worktree, Node 24.21.0, load about 10–13): baseline 2 of 2 passed; faulted 2 of 2 failed only at the two assertions above, after the continuation was accepted and its outcome was \"launched\"; independent witness logged the rebuilt context losing the deleted refinement session's block (selection) and the joined local facts (published-sessions); restored, `git status --porcelain` empty and 2 of 2 passed.\n\nScope: the refused-then-continued follow-up path these two specs exercise, for local-only and published-plus-local session joins.\n\nNext proof action: none needed for this promise. The maintained assertions catch the fault.\n\nCosts: Vitest duration baseline 5.86 s, faulted 3.99 s, restored 3.15 s (measured). Human and agent effort unavailable. Invocation-to-report elapsed 136153 ms (measured).\n\nWrap-up disposition: checked e6d4758bc451dc9687addf8e16cc0ca6d4441e5b, Caught, no follow-up.\n"
+  }
+}
