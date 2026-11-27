@@ -38,7 +38,9 @@ intent introduced or affected by a newly developed story.
 
 - [Correct the fast runtime cases' leftovers](seeds/SEED-413-renovate-dashboard-unit-tests.md#fast-runtime-unit-case-cleanup) — SEED-413#fast-runtime-unit-case-cleanup
 - [Close the preview's incident record when the watcher ends on SIGHUP](seeds/SEED-370-remove-old-dashboard-deployments.md#close-preview-incident-record-on-sighup) — SEED-370#close-preview-incident-record-on-sighup
-- [Follow published progress and read Board records from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git
+- [Follow published progress from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git
+- [Read Board records at their published pins](seeds/SEED-430-read-published-project-data-from-local-git.md#read-board-records-at-published-pins) — SEED-430#read-board-records-at-published-pins
+- [Share one project refresh across Board and Review](seeds/SEED-430-read-published-project-data-from-local-git.md#share-one-refresh-across-board-and-review) — SEED-430#share-one-refresh-across-board-and-review
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git
 - [Read published Git inputs to CI from local Git](seeds/SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git) — SEED-435#read-published-ci-inputs-from-local-git
 - [Check the feedback maintenance watch list from local Git](seeds/SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git) — SEED-436#check-feedback-maintenance-from-local-git

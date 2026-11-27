@@ -26,7 +26,7 @@ reachable path before recording upstream call counts.
 revision-listing reuse, revision streams, and retained answers. This plan
 keeps the request-sharing interaction those clients rely on, including
 caller-specific answers and failure survival. [Plan 860](https://github.com/terryyin/open-dough/blob/ebdf4ebac57a7d7cd41172def1b8089a2d4fd455/.planning/slice-plans/860-prove-published-read-admission-on-vitest/PLAN.md)
-owns source and published-record read admission. [Plan 823](../823-follow-published-progress-from-local-git/PLAN.md)
+owns source and published-record read admission. [Plan 887](../887-read-board-records-at-published-pins/PLAN.md)
 owns moving further readers to local Git. The installed login-isolation
 checks and the browser journeys retain their existing owners.
 

@@ -1,8 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Hibiki-chan",
-  "email": "hibiki-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-430#follow-published-progress-from-local-git",
-  "host": "claude"
-}

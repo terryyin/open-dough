@@ -29,10 +29,10 @@ removal belong to their respective stories.
   Its maintained backend witnesses are `verified-origin-trunk.spec.ts`,
   `shared-verified-origin-trunk.spec.ts` and
   `verified-origin-trunk-deadline.spec.ts`.
-  [Plan 823](../823-follow-published-progress-from-local-git/PLAN.md) owns
+  [Plan 888](../888-share-one-refresh-across-board-and-review/PLAN.md) owns
   ending stalled remote transfers and coalescing Board with Review. This
   plan keeps the existing same-Review overlap, actual Git child close and
-  ref mutation witnesses. If 823 lands first, run its successor at the new
+  ref mutation witnesses. If 888 lands first, run its successor at the new
   boundary and verify the same assertions before replacing a witness.
 - [Make production code directly testable instead of growing test support](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support).
   The existing production seam is
