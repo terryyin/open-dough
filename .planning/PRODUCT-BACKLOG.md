@@ -34,10 +34,10 @@ intent introduced or affected by a newly developed story.
 - [Prove Dashboard runtime behavior in fast unit cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#fast-runtime-unit-cases) — SEED-413#fast-runtime-unit-cases ([plan](slice-plans/879-prove-runtime-in-fast-unit-cases/PLAN.md))
 - [Complete a planning-only closure once trunk repairs its failed basis](seeds/SEED-449-complete-closure-on-repaired-basis.md#complete-closure-on-repaired-basis) — SEED-449#complete-closure-on-repaired-basis
 - [Refresh the published Board in place](seeds/SEED-430-read-published-project-data-from-local-git.md#refresh-published-board-in-place) — SEED-430#refresh-published-board-in-place ([plan](slice-plans/853-refresh-published-board-in-place/PLAN.md))
+- [Keep full Dashboard frontend runs connected to their browser](seeds/SEED-413-renovate-dashboard-unit-tests.md#keep-full-frontend-runs-connected) — SEED-413#keep-full-frontend-runs-connected ([plan](slice-plans/881-keep-full-frontend-runs-connected/PLAN.md))
 
 ## Backlog list
 
-- [Keep full Dashboard frontend runs connected to their browser](seeds/SEED-413-renovate-dashboard-unit-tests.md#keep-full-frontend-runs-connected) — SEED-413#keep-full-frontend-runs-connected
 - [Choose review scope from a compact dropdown](seeds/SEED-418-review-published-session-changes.md#review-scope-dropdown) — SEED-418#review-scope-dropdown
 - [Show the selected ad hoc session on Intent Home](seeds/SEED-418-review-published-session-changes.md#show-selected-session-in-review-home) — SEED-418#show-selected-session-in-review-home
 - [Track review status for each session](seeds/SEED-418-review-published-session-changes.md#track-review-state-per-session) — SEED-418#track-review-state-per-session
