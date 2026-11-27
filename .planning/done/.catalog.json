@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_fast-runtime-unit-case-cleanup.json",
+      "identity": "SEED-413#fast-runtime-unit-case-cleanup",
+      "completedAt": "2026-11-27T16:00:17.326Z",
+      "blob": "76b51d33dedc6c8524b23a6c24a10c880e29be28"
+    },
+    {
       "fileName": "SEED-413_authenticated-github-observation-via-vitest.json",
       "identity": "SEED-413#authenticated-github-observation-via-vitest",
       "completedAt": "2026-11-27T14:48:46.637Z",
@@ -3546,12 +3552,6 @@
       "identity": "SEED-165#keep-cursor-effort-visible",
       "completedAt": "2026-10-28T23:56:59.362Z",
       "blob": "6c7d9d997b0c430bea0846636ff963def149799e"
-    },
-    {
-      "fileName": "SEED-163_reliably-report-dashboard-wrap-up.json",
-      "identity": "SEED-163#reliably-report-dashboard-wrap-up",
-      "completedAt": "2026-10-28T14:50:18.182Z",
-      "blob": "5647aae721c5eb8abd7d82912cc1abe23a1d3478"
     }
   ],
   "unreadable": []
