@@ -8,6 +8,12 @@
       "blob": "b07c66dd01dbebdef9de4aa46a3b9ea33d9e0af7"
     },
     {
+      "fileName": "SEED-370_close-preview-incident-record-on-sighup.json",
+      "identity": "SEED-370#close-preview-incident-record-on-sighup",
+      "completedAt": "2026-11-27T15:11:32.314Z",
+      "blob": "ee10d876831812e00ee847b28ccd2eb3550363a0"
+    },
+    {
       "fileName": "SEED-413_authenticated-github-observation-via-vitest.json",
       "identity": "SEED-413#authenticated-github-observation-via-vitest",
       "completedAt": "2026-11-27T14:48:46.637Z",

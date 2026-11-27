@@ -44,7 +44,14 @@ export function ownedProcess(command, args, options) {
   void exited.then(unlisten, unlisten);
   // Errors are also awaited below; attach immediately for startup failures.
   void exited.catch(() => undefined);
-  return { child, exited, output: () => output, terminate };
+  // Cancellation force-stops the group until its owner takes over shutdown,
+  // such as a serving preview that closes its own records. A start cancelled
+  // before that hand-over throws, so the owner's cleanup still runs.
+  const ownShutdown = () => {
+    signal?.throwIfAborted();
+    unlisten();
+  };
+  return { child, exited, output: () => output, terminate, ownShutdown };
 }
 /** @param {import("node:child_process").ChildProcess} child @param {NodeJS.Signals} signal */
 function signalGroup(child, signal) {
