@@ -135,7 +135,9 @@ test("a runner whose recorded build proof is stale is left by start-if-absent an
       failed: false,
       stdout: `${fixture.cursor.sessionId}\n`,
     });
-    await expect.poll(() => processRunning(before?.pid)).toBe(false);
+    await expect
+      .poll(() => processRunning(before?.pid), { timeout: 5_000 })
+      .toBe(false);
     const replacement = readCursorRunnerAddress(fixture.home);
     expect(replacement?.pid).not.toBe(before?.pid);
     expect(replacement?.buildId).toBe(computeRunnerBuildId());

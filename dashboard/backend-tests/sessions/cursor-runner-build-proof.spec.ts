@@ -41,7 +41,9 @@ for (const mode of ["wrong", "missing"] as const) {
         failed: false,
         stdout: `${fixture.cursor.sessionId}\n`,
       });
-      await expect.poll(() => processRunning(standIn.pid)).toBe(false);
+      await expect
+        .poll(() => processRunning(standIn.pid), { timeout: 5_000 })
+        .toBe(false);
       const address = readCursorRunnerAddress(fixture.home);
       expect(address?.pid).not.toBe(standIn.pid);
       expect(address?.buildId).toBe(computeRunnerBuildId());
@@ -73,8 +75,12 @@ test("a real runner whose recorded proof turns stale while holding a client is r
     const after = readCursorRunnerAddress(fixture.home);
     expect(after?.pid).not.toBe(before?.pid);
     expect(after?.buildId).toBe(computeRunnerBuildId());
-    await expect.poll(() => processRunning(before?.pid)).toBe(false);
-    await expect.poll(() => processRunning(heldPid)).toBe(false);
+    await expect
+      .poll(() => processRunning(before?.pid), { timeout: 5_000 })
+      .toBe(false);
+    await expect
+      .poll(() => processRunning(heldPid), { timeout: 5_000 })
+      .toBe(false);
     const again = await createChatOnRunner(fixture);
     expect(again).toMatchObject({ failed: false });
     expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(after?.pid);
@@ -171,7 +177,9 @@ test("terminal bridge joins a held client on a stale runner but resumes a not-he
     const stalePid = readCursorRunnerAddress(fixture.home)?.pid;
     tamperRecordedProof(fixture);
     heldBridge = await bridgedProofTerminal(fixture, fixture.cursor.sessionId);
-    await expect.poll(() => heldBridge?.output()).toContain("ctrl+c to stop");
+    await expect
+      .poll(() => heldBridge?.output(), { timeout: 5_000 })
+      .toContain("ctrl+c to stop");
     expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(stalePid);
     expect(fixture.cursor.attaches()).toHaveLength(1);
     await heldBridge.close();
@@ -180,10 +188,14 @@ test("terminal bridge joins a held client on a stale runner but resumes a not-he
     const otherId = "7f1e8c2a-9b34-4d5e-8f70-1a2b3c4d5e6f";
     resumedBridge = await bridgedProofTerminal(fixture, otherId);
     await expect
-      .poll(() => readCursorRunnerAddress(fixture.home)?.buildId)
+      .poll(() => readCursorRunnerAddress(fixture.home)?.buildId, {
+        timeout: 5_000,
+      })
       .toBe(computeRunnerBuildId());
     expect(readCursorRunnerAddress(fixture.home)?.pid).not.toBe(stalePid);
-    await expect.poll(() => fixture.cursor.attaches().length).toBe(2);
+    await expect
+      .poll(() => fixture.cursor.attaches().length, { timeout: 5_000 })
+      .toBe(2);
     expect(fixture.cursor.attaches().at(-1)?.sessionId).toBe(otherId);
   } finally {
     await heldBridge?.close().catch(() => undefined);

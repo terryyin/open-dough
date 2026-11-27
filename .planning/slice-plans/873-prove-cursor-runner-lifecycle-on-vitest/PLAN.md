@@ -125,6 +125,9 @@ legacy Playwright 9/9, affected E2E 4/4. A mixed backend selection prints
 only Vitest output; read Playwright counts from the proof record.
 CI repair after slice 1 (run 45929593535): the Codex alerts spec now
 applies a new reading at the next poll, so one poll never mixes two.
+CI repair (run 45930129765): Vitest `expect.poll` waits 1 s where
+Playwright waited 5 s, so carried-over polls give an explicit
+`{ timeout: 5_000 }`. Later slices keep that legacy deadline.
 
 ### 2. Restore the terminal helper on the same runner
 
