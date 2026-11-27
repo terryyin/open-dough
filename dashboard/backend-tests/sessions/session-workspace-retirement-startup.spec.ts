@@ -1,50 +1,36 @@
 // Schedule actual directory loss at the native spawn boundary, after the host's check.
 // Production attachment/observation/transport logic is not replaced.
 import { EventEmitter } from "node:events";
-import { createRequire } from "node:module";
 import { mkdtempSync, mkdirSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { expect, test, vi } from "vitest";
 import type { WebSocket } from "ws";
-import { test as base, expect } from "../../test-support/support/pageTest.ts";
 import { terminalWorkspaceUnavailableCode } from "../../src/agentTerminal.ts";
+import { TerminalAttachments } from "../../server/terminalAttachments.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
-const native = createRequire(import.meta.url)(
-  "@lydell/node-pty",
-) as typeof import("@lydell/node-pty");
-const originalSpawn = native.spawn;
-let TerminalAttachments: typeof import("../../server/terminalAttachments.ts").TerminalAttachments;
 let scheduledLoss: string | undefined;
 let observedBeforeLoss = false;
-const test = base.extend<object, { nativeSpawn: boolean }>({
-  nativeSpawn: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => {
-      native.spawn = (executable, args, options) => {
-        if (scheduledLoss === undefined)
-          return originalSpawn(executable, args, options);
-        expect(options.cwd).toBe(scheduledLoss);
-        observedBeforeLoss = statSync(scheduledLoss).isDirectory();
-        rmSync(scheduledLoss, { recursive: true });
-        // Starting in the now missing cwd must fail at the real native PTY
-        // boundary. No Codex executable or retained session is actually run.
-        return originalSpawn(
-          process.execPath,
-          ["-e", "process.exit(99)"],
-          options,
-        );
-      };
-      try {
-        ({ TerminalAttachments } =
-          await import("../../server/terminalAttachments.ts"));
-        await use(true);
-      } finally {
-        native.spawn = originalSpawn;
-      }
+vi.mock(import("@lydell/node-pty"), async (original) => {
+  const native = await original();
+  return {
+    ...native,
+    spawn: (executable, args, options) => {
+      if (scheduledLoss === undefined)
+        return native.spawn(executable, args, options);
+      expect(options.cwd).toBe(scheduledLoss);
+      observedBeforeLoss = statSync(scheduledLoss).isDirectory();
+      rmSync(scheduledLoss, { recursive: true });
+      // Starting in the now missing cwd must fail at the real native PTY
+      // boundary. No Codex executable or retained session is actually run.
+      return native.spawn(
+        process.execPath,
+        ["-e", "process.exit(99)"],
+        options,
+      );
     },
-    { scope: "worker", auto: true },
-  ],
+  };
 });
 
 class Socket extends EventEmitter {

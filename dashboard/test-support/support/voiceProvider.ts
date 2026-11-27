@@ -100,6 +100,7 @@ globalThis.fetch = (input, options) => {
   );
   return {
     machine,
+    url,
     calls,
     extraEnv: { NODE_OPTIONS: `--require=${preload}` },
     setText(value: string) {

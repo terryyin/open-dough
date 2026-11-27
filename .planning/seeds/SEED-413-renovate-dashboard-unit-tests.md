@@ -280,64 +280,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Plan.** [Prove Cursor runner lifecycle in Node Vitest](../slice-plans/873-prove-cursor-runner-lifecycle-on-vitest/PLAN.md)
 
-<a id="prove-session-retention-and-input-on-vitest"></a>
-
-### Prove session retention, one-shot starts and input in Node Vitest
-
-**Identity:** SEED-413#prove-session-retention-and-input-on-vitest
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/874-prove-session-retention-and-input-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"57e8f8113f59576eb0b574ed429bfaf4e7e44bdc655f3ea38bd68d6b0d640730","plan":"b2c5e3cd673502c1ff7cd5d920b00c04e4779acd3c2905fc021c51b9808709f1"}}
-```
-
-**Goal.** Give Dashboard developers faster Node Vitest feedback when they
-change session retention, one-shot starts, or session input. Preserve the
-existing evidence about local records, launch policy, input and workspace
-availability as part of the backend runner migration.
-
-**Scope.** Replace the Playwright selection of the nine specs listed below
-with maintained Node Vitest proof. Use typed production operations and
-keep real storage, Git, HTTP or PTY behavior where the result depends on
-it. The [campaign coverage map](#backend-vitest-replacement-coverage)
-assigns the neighboring launch and terminal families and the runner cutover
-to their respective owners. Browser gestures and actual vendor services
-are outside this deterministic proof.
-
-- `sessions/launch-history-{aged-out,removed}.spec.ts` and
-  `sessions/agent-launch-retention-scope.spec.ts`.
-- `sessions/agent-launch-session-{kept-start,options,refusal}.spec.ts`.
-- `sessions/session-attachment-boundary.spec.ts`,
-  `sessions/session-instruction-voice-boundary.spec.ts` and
-  `sessions/session-workspace-retirement-startup.spec.ts`.
-
-**Key examples.**
-
-- A later record write archives a session marked Done 31 days ago exactly
-  once. A session marked Done 29 days ago and an older unclosed session
-  remain visible. Explicit removal archives exactly once with its own
-  reason. If the archive is unwritable, expiry stays hidden but stored and
-  can retry on a later write, while explicit removal refuses. Cursor
-  scopes retire only after their records leave. Shared configuration and
-  the saved conversation survive.
-- A supported execution or refinement start carries the selected one-shot
-  workspace and landing policy through its first input and kept record.
-  Starting leaves origin unchanged. If native launch is refused after
-  establishment, a later ordinary Start uses the kept policy and
-  workspace once. An unsupported choice is refused before establishment
-  or native dispatch.
-- A valid session image gets its own numbered file with the original
-  bytes. Invalid requests and unavailable sessions leave storage alone,
-  opaque session IDs stay within their storage directory, and a failed
-  write preserves existing data. Invalid audio never reaches the provider,
-  disconnect and shutdown cancel work in flight, and provider failures
-  return bounded public errors.
-- If a retained workspace disappears after the host check and before
-  native PTY startup, the terminal reports the missing workspace and
-  closes without attaching or reopening Done intent.
-
-- **Replacement trace.** Split from [native session and terminal lifecycle](https://github.com/terryyin/open-dough/blob/23c09d6e4d18b5113b45f3aed28f09e986083072/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-and-terminal-lifecycle-on-vitest).
-
-**Plan.** [Prove session retention, one-shot starts and input in Node Vitest](../slice-plans/874-prove-session-retention-and-input-on-vitest/PLAN.md)
-
 <a id="published-read-admission-via-vitest"></a>
 
 ### Prove published read admission in Node Vitest
@@ -498,6 +440,32 @@ are outside this deterministic proof.
   landed at `62522f4f`. Its focused selection ran 23 Node cases in 8.71 s.
   Use the same selection to compare runtime and check for lost observations.
 
+<a id="admit-launch-requests-as-typed-values"></a>
+
+### Admit Dashboard launch requests as typed values
+
+**Identity:** SEED-413#admit-launch-requests-as-typed-values
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **For / why.** Developers proving launch admission in Node Vitest reach
+  `answer()` in `dashboard/server/launchBoundaryAnswer.ts` by hand-building
+  a `Socket`, `IncomingMessage` and `ServerResponse`, because admission in
+  `agentLaunchAdmission.ts` (`launchRequest`) reads the request stream.
+  About ten backend files repeat that construction, for example
+  `launches/agent-launch-refusal.spec.ts`,
+  `launches/agent-launch-model-admission.spec.ts`,
+  `server/landingRequestAdmission.spec.ts` and
+  `sessions/agent-launch-session-refusal.spec.ts`.
+- **Evaluation.** Admission and the accept branch take a typed launch
+  request, and a thin wire adapter keeps origin checking and JSON parsing.
+  The listed specs call the typed entry for their decisions and keep one
+  wire case where status, headers or origin are the observation, without
+  new test-support wrappers.
+- **Provenance.** Named by the post-change refactor pass of
+  [session retention, one-shot starts and input](https://github.com/terryyin/open-dough/blob/162a60bd6b5378db843deadc972fbac8728c6352/.planning/slice-plans/874-prove-session-retention-and-input-on-vitest/PLAN.md#3-refuse-a-session-policy-that-cannot-be-established).
+
 <a id="retire-legacy-dashboard-backend-runner"></a>
 
 ### Run the entire Dashboard backend unit suite on Node Vitest
@@ -593,7 +561,7 @@ or removed once its behavior or duplicate is accounted for.
 | Five Claude and Codex terminal attach specs | [Terminal attach](https://github.com/terryyin/open-dough/blob/0f91c70c84ffdbcd0d79126cdb741b4c2879f236/.planning/slice-plans/871-prove-terminal-attach-on-vitest/PLAN.md), completed on Node Vitest |
 | Six Cursor turn specs | [Cursor turns](https://github.com/terryyin/open-dough/blob/aa6ee4483c067e5ab32541ab8e76a7e4e9968c1f/.planning/slice-plans/872-prove-cursor-turns-on-vitest/PLAN.md), completed on Node Vitest |
 | Seven Cursor runner specs | [Cursor runner lifecycle](#prove-cursor-runner-lifecycle-on-vitest) |
-| Nine retention, one-shot start and input specs | [Session retention, one-shot starts and input](#prove-session-retention-and-input-on-vitest) |
+| Nine retention, one-shot start and input specs | [Session retention, one-shot starts and input](https://github.com/terryyin/open-dough/blob/6656107c8ab9b33e998f6393e5df4491bc74449d/.planning/slice-plans/874-prove-session-retention-and-input-on-vitest/PLAN.md), completed on Node Vitest with browser gestures, voice capture and visible Done retained in E2E |
 | Eleven Playwright Intent paths named in the [repeat proof selection](../slice-plans/607-close-landed-ci-repeat-check-gaps/proof-selection.txt) | [Automatic repeat correction](SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps), including its failure and load proof |
 | 12 observation Playwright paths | [Prove published read admission in Node Vitest](#published-read-admission-via-vitest) |
 | 15 observation Playwright paths | [Prove published refresh lifecycle in Node Vitest](#published-refresh-lifecycle-via-vitest) |

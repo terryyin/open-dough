@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Open the Board from the verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-the-board-from-the-verified-git-trunk) — SEED-430#open-the-board-from-the-verified-git-trunk ([plan](slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md))
 - [Prove Cursor runner lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-cursor-runner-lifecycle-on-vitest) — SEED-413#prove-cursor-runner-lifecycle-on-vitest ([plan](slice-plans/873-prove-cursor-runner-lifecycle-on-vitest/PLAN.md))
-- [Prove session retention, one-shot starts and input in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-session-retention-and-input-on-vitest) — SEED-413#prove-session-retention-and-input-on-vitest ([plan](slice-plans/874-prove-session-retention-and-input-on-vitest/PLAN.md))
 
 ## Backlog list
 
@@ -58,6 +57,7 @@ intent introduced or affected by a newly developed story.
 - [Close the landed CI repeat checks' coverage gaps and tidy their support](seeds/SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps) — SEED-324#close-landed-ci-repeat-check-gaps ([plan](slice-plans/607-close-landed-ci-repeat-check-gaps/PLAN.md))
 - [Prove published Intent evidence in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-intent-evidence-via-vitest) — SEED-413#published-intent-evidence-via-vitest
 - [Prove Dashboard launch attempts with typed machine state](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-attempts-with-typed-state) — SEED-413#prove-launch-attempts-with-typed-state
+- [Admit Dashboard launch requests as typed values](seeds/SEED-413-renovate-dashboard-unit-tests.md#admit-launch-requests-as-typed-values) — SEED-413#admit-launch-requests-as-typed-values
 - [Run the entire Dashboard backend unit suite on Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-backend-runner) — SEED-413#retire-legacy-dashboard-backend-runner
 - [Start Cursor slices from complete Task briefs](seeds/SEED-345-session-token-efficiency.md#start-cursor-slices-from-complete-task-briefs) — SEED-345#start-cursor-slices-from-complete-task-briefs
 - [Retire Cursor exit-file proof wait](seeds/SEED-441-retire-cursor-exit-file-proof-wait.md#retire-cursor-exit-file-proof-wait) — SEED-441#retire-cursor-exit-file-proof-wait

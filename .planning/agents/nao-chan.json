@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Nao-chan",
-  "email": "nao-chan@example.org",
-  "identity": "SEED-413#prove-session-retention-and-input-on-vitest",
-  "mode": "story-branch",
-  "branch": "claude/prove-session-retention-one-shot-starts-and-inpu",
-  "host": "claude"
-}
