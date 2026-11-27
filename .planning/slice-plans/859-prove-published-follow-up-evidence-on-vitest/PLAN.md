@@ -133,7 +133,7 @@ gate ran 16 cases (7 Node) in 30.7 s.
 ### 4. Send the admitted file evidence in the first input
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–14 active minutes.
 
 Move the four content cases in `agent-launch-follow-up-file`. Observe the
@@ -142,6 +142,15 @@ the file-specific trunk-inclusive baseline, the widened incoming pair,
 and the blank request's literal file. Assert framing and escaping where the
 legacy test observes them. Use the same admitted target in the browser
 old-line/file journeys.
+
+Delivered: the four content cases run in Node and read the host's first
+input. Relabelling the old-path line failed the renamed case, and admitting
+a trunk-inclusive file against the review baseline failed the
+trunk-inclusive case. The resume case moved unchanged to
+`agent-launch-follow-up-line-resume.spec.ts` for slice 5, which the selection
+now names. The E2E journeys already use the same Published completion
+framing. The gate ran 16 cases (11 Node) in 43.4 s; the moved cases sum
+6.8 s against 12.4 s before.
 
 ### 5. Resume only the same line attempt
 
@@ -186,7 +195,7 @@ any renamed paths in the selection, record a case-to-owner map when a case
 moves, and verify zero remaining Playwright selections for this story's unit paths.
 
 ```sh
-selection='launches/agent-launch-follow-up-(file-admission|file|forged-context|landed-comparison-admission|published-range-admission|published-sessions|selection)\.spec\.ts$'
+selection='launches/agent-launch-follow-up-(file-admission|file|forged-context|landed-comparison-admission|line-resume|published-range-admission|published-sessions|selection)\.spec\.ts$'
 caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT -u FORCE_COLOR -u NO_COLOR OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD="$backend_proof" /usr/bin/time -p npm run test:dashboard:backend -- "$selection" --workers=1
 caffeinate -s -i env -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u OPEN_DOUGH_E2E_SPLIT -u FORCE_COLOR -u NO_COLOR /usr/bin/time -p npm run test:e2e -- 'e2e/intent/intent-story-follow-up\.spec\.ts$' --workers=1 --reporter=line
 ```

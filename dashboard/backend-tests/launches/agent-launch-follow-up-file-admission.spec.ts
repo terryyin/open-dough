@@ -4,7 +4,6 @@
 // composed context: agent-launch-follow-up-forged-context.spec.ts.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { fileFactsOf } from "../../test-support/support/followUpCompletedFile.ts";
 import { aDoneStoryStart, storyA } from "../support/doneStoryStart.ts";
 
 const literalPath = "[literal]*.txt";
@@ -32,12 +31,12 @@ test("a file follow-up on a launch's landed run admits and names its comparison"
 });
 
 test("a file, line or side outside the published completion is refused before acceptance", async () => {
-  const { publishedCompletion, received, startAt, refusal } =
+  const { publishedFileAt, received, startAt, refusal } =
     await aDoneStoryStart();
-  const review = await publishedCompletion();
-  const literal = review.files.find((file) => file.path === literalPath);
-  if (literal === undefined) throw new Error("expected literal file");
-  const valid = fileFactsOf(review, literal, { line: 1, side: "new" });
+  const { file: valid } = await publishedFileAt(literalPath, {
+    line: 1,
+    side: "new",
+  });
 
   for (const { change, message } of [
     {

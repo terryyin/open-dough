@@ -16,6 +16,7 @@ import { publishedSessionReview } from "../../server/publishedSessionReview.ts";
 import { lastSyncedPublishedSessionSource } from "../../server/publishedSessionSource.ts";
 import { knownSource } from "../../server/sessionAdmission.ts";
 import { requirePublishedCompletion } from "../../server/storyReviewPublishedAdmission.ts";
+import type { RepositoryDescription } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import type { DoneStory } from "../../src/doneRecord.ts";
 import type {
   FollowUp,
@@ -23,6 +24,7 @@ import type {
   FollowUpFile,
 } from "../../src/followUpRequest.ts";
 import { ordinaryJourneyCompletedHistory } from "../../test-support/support/completedFollowUpHistory.ts";
+import { fileFactsOf } from "../../test-support/support/followUpCompletedFile.ts";
 import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import { configuredFixtureProject } from "./fixtureProject.ts";
@@ -38,17 +40,20 @@ export const storyA: Pick<DoneStory, "identity" | "title" | "completedAt"> =
     })
     .please();
 
-export async function aDoneStoryStart() {
-  const { repository, home, project } = await configuredFixtureProject(
-    ordinaryJourneyCompletedHistory(),
-  );
+// Story A completed at `history`'s "completion" revision, its landings
+// comparing from the `base` revision.
+export async function aDoneStoryStart(
+  history: RepositoryDescription<string> = ordinaryJourneyCompletedHistory(),
+  base = "interleaving",
+) {
+  const { repository, home, project } = await configuredFixtureProject(history);
   const source = knownSource(project.id);
   const revision = (name: string) => {
     const sha = repository.revisions[name];
     if (sha === undefined) throw new Error(`No ${name} revision`);
     return sha;
   };
-  const baseline = revision("interleaving");
+  const baseline = revision(base);
   const tree = revision("completion");
   const owner = new LaunchAttemptOwner();
   onTestFinished(async () => {
@@ -61,6 +66,7 @@ export async function aDoneStoryStart() {
   const launch = async (
     followUp: FollowUp,
     story: Pick<DoneStory, "identity" | "title" | "completedAt">,
+    instruction = "Review this accepted landing",
   ) => {
     await synced();
     const accepted = await acceptLaunchRequest(
@@ -70,7 +76,7 @@ export async function aDoneStoryStart() {
         makeMe.aLaunchRequest
           .adHoc({
             source: project.id,
-            instruction: "Review this accepted landing",
+            instruction,
             followUp,
           })
           .please(),
@@ -92,11 +98,13 @@ export async function aDoneStoryStart() {
       makeMe.aFollowUp.ofStory(storyA, tree).onComparison(comparison).please(),
       storyA,
     );
-  // A file follow-up of `story`, which the published catalog reads as done.
-  const startAt = (file: FollowUpFile, story = storyA) =>
+  // A file follow-up of `story`, which the published catalog reads as done,
+  // requesting `instruction`.
+  const startAt = (file: FollowUpFile, story = storyA, instruction?: string) =>
     launch(
       makeMe.aFollowUp.ofStory(story, tree).anchoredAt(file).please(),
       story,
+      instruction,
     );
   const retainedLanding = (
     story: { identity: string; title: string },
@@ -175,6 +183,17 @@ export async function aDoneStoryStart() {
     await synced();
     return requirePublishedCompletion(source, queuedIdentity, tree);
   };
+  // The follow-up anchor of the published completion's file at `filePath`,
+  // optionally on one `line`, with the review that showed it.
+  const publishedFileAt = async (
+    filePath: string,
+    line?: { line: number; side: "old" | "new" },
+  ) => {
+    const review = await publishedCompletion();
+    const shown = review.files.find((file) => file.path === filePath);
+    if (shown === undefined) throw new Error(`No published file ${filePath}`);
+    return { review, file: fileFactsOf(review, shown, line) };
+  };
   // The refusal Start answers, after checking no host or kept attempt started.
   const refusal = async (started: Promise<unknown>) => {
     const answer = await started.then(
@@ -200,6 +219,7 @@ export async function aDoneStoryStart() {
     originMain,
     publishedSessionReviewOf,
     publishedCompletion,
+    publishedFileAt,
     revision,
   };
 }
