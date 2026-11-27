@@ -151,3 +151,9 @@ Failure policy: [shared failure policy](../../../Distribution/src/skills/dough-e
 One bounded probe uses the shared CI evidence and leaves repair sizing to the
 findings. The probe owns log availability, reproduction, and cause
 attribution. The current evidence does not establish either cause.
+
+## Execution complete
+
+Product advice: No change. The disconnect evidence supports plan 881's
+existing premise, a browser-side closure before `createTesters`, on 17 more
+files. It adds no new closer signal. Plan 881 keeps that repair.
