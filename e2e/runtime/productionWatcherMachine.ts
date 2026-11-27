@@ -1,13 +1,17 @@
 // Owned machine resources for the public watcher's serial lifecycle journey.
-import type { Browser, Page } from "@playwright/test";
-import { readFile, writeFile } from "node:fs/promises";
+import type { APIRequestContext, Browser, Page } from "@playwright/test";
+import { expect } from "../../dashboard/test-support/support/pageTest.ts";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { readCursorRunnerAddress } from "../../dashboard/server/hosts/cursor/runnerPaths.ts";
 import { openCursorTerminal } from "../../dashboard/test-support/support/cursorTerminal.ts";
 import { developmentDashboard } from "../../dashboard/test-support/support/dashboardCommand.ts";
 import { localPublishedMainFixture } from "../../dashboard/test-support/support/publishedMainFixture.ts";
+import { repoRoot } from "../../dashboard/test-support/support/repositoryRoot.ts";
 import { configureWatcherApplication } from "../../dashboard/test-support/support/productionWatcherFixture.ts";
 import { processRunning } from "../../dashboard/test-support/support/processGroup.ts";
+import { processGroup } from "../../dashboard/test-support/support/cursorRunnerJourney.ts";
+import { incidentEntries } from "../../dashboard/test-support/support/readDiagnostics.ts";
 import { serialFileResources } from "../../dashboard/test-support/support/serialFileResources.ts";
 import { waitForWatcherTerminal } from "./productionWatcherClient.ts";
 import {
@@ -18,6 +22,49 @@ import {
 } from "../../dashboard/test-support/support/productionWatcher.ts";
 
 const bannerPath = "dashboard/src/DashboardBanner.tsx";
+// Published with the pinned commit; only cartoon portraits are published.
+const cartoonAvatar =
+  "dashboard/public/agent-avatars/odd-e-nerds/cartoon/stanly.webp";
+const photoAvatar =
+  "dashboard/public/agent-avatars/odd-e-nerds/photo/stanly.webp";
+const servedPath = (publicFile: string) =>
+  publicFile.replace(/^dashboard\/public/, "");
+
+// Production serves the published cartoon avatar, never the local photo one.
+export async function expectPublishedAvatarsOnly(
+  request: APIRequestContext,
+  url: string,
+) {
+  const cartoon = await request.get(`${url}${servedPath(cartoonAvatar)}`);
+  expect(cartoon.status()).toBe(200);
+  expect(cartoon.headers()["content-type"]).toContain("image/webp");
+  const photo = await request.get(`${url}${servedPath(photoAvatar)}`);
+  expect(photo.headers()["content-type"] ?? "").not.toContain("image/webp");
+}
+
+// The one server process the machine's incident record started inside a
+// preview's process group.
+export function previewServer(root: string, previewPid: number) {
+  const [server, ...others] = incidentEntries(root).filter(
+    (entry) =>
+      entry.kind === "process-started" &&
+      processGroup(entry.pid) === previewPid,
+  );
+  if (server === undefined || others.length > 0) {
+    throw new Error(
+      `Expected one server process in preview group ${previewPid}.`,
+    );
+  }
+  return server.pid;
+}
+
+// The process lifecycle entries the incident record holds for one process.
+export const processRecord = (root: string, pid: number) =>
+  incidentEntries(root)
+    .filter((entry) => entry.pid === pid)
+    .map((entry) => entry.kind)
+    .filter((kind) => kind.startsWith("process-"));
+
 export const sourceMarker = (page: Page) =>
   page.getByTestId("production-source");
 
@@ -59,9 +106,20 @@ export class ProductionWatcherMachine {
       );
     }
     const pinned = await fixture.publish(
-      { ...fixture.markerChanges("PINNED MAIN"), [bannerPath]: pinnedBanner },
+      {
+        ...fixture.markerChanges("PINNED MAIN"),
+        [bannerPath]: pinnedBanner,
+        [cartoonAvatar]: await readFile(
+          path.join(repoRoot, "dashboard/public/agent-avatars/atlas-1.webp"),
+        ),
+      },
       "Pinned main",
     );
+    // A local photo avatar is never published, so never served.
+    await mkdir(path.dirname(path.join(fixture.development, photoAvatar)), {
+      recursive: true,
+    });
+    await writeFile(path.join(fixture.development, photoAvatar), "LOCAL PHOTO");
     const index = path.join(fixture.development, "dashboard/index.html");
     await writeFile(
       index,

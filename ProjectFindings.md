@@ -444,6 +444,14 @@ The behavior review asks for one representative walk of a changed skill. An impl
   - Evidence: slice 3 added `dough-execute-plan/scripts/session-record-pruning.mjs`; its consumer trace (`s3-consumer-trace.json`, terms on the changed functions) and 61-file suite passed without `src/install/open-dough-execution-payload.sh`. The refactor pass ran `Distribution/tests/installation/execution-payload-update.sh`, which failed `ERR_MODULE_NOT_FOUND ... session-record-pruning.mjs`; the payload line was added before delivery.
   - Observed effect: caught before publication; the refactor pass took about 25 active minutes, part of it this repair.
   - Inference: a trace keyed on changed symbols cannot reach the payload list that names files; a brief that adds a Distribution script file could name the payload declaration and `execution-payload-update.sh` as proof.
+- Execution: SEED-413#fast-runtime-unit-cases (plan 879; first implementation `b7f5b8ff0`)
+  - Timestamp: unknown (2026-11-27 +08:00, CI runs 45976416445 and 45993428532)
+  - Tool: Claude Code
+  - Model: claude-opus-5-5
+  - Open Dough release: 0.3.116 (VERSION at Take `2daf9d041`)
+  - Evidence: slice 3 removed the `serving-modes` icon case that `Distribution/tests/test-runner/dashboard-concurrent-runs.sh` selected by title, so both runs found no tests (repair `91d5f3c3b`); slice 7 added `dashboard/test-support/support/runnerSettings.mjs`, which `Distribution/tests/support/local-test-suite-checkout.mjs`'s copy list lacked, so the local-suite tests failed `ERR_MODULE_NOT_FOUND` (repair `ccafa3584`). Each slice's consumer trace and focused proof passed; only the Distribution shard caught them.
+  - Observed effect: two branch CI repairs, each with a stash-and-restore pause of the next slice.
+  - Inference: the same file-naming gap as above, now for test selections and scratch-copy lists; later briefs that named these lists and a title grep across `Distribution/tests` had no recurrence.
 
 <a id="dd-649"></a>
 

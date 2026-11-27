@@ -6,6 +6,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { servingModeEnvironment } from "../../server/localBoundaryPlugin.ts";
 import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 import { productionSeedProjects } from "../../server/projectConfigurationSeed.ts";
 import { describedBacklog } from "../describedRevisions.ts";
@@ -13,24 +14,14 @@ import { everyRepository, publishes, type FakeGitHub } from "./fakeGitHub.ts";
 import { expectServedHomesReach } from "./fixtureOriginRoute.ts";
 import type { DashboardServerMode } from "./serverAddress.ts";
 
-// Vite's dev server is development and its preview is production
-// (../../server/localBoundaryPlugin.ts); the boundary server takes the one
-// asked for, production when none is.
+// Vite's dev and preview servers open their serving mode's environment; the
+// boundary server takes the one asked for, production when none is.
 export function projectEnvironmentOf(
   mode: DashboardServerMode,
   asked?: ProjectEnvironment,
 ): ProjectEnvironment {
-  if (mode === "dev") return "development";
-  if (mode === "preview") return "production";
+  if (mode === "dev" || mode === "preview") return servingModeEnvironment[mode];
   return asked ?? "production";
-}
-
-// The project environment the other server keeps its list in: there are two,
-// each the other's.
-export function otherProjectEnvironment(
-  environment: ProjectEnvironment,
-): ProjectEnvironment {
-  return environment === "development" ? "production" : "development";
 }
 
 // Where a server in `environment` keeps its project list under `home`.

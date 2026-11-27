@@ -61,7 +61,8 @@ function repositoryLabel(workflow) {
 
 // `job`'s shard declaration in `workflow`, named in refusals by its
 // repository-relative path.
-function readDeclaration({ workflow, job }) {
+function readDeclaration({ workflow, job, declaration }) {
+  if (declaration !== undefined) return declaration;
   const path = fileURLToPath(workflow);
   return readShareDeclaration(
     readFileSync(path, "utf8"),
@@ -113,6 +114,8 @@ export function ciGroupSelection(root, splitVariable, job) {
   return { roots: [root], splitVariable, workflow: ciWorkflow, job };
 }
 
+// A selection may carry its spec labels (`files`) and its job's parsed
+// `declaration`; without them they are read from `testDir` and `workflow`.
 // Selected spec files for shard `split` (`<i>/<n>`, the value of the
 // runner's `splitVariable`) under `testDir`'s `roots`. A selection naming a
 // `workflow` (file URL) and `job`, as every group's configuration does, runs
@@ -122,7 +125,7 @@ export function ciGroupSelection(root, splitVariable, job) {
 export function selectedFiles(testDir, split, selection) {
   const { roots, job } = selection;
   const directory = fileURLToPath(testDir);
-  const files = dashboardSpecFiles(directory, roots);
+  const files = selection.files ?? dashboardSpecFiles(directory, roots);
   return job === undefined
     ? files
     : declaredShardFiles(directory, files, split, selection);
@@ -154,15 +157,19 @@ function filePatterns(testDir, files) {
 // worker for ordinary checks; CI keeps its concurrency. No dependency makes ordinary checks wait for those chains. Complementary
 // matches retain exactly one execution of every selected file. `selection`
 // names a runner's own `roots` and `splitVariable`, and its `workflow` and
-// `job` (selectedFiles).
-export function dashboardTestProjects(testDir, split, selection) {
+// `job` (selectedFiles); `ci` says whether the run is CI's.
+/**
+ * @param {boolean} ci
+ * @returns {{ name: string, workers?: number, testMatch: RegExp[] }[]}
+ */
+export function dashboardTestProjects(testDir, split, selection, ci) {
   const files = selectedFiles(testDir, split, selection);
   const isProductionChain = (file) =>
     /^production-watcher(?:-.*)?\.spec\.ts$/.test(basename(file));
   return [
     {
       name: "chromium-deployments",
-      ...(process.env["CI"] ? {} : { workers: 1 }),
+      ...(ci ? {} : { workers: 1 }),
       testMatch: filePatterns(testDir, files.filter(isProductionChain)),
     },
     {

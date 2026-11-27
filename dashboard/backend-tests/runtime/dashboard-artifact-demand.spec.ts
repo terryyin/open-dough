@@ -1,240 +1,96 @@
-import { existsSync, readFileSync, statSync } from "node:fs";
-import { createServer, type ServerResponse } from "node:http";
-import type { AddressInfo } from "node:net";
+// Workers waiting on one shared run artifact (../../test-support/support/runArtifacts.ts)
+// see its one preparation complete, fail or be interrupted. A controlled
+// build stands in for the app build and the server bundle, which share this
+// coordinator; the real builds under concurrent runs are
+// Distribution/tests/test-runner/dashboard-concurrent-runs.sh's.
+import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
-import { appendedFileRecords } from "../../test-support/support/appendedRecords.ts";
-import {
-  dashboardAppArtifactKey,
-  sharedDashboardBuild,
-} from "../../test-support/support/dashboardBuild.ts";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { processRunning } from "../../test-support/support/processGroup.ts";
-import {
-  proofDirectory,
-  readProof,
-  removeProofDirectories,
-  startProofRun,
-} from "../../test-support/support/proofRecordRun.ts";
-import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
+import { afterEach, expect, test } from "vitest";
+import { artifactDemand } from "../../test-support/support/runArtifacts.ts";
 
-const fixtures = path.join(
-  repoRoot,
-  "dashboard/test-support/fixtures/artifact-demand",
-);
-const setupOf = (file: string) =>
-  path.join(repoRoot, "dashboard/test-support/support", file);
-const setup = setupOf("backendGlobalSetup.ts");
+const created: string[] = [];
+afterEach(() => {
+  for (const directory of created.splice(0))
+    rmSync(directory, { recursive: true, force: true });
+});
 
-type Trace = { event: string; key: string; directory?: string };
-type Consumer = { pid: number; directory?: string; error?: string };
-type Build = { pid: number; outDir: string };
-type Outcome = "complete" | "fail" | "interrupt";
-
-function appOutput(directory: string) {
-  if (!existsSync(directory)) return undefined;
-  const entry = path.join(directory, "index.html");
-  return {
-    modified: statSync(directory).mtimeMs,
-    index: existsSync(entry) ? readFileSync(entry, "utf8") : undefined,
-  };
-}
-
-test.afterEach(removeProofDirectories);
-
-function proveArtifact(
-  artifact: {
-    readonly name: string;
-    readonly key: string;
-    readonly preload: string;
-    readonly spec: string;
-    readonly partial: string;
-    readonly error: RegExp;
-    // The run's global setup; Dashboard Backend Test's unless named.
-    readonly setup?: string;
-  },
-  outcomes: readonly Outcome[],
-): void {
-  const preload = pathToFileURL(path.join(fixtures, artifact.preload)).href;
-  for (const outcome of outcomes) {
-    test(`a shared real ${artifact.name} can ${outcome} while workers are waiting`, async () => {
-      // Keep a completed app in the outer run while the inner run fails or exits.
-      const peer =
-        artifact.key === dashboardAppArtifactKey && outcome !== "complete"
-          ? await sharedDashboardBuild()
-          : undefined;
-      const peerBefore = peer === undefined ? undefined : appOutput(peer);
-      const dist = path.join(repoRoot, "dashboard", "dist");
-      const distBefore = peer === undefined ? undefined : appOutput(dist);
-      if (peer !== undefined) {
-        expect(peer).not.toBe(dist);
-        expect(peerBefore?.index).toContain("/assets/");
-      }
-      const directory = proofDirectory();
-      const trace = path.join(directory, "artifacts.jsonl");
-      const consumers = path.join(directory, "consumers.jsonl");
-      let atGate: (
-        build: Build & { release(value: string): void },
-      ) => void = () => {};
-      const held = new Promise<Build & { release(value: string): void }>(
-        (resolve) => {
-          atGate = resolve;
-        },
-      );
-      const gate = createServer((request, response: ServerResponse) => {
-        const input: Buffer[] = [];
-        request.on("data", (chunk: Buffer) => input.push(chunk));
-        request.once("end", () => {
-          const build = JSON.parse(
-            Buffer.concat(input).toString("utf8"),
-          ) as Build;
-          atGate({ ...build, release: (value) => response.end(value) });
+// A build the case ends: it holds until released, failed or interrupted.
+function controlledBuild() {
+  const builds: string[] = [];
+  const ends: ((error?: Error) => void)[] = [];
+  const artifact = {
+    create: () => {
+      const directory = mkdtempSync(path.join(tmpdir(), "dough-demand-"));
+      created.push(directory);
+      return directory;
+    },
+    prepare: (directory: string, signal: AbortSignal) => {
+      builds.push(directory);
+      return new Promise<void>((resolve, reject) => {
+        ends.push((error) => {
+          if (error) reject(error);
+          else resolve();
+        });
+        signal.addEventListener("abort", () => {
+          reject(signal.reason as Error);
         });
       });
-      await new Promise<void>((resolve, reject) => {
-        gate.once("error", reject);
-        gate.listen(0, "127.0.0.1", resolve);
-      });
-      const { port } = gate.address() as AddressInfo;
-      const run = startProofRun({
-        directory,
-        spec: artifact.spec,
-        config: {
-          testDir: fixtures,
-          fullyParallel: true,
-          workers: 2,
-          globalSetup: artifact.setup ?? setup,
-        },
-        args: outcome === "interrupt" ? ["--grep", "first preview server"] : [],
-        env: {
-          NODE_OPTIONS: [
-            process.env["NODE_OPTIONS"],
-            `--import ${JSON.stringify(preload)}`,
-          ]
-            .filter(Boolean)
-            .join(" "),
-          OPEN_DOUGH_ARTIFACT_PROOF_GATE: `http://127.0.0.1:${String(port)}`,
-          OPEN_DOUGH_ARTIFACT_PROOF_CONSUMERS: consumers,
-          OPEN_DOUGH_DASHBOARD_ARTIFACT_TRACE: trace,
-        },
-      });
-      try {
-        const build = await Promise.race([
-          held,
-          run.result.then((result) => {
-            throw new Error(
-              `Playwright exited before the build gate: ${result.stdout}${result.stderr}`,
-            );
-          }),
-        ]);
-        expect(processRunning(build.pid)).toBe(true);
-        expect(existsSync(path.join(build.outDir, artifact.partial))).toBe(
-          true,
-        );
-        const events = () =>
-          appendedFileRecords<Trace>(trace).filter(
-            ({ key }) => key === artifact.key,
-          );
-        const eventCount = (event: string) =>
-          events().filter((entry) => entry.event === event).length;
-        const selected = outcome === "interrupt" ? 1 : 2;
-        await expect.poll(() => eventCount("request")).toBe(selected);
-        expect(eventCount("start")).toBe(1);
-        expect(eventCount("complete")).toBe(0);
-        expect(appendedFileRecords<Consumer>(consumers)).toEqual([]);
-
-        if (outcome === "interrupt") run.child.kill("SIGINT");
-        else build.release(outcome === "fail" ? "fail" : "continue");
-        const result = await run.result;
-        const proof = readProof(run.recordPath);
-        expect(proof.selectedCount).toBe(selected);
-        expect(proof.phase).toBe("completed");
-        expect(processRunning(build.pid)).toBe(false);
-        expect(existsSync(build.outDir)).toBe(false);
-        if (peer !== undefined) {
-          expect(build.outDir).not.toBe(peer);
-          expect(appOutput(peer)).toEqual(peerBefore);
-          expect(appOutput(dist)).toEqual(distBefore);
-        }
-
-        const observed = appendedFileRecords<Consumer>(consumers);
-        if (outcome === "complete") {
-          expect(result.status, `${result.stdout}${result.stderr}`).toBe(0);
-          expect(proof.terminal?.strictStatus).toBe("passed");
-          expect(eventCount("complete")).toBe(1);
-          expect(observed).toHaveLength(2);
-          expect(new Set(observed.map(({ pid }) => pid)).size).toBe(2);
-          expect(observed.map((entry) => entry.directory)).toEqual([
-            build.outDir,
-            build.outDir,
-          ]);
-        } else if (outcome === "fail") {
-          expect(result.status).toBe(1);
-          expect(proof.terminal?.strictStatus).toBe("failed");
-          expect(eventCount("complete")).toBe(0);
-          expect(observed).toHaveLength(2);
-          expect(new Set(observed.map(({ pid }) => pid)).size).toBe(2);
-          expect(observed.every((entry) => entry.directory === undefined)).toBe(
-            true,
-          );
-          expect(observed[0]?.error).toMatch(artifact.error);
-          expect(observed[1]?.error).toBe(observed[0]?.error);
-        } else {
-          expect(result.status).toBe(1);
-          expect(proof.terminal).toMatchObject({
-            runnerStatus: "interrupted",
-            strictStatus: "failed",
-          });
-          expect(eventCount("complete")).toBe(0);
-        }
-      } finally {
-        const closed = new Promise<void>((resolve) =>
-          gate.close(() => {
-            resolve();
-          }),
-        );
-        gate.closeAllConnections();
-        await closed;
-        if (run.child.exitCode === null && run.child.signalCode === null) {
-          run.child.kill("SIGINT");
-          await run.result;
-        }
-        await run.stop();
-      }
-    });
-  }
+    },
+  };
+  const demand = artifactDemand(new Map([["app", artifact]]));
+  const end = (error?: Error) => {
+    for (const finish of ends) finish(error);
+  };
+  return { demand, builds, end };
 }
 
-const appBuild = {
-  name: "app build",
-  key: dashboardAppArtifactKey,
-  preload: "buildGate.mjs",
-  spec: "app.proof.ts",
-  partial: "partial",
-  error: /Vite app build failed at the proof gate/,
-};
+type Build = ReturnType<typeof controlledBuild>;
 
-proveArtifact(appBuild, ["complete", "fail", "interrupt"]);
+// Two workers waiting on the build, and the one directory it prepares in.
+function twoWaiting(build: Build) {
+  const waiting = () =>
+    build.demand.request("app") ?? Promise.reject(new Error("unregistered"));
+  const settled = Promise.allSettled([waiting(), waiting()]);
+  expect(build.builds).toHaveLength(1);
+  return { settled, directory: build.builds[0] ?? "" };
+}
 
-proveArtifact(
-  {
-    name: "server bundle",
-    key: "server-bundle",
-    preload: "bundleGate.mjs",
-    spec: "bundle.proof.ts",
-    partial: "vite.config.mjs",
-    error: /boundaryServer\.mjs.*(?:os error 21|is a directory)/is,
+test("two waiting workers receive one completed build's directory", async () => {
+  const build = controlledBuild();
+  const { settled, directory } = twoWaiting(build);
+
+  build.end();
+  const [first, second] = await settled;
+
+  expect(first).toEqual({ status: "fulfilled", value: directory });
+  expect(second).toEqual(first);
+  expect(existsSync(directory)).toBe(true);
+});
+
+const endings: { outcome: string; ending: (build: Build) => Promise<void> }[] =
+  [
+    {
+      outcome: "fails",
+      ending: (build) => {
+        build.end(new Error("the build failed"));
+        return Promise.resolve();
+      },
+    },
+    { outcome: "is interrupted", ending: (build) => build.demand.close() },
+  ];
+
+test.each(endings)(
+  "two waiting workers see the same rejection when one shared build $outcome, leaving no directory",
+  async ({ ending }) => {
+    const build = controlledBuild();
+    const { settled, directory } = twoWaiting(build);
+
+    await ending(build);
+    const [first, second] = await settled;
+
+    expect(first.status).toBe("rejected");
+    expect(second).toEqual(first);
+    expect(existsSync(directory)).toBe(false);
   },
-  ["complete", "fail"],
 );
-
-// Each other group runner's own setup shares the app build the same way and
-// removes it when interrupted.
-for (const [runner, file] of [
-  ["Dashboard Backend Test", "backendGlobalSetup.ts"],
-  ["E2E Test", "e2eGlobalSetup.ts"],
-] as const)
-  proveArtifact(
-    { ...appBuild, name: `${runner} app build`, setup: setupOf(file) },
-    ["interrupt"],
-  );

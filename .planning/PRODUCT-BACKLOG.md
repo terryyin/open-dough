@@ -28,7 +28,6 @@ intent introduced or affected by a newly developed story.
 
 ## Taken
 
-- [Prove Dashboard runtime behavior in fast unit cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#fast-runtime-unit-cases) — SEED-413#fast-runtime-unit-cases ([plan](slice-plans/879-prove-runtime-in-fast-unit-cases/PLAN.md))
 - [Keep full Dashboard frontend runs connected to their browser](seeds/SEED-413-renovate-dashboard-unit-tests.md#keep-full-frontend-runs-connected) — SEED-413#keep-full-frontend-runs-connected ([plan](slice-plans/881-keep-full-frontend-runs-connected/PLAN.md))
 - [Keep Intent's session review and its proof whole after the retirement](seeds/SEED-418-review-published-session-changes.md#keep-session-review-proof-after-retirement) — SEED-418#keep-session-review-proof-after-retirement ([plan](slice-plans/883-keep-session-review-proof-after-retirement/PLAN.md))
 - [Prove published refresh lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-refresh-lifecycle-via-vitest) — SEED-413#published-refresh-lifecycle-via-vitest ([plan](slice-plans/861-prove-published-refresh-lifecycle-on-vitest/PLAN.md))
@@ -37,6 +36,8 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Correct the fast runtime cases' leftovers](seeds/SEED-413-renovate-dashboard-unit-tests.md#fast-runtime-unit-case-cleanup) — SEED-413#fast-runtime-unit-case-cleanup
+- [Close the preview's incident record when the watcher ends on SIGHUP](seeds/SEED-370-remove-old-dashboard-deployments.md#close-preview-incident-record-on-sighup) — SEED-370#close-preview-incident-record-on-sighup
 - [Follow published progress and read Board records from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git
 - [Read published Git inputs to CI from local Git](seeds/SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git) — SEED-435#read-published-ci-inputs-from-local-git

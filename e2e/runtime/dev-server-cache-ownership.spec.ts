@@ -2,8 +2,8 @@
 // another server is still serving to its page.
 import { readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { expect, test } from "vitest";
-import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { startDashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
 
 test("one dev server's optimized module survives another server's cache write", async () => {
   const servers = await Promise.all([
@@ -56,4 +56,4 @@ test("one dev server's optimized module survives another server's cache write", 
     if (restore !== undefined) writeFileSync(restore.file, restore.bytes);
     await Promise.all(servers.map((server) => server.close()));
   }
-}, 30_000);
+});

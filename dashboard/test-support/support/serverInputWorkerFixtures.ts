@@ -1,10 +1,11 @@
 // The worker fixtures that request what a worker's servers and installed
 // origins start from, declared with the suite's other worker fixtures in
-// ./pageTest.ts. Each takes the bounded worker lifetime of cold shared
-// preparation (coldInputPreparation), so the first case waits for none of it
-// in its own default 30 seconds. Preparation stays in the run's elapsed time
+// ./workerPreparationFixtures.ts. Each takes the bounded worker lifetime of
+// cold shared preparation (coldInputPreparation), so the first case waits for
+// none of it in its own default 30 seconds. Preparation stays in the run's elapsed time
 // and is deduplicated by the run owner (./runArtifacts.ts).
 import type { Fixtures } from "@playwright/test";
+import { servedArtifacts } from "./dashboardServerOptions.ts";
 import { coldInputPreparation } from "./publishedMainWorkerFixtures.ts";
 
 export type FixtureServerMode = "preview" | "boundary";
@@ -21,26 +22,43 @@ export type ServerInputWorkerFixtures = {
   queuedCodexPreviewReady: undefined;
 };
 
-// Requests the named hosts' queued origins and what the served inputs need:
-// the app build for previews, the server bundle for any dashboard server.
+// The run artifacts a worker requests for the named hosts' queued origins and
+// what its unmounted server start serves (servedArtifacts).
+export async function serverInputKeys(
+  hosts: readonly Host[],
+  served: FixtureServerMode | undefined,
+): Promise<string[]> {
+  // Only a worker that takes an installed origin loads its preparation.
+  const [origins, app, bundle] = await Promise.all([
+    hosts.length === 0
+      ? []
+      : import("./startOriginPreparation.ts").then(
+          ({ startOriginArtifactKey }) =>
+            hosts.map((host) => startOriginArtifactKey(host, "queued")),
+        ),
+    import("./dashboardBuild.ts"),
+    import("./serverBundle.ts"),
+  ]);
+  const serves =
+    served === undefined
+      ? { app: false, bundle: false }
+      : servedArtifacts(served, false);
+  return [
+    ...origins,
+    ...(serves.app ? [app.dashboardAppArtifactKey] : []),
+    ...(serves.bundle ? [bundle.serverBundleArtifactKey] : []),
+  ];
+}
+
 async function prepareServerInputs(
   hosts: readonly Host[],
   served: FixtureServerMode | undefined,
 ) {
-  const [artifacts, origins, app, bundle] = await Promise.all([
-    import("./runArtifacts.ts"),
-    import("./startOriginPreparation.ts"),
-    import("./dashboardBuild.ts"),
-    import("./serverBundle.ts"),
-  ]);
+  const { requestRunArtifact } = await import("./runArtifacts.ts");
   await Promise.all(
-    [
-      ...hosts.map((host) => origins.startOriginArtifactKey(host, "queued")),
-      ...(served === "preview" ? [app.dashboardAppArtifactKey] : []),
-      ...(served === "preview" || served === "boundary"
-        ? [bundle.serverBundleArtifactKey]
-        : []),
-    ].map((key) => artifacts.requestRunArtifact(key)),
+    (await serverInputKeys(hosts, served)).map((key) =>
+      requestRunArtifact(key),
+    ),
   );
 }
 

@@ -1,12 +1,12 @@
 // Raw argv, output bytes and invalid framing remain explicit contract inputs.
-import { createServer } from "node:http";
-import type { AddressInfo } from "node:net";
 import {
   everyRepository,
   hangs,
 } from "../../test-support/support/fakeGitHub.ts";
-import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
-import { expect, test } from "../support/fakeGhInProcess.ts";
+import { readAnswer } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-answer.mjs";
+import { decodeFakeGhFrame } from "../../test-support/support/fakeGhTransport.mjs";
+import { expect } from "vitest";
+import { test } from "../support/fakeGhInProcess.ts";
 
 test("preserves raw binary stdout and exact empty/UTF-8 argv without a call PID", async ({
   client,
@@ -74,79 +74,60 @@ test("preserves empty streams, UTF-8 stdout/stderr and nonzero exits", async ({
   expect(exited.stderr).toEqual(Buffer.from("échec\0終\n"));
 });
 
-for (const frame of ["broken", "0\n99\nshort", "999\n0\n"]) {
-  test(`rejects malformed fake frame ${JSON.stringify(frame)}`, async ({
-    client,
-  }) => {
-    const server = createServer((request, response) => {
-      request.resume();
-      response.end(frame);
-    });
-    await new Promise<void>((resolve) =>
-      server.listen(0, "127.0.0.1", resolve),
-    );
-    try {
-      const origin = `http://127.0.0.1:${String((server.address() as AddressInfo).port)}/`;
-      const result = await client.raw(["api"], {
-        env: { FAKE_GH_ORIGIN: origin },
-      });
-      expect(result.error?.message).toBe(
-        "fake gh: invalid test response frame",
-      );
-      expect(result.stdout).toEqual(Buffer.alloc(0));
-      const restore = withRestoredEnv({ FAKE_GH_ORIGIN: origin });
-      try {
-        expect((await client.read(["api", "repos/test/repo"])).failure).toEqual(
-          { kind: "failed" },
-        );
-        expect(client.apiLaunched()).toBe(false);
-      } finally {
-        restore();
-      }
-    } finally {
-      await new Promise<void>((resolve) =>
-        server.close(() => {
-          resolve();
-        }),
-      );
-    }
+test("decodes a well-formed frame and rejects every malformed frame shape", () => {
+  expect(decodeFakeGhFrame(Buffer.from("7\n3\nerrout"), 16)).toEqual({
+    exitCode: 7,
+    stderr: Buffer.from("err"),
+    stdout: Buffer.from("out"),
   });
-}
-
-test("missing and closed endpoints preserve the synthetic CLI diagnostic on stderr", async ({
-  client,
-}) => {
-  const missing = await client.raw(["api"], { env: {} });
-  expect(missing.stderr).toEqual(
-    Buffer.from("fake gh: FAKE_GH_ORIGIN is not set\n"),
-  );
-  await client.github.close();
-  const gone = await client.raw(["api"]);
-  expect(gone.stderr).toEqual(
-    Buffer.from("fake gh: the test's fake GitHub is gone\n"),
+  for (const frame of [
+    "broken",
+    "0\n99\nshort",
+    "999\n0\n",
+    "\n0\n",
+    "x\n0\n",
+  ]) {
+    expect(() => decodeFakeGhFrame(Buffer.from(frame), 16), frame).toThrow(
+      "fake gh: invalid test response frame",
+    );
+  }
+  expect(() => decodeFakeGhFrame(Buffer.from("0\n0\n12345"), 4)).toThrow(
+    "fake gh: output exceeds maxBuffer",
   );
 });
 
-test("missing, remote, closed and interrupted fake endpoints settle locally", async ({
+test("missing, remote, closed and interrupted endpoints settle locally with the synthetic diagnostic as a failed read", async ({
   client,
 }) => {
-  expect(
-    (await client.raw(["api"], { env: { FAKE_GH_ORIGIN: "" } })).error?.message,
-  ).toBe("fake gh: FAKE_GH_ORIGIN is not set");
-  expect(
-    (
-      await client.raw(["api"], {
-        env: { FAKE_GH_ORIGIN: "https://api.github.com/" },
-      })
-    ).error?.message,
-  ).toBe("fake gh: the test's fake GitHub must be local");
+  const gone = "fake gh: the test's fake GitHub is gone";
   client.github.serve(everyRepository, hangs);
-  const held = client.read(["api", "repos/test/repo"]);
-  await expect.poll(() => client.github.unansweredCalls).toBe(1);
+  const held = client.raw(["api"]);
+  await expect
+    .poll(() => client.github.unansweredCalls, { interval: 5 })
+    .toBe(1);
+  const settled = [
+    await client.raw(["api"], { env: {} }),
+    await client.raw(["api"], { env: { FAKE_GH_ORIGIN: "" } }),
+    await client.raw(["api"], {
+      env: { FAKE_GH_ORIGIN: "https://api.github.com/" },
+    }),
+  ];
   await client.github.close();
-  expect((await held).failure).toEqual({ kind: "failed" });
-  expect((await client.read(["api", "repos/test/closed"])).failure).toEqual({
-    kind: "failed",
-  });
-  expect(client.apiLaunched()).toBe(false);
+  settled.push(await held, await client.raw(["api"]));
+  expect(settled.map(({ stderr }) => stderr.toString())).toEqual(
+    [
+      "fake gh: FAKE_GH_ORIGIN is not set",
+      "fake gh: FAKE_GH_ORIGIN is not set",
+      "fake gh: the test's fake GitHub must be local",
+      gone,
+      gone,
+    ].map((message) => `${message}\n`),
+  );
+  for (const { error, stdout, stderr } of settled) {
+    expect(
+      readAnswer(error, stdout.toString(), stderr.toString(), "asked").failure,
+    ).toEqual({
+      kind: "failed",
+    });
+  }
 });

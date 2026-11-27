@@ -30,14 +30,22 @@ import {
 } from "../../dashboard/test-support/support/productionBuildGate.ts";
 import { faultGateChanges } from "../../dashboard/test-support/support/productionFault.ts";
 import {
-  publishedPolicy,
-  pushExclusions,
-} from "../../dashboard/test-support/support/productionQualificationFixture.ts";
-import {
   expectSharedLaunchRecord,
   writeSharedLaunchRecord,
 } from "../../dashboard/test-support/support/sharedLaunchRecord.ts";
 import { ciWorkflowPath } from "../../dashboard/server/productionQualification.mjs";
+
+// The CI push policy this repository's workflow and the journeys publish.
+const pushExclusions =
+  '    paths-ignore:\n      - ".planning/**"\n      - "docs/**"\n';
+
+// The watcher publishes this policy with A; its extra exclusion conflicts with
+// the dirty local workflow.
+export const publishedPolicy = (workflow: string) =>
+  workflow.replace(
+    pushExclusions,
+    `${pushExclusions}      - "extra/**"\n      - ".github/**"\n`,
+  );
 
 type PublishedMainFixture = Awaited<
   ReturnType<typeof localPublishedMainFixture>

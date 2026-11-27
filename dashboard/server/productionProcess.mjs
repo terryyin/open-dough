@@ -49,31 +49,56 @@ export function ownedProcess(command, args, options) {
 /** @param {import("node:child_process").ChildProcess} child @param {NodeJS.Signals} signal */
 function signalGroup(child, signal) {
   if (child.pid === undefined) return;
+  signalProcessGroup({
+    pgid: child.pid,
+    ended: child.exitCode !== null || child.signalCode !== null,
+    signal,
+  });
+}
+/**
+ * Signals an owned process group. macOS answers EPERM rather than ESRCH for a
+ * group whose remaining members are all zombies or still exiting after npm
+ * ended. Suppress only a proven ended group after the owned child ended; a
+ * live permission failure still propagates.
+ * @param {{pgid: number, ended: boolean, signal: NodeJS.Signals, kill?: (pid: number, signal: NodeJS.Signals) => void, readGroups?: () => string | undefined}} options
+ */
+export function signalProcessGroup({
+  pgid,
+  ended,
+  signal,
+  kill = (pid, sent) => process.kill(pid, sent),
+  readGroups = readProcessGroups,
+}) {
   try {
-    process.kill(-child.pid, signal);
+    kill(-pgid, signal);
   } catch (error) {
-    // macOS answers EPERM rather than ESRCH for a group whose remaining
-    // members are all zombies or still exiting after npm ended. Suppress only
-    // a proven ended group after the owned child ended; a live permission
-    // failure still propagates.
-    if (error.code === "EPERM" && groupEnded(child)) return;
-    if (error.code !== "ESRCH") throw error;
+    const code = /** @type {NodeJS.ErrnoException} */ (error).code;
+    if (code === "EPERM" && ended) {
+      const reading = readGroups();
+      if (reading !== undefined && groupEndedIn(reading, pgid)) return;
+    }
+    if (code !== "ESRCH") throw error;
   }
 }
-/** @param {import("node:child_process").ChildProcess} child */
-function groupEnded(child) {
-  if (child.exitCode === null && child.signalCode === null) return false;
+/** The `ps -axo pgid=,stat=` reading, or undefined when ps fails. */
+function readProcessGroups() {
   const groups = spawnSync("ps", ["-axo", "pgid=,stat="], {
     encoding: "utf8",
     timeout: 1_000,
   });
-  if (groups.status !== 0) return false;
-  // ps lists zombie (state Z) and exiting (flag E, as in "?NE") members
-  // until they are reaped.
-  return !groups.stdout.split("\n").some((line) => {
-    const [pgid, stat = ""] = line.trim().split(/\s+/);
+  return groups.status === 0 ? groups.stdout : undefined;
+}
+/**
+ * Whether a `ps -axo pgid=,stat=` reading shows the group with no live
+ * member. ps lists zombie (state Z) and exiting (flag E, as in "?NE")
+ * members until they are reaped; those no longer run.
+ * @param {string} reading @param {number} pgid
+ */
+function groupEndedIn(reading, pgid) {
+  return !reading.split("\n").some((line) => {
+    const [group, stat = ""] = line.trim().split(/\s+/);
     return (
-      pgid === String(child.pid) && !stat.startsWith("Z") && !stat.includes("E")
+      group === String(pgid) && !stat.startsWith("Z") && !stat.includes("E")
     );
   });
 }

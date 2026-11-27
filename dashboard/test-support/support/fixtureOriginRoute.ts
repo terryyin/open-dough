@@ -2,11 +2,18 @@
 // repository's URL reaches the fixture's local origin, and any other GitHub URL
 // fails locally, so no Git command run under that HOME, including one in a
 // repository the fixture never cloned, reaches the network.
-import { execFileSync, spawnSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { mkdirSync, rmSync, symlinkSync } from "node:fs";
 import path from "node:path";
 import { productionSeedProjects } from "../../server/projectConfigurationSeed.ts";
 import type { FakeGitHub } from "./fakeGitHub.ts";
+import {
+  changeHomeRoutes,
+  publicationRoutes,
+  republishedRoutes,
+  withRoute,
+  type HomeRoute,
+} from "./homeRoutes.ts";
 
 // The origin URL a configured project `owner/name` names.
 export const gitHubRepositoryUrl = (repository: string) =>
@@ -17,14 +24,9 @@ export function routeOriginThroughHome(
   origin: string,
   repository: string,
 ): void {
-  execFileSync("git", [
-    "config",
-    "--file",
-    path.join(home, ".gitconfig"),
-    "--replace-all",
-    `url.${origin}.insteadOf`,
-    gitHubRepositoryUrl(repository),
-  ]);
+  changeHomeRoutes(home, (routes) =>
+    withRoute(routes, { origin, url: gitHubRepositoryUrl(repository) }),
+  );
 }
 
 // The origin `routeOriginThroughHome` routed `repository`'s URL to under
@@ -54,15 +56,10 @@ const unroutedGitHub = (home: string) => path.join(home, "unrouted-github");
 // under `home`, so a Git read of an unrouted configured project fails at once
 // instead of reaching the network. Git picks the longest matching insteadOf,
 // so each origin `routeOriginThroughHome` names still wins.
-function routeUnroutedGitHubAway(home: string): void {
-  execFileSync("git", [
-    "config",
-    "--file",
-    path.join(home, ".gitconfig"),
-    `url.${unroutedGitHub(home)}/.insteadOf`,
-    "https://github.com/",
-  ]);
-}
+export const unroutedAway = (home: string): HomeRoute => ({
+  origin: `${unroutedGitHub(home)}/`,
+  url: "https://github.com/",
+});
 
 // An origin served for every repository answers each seeded project's URL
 // through the unrouted-away route: that project's place under it links to the
@@ -103,27 +100,16 @@ export const servedHomes = (github: FakeGitHub): readonly string[] =>
 // A dashboard HOME served by `github`: unrouted GitHub URLs fail locally and
 // each origin published through `github` is reachable.
 export function routeDashboardHome(home: string, github: FakeGitHub): void {
-  routeUnroutedGitHubAway(home);
   const { homes, origins, fallback } = served(github);
   homes.push(home);
   if (fallback !== undefined) routeFallbackThroughHome(home, fallback);
-  for (const [origin, repository] of origins)
-    routeOriginThroughHome(home, origin, repository);
-}
-
-// Git takes the first of two routes for one URL, so a repository published
-// again through the same fake GitHub drops the route its earlier publication
-// added; a route the HOME's own fixture set up stays first.
-function unrouteOrigin(home: string, origin: string, repository: string) {
-  spawnSync("git", [
-    "config",
-    "--file",
-    path.join(home, ".gitconfig"),
-    "--fixed-value",
-    "--unset-all",
-    `url.${origin}.insteadOf`,
-    gitHubRepositoryUrl(repository),
-  ]);
+  changeHomeRoutes(home, (routes) =>
+    origins.reduce(
+      (each, [origin, repository]) =>
+        withRoute(each, { origin, url: gitHubRepositoryUrl(repository) }),
+      withRoute(routes, unroutedAway(home)),
+    ),
+  );
 }
 
 export function routeOriginThroughServedHomes(
@@ -137,10 +123,13 @@ export function routeOriginThroughServedHomes(
     ...known.origins.filter(([, routed]) => routed !== repository),
     [origin, repository],
   ];
-  for (const home of known.homes) {
-    if (earlier !== undefined) unrouteOrigin(home, earlier[0], repository);
-    routeOriginThroughHome(home, origin, repository);
-  }
+  const url = gitHubRepositoryUrl(repository);
+  const previous =
+    earlier === undefined ? undefined : { origin: earlier[0], url };
+  for (const home of known.homes)
+    changeHomeRoutes(home, (routes) =>
+      republishedRoutes(routes, previous, { origin, url }),
+    );
 }
 
 // Serving every repository from `origin` (or, undefined, from no origin).
@@ -165,27 +154,12 @@ export function routeServedHomesToPublication(
   const published = known.origins.find(([, routed]) => routed === repository);
   if (published === undefined)
     throw new Error(`No origin is published by name for ${repository}.`);
-  const url = gitHubRepositoryUrl(repository);
-  for (const home of known.homes) {
-    const config = path.join(home, ".gitconfig");
-    const routes = execFileSync(
-      "git",
-      [
-        "config",
-        "--file",
-        config,
-        "--get-regexp",
-        String.raw`^url\..*\.insteadof$`,
-      ],
-      { encoding: "utf8" },
-    );
-    for (const route of routes.split("\n")) {
-      const at = route.lastIndexOf(" ");
-      const origin = route.slice("url.".length, at - ".insteadof".length);
-      if (route.slice(at + 1) === url && origin !== published[0])
-        unrouteOrigin(home, origin, repository);
-    }
-  }
+  const publication = {
+    origin: published[0],
+    url: gitHubRepositoryUrl(repository),
+  };
+  for (const home of known.homes)
+    changeHomeRoutes(home, (routes) => publicationRoutes(routes, publication));
 }
 
 // Fails unless Git under every HOME a dashboard served by `github` runs under
