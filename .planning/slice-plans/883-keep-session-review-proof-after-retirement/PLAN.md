@@ -21,15 +21,19 @@ the behavior the removed specs covered.
 
 ## Current findings
 
-Read at `5dda721b`.
+Read at `5dda721b`; the named product files are unchanged at `a0f4b5a8e`,
+where the premises below were observed.
 
 1. **Reselection returns to the card's session.** `useStoryComparison.ts`
    keeps the last opening per identity in `lastOpening` (lines 57–66) and
    passes `opened: explicit?.session` (line 112) to
    `useStorySessionScope`. `IntentPerspective.tsx:169` renders the lens
    without a per-story key, so after **Review session changes** on story X,
-   selecting Y and then X again rebuilds X's scope at that session. The seed
-   says a Selected story chosen otherwise starts at **Whole story**.
+   selecting Y and then X again from **Recent stories**, which keeps Intent
+   mounted, rebuilds X's scope at that session. Reselecting through the
+   Board's cards (Development, card, Intent) remounts the lens and already
+   starts at **Whole story**. The seed says a Selected story chosen otherwise
+   starts at **Whole story**.
    `intent-story-compare-sessions.spec.ts:156` chooses the session through
    the radio group, so it does not reach this path.
 2. **A chosen session's first read measures the whole story.**
@@ -41,8 +45,11 @@ Read at `5dda721b`.
    `e2e/review/story-review-diff-context.spec.ts`, which opened Intent
    through `openExpandDiff` → `openIntentReviewChanges`
    (`d4defcbb2:dashboard/test-support/support/expandContextDiff.ts:30`) and
-   measured `.intent-reading`; only its header said Side panel. Nothing at
-   `5dda721b` proves 20-line steps, closing an inter-hunk gap without
+   measured `.intent-reading`; only its header said Side panel. The 20-line
+   step is still proved by `story-review-diff-styled-rendering.spec.ts`,
+   `story-review-diff-late-styling.spec.ts` and
+   `story-review-diff-grammar-failure-mount.spec.ts`, which count 20 revealed
+   lines. Nothing proves closing an inter-hunk gap without
    duplicate lines and the "Show 6 following" remainder, the end-of-file
    stop, no whole-gap shortcut, numbering and change markers on revealed
    lines, or the hunk keeping its place when expanding upward
@@ -96,9 +103,12 @@ Behavior: **Review session changes** opened story X at session S → the
 developer selects story Y and then X again → X shows **Whole story** chosen
 and its story comparison.
 
-Proof: A frontend spec beside `intent-session-review-opening.spec.ts` that
-opens through the card, selects another story, reselects, and observes
-**Whole story** checked; it fails at `5dda721b`.
+Proof: A case in `intent-session-review-opening.spec.ts` whose Board frame
+lists a second Done story: it selects that story's card, opens the first
+story through **Review session changes**, selects the other story and then
+the first through **Recent stories** (`intent-recent-stories-page.ts`
+`chooseRow`), and observes **Whole story** checked. Premise P1 observed this
+case failing at `a0f4b5a8e`.
 
 ### 2. A chosen session's pending read measures nothing
 Type: Behavior
@@ -116,8 +126,8 @@ release.
 Type: Structure
 Status: planned
 
-Change: Frontend specs prove 20-line steps from the comparison's file text,
-closing an inter-hunk gap without duplicates and the remainder step, the
+Change: Frontend specs prove, from the comparison's file text, closing an
+inter-hunk gap without duplicates and the remainder step, the
 end-of-file stop, no whole-gap shortcut, and numbering and change markers on
 revealed lines. One Intent E2E proves the hunk keeps its reading place when
 expanding upward, using the `expandContextDiff.ts` fixtures through Intent;
@@ -150,11 +160,32 @@ read not answering a later choice of session B beside
 `intent-story-compare-sessions.spec.ts`, then narrow
 `side-panel-content-replacement.spec.ts` to the final-report frame.
 
+Before removing `intent-session-scope.spec.ts:138`, break in a scratch edit
+the two-run choice and the shared-checkout warning it observes and confirm
+the named Recently done E2E and `intent-story-compare-session-runs.spec.ts`
+cases fail; keep the case if one stays green.
+
 Proof: `npm run typecheck:dashboard`, `npm run lint`, the
 `intent-story-compare-*` and Follow up frontend specs, the new race case, and
 `e2e/intent/intent-session-scope.spec.ts`,
 `e2e/sessions/recently-done-published-sessions.spec.ts` and
 `e2e/navigation/side-panel-content-replacement.spec.ts`.
+
+## Decisive premises
+
+Observed at `a0f4b5a8e` in this preparation's workspace with
+`env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:dashboard:frontend -- <files>`
+and the E2E command below; every scratch edit was reverted.
+
+| Premise | Consuming operation | Observation | Result |
+| --- | --- | --- | --- |
+| P1 Reselection through Recent stories returns to the opened session | Slice 1's case | The slice 1 case as a scratch test in `intent-session-review-opening.spec.ts`; the same journey through the Board's cards | Recent stories: **Whole story** not checked (fails). Board cards: passes, so the fix's route is Recent stories |
+| P2 A held session read shows the story's measurement | Slice 2's case | Scratch case in `intent-story-compare-session-evidence.spec.ts` holding the `published` review read after choosing the session, CI comparison tab | Landed endpoint stayed `ccccccc exact revision`, the story's measurement (fails) |
+| P3 Expansion rules other than the 20-line step are unproved | Slice 3's specs | Scratch `CONTEXT_EXPAND_CHUNK = 7`: whole frontend suite; then remainder ignoring `fromEnd`, expansion past the remainder, and revealed numbering +1, each against `frontend-tests/review` and `frontend-tests/intent` (435 cases); numbering +1 also against `e2e/review/story-review-diff-line-follow-up.spec.ts` and `story-review-diff-add-note.spec.ts` | Chunk 7 fails the three review specs named in finding 3; each other break passes every case |
+| P4 The `publishedSessions` carry is unproved | Slice 4's first case | Scratch removal of the carry in `carriedFacts.ts`: whole frontend suite (324 files) and `e2e/intent/intent-session-scope.spec.ts`, `e2e/sessions/recently-done-published-sessions.spec.ts` | No case fails; `intent-story-compare-done.spec.ts:48` failed once in the full run at load ~20 and passed alone with the same edits |
+
+Slice 3's place-kept E2E and slice 4's chosen-run case are proved by their
+own slices; the move in slice 5 is checked by `npm run typecheck:dashboard`.
 
 ## Proof ownership and local gate
 

@@ -23,7 +23,7 @@ scope in Intent, and session review status.
 
 **Identity:** SEED-418#keep-session-review-proof-after-retirement
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/882-keep-session-review-proof-after-retirement/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/883-keep-session-review-proof-after-retirement/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"f602919ef9b7fe5c66379feace0e565dcb70489878a8a031bb0e82f8ef8f6e54","plan":"0168badd9a01c6193f7d70758e9df99f3f989c801477004f9751a33c80183b8e"}}
 ```
 
 **Goal.** A developer reviewing a story in Intent gets the scope the story
@@ -35,10 +35,10 @@ used to carry, so Intent's diff and session review cannot regress silently.
 found: a story selected again after **Review session changes** returns to
 that session instead of **Whole story**; Proof measures the whole story
 while a chosen session is first read; the retirement deleted the only proof
-of Intent's diff context expansion and of published sessions kept across a
-refresh; the story's session list lives in Follow up's module; and some
+of most of Intent's diff context expansion rules and of published sessions
+kept across a refresh; the story's session list lives in Follow up's module; and some
 test support and one E2E case are left over or redundant.
-[Plan](../slice-plans/882-keep-session-review-proof-after-retirement/PLAN.md).
+[Plan](../slice-plans/883-keep-session-review-proof-after-retirement/PLAN.md).
 
 <a id="review-scope-dropdown"></a>
 
