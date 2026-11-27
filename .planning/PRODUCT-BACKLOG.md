@@ -32,10 +32,10 @@ intent introduced or affected by a newly developed story.
 - [Open session changes in Intent and retire the Side panel review](seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review) — SEED-418#select-a-story-session-for-review ([plan](slice-plans/876-open-session-changes-in-intent/PLAN.md))
 - [Reach Intent frontend cases without frame-bound input waits](seeds/SEED-448-ad-hoc-work.md#ad-hoc-work) — SEED-448#ad-hoc-work
 - [Remove leftover unbound recovery and overlapping story-linked session tests](seeds/SEED-447-clean-up-story-linked-session-tests.md#clean-up-story-linked-session-tests) — SEED-447#clean-up-story-linked-session-tests ([plan](slice-plans/878-clean-up-story-linked-session-tests/PLAN.md))
+- [Read the blank Start handoff and admitted landing from Dashboard records](seeds/SEED-423-shrink-the-installed-distribution.md#read-handoff-and-admitted-landing-from-dashboard-records) — SEED-423#read-handoff-and-admitted-landing-from-dashboard-records ([plan](slice-plans/880-read-handoff-and-admitted-landing/PLAN.md))
 
 ## Backlog list
 
-- [Read the blank Start handoff and admitted landing from Dashboard records](seeds/SEED-423-shrink-the-installed-distribution.md#read-handoff-and-admitted-landing-from-dashboard-records) — SEED-423#read-handoff-and-admitted-landing-from-dashboard-records
 - [Choose review scope from a compact dropdown](seeds/SEED-418-review-published-session-changes.md#review-scope-dropdown) — SEED-418#review-scope-dropdown
 - [Show the selected ad hoc session on Intent Home](seeds/SEED-418-review-published-session-changes.md#show-selected-session-in-review-home) — SEED-418#show-selected-session-in-review-home
 - [Track review status for each session](seeds/SEED-418-review-published-session-changes.md#track-review-state-per-session) — SEED-418#track-review-state-per-session

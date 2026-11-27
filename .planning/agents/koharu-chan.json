@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Koharu-chan",
+  "email": "koharu-chan@example.org",
+  "identity": "SEED-423#read-handoff-and-admitted-landing-from-dashboard-records",
+  "mode": "story-branch",
+  "branch": "codex/read-the-blank-start-handoff-and-admitted-landin",
+  "host": "codex",
+  "model": "gpt-6.2-sol"
+}
