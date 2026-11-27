@@ -7,8 +7,8 @@
 ## Provenance
 
 Retrospective correction of
-[SEED-418#select-a-story-session-for-review](../../seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review),
-executed in plan 876 on branch
+[SEED-418#select-a-story-session-for-review](https://github.com/terryyin/open-dough/blob/d60293a1adee86582e595aa450738616b4954f38/.planning/seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review),
+executed in plan 876 (recoverable at `d60293a1a:.planning/slice-plans/876-open-session-changes-in-intent/PLAN.md`) on branch
 `claude/open-session-changes-in-intent-and-retire-the-si` from `d4defcbb2`:
 `68950353` (session scope), `e4b50a2b` (runs, warning, no-record session),
 `72f6de87` (Proof follows the session), `6acf7874` (Follow up), `f7e9755f`

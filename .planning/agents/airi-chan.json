@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Airi-chan",
-  "email": "airi-chan@example.org",
-  "identity": "SEED-418#select-a-story-session-for-review",
-  "mode": "story-branch",
-  "branch": "claude/open-session-changes-in-intent-and-retire-the-si",
-  "host": "claude"
-}
