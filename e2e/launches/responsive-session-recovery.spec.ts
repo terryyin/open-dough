@@ -8,7 +8,7 @@ import {
   expect,
   pausePageClockAt,
 } from "../../dashboard/test-support/dashboardTest.ts";
-import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
+import { holdLaterTrunkTransfers } from "../../dashboard/test-support/laterTrunkTransfers.ts";
 import {
   needsReconciliation,
   recoveryOf,
@@ -124,13 +124,19 @@ test("a failed published read after settlement is said beside the project's acti
 }) => {
   await pausePageClockAt(page, new Date());
   const { published, story, takenStory } = await openStories(page, origin);
-  const restore = published.answerWith("main", noConnection);
+  // The settling's fresh read waits at Git, then origin hangs up.
+  const transfer = holdLaterTrunkTransfers(
+    dashboard.home,
+    published.repository,
+  );
   await startExecution(page, story);
   await expect
     .poll(async () => (await attempts(dashboard))[0]?.outcome?.kind, {
       timeout: 30_000,
     })
     .toBe("launched");
+  await transfer.untilHeld();
+  transfer.fail();
   const recovery = recoveryOf(page);
   await expect(recovery).toContainText(
     "Waiting for published story state: The latest read of published work failed",
@@ -141,7 +147,7 @@ test("a failed published read after settlement is said beside the project's acti
   );
   await expectProtected(story);
 
-  restore();
+  transfer.release();
   await recovery.getByRole("button", { name: `Recheck ${subject}` }).click();
   await passCheckPace(page);
   await expect(storyCardSessions(takenStory)).toHaveCount(1);

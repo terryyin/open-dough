@@ -10,14 +10,23 @@ import { tapWhereShown } from "./pageLayout.ts";
 import { defaultRepository } from "./publishedOriginBasics.ts";
 import { storyCard } from "./storyCardControls.ts";
 import type { Workflow } from "./storyColumnsPage.ts";
-import { expectServedHomesReach } from "./support/fixtureOriginRoute.ts";
+import {
+  expectServedHomesReach,
+  servedHomes,
+} from "./support/fixtureOriginRoute.ts";
+import { holdLaterTrunkTransfers } from "./laterTrunkTransfers.ts";
 import { originMain, radio } from "./support/sessionDialog.ts";
 import type { StartOrigin } from "./support/startOrigin.ts";
 
 export async function openInstalledStoryBoard(
   page: Page,
   origin: StartOrigin,
-  { follows = true }: { follows?: boolean } = {},
+  // `keepsOpenedTrunk`: every later Board read, REST and Git, keeps the
+  // opened trunk while starts publish, until `showPublished`.
+  {
+    keepsOpenedTrunk = false,
+    follows = !keepsOpenedTrunk,
+  }: { follows?: boolean; keepsOpenedTrunk?: boolean } = {},
 ) {
   const initialRevision = await originMain(origin);
   const published = await publishCommittedOrigin(page, {
@@ -29,10 +38,17 @@ export async function openInstalledStoryBoard(
   const github = githubFor(page);
   expectServedHomesReach(github, defaultRepository, initialRevision);
   await openUntilRead(page);
+  const pinned = !keepsOpenedTrunk
+    ? []
+    : servedHomes(github).map((home) =>
+        holdLaterTrunkTransfers(home, defaultRepository),
+      );
+  for (const home of pinned) home.releaseAt(initialRevision);
   return {
     ...installedStoryBoard(page),
     async showPublished() {
       const revision = await originMain(origin);
+      for (const home of pinned) home.release();
       published.advanceTo(revision);
       expectServedHomesReach(github, defaultRepository, revision);
       await reloadUntilRead(page);

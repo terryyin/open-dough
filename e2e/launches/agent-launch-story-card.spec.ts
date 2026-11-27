@@ -85,7 +85,9 @@ test("Ready execution publishes the Take and focuses its session on the same sto
   origin,
 }) => {
   dashboard.claudeScenario("launched");
-  const board = await openInstalledStoryBoard(page, origin, { follows: false });
+  const board = await openInstalledStoryBoard(page, origin, {
+    keepsOpenedTrunk: true,
+  });
   await expectMembership(page, queued);
   await board.settled();
   const before = Date.now();
@@ -187,7 +189,7 @@ test.describe("phone touch submission", () => {
   }) => {
     dashboard.claudeScenario("held");
     const board = await openInstalledStoryBoard(page, origin, {
-      follows: false,
+      keepsOpenedTrunk: true,
     });
     const launch = await board.open(readyStory, "Execution", "touch");
     const draft =

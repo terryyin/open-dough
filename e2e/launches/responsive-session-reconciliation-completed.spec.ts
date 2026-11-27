@@ -16,7 +16,6 @@ import {
 } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import { expect } from "../../dashboard/test-support/dashboardTest.ts";
 import { publishMain } from "../../dashboard/test-support/committedOriginRepo.ts";
-import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
 import {
@@ -102,7 +101,7 @@ test("a start whose server closed while its session launched reconciles once tha
     });
 
     // While the latest read fails, the settled start waits and says why.
-    const restoreMain = published.answerWith("main", noConnection);
+    const reconnect = published.disconnectGit();
     await reloadUntilRead(page);
     const recovery = recoveryOf(page);
     await expect(recovery).toContainText(
@@ -117,7 +116,7 @@ test("a start whose server closed while its session launched reconciles once tha
     expect((await attempts(restarted))[0]?.reconciledAt).toBeUndefined();
 
     // Trunk moved past the published Take: the next full read reconciles it.
-    restoreMain();
+    reconnect();
     const descendant = await commitOn(origin, publication.revision);
     publishMain(origin.origin, descendant);
     expectServedHomesReach(github, published.repository, descendant);

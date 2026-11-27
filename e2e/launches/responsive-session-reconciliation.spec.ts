@@ -1,9 +1,9 @@
-// Real installed starts publish to the bare origin read through GitHub fixtures.
-// A fully read accepted snapshot or descendant restores actions after native
-// startup settles; older and unrelated snapshots keep protection. The session
-// keeps working, and reconciliation survives reload without another comparison.
+// Real installed starts publish to the bare origin. A fully read accepted
+// snapshot or descendant restores actions after native startup settles; older
+// and unrelated ones keep protection, and reconciliation survives reload.
 // See ../../dashboard/src/startupReconciliation.ts and ../../dashboard/test-support/support/startOrigin.ts.
 
+import { holdLaterTrunkTransfers } from "../../dashboard/test-support/laterTrunkTransfers.ts";
 import { attempts } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAttemptPage.ts";
 import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
@@ -56,6 +56,7 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await pausePageClock(page);
   expectServedHomesReach(dashboard.github, defaultRepository, before);
   const { published, story, takenStory } = await openStory(page, origin);
+  const transfer = holdLaterTrunkTransfers(dashboard.home, defaultRepository);
 
   await story.getByRole("button", { name: "Start execution" }).click();
   const acceptance = nextAcceptedAttemptId(page);
@@ -66,11 +67,9 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   const attemptId = await acceptance;
   await expect.poll(() => push.isHeld(), { timeout: 30_000 }).toBe(true);
 
-  // A check asked before the Take is published, and the fresh read the
-  // start's settling asks, answer only after it settles, with the revision
-  // before it. Release the held Claude with the push so launch settles while
-  // publication is observed, and release the held tip so the stale read can
-  // finish while the session appears — instead of waiting for each in turn.
+  // A check asked before the Take is published answers after it settles,
+  // with the revision before it; the settling's fresh read waits at Git.
+  // Claude is released with the push so launch settles meanwhile.
   const restoreMain = published.answerWith("main", commitAnswer(before));
   const releaseRef = published.hold("main");
   await passTimeUntilAsked(page);
@@ -92,9 +91,11 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await expect(storyCardSessions(story)).toHaveCount(1);
   await expect(story).toContainText(waiting);
   await expectProtected(story);
+  await transfer.untilHeld();
 
-  // The held REST request completes at its earlier pin after the native Take.
+  // The held read completes at the earlier trunk after the native Take.
   releaseRef();
+  transfer.releaseAt(before);
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${before.slice(0, 7)}`,
   );
@@ -102,6 +103,7 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await expectProtected(story);
   await expect(takenStory).toHaveCount(0);
   restoreMain();
+  transfer.release();
 
   // An unrelated revision is not the published Take; a comparison that
   // fails proves nothing either, and is asked again for the next read.

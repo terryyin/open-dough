@@ -166,7 +166,7 @@ fixtures. Budget 14 active minutes.
 ### 7. Gate launch reconciliation journeys on the Git open
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Launch and responsive-session reconciliation journeys that gated
 or failed the Board's REST cold open gate it at the Git transfer instead.
@@ -268,6 +268,16 @@ Slice 6 (2026-11-27) needed no new publishing: `projectAddMachine`,
 Board through Git, so only REST assertions changed. `MovingHistory.disconnectGit()`
 replaces `answerWith("main", 503)`; disconnect after any step that itself runs
 Git against the route. `readsOfRepository` names one repository's reads.
+
+Slice 7 (2026-11-27): launch reconciliation's fresh read is a Git check, so
+REST `hold("main")`, `answerWith("main")` and `follows:false` no longer gate
+or pin the Board. `holdLaterTrunkTransfers` (`laterTrunkTransfers.ts`) gates
+reads after the open with `fail`, `releaseAt(revision)` and `release`;
+`disconnectGit()` before Start fails the start's own push. Journeys that need
+the Board to keep the opened trunk pass `keepsOpenedTrunk: true`. Slice 9
+must settle `agent-launch-claude-verification.spec.ts:176`, a 5-second
+launch-call poll that failed at load 16–28 here and at the base, and passed
+alone: green in the full suite or hosted CI, or repaired.
 
 ## Local gate
 

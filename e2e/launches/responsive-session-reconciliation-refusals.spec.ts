@@ -27,6 +27,7 @@ import {
   openStories,
   test,
 } from "../../dashboard/test-support/responsiveStart.ts";
+import { holdLaterTrunkTransfers } from "../../dashboard/test-support/laterTrunkTransfers.ts";
 import { radio } from "../../dashboard/test-support/support/sessionDialog.ts";
 import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
 import {
@@ -145,14 +146,18 @@ test("a one-shot refinement publishes nothing: once its session settles, a fresh
     })
     .toBe("none");
 
-  // The fresh read is held: settling alone returns nothing.
-  const releaseRef = published.hold("main");
+  // The fresh read is held at Git: settling alone returns nothing.
+  const transfer = holdLaterTrunkTransfers(
+    dashboard.home,
+    published.repository,
+  );
   dashboard.releaseHeldClaude();
   await expect(storyCardSessions(story)).toHaveCount(1, { timeout: 30_000 });
   await expect(story).toContainText(waiting);
   await expectProtected(story);
+  await transfer.untilHeld();
 
-  releaseRef();
+  transfer.release();
   await expectSettledPage(page);
   await expect(story).not.toContainText(waiting);
   const startRefinement = story.getByRole("button", {

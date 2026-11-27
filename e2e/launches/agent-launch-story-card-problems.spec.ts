@@ -39,7 +39,7 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
     }) => {
       dashboard.claudeScenario("hang");
       const board = await openInstalledStoryBoard(page, origin, {
-        follows: false,
+        keepsOpenedTrunk: true,
       });
       const launch = await board.open(readyStory, "Execution", "touch");
       const draft =
