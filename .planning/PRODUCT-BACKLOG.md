@@ -29,7 +29,6 @@ intent introduced or affected by a newly developed story.
 ## Taken
 
 - [Open session changes in Intent and retire the Side panel review](seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review) — SEED-418#select-a-story-session-for-review ([plan](slice-plans/876-open-session-changes-in-intent/PLAN.md))
-- [Reach Intent frontend cases without frame-bound input waits](seeds/SEED-448-ad-hoc-work.md#ad-hoc-work) — SEED-448#ad-hoc-work
 - [Remove leftover unbound recovery and overlapping story-linked session tests](seeds/SEED-447-clean-up-story-linked-session-tests.md#clean-up-story-linked-session-tests) — SEED-447#clean-up-story-linked-session-tests ([plan](slice-plans/878-clean-up-story-linked-session-tests/PLAN.md))
 - [Read the blank Start handoff and admitted landing from Dashboard records](seeds/SEED-423-shrink-the-installed-distribution.md#read-handoff-and-admitted-landing-from-dashboard-records) — SEED-423#read-handoff-and-admitted-landing-from-dashboard-records ([plan](slice-plans/880-read-handoff-and-admitted-landing/PLAN.md))
 - [Prove Dashboard runtime behavior in fast unit cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#fast-runtime-unit-cases) — SEED-413#fast-runtime-unit-cases ([plan](slice-plans/879-prove-runtime-in-fast-unit-cases/PLAN.md))

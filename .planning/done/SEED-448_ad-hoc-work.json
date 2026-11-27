@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-448#ad-hoc-work",
+  "title": "Reach Intent frontend cases without frame-bound input waits",
+  "completedAt": "2026-11-27T08:33:43.186Z",
+  "developer": "Terry Yin",
+  "agent": "Maki-chan",
+  "host": "claude",
+  "model": "claude-opus-5-5",
+  "intentCoverage": {
+    "report": "Dough Intent Coverage: SEED-448#ad-hoc-work, revision e777eed80d75219d5669efa91a8d8f84bc4fe9d8.\n\nVerdict: Caught. Fault: `.intent-file-tree button[data-repository-path] { pointer-events: none; }` in dashboard/src/story-review-files.css. Mounted dashboard/frontend-tests/intent/intent-project-browse.spec.ts passed with the fault in place, because in-page activation ignores pointer reachability. e2e/intent/intent-code-browse.spec.ts:37 failed at its trusted Locator.click() (line 145, reached from 116): \"<li> intercepts pointer events\". It passed at baseline and again after restoration. The scratch worktree was removed. The probe ran about 2.1 min of tests, with 280909 ms from invocation to report.\n\nWrap-up disposition: checked e777eed80d75219d5669efa91a8d8f84bc4fe9d8, Caught. No follow-up: pointer reachability of the Intent tree's file buttons is proved by end-to-end trusted clicks, as this story intended.\n"
+  }
+}
