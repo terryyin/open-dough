@@ -112,25 +112,6 @@ test("a malformed backlog stays a reload problem and is not asked again", async 
   await expect(parts(page).problem).toContainText(
     "Reload the page to read again.",
   );
-  // Nothing more will be read, so a membership check fails at once, naming
-  // the titles, before an expectation started first reaches its bound.
-  const titles = { taken: ["A taken story"], backlog: ["A queued story"] };
-  const bound = expect(parts(page).board)
-    .toHaveCount(1)
-    .then(
-      () => "the bound",
-      () => "the bound",
-    );
-  const failure = expectMembership(page, titles).then(
-    () => new Error("the membership check passed"),
-    (error: unknown) => error as Error,
-  );
-  expect(
-    await Promise.race([failure.then(() => "the membership check"), bound]),
-  ).toBe("the membership check");
-  expect((await failure).message).toContain("A taken story");
-  expect((await failure).message).toContain("A queued story");
-  await bound;
 });
 
 test("switching project cancels the unresolved recovery wait", async ({

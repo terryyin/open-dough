@@ -102,10 +102,11 @@ The focused check passed again after spelling the command substitute's
 promise explicitly for the project lint rule.
 Hosted watcher and qualification journeys exercise the default command,
 which retains its arguments and behavior.
+Published on the execution branch at `a7e3119ee203f05a537afc8358bcc67a4f5f6545`.
 
 ### 2. Prove the membership check fails at once when the read fails for good
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: the published-work read failed for good (the page says to reload
 and shows no work) and the check is asked for two titles that are not shown →
@@ -123,6 +124,16 @@ with the block gone.
 `npx vitest run --config dashboard/backend.vitest.config.mts dashboard/backend-tests/runtime/page-read-waits.spec.ts`
 and, under `caffeinate -s -i`,
 `env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run --silent test:e2e -- e2e/observation/transient-read-exclusions.spec.ts`
+
+Accepted proof: 6 Node cases passed. The replacement case requires a
+synchronous exception containing both expected titles. The page object
+calls that comparison after reading the terminal reload cue and continues
+to use the waiting matcher for ordinary membership. The focused Chromium
+file passed all 6 first attempts. The malformed journey retained its
+read/no-snapshot/no-retry checks after removal of the Board wait. The
+project-switch case exercised ordinary membership. The exact command
+passed quietly, and a second run recorded attempts using the runner's
+proof-record option.
 
 ### 3. Round-trip a HOME's routes through its config text
 Type: Structure

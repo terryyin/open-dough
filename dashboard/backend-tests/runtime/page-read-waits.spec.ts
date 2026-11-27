@@ -1,9 +1,8 @@
 // The waits a journey's first card checks rest on, over the read states a
 // page notes (../../test-support/pageRequestNotes.ts and
 // ../../test-support/pageRequestNoting.ts): the page scripts run in this
-// process, on a window whose reads the case answers itself. How a published
-// read that fails for good then fails a membership check at once is observed
-// on a real page in e2e/observation/transient-read-exclusions.spec.ts.
+// process, on a window whose reads the case answers itself. The comparison
+// after a terminal read failure runs synchronously over the shown titles.
 
 import { afterEach, expect, test, vi } from "vitest";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
@@ -14,6 +13,7 @@ import {
   untilPublishedWorkRead,
 } from "../../test-support/pageRequestNotes.ts";
 import {
+  expectMembershipAfterReadFailure,
   noteRequestsInOpenPage,
   type PageScripts,
 } from "../../test-support/pageRequestNoting.ts";
@@ -98,6 +98,15 @@ test.each([
     await wait.done;
   },
 );
+
+test("a membership check after a terminal read failure throws immediately and names both missing titles", () => {
+  const shown = { taken: [], backlog: [] };
+  const expected = { taken: ["A taken story"], backlog: ["A queued story"] };
+
+  expect(() => {
+    expectMembershipAfterReadFailure(shown, expected);
+  }).toThrow(/(?=.*A taken story)(?=.*A queued story)/s);
+});
 
 test("a held detail read holds the settled page's read wait but not the first-open wait", async () => {
   const { page, read } = openedPage();

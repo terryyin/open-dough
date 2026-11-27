@@ -9,9 +9,14 @@ import {
   untilPageReadsAnswered,
   untilPublishedWorkRead,
 } from "./pageRequestNotes.ts";
+import {
+  expectMembershipAfterReadFailure,
+  type StoryMembership,
+} from "./pageRequestNoting.ts";
 
 export * from "./dashboardParts.ts";
 export * from "./projectChoice.ts";
+export type { StoryMembership } from "./pageRequestNoting.ts";
 export { expectSnapshotButtons } from "./snapshotButtons.ts";
 
 export async function expectPublishedRevision(page: Page, revision: string) {
@@ -36,11 +41,6 @@ async function readAndNothingMoreWillBeRead(page: Page): Promise<boolean> {
 const nothingMoreWillBeRead =
   "the page says the published work could not be read and it reads no more on its own";
 
-export type StoryMembership = {
-  readonly taken: string[];
-  readonly backlog: string[];
-};
-
 const titlesIn = (column: Locator) =>
   column.locator("[data-story-card] > fieldset > h3");
 
@@ -62,13 +62,13 @@ export async function expectShownMembership(
 export async function expectMembership(page: Page, titles: StoryMembership) {
   if (await readAndNothingMoreWillBeRead(page)) {
     const { taken, backlog } = parts(page);
-    expect(
+    expectMembershipAfterReadFailure(
       {
         taken: await titlesIn(taken).allTextContents(),
         backlog: await titlesIn(backlog).allTextContents(),
       },
-      nothingMoreWillBeRead,
-    ).toEqual({ taken: titles.taken, backlog: titles.backlog });
+      titles,
+    );
     return;
   }
   await expectShownMembership(page, titles);
