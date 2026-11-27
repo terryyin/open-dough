@@ -51,6 +51,9 @@ dashboard, watcher, preview or runner still uses, and the recent ones, stay.
 ### Close the preview's incident record when the watcher ends on SIGHUP
 
 **Identity:** SEED-370#close-preview-incident-record-on-sighup
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
 
 - **Goal.** A developer running the production dashboard sees an orderly
   watcher shutdown as orderly: when the watcher ends on SIGHUP, the served
