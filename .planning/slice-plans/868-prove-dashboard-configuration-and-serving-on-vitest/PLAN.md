@@ -232,7 +232,7 @@ authenticated-read boundary, since the 404 is an HTTP contract.
 ### 5. Prove production qualification and update selection in Node Vitest
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–15 active minutes.
 
 Behavior: given real published Git trees and CI workflow push exclusions,
@@ -246,6 +246,11 @@ Proof: Convert `production-qualification.spec.ts` (4) and
 `production-update-selection.spec.ts` (3) to plain Vitest. Run:
 `caffeinate -s -i npm run test:dashboard:backend -- 'runtime/(production-qualification|production-update-selection)\.spec\.ts$' --workers=1 --reporter=list`
 (7 Node cases, 0 Chromium cases) and `npm run typecheck:dashboard`.
+
+Accepted: 7 Node cases passed in 7.0 s and typecheck passed; the consumer
+E2E `runtime/production-watcher-updates.spec.ts` passed 10 cases. The shared
+`productionQualificationFixture.ts` now guards with plain throws instead of
+Playwright `expect`, so both runners can use it.
 
 ### 6. Prove production deployment, preview lifecycle, and watcher refusals in Node Vitest
 
