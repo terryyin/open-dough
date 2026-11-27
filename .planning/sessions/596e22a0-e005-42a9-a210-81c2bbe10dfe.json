@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "sessionId": "596e22a0-e005-42a9-a210-81c2bbe10dfe",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-27T15:49:35.936Z",
+  "story": "SEED-370#close-preview-incident-record-on-sighup",
+  "ranges": [
+    {
+      "base": "111d8d6f96ed8a8090c2882a74f122eae7422546",
+      "candidate": "4e71524ea6eb777022b6f676587da0b119283407"
+    },
+    {
+      "base": "4e71524ea6eb777022b6f676587da0b119283407",
+      "candidate": "1e841bf8f5a285d0665a0852a22279eb98e8b08c"
+    },
+    {
+      "base": "adf9d2bf05035020b74a1becc1cac43c3d4f18b3",
+      "candidate": "3c0d90e477bcd53f91763c5e2aba22c5e2bd8cc8"
+    }
+  ]
+}
