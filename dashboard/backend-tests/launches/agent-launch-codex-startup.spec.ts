@@ -35,7 +35,7 @@ import {
 import { codexAttaches } from "../../test-support/support/codexTerminal.ts";
 import {
   deploymentLikeStart,
-  expectDeveloperShellEnvironment,
+  developerShellViolations,
 } from "../../test-support/support/launchEnvironment.ts";
 
 const source = "open-dough";
@@ -105,10 +105,12 @@ test("saved Codex conversation reconnects after daemon loss at startup", async (
   expect(daemonStarts(native)).toEqual([{ cwd: realpathSync(home) }]);
   const daemonEnvironments = codexEnvironments(native, "app-server");
   expect(daemonEnvironments).toHaveLength(1);
-  expectDeveloperShellEnvironment(
-    daemonEnvironments[0],
-    fakeCodexHost("FAKE_CODEX_SOCKET"),
-  );
+  expect(
+    developerShellViolations(
+      daemonEnvironments[0],
+      fakeCodexHost("FAKE_CODEX_SOCKET"),
+    ),
+  ).toEqual([]);
   expect(
     (await launches.machineObservation()).records.map(
       ({ session, sessionState }) => [session.sessionId, sessionState],

@@ -162,7 +162,7 @@ there, for example as an option that also returns the fake Codex.
 ### 5. Prove Codex resume, missing-target refusal, and the Done mark
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: Move `agent-terminal-codex.spec.ts` (3 cases) to Node Vitest on the
@@ -179,6 +179,27 @@ plain server with `installFakeCodex`:
 - After the five specs are on Vitest, search `dashboard/` and `e2e/` for
   helpers whose only callers were these specs and remove any such export.
   Run `npm run typecheck:dashboard` and the focused backend selection below.
+
+Accepted proof: `agent-terminal-codex.spec.ts` is Node Vitest on one shared
+server per file (`startCodexTerminalBoundary` in
+`dashboard/test-support/terminalBoundaryHttp.ts`), with each case's store,
+observation, terminal mode and log offsets reset in `beforeEach`. The
+deployment-like start is applied before the server starts. The resume
+environment keeps the full developer-shell observation through the
+runner-neutral `developerShellViolations`; its five other callers assert it
+with their own `expect` and ran focused (`s5b-callers`, `s5b-cursor`,
+`s5b-e2e`). The resume PTY reads that environment at attach time
+(`dashboard/server/hosts/codex/terminal.ts`), so the check is not vacuous.
+Before: Playwright 3 cases, 7.10 s selection (`s5-before`). After, in the
+full run: resume 286 ms, missing target 5 ms, Done mark 556 ms; the file alone
+6.43 s (`s5b-codex`). A per-test server cost about 1.7 s a case and was
+dropped. `codex-close` keeps its own server because `closeBoundary` ends it.
+No helper was left with only removed callers.
+
+Final local gate (`refactor5-final`): one worker, Vitest only, 6 files and
+24 of 24 legacy cases (admission 11, boundary 6, resize 2, close 1,
+codex-close 1, codex 3), 12.50 s wall; zero Playwright selections for these
+files.
 
 ## Proof ownership and local gate
 

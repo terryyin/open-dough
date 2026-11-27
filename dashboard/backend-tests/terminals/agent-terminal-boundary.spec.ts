@@ -19,7 +19,7 @@ import {
   type RecordedSession,
   type TerminalServer,
 } from "../../test-support/agentTerminalBoundary.ts";
-import { startClaudeTerminalBoundary } from "../../test-support/claudeTerminalBoundaryHttp.ts";
+import { startClaudeTerminalBoundary } from "../../test-support/terminalBoundaryHttp.ts";
 
 let stopBoundary: () => Promise<void>;
 let server: TerminalServer;

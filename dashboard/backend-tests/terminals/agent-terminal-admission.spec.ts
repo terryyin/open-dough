@@ -24,7 +24,7 @@ import {
   type RecordedSession,
   type TerminalServer,
 } from "../../test-support/agentTerminalBoundary.ts";
-import { startClaudeTerminalBoundary } from "../../test-support/claudeTerminalBoundaryHttp.ts";
+import { startClaudeTerminalBoundary } from "../../test-support/terminalBoundaryHttp.ts";
 import { keepMoreLaunchRecordsBesideServer } from "../../test-support/support/launchStore.ts";
 
 let stopBoundary: () => Promise<void>;

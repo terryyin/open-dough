@@ -16,7 +16,7 @@ import {
   shows,
   type Terminal,
 } from "../../test-support/agentTerminalBoundary.ts";
-import { startClaudeTerminalBoundary } from "../../test-support/claudeTerminalBoundaryHttp.ts";
+import { startClaudeTerminalBoundary } from "../../test-support/terminalBoundaryHttp.ts";
 
 test("closeServer, called alone with the socket and HTTP server still open, ends the attach process", async () => {
   const { server, closeBoundary, stop } = await startClaudeTerminalBoundary([

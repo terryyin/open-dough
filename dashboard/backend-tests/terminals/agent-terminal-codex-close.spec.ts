@@ -2,15 +2,12 @@
 // the launch boundary on a plain HTTP server, with fake-codex serving the
 // native protocol, keeps listening while the admitted Codex socket closes.
 
-import { mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import path from "node:path";
 import { expect, test } from "vitest";
 import {
   shows,
   type Terminal,
 } from "../../test-support/agentTerminalBoundary.ts";
-import { startClaudeTerminalBoundary } from "../../test-support/claudeTerminalBoundaryHttp.ts";
+import { startCodexTerminalBoundary } from "../../test-support/terminalBoundaryHttp.ts";
 import {
   observationRecord,
   saveObservations,
@@ -20,20 +17,10 @@ import {
   codexEndOnceGone,
   openCodexTerminal,
 } from "../../test-support/support/codexTerminal.ts";
-import { installFakeCodex } from "../../test-support/support/fakeCodex.ts";
-import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
 
 test("closeServer closes an admitted Codex socket and its PTY while the HTTP server/native protocol remain alive", async () => {
-  const { server, closeBoundary, stop } = await startClaudeTerminalBoundary([
-    "open-dough",
-  ]);
-  const codexRoot = mkdtempSync(path.join(tmpdir(), "dough-codex-close-"));
-  const native = await installFakeCodex(
-    codexRoot,
-    process.env["PATH"] ?? "",
-    true,
-  );
-  const restoreEnv = withRestoredEnv(native.env);
+  const { server, native, closeBoundary, stop } =
+    await startCodexTerminalBoundary(["open-dough"]);
   let terminal: Terminal | undefined;
   try {
     saveObservations(server, [
@@ -54,15 +41,6 @@ test("closeServer closes an admitted Codex socket and its PTY while the HTTP ser
     await expect.poll(() => native.sockets.size).toBe(0);
   } finally {
     terminal?.socket.terminate();
-    restoreEnv();
-    await native.close();
     await stop();
-    // A closed PTY's process may still be writing its last files there.
-    rmSync(codexRoot, {
-      recursive: true,
-      force: true,
-      maxRetries: 5,
-      retryDelay: 100,
-    });
   }
 });
