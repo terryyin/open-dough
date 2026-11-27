@@ -378,13 +378,43 @@ Evidence (2026-11-27):
 
 ### 6. Merge the retained ad hoc story journeys and push follow-up availability down
 Type: Structure
-Status: planned
+Status: done
 Proof: the four `recently-done-sessions-*ad-hoc*` specs become at most two
 with the default timeout, keeping each distinct selection, review and
 development observation. `agent-launch-follow-up-taken-card` and the
 workspace-gone vs terminal-open pair in `agent-launch-follow-up-session`
 become mounted cases plus at most one E2E follow-up journey. CI time
 drops against the baseline.
+
+Evidence (2026-11-27):
+- Trunk merge `f99d4aa36` adds plan 876's Intent review. The admitted
+  E2E keeps out the Intent closure step, which
+  `intent-story-completed.spec.ts` proves.
+- `recently-done-sessions-select-ad-hoc.spec.ts` absorbs `-review` and
+  `-development`. It sets up the ad hoc story once and backdates its Done
+  record 40 days through `publishDoneStoryCompletedAt`, which keeps the
+  Development window step.
+- All four `setTimeout` overrides are removed. The specs run 5–7 s at load
+  8–13.
+- `follow-up-availability.spec.ts` (5 mounted cases) covers:
+  - a gone workspace offering Follow up, with its context, the session
+    source and the "Follows up <title>" wording;
+  - an open terminal offering none;
+  - an unavailable conversation;
+  - the Taken card with and without an open terminal.
+- `agent-launch-follow-up-session` is one E2E journey.
+  `-follow-up-taken-card` is deleted.
+- Removed facts survive in:
+  - `agent-launch-follow-up-session-input.spec.ts:137,167`;
+  - `agent-launch-ad-hoc-terminal.spec.ts:80`;
+  - `session-workspace-retirement.spec.ts:47`;
+  - `ad-hoc-start-session.spec.ts:13,50`;
+  - `launch-attachments.spec.ts:114`, for the default workspace choices.
+- Locally, ad hoc went from 4 cases in 14.4 s to 2 cases in 12–14 s, and
+  follow-up E2E from 3 cases in 10.9 s to 1 case in 5.0 s.
+- Refactor follow-up for wrap-up: the merged ad hoc spec has about 75 lines
+  of setup outside any `test.step`, and some long steps. Its predecessors had
+  the same shape.
 
 ### 7. Read session placement through one owner
 Type: Structure
