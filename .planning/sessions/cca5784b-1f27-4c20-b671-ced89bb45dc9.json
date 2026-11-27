@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "cca5784b-1f27-4c20-b671-ced89bb45dc9",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-27T06:05:25.248Z",
+  "story": "SEED-413#retire-legacy-dashboard-frontend-runner",
+  "ranges": [
+    {
+      "base": "1da54264697f47e8990d0a0c150add091aecd767",
+      "candidate": "8188a78e1c12125d90c74da10f4aa7b0dbf3f708"
+    }
+  ]
+}
