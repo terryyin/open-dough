@@ -181,9 +181,9 @@ test("a fresh clone reads the retired admission's story and its exact published 
   await test.step("When the reader chooses the second comparison", () =>
     review.comparison.choosePublishedRange("Published range 2 of 2"));
   await test.step("Then it shows the Done record and omits the product change and later work", async () => {
-    await review.files.expectChangedFiles([
+    await review.files.expectChangedFile(
       `Added .planning/done/${doneRecordFileName(admitted.identity)}`,
-    ]);
+    );
     await review.files.expectTreeLacksText(file, later);
   });
   const { intent } =

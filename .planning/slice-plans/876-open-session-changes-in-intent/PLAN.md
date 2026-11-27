@@ -158,6 +158,12 @@ Read at `0bff20a80`.
   earlier at lower load); its setup is unchanged by slice 6. Published on
   targeted proof with the branch CI verdict deciding; a CI timeout there is
   this execution's repair.
+- CI repair of slice 6 (run 45958448585): the spec's range-2 step expected
+  one changed file, but range 2 holds four (backlog, agent record, catalog,
+  Done record); locally it read range 1's tree while range 2 was still being
+  read. `IntentReviewFiles.expectChangedFile` checks one file, even inside a
+  collapsed folder, and waits for the chosen range. Refactor pass skipped:
+  narrow helper reusing the existing check plus its one spec step.
 - Slice 7's shared-code audit decides the name of `followUpSessions.ts` and
   `FollowUpSession`, which now hold a story's sessions in general (a rename
   reaches `dashboard/server/followUpStory.ts`, `followUpAdmission.ts`).
