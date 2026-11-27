@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-418_prove-or-retire-held-read-race-step.json",
+      "identity": "SEED-418#prove-or-retire-held-read-race-step",
+      "completedAt": "2026-11-27T15:23:40.644Z",
+      "blob": "b07c66dd01dbebdef9de4aa46a3b9ea33d9e0af7"
+    },
+    {
       "fileName": "SEED-413_diagnose-dashboard-ci-probe-flakes.json",
       "identity": "SEED-413#diagnose-dashboard-ci-probe-flakes",
       "completedAt": "2026-11-27T14:42:25.481Z",
@@ -3540,12 +3546,6 @@
       "identity": "SEED-165#keep-cursor-effort-visible",
       "completedAt": "2026-10-28T23:56:59.362Z",
       "blob": "6c7d9d997b0c430bea0846636ff963def149799e"
-    },
-    {
-      "fileName": "SEED-163_reliably-report-dashboard-wrap-up.json",
-      "identity": "SEED-163#reliably-report-dashboard-wrap-up",
-      "completedAt": "2026-10-28T14:50:18.182Z",
-      "blob": "5647aae721c5eb8abd7d82912cc1abe23a1d3478"
     }
   ],
   "unreadable": []
