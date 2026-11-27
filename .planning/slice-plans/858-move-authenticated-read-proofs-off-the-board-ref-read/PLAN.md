@@ -129,7 +129,7 @@ minutes.
 ### 4. Prove E2E recovery after a failed check
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Open the Board first, then fail `main`. Retarget
 `transient-recovery-lifecycle`, `transient-recovery-currentness`,
@@ -157,6 +157,22 @@ Slice 3 (2026-11-27): the slice specs pass on trunk and under the patch,
 except the excluded logged-out cold-open case of
 `authenticated-read-retained-answers`. Under the switch, `compare a...b`
 happens on the first later pinned read, not inside the membership read.
+
+Slice 4 (2026-11-27): a check that fails while a Board is shown keeps the
+snapshot and says checks continue; it arms no transient recovery, which
+exists only for an empty page or unanswered detail (`limitRecovery.ts`,
+`revisionCheckSchedule.ts`). `transient-recovery-lifecycle`'s hidden-page
+due-time and shared empty-page cases therefore stay with the Board open
+story (developer decision, 2026-11-27, recorded in the seed). The
+project-locality case now proves the failure stays with open-dough while
+Doughnut still reads; that an armed recovery wait stays project-local goes
+with those cold-open cases. `authenticated-read-owner-failures` serves an
+empty published backlog so the Board opens under the switch; on trunk its
+notice still comes from the failed cold read. Full suites on trunk code
+(2026-11-27): Dashboard Backend 2,093 passed (1 skipped); E2E 791/792. The
+failure, `agent-launch-done-listing`, pinned done sessions to 2026-10-28
+while the server's 30-day launch retention uses the real clock; it and
+`agent-launch-retained-history` now anchor at the current time.
 
 Spec classification comes from the plan 856 slice 1 run logs, under load
 with two suites running at once (2026-11-26). Eight backend specs that seemed

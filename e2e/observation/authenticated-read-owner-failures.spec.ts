@@ -8,7 +8,12 @@ import {
   refusingOwner,
 } from "../../Distribution/tests/skills/dough-execute-plan/github-request-owner-refusal-test-fixtures.mjs";
 import { ownerlessRequestRoot } from "../../Distribution/tests/skills/dough-execute-plan/github-request-owner-test-fixtures.mjs";
+import {
+  passPageMsAnswered,
+  pausePageClock,
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
 import { sharedDashboardBuild } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   endFakeGh,
@@ -21,7 +26,18 @@ import {
   knownSourceId,
   startDashboardServer,
 } from "../../dashboard/test-support/support/readDiagnostics.ts";
-import { rawRequest } from "../../dashboard/test-support/support/rawHttp.ts";
+import { checkedAt } from "../../dashboard/test-support/support/sharedReads.ts";
+import { describedBacklog } from "../../dashboard/test-support/describedRevisions.ts";
+import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
+import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
+import { routeServedHomesToPublication } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
+
+// An empty project's backlog, which the Board opens on wherever it reads
+// without the endpoint.
+const published = publishes({
+  backlog: describedBacklog(makeMe.aRepository.please()),
+});
 
 for (const [fault, ownerCause, message] of [
   ["privacy", "not-private", "endpoint is open to other users"],
@@ -60,26 +76,30 @@ for (const [fault, ownerCause, message] of [
       requestOwnerRoot,
       extraEnv: { GH_TOKEN: ownerSecret },
     });
+    server.github.serve(defaultRepository, published);
+    routeServedHomesToPublication(server.github, defaultRepository);
     try {
-      const response = await rawRequest({
-        url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
-        headers: { Origin: server.origin },
-      });
+      const response = await checkedAt(server);
       expect(response.status).toBe(502);
       expect(response.body).toContain(message);
       expect(JSON.parse(response.body)).not.toHaveProperty("recovery");
       const before = await inspect(server);
-      expect(before.failures).toHaveLength(1);
-      expect(before.failures[0]).toMatchObject({
-        cause: "owner-unavailable",
-        ownerCause,
-        category: "ref",
-        source: knownSourceId,
-      });
-      expect(before.failures[0]?.status).toBeUndefined();
-      // The notice is what the failed read leaves on the page: its check is
-      // bounded by the page's rendering once that read has failed.
+      expect(before.failures.length).toBeGreaterThan(0);
+      for (const failure of before.failures) {
+        expect(failure).toMatchObject({
+          cause: "owner-unavailable",
+          ownerCause,
+          category: "revision-check",
+          source: knownSourceId,
+        });
+        expect(failure.status).toBeUndefined();
+      }
+      // The notice is what the page's first failed read leaves on it: the
+      // first revision check after the page opens, or the open itself when
+      // it reads through the endpoint.
+      await pausePageClock(page);
       await openUntilRead(page, server.baseURL);
+      await passPageMsAnswered(page, checkIntervalMs);
       const notice = page.getByText(new RegExp(message)).first();
       await expect(notice).toBeVisible();
       await expect(notice).toContainText(

@@ -1,13 +1,21 @@
 // What a recovery journey reads of the page's read problem while a failed or
 // unanswered read waits to be read again on its own: the snapshot it says is
 // still shown and when that was retrieved, and when it says this page reads
-// again; and the controlled step of the page's clock to that time. The
+// again; the controlled step of the page's clock to that time; and the
+// failed revision check that starts a recovery from a shown snapshot. The
 // scenario names every expected time, wait and request count.
 
 import type { Page } from "@playwright/test";
+import { passTimeUntilChecked } from "./autoRefreshJourney.ts";
 import { expect } from "./dashboardTest.ts";
-import { parts } from "./dashboardPage.ts";
+import {
+  expectSettledPage,
+  parts,
+  type StoryMembership,
+} from "./dashboardPage.ts";
 import { timeSaid } from "./limitNotice.ts";
+import type { OriginAnswer } from "./originAnswers.ts";
+import type { MovingOrigin } from "./publishedMovingOrigin.ts";
 import { pathsRead, type ObservedRequest } from "./publishedOrigin.ts";
 
 // What the problem says while no published work is shown: when this page
@@ -62,4 +70,26 @@ export async function expectEarlierSnapshotKept(
   await expect(
     problem.locator("p", { hasText: earlierSnapshot }).locator("time").nth(1),
   ).toHaveAttribute("datetime", retrieved);
+}
+
+// Opens the page on `titles`, then answers `main` with `answer` until the
+// returned restore is called, and lets page time pass until the page's next
+// revision check has failed: the problem says `failure`, and the snapshot
+// opened stays shown.
+export async function openThenFailCheck(
+  page: Page,
+  origin: Pick<MovingOrigin, "answerWith">,
+  titles: StoryMembership,
+  answer: OriginAnswer,
+  failure: string,
+): Promise<() => void> {
+  await page.goto("/");
+  await expectSettledPage(page, titles);
+  const retrieved =
+    (await parts(page).retrievedAt.getAttribute("datetime")) ?? "";
+  const restore = origin.answerWith("main", answer);
+  await passTimeUntilChecked(page, 502);
+  await expect(parts(page).problem).toContainText(failure);
+  await expectEarlierSnapshotKept(page, retrieved);
+  return restore;
 }

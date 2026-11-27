@@ -37,10 +37,7 @@ import {
   withheldTitle,
 } from "../../dashboard/test-support/limitedReadingRecords.ts";
 import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
-import {
-  httpErrorAnswer,
-  pathsRead,
-} from "../../dashboard/test-support/publishedOrigin.ts";
+import { httpErrorAnswer } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   inspectDashboardStory,
   refreshHistory,
@@ -53,6 +50,7 @@ import { preparationFacts } from "../../dashboard/test-support/storyCardFacts.ts
 import {
   expectRecoversAfter,
   mainReads,
+  openThenFailCheck,
   transientRecovery,
 } from "../../dashboard/test-support/transientRecoveryPage.ts";
 
@@ -219,7 +217,6 @@ test("an ordinary transient failure does not hold back another project's reads",
     "A",
     afterGitHubStops,
   );
-  openDough.answerWith("main", httpErrorAnswer(503));
   const doughnut = await publishMovingHistory(
     page,
     doughnutHistory,
@@ -227,14 +224,13 @@ test("an ordinary transient failure does not hold back another project's reads",
     afterGitHubStops,
     doughnutRepository,
   );
-  await page.goto("/");
-  await expectProblemAndNoSnapshot(
+  await openThenFailCheck(
     page,
+    openDough,
+    titlesOfA,
+    httpErrorAnswer(503),
     "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-    transientRecovery,
   );
-  await untilPageReadsAnswered(page);
-  expect(mainReads(openDough)).toBe(1);
 
   await projectTab(page, "Doughnut").check();
   await expectSettledPage(page, {
@@ -245,5 +241,4 @@ test("an ordinary transient failure does not hold back another project's reads",
   await expect(parts(page).readRevision).toContainText(
     shortRevision(doughnut.revisions.published),
   );
-  expect(pathsRead(doughnut).some((path) => path === "main")).toBe(true);
 });

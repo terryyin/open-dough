@@ -75,7 +75,9 @@ Cases whose promise is the Board's cold open through REST stay with the
 Board open story, which replaces them with Git failures: `read-failure`,
 `transient-read-exclusions`, `project-read-recovery`,
 `project-read-isolation`'s held first open, `authenticated-project-observation`,
-the cold-open cases of `transient-read-recovery`, the reload step shared by
+the cold-open cases of `transient-read-recovery`, the hidden-page due-time
+and shared empty-page recovery cases of `transient-recovery-lifecycle`
+(backoff arms only for an empty page), the reload step shared by
 the `limited-reading-*` specs, `authenticated-read-revision-backlog`, and
 the logged-out cold-open case in `authenticated-read-retained-answers`.
 

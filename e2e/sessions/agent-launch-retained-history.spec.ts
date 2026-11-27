@@ -41,6 +41,9 @@ import type { DashboardServer } from "../../dashboard/test-support/support/dashb
 test.use({ projectFolders: ["open-dough"], cursorScreen: "working" });
 
 const minute = 60_000;
+// The server keeps done sessions for their retention window by the real
+// clock, so the page opens now rather than on a fixed date.
+const openedAt = Date.now();
 const retainedStory = {
   ...storyA,
   identity: "SEED-804#retained-session-story",
@@ -91,7 +94,7 @@ async function showRetained(
   origin: Parameters<typeof showPage>[1],
   records: readonly LaunchRecord[],
 ) {
-  const opened = new Date("2026-10-28T10:00:00.000Z");
+  const opened = new Date(openedAt);
   await origin.publishRevision({
     message: "Publish the retained sessions' story",
     files: doneStoryFiles(
@@ -118,7 +121,7 @@ test("one history read per opening, none while nothing retained is opened, and a
   dashboard,
   origin,
 }) => {
-  const now = Date.parse("2026-10-28T10:00:00.000Z");
+  const now = openedAt;
   const first = retained(dashboard, now, "First retained session");
   const { passOnePace, asked, codings, onBoard } = await showRetained(
     page,
