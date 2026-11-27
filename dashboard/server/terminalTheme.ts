@@ -12,7 +12,7 @@ import { machineDashboardPath } from "./machineHome.ts";
 
 export class TerminalThemeProblem extends Error {}
 
-function terminalThemeFile(): string {
+export function terminalThemeFile(): string {
   return machineDashboardPath("terminal-theme.json");
 }
 

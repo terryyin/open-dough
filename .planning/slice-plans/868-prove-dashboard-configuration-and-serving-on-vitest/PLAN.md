@@ -170,7 +170,7 @@ in-file order replaces Playwright's serial mode.
 ### 3. Prove local settings boundaries in-process on Node Vitest
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 15–20 active minutes.
 
 Behavior: given `installFeedbackMaintenanceMiddleware`,
@@ -188,6 +188,14 @@ Proof: Convert `feedback-maintenance-boundary.spec.ts` (1),
 `startInProcessBoundaryHttp` and `rawRequest`. Run:
 `caffeinate -s -i npm run test:dashboard:backend -- 'configuration/(feedback-maintenance-boundary|openai-configuration-boundary|openai-configuration-size|terminal-theme-boundary)\.spec\.ts$' --workers=1 --reporter=list`
 (4 Node cases, 0 Chromium cases) and `npm run typecheck:dashboard`.
+
+Accepted after the refactor pass: 4 Node cases passed in-process (about 3 s)
+and typecheck passed. Child-server-only checks became in-process recorders in
+`dashboard/backend-tests/support/privateSettingsMachine.ts` (fetch egress,
+recording `gh`/`claude` on PATH, console output), each shown to fire by a
+scratch check. Specs read production's file-path functions. Slice 4 can reuse
+`privateSettingsMachine()`. Node Vitest specs must not import page modules
+that pull in `@playwright/test`.
 
 ### 4. Prove project configuration boundaries and published agent settings read in Node Vitest
 

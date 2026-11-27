@@ -4,20 +4,39 @@
 // wrong content type; none changes the saved theme. The page's recovery from
 // a saved theme it cannot use is ../../../e2e/configuration/system-settings-terminal-theme-recovery.spec.ts.
 import { readFileSync } from "node:fs";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { systemSettingsMachine } from "../../test-support/support/systemSettingsMachine.ts";
+import { afterEach, beforeEach, expect, test } from "vitest";
+import { installTerminalThemeMiddleware } from "../../server/terminalThemeBoundary.ts";
+import { terminalThemeFile } from "../../server/terminalTheme.ts";
+import {
+  privateSettingsMachine,
+  type PrivateSettingsMachine,
+} from "../support/privateSettingsMachine.ts";
+import {
+  startInProcessBoundaryHttp,
+  type InProcessBoundaryHttp,
+} from "../../test-support/support/inProcessBoundaryHttp.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import { terminalThemeFile } from "../../test-support/support/terminalThemeSettingsPage.ts";
 
-let fixture: ReturnType<typeof systemSettingsMachine>;
-test.beforeEach(() => {
-  fixture = systemSettingsMachine();
+let machine: PrivateSettingsMachine;
+let server: InProcessBoundaryHttp;
+beforeEach(async () => {
+  machine = privateSettingsMachine();
+  server = await startInProcessBoundaryHttp(
+    { name: "dough-terminal-theme", install: installTerminalThemeMiddleware },
+    "production",
+  );
 });
-test.afterEach(async () => fixture.close());
+afterEach(async () => {
+  try {
+    await server.closeBoundary();
+    await server.closeHttp();
+  } finally {
+    machine.close();
+  }
+});
 
 test("terminal theme endpoint refuses foreign, malformed and unknown requests without changing the saved theme", async () => {
-  const server = await fixture.start("boundary");
-  const endpoint = `${server.baseURL}/__terminal-theme`;
+  const endpoint = `${server.origin}/__terminal-theme`;
   const headers = { Origin: server.origin, "Content-Type": "application/json" };
   const save = (body: string, extra: Record<string, string> = {}) =>
     rawRequest({
@@ -33,7 +52,7 @@ test("terminal theme endpoint refuses foreign, malformed and unknown requests wi
   const saved = await save(JSON.stringify({ theme: "solarized-light" }));
   expect(saved.status).toBe(200);
   expect(JSON.parse(saved.body)).toEqual({ theme: "solarized-light" });
-  const file = terminalThemeFile(fixture.home);
+  const file = terminalThemeFile();
   const before = readFileSync(file, "utf8");
   expect(JSON.parse(before)).toEqual({ theme: "solarized-light" });
   for (const url of [endpoint, `${endpoint}/save`]) {
@@ -92,6 +111,5 @@ test("terminal theme endpoint refuses foreign, malformed and unknown requests wi
   expect(readFileSync(file, "utf8")).toBe(before);
   const kept = await rawRequest({ url: endpoint, headers });
   expect(JSON.parse(kept.body)).toEqual({ theme: "solarized-light" });
-  expect(server.claudeCalls()).toEqual([]);
-  expect(server.ghCalls()).toEqual([]);
+  expect(machine.commandCalls()).toBe("");
 });
