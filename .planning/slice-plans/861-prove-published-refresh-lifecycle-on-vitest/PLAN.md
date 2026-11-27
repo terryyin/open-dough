@@ -28,10 +28,10 @@ Reconciliation with related work:
   Board reads.
 - [Plan 860](https://github.com/terryyin/open-dough/blob/ebdf4ebac57a7d7cd41172def1b8089a2d4fd455/.planning/slice-plans/860-prove-published-read-admission-on-vitest/PLAN.md) owns
   published read admission, and
-  [plan 862](../862-prove-authenticated-github-observation-on-vitest/PLAN.md)
-  owns authenticated GitHub request ownership (retaining shared callers of
-  `revisionCheckBoundary.ts` such as `authenticated-read-turns.spec.ts` and
-  `authenticated-read-output-bound.spec.ts`).
+  [plan 890](../890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md)
+  owns authenticated GitHub request lifetime and failure evidence.
+  [Plan 862](https://github.com/terryyin/open-dough/blob/fa4d5c57608966483d829faae8feba252e6c22c8/.planning/slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md) moved `authenticated-read-turns.spec.ts` and
+  `authenticated-read-output-bound.spec.ts` off `revisionCheckBoundary.ts`.
 
 ## Current decisions
 
@@ -67,17 +67,23 @@ Reconciliation with related work:
   read into `commitRecordRead.ts` (`pinnedMemo.ts` stays within 250 lines).
   If slice 10 edits `sourceRevisionStream.ts`, separate per-subscriber delivery
   and teardown cleanly so every edited file stays within 250 lines.
-- Test-support cleanup: `retainedAnswersJourney.ts`, `revisionReuseOrigin.ts`,
-  `revisionReuseAnswers.ts`, and `revisionReuseCalls.ts` also serve
-  `e2e/observation/authenticated-read-retained-answers-reload.spec.ts`, which
-  this story keeps as the preview-reload E2E owner. Leave those four modules.
-  After slice 7 retires the last revision-reuse backend caller, delete
-  `dashboard/backend-tests/observation/revisionReuseBoundary.ts` only when it
-  has no remaining caller. Delete `listingTimeoutBoundary.ts` in slice 9 and
-  `revisionStreamBoundary.ts` plus `controlledRevisionStream.ts` in slice 10
-  once their last callers migrate. Keep `revisionCheckBoundary.ts` because
-  `authenticated-read-turns.spec.ts` and `authenticated-read-output-bound.spec.ts`
-  (owned by plan 862) still import it.
+- The four retained-answer helpers stay: they also serve
+  `e2e/observation/authenticated-read-retained-answers-reload.spec.ts`.
+  Delete `revisionReuseBoundary.ts` only when it has no caller,
+  `listingTimeoutBoundary.ts` in slice 9, and `revisionStreamBoundary.ts`
+  plus `controlledRevisionStream.ts` in slice 10. That supersedes the helper
+  deletion in the next bullet. Its `revisionCheckBoundary.ts` sentence stands.
+- Test-support cleanup: once their last callers migrate in slices 1, 3, 5,
+  and 6, delete `dashboard/test-support/retainedAnswersJourney.ts`,
+  `dashboard/test-support/revisionReuseOrigin.ts`,
+  `dashboard/test-support/revisionReuseAnswers.ts`,
+  `dashboard/test-support/revisionReuseCalls.ts`,
+  `dashboard/backend-tests/observation/revisionReuseBoundary.ts`,
+  `dashboard/backend-tests/observation/listingTimeoutBoundary.ts`,
+  `dashboard/backend-tests/observation/revisionStreamBoundary.ts`, and
+  `dashboard/backend-tests/observation/controlledRevisionStream.ts`. Keep
+  `dashboard/backend-tests/observation/revisionCheckBoundary.ts` while this
+  family's own specs still import it; since plan 862, no other spec does.
 
 ## Premises and baseline
 
@@ -102,7 +108,7 @@ caffeinate -s -i npm run test:dashboard:backend -- \
 | Legacy 15-spec Playwright baseline (command above) | 60 Chromium cases passed: retained-answers (9 cases, 32.2 s), revision-backlog & revision-check (10 cases, 9.9 s), revision-reuse (24 cases, 20.7 s), shared-listing (6 cases, 7.0 s), revision-stream (11 cases, 7.5 s). | Exact migration inventory: 60 cases across 15 specs, all currently active and green. |
 | Production call-graph reconciliation with plans 856, 853, 823 | `performedRefRead.ts` owns cold open (`case "ref"`) via `SharedVerifiedOriginTrunk` and calls `pinned.answeredBacklog`. `authenticatedRead.ts`, `performedRead.ts`, `RevisionChecks`, `PinnedTexts`, `RetainedAnswers`, `RevisionStreamObservation`, and `SourceRevisionStream` remain the live paths for revision checks, streams, reuse, and retained answers until plan 823 moves them to local Git. | Preserve all 60 cases' product behavior directly on the current production seams; do not prematurely remove active revision-check or reuse behavior. |
 | Node Vitest backend runner (`observation/shared-observation.spec.ts`, `review/shared-verified-origin-trunk.spec.ts`) | `backend.vitest.config.mts` selects every `.spec.ts` in `dashboard/backend-tests/` that imports `vitest` and runs it in Node alongside retained Playwright specs. Passed 10/10 cases in 8.13 s. | New/migrated Node Vitest specs in `dashboard/backend-tests/observation/` run automatically under the maintained `npm run test:dashboard:backend` selector with zero runner-config changes. |
-| Support-module consumer check across `dashboard/` and `e2e/` at execution start `29e840285` | The four retained-answer helpers also serve `e2e/observation/authenticated-read-retained-answers-reload.spec.ts`. `revisionReuseBoundary.ts`, `listingTimeoutBoundary.ts`, `revisionStreamBoundary.ts`, and `controlledRevisionStream.ts` are imported only by this story's backend specs. `revisionCheckBoundary.ts` also serves 2 specs in plan 862. | Leave the four helpers the preview-reload E2E still imports. Delete the four backend-only modules as their last callers retire; leave `revisionCheckBoundary.ts` intact for plan 862. |
+| Support-module consumer check across `dashboard/` and `e2e/` at execution start `29e840285` | The four retained-answer helpers also serve `e2e/observation/authenticated-read-retained-answers-reload.spec.ts`. `revisionReuseBoundary.ts`, `listingTimeoutBoundary.ts`, `revisionStreamBoundary.ts`, and `controlledRevisionStream.ts` are imported only by this story's backend specs. `revisionCheckBoundary.ts` also serves 2 specs in plan 862. | Leave the four helpers the preview-reload E2E still imports. Delete the four backend-only modules as their last callers retire. Keep `revisionCheckBoundary.ts` while this family's specs import it; since plan 862, no other spec does. |
 
 ## Ordered slices
 
@@ -368,7 +374,7 @@ test double, and production is unchanged.
 ### 8. Check published revisions with conditional ETags, fallback, and rate-limit waits
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A pinned backlog read answers the named revision without resolving
 `main`, and refuses a non-SHA revision before calling upstream. A revision
@@ -389,6 +395,32 @@ HTTP witness for `no-store`, status codes, and cross-origin 403 refusal.
 Replaces `authenticated-read-revision-backlog.spec.ts` (2),
 `authenticated-read-revision-check.spec.ts` (4), and
 `authenticated-read-revision-check-failures.spec.ts` (4) — 10 cases total.
+
+Accepted proof at `d386e286` with the specs uncommitted. A pinned backlog
+read answers the named revision and does not resolve `main`; a non-SHA
+revision is refused before a file read. An unchanged `main` answers
+`changed: false` from the head and then from 304; a moved `main` answers
+`changed: true` and the next check sends the new ETag; one source's ETag is
+not sent for another. Malformed, mixed, unknown-source, and cross-origin
+queries are refused before the exchange. A 504 falls back to the ref for that
+check only. A rate limit does not fall back, and logged-out `gh` guidance is
+distinct. `Retry-After` and `X-RateLimit-Reset` stay within 3600 seconds and
+otherwise 60. A 200 that spends the last allowance is a normal answer.
+Boundary: `parseRequestedRead`, `perform`, `RevisionChecks`,
+`performRevisionCheck`, `checkHeadsViaGh`, `resolveRevisionViaGh`,
+`reportedFailure`, and the loopback authenticated-read server. Setup and
+observations: `revision-backlog.spec.ts` (2), `revision-check.spec.ts` (4),
+`revision-check-failures.spec.ts` (4), `revisionCheckHarness.ts`, and
+`revisionCheckHttp.ts`. Command:
+`caffeinate -s -i npm run test:dashboard:backend -- 'observation/revision-(backlog|check|check-failures)\.spec\.ts$' --workers=1`
+(`slice8-checks-final.log.run.json`, exit 0, 10 tests). Typecheck
+`slice8-typecheck.log.run.json`, exit 0. Consumer trace
+`slice8-consumer-trace.log.run.json`, exit 0. Callers that omit the new
+exchange still use the previous GitHub call. `revisionCheckBoundary.ts` stays.
+The three specs are 80, 140, and 214 lines; the harness is 223 and the HTTP
+witness is 71. Refactor pass: none — the optional exchange defaults to the
+existing GitHub call, the mount move keeps the installer a `BoundaryInstall`,
+and the harness is the test double.
 
 ### 9. Share settled listings across checks and clear them on failure or close
 
@@ -459,8 +491,7 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
   [consumer tracing](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
   to every changed server seam and deleted test-support file, verifying
   unaffected callers (including `shared-observation.spec.ts`,
-  `shared-verified-origin-trunk.spec.ts`, and plan 862's specs that still use
-  `revisionCheckBoundary.ts`).
+  `shared-verified-origin-trunk.spec.ts`, and plan 890's specs).
 - Recount at the execution starting revision and record the final exact
   maintained one-worker command with runner counts, per-case times against the
   campaign's ~100 ms target, summed case time, elapsed time, host load, and
@@ -509,7 +540,15 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
 - Slice 7's three history cases and typecheck had already passed when the
   clock was still running across the later coordinator gap. Pausing then
   recorded 54.6 active minutes, so `storyOverruns` is 5. That gap is not a
-  failed sizing of the history loop. The plan stays at ten slices.
+  failed sizing of the history loop. The plan stays at ten slices. Plan review
+  on trunk names plan 890; the split recorded above is this execution's
+  refinement.
+- Slice 8 returned at 13.4 active minutes, inside the limit. Trunk's plan 890
+  now owns authenticated GitHub request lifetime, and plan 862 no longer
+  imports `revisionCheckBoundary.ts`. This family's remaining specs still do,
+  so the module stays. The four preview-reload helpers stay. CI on `694f6fae`
+  failed one dashboard frontend launch case; the next published revision
+  `d386e286` passed that job with no change to the spec.
 
 ## Execution identity
 
@@ -521,14 +560,15 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
   revision `9379098d55410b514abf36b8fb8e42b0c0931181`.
 - Originating checkout: that same workspace. Integration checkout: none.
 - Target selection: remote `origin`, branch `main`.
-- Published revision `694f6fae0e7d71bbed0d94e34bccba58c4cbea20` accepted on
+- Published revision `d386e286a128792547703f577f5b6d25a1c09afd` accepted on
   `origin/cursor/prove-published-refresh-lifecycle-in-node-vitest`. That SHA is
   the previously published base for the next increment. The Story Branch claim
   `29e8402851ac887b9d4cdd7838b8a20db7bb08f9` remains `pendingCi: unobserved`.
 
 ## Plan review
 
-Execution refined the overrun slice in place. Slices 1–4 are delivered.
-Slice 5's three proof loops are now slices 5–7. Checks, listings, and streams
-are slices 8–10. Ten slices is the in-progress split cap. Goal, examples, and
-scope are unchanged.
+Refinement not needed: the six slices cover all 60 observed baseline cases
+across the 15 legacy specs with direct typed Node Vitest seams, minimal
+in-process HTTP witnesses for genuine wire/SSE/process behaviors, clear
+test-support deletions, and explicit reconciliation with plans 856, 853, 823,
+860, 862 and 890. No slice-specific concern remains on the observed basis.

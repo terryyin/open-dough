@@ -329,8 +329,8 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   migrated, consolidated, or retained case, and delete test-support wrappers
   whose last caller leaves. Plans 856 and 853 own the verified Git cold open
   and in-place Refresh; plan 823 owns moving automatic observation and pinned
-  reads to local Git; plans 860 and 862 own published read admission and
-  authenticated GitHub request ownership.
+  reads to local Git; plan 860 owns published read admission, and plans 862
+  and 890 own authenticated GitHub request ownership.
 - **Key examples.** After one process answers a project at revision A, a later
   process on the same machine home answers pinned reads from the retained store
   (asking only for the recorded branch head beside membership), while another

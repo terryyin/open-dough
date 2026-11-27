@@ -34,16 +34,7 @@
 // image proxy.
 
 import type { IncomingMessage, ServerResponse } from "node:http";
-import type { Connect } from "vite";
-import type { BoundaryMiddlewares } from "./localBoundary.ts";
 import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
-import { PinnedTexts } from "./pinnedTexts.ts";
-import { RetainedAnswers } from "./retainedAnswers.ts";
-import { RevisionMemo } from "./revisionMemo.ts";
-import { RevisionChecks } from "./revisionChecks.ts";
-import { SharedVerifiedOriginTrunk } from "./sharedVerifiedOriginTrunk.ts";
-import { BranchHeads } from "./branchHeads.ts";
-import { AvatarImages } from "./avatarImages.ts";
 import { performAvatarRead, type AvatarOutcome } from "./avatarRead.ts";
 import { perform, type Boundary } from "./performedRead.ts";
 import {
@@ -51,18 +42,13 @@ import {
   type DiagnosticOutcome,
 } from "./readDiagnostics.ts";
 import type { Outcome } from "./readOutcome.ts";
-import { withReadTiming } from "./readTiming.ts";
 import { parseRequestedRead } from "./requestedRead.ts";
-import { parseRequestedRevisionStream } from "./requestedRevisionStream.ts";
-import { RevisionStreamObservation } from "./revisionStreamObservation.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { configuredProject } from "./projectConfiguration.ts";
-import { disconnectGh } from "./ghRead.ts";
 // The endpoint paths, shared with the browser.
 import {
   authenticatedAvatarEndpoint,
   authenticatedReadDiagnosticsEndpoint,
-  authenticatedReadEndpoint,
 } from "../src/authenticatedReadRules.ts";
 
 // Only a request naming a configured project held by
@@ -71,7 +57,7 @@ import {
 // name a pinned revision and a path reachable from that revision's records.
 // The catalog source an accepted request names, or why it is refused: both
 // endpoints answer only a local same-origin GET naming a known source.
-function admitted(
+export function admitted(
   req: IncomingMessage,
   params: URLSearchParams,
 ): PublishedSource | Extract<Outcome, { readonly kind: "refused" }> {
@@ -101,7 +87,7 @@ function admitted(
   );
 }
 
-async function answer(
+export async function answer(
   req: IncomingMessage,
   boundary: Boundary,
   url: URL,
@@ -121,7 +107,7 @@ async function answer(
   return read.kind === "refused" ? read : perform(req, boundary, source, read);
 }
 
-function respond(
+export function respond(
   res: ServerResponse,
   outcome: Outcome | AvatarOutcome | DiagnosticOutcome,
   serverTiming: string,
@@ -169,75 +155,4 @@ function respond(
       recovery: outcome.kind === "failed" ? outcome.recovery : undefined,
     }),
   );
-}
-
-// Mounted identically by both Vite launch modes. Requests outside these
-// endpoints' exact paths are passed on untouched; only a request that names
-// one is ever inspected, let alone answered.
-export function installAuthenticatedReadMiddleware(
-  middlewares: BoundaryMiddlewares,
-): () => void {
-  const tracked = new Set<AbortController>();
-  const boundary: Boundary = {
-    tracked,
-    // Answers at resolved commits outlive this process; nothing else here does.
-    pinned: new PinnedTexts(new RevisionMemo(new RetainedAnswers())),
-    checks: new RevisionChecks({ tracked }),
-    trunks: new SharedVerifiedOriginTrunk(),
-    branches: new BranchHeads(),
-    avatars: new AvatarImages(),
-  };
-  const streams = new RevisionStreamObservation(boundary);
-  let closed = false;
-  const handler: Connect.NextHandleFunction = (req, res, next) => {
-    const url = new URL(req.url ?? "", "http://placeholder");
-    if (
-      url.pathname !== authenticatedReadEndpoint &&
-      url.pathname !== authenticatedAvatarEndpoint &&
-      url.pathname !== authenticatedReadDiagnosticsEndpoint
-    ) {
-      next();
-      return;
-    }
-    if (closed) {
-      respond(
-        res,
-        { kind: "refused", status: 503, message: "This dashboard is closing." },
-        "",
-      );
-      return;
-    }
-    if (url.pathname === authenticatedReadEndpoint) {
-      const stream = parseRequestedRevisionStream(url.searchParams);
-      if (stream !== undefined) {
-        const source = admitted(req, url.searchParams);
-        if ("kind" in source) {
-          respond(res, source, "");
-          return;
-        }
-        if ("kind" in stream) {
-          respond(res, stream, "");
-          return;
-        }
-        void streams.open(source, stream, req, res);
-        return;
-      }
-    }
-    void withReadTiming(() => answer(req, boundary, url)).then(
-      ({ outcome, serverTiming }) => {
-        respond(res, outcome, serverTiming);
-      },
-    );
-  };
-  middlewares.use(handler);
-  return () => {
-    if (closed) return;
-    closed = true;
-    disconnectGh();
-    streams.close();
-    for (const controller of boundary.tracked) {
-      controller.abort();
-    }
-    boundary.tracked.clear();
-  };
 }

@@ -9,7 +9,7 @@
 // on a plain HTTP server for boundary tests (`./boundaryServer.ts`), so both
 // serve the same boundaries by construction.
 
-import { installAuthenticatedReadMiddleware } from "./authenticatedRead.ts";
+import { installAuthenticatedReadMiddleware } from "./authenticatedReadMiddleware.ts";
 import { installInstructionTranscriptionMiddleware } from "./instructionTranscriptionBoundary.ts";
 import { installFeedbackMaintenanceMiddleware } from "./feedbackMaintenanceBoundary.ts";
 import { installHostStatusMiddleware } from "./hostStatusBoundary.ts";

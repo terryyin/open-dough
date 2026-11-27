@@ -1,6 +1,6 @@
 // Drive the HTTP waiter's bound and then the dashboard listing's own bound
 // while the request owner and synthetic gh use their real process timers.
-import { installAuthenticatedReadMiddleware } from "../../server/authenticatedRead.ts";
+import { installAuthenticatedReadMiddleware } from "../../server/authenticatedReadMiddleware.ts";
 import { readWaitLimitMs } from "../../src/authenticatedReadRules.ts";
 import { controlRequestTimers } from "../../test-support/support/controlledRequestTimers.ts";
 import { startInProcessAuthenticatedRead } from "../../test-support/support/inProcessAuthenticatedRead.ts";

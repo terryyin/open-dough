@@ -20,6 +20,7 @@ import { checkReuseMs } from "../src/revisionCheckSchedule.ts";
 import {
   checkHeadsViaGh,
   resolveRevisionViaGh,
+  type GhExchange,
   type HeadsAnswer,
 } from "./ghRevision.ts";
 import { GhFailure, rateLimitStop, scope } from "./ghRead.ts";
@@ -46,6 +47,9 @@ export type RevisionCheckOptions = {
     source: PublishedSource,
     signal: AbortSignal,
   ) => Promise<CheckedHeads>;
+  // The `gh` exchange for the listing and the ref fallback. Production asks
+  // GitHub; a test may answer a fixed exchange instead.
+  readonly ask?: GhExchange;
 };
 
 // How long a settled listing serves later checks: `checkReuseMs`, unless a
@@ -79,17 +83,20 @@ export class RevisionChecks {
   private readonly listHeads:
     | ((source: PublishedSource, signal: AbortSignal) => Promise<CheckedHeads>)
     | undefined;
+  private readonly ask: GhExchange | undefined;
 
   constructor({
     tracked,
     reuseMs = revisionCheckReuseMs,
     scope: ownerScope = scope,
     listHeads,
+    ask,
   }: RevisionCheckOptions) {
     this.tracked = tracked;
     this.reuseMs = reuseMs;
     this.ownerScope = ownerScope;
     this.listHeads = listHeads;
+    this.ask = ask;
   }
 
   async check(
@@ -125,11 +132,7 @@ export class RevisionChecks {
       // with the next listing that succeeds. A failed listing keeps no
       // settled observation, so the next check asks GitHub again.
       return {
-        revision: await resolveRevisionViaGh(
-          source.repository,
-          source.ref,
-          signal,
-        ),
+        revision: await this.revisionOf(source, signal),
         heads: undefined,
       };
     }
@@ -172,11 +175,11 @@ export class RevisionChecks {
     source: PublishedSource,
     signal: AbortSignal,
   ): Promise<CheckedHeads> {
-    const answer = await checkHeadsViaGh(
-      source.repository,
-      this.answers.get(source.id),
-      signal,
-    );
+    const earlier = this.answers.get(source.id);
+    const answer =
+      this.ask === undefined
+        ? await checkHeadsViaGh(source.repository, earlier, signal)
+        : await checkHeadsViaGh(source.repository, earlier, signal, this.ask);
     if (answer.etag === undefined) {
       this.answers.delete(source.id);
     } else {
@@ -187,5 +190,14 @@ export class RevisionChecks {
       throw new GhFailure({ kind: "no-commit" });
     }
     return { revision, heads: answer.heads };
+  }
+
+  private revisionOf(
+    source: PublishedSource,
+    signal: AbortSignal,
+  ): Promise<string> {
+    return this.ask === undefined
+      ? resolveRevisionViaGh(source.repository, source.ref, signal)
+      : resolveRevisionViaGh(source.repository, source.ref, signal, this.ask);
   }
 }

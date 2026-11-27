@@ -5,7 +5,7 @@
 // cadence and check that the canceled timer fires no callback and GitHub
 // receives no call. Keep process startup and teardown on real timers.
 import { EventEmitter, once } from "node:events";
-import { installAuthenticatedReadMiddleware } from "../../server/authenticatedRead.ts";
+import { installAuthenticatedReadMiddleware } from "../../server/authenticatedReadMiddleware.ts";
 import { controlRequestTimers } from "../../test-support/support/controlledRequestTimers.ts";
 import {
   everyRepository,

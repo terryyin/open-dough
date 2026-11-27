@@ -4,8 +4,16 @@
 // conditional check, every published branch head at once. How `gh` runs and
 // fails is `./ghRead.ts`.
 
+import type { GhAnswer } from "../../Distribution/src/skills/dough-execute-plan/scripts/github-request-answer.mjs";
 import { execGh, GhFailure, isNotFound, runGh } from "./ghRead.ts";
 import { commitShaPattern } from "../src/authenticatedReadRules.ts";
+
+// One `gh api` answer. Production asks this process's GitHub requests;
+// a caller may answer a fixed exchange instead.
+export type GhExchange = (
+  args: readonly string[],
+  signal: AbortSignal,
+) => Promise<GhAnswer>;
 
 // Which commit a ref alone names, asked for `.sha` alone: what a revision
 // check asks when the branch-head listing fails, and what feedback maintenance
@@ -27,10 +35,17 @@ export async function resolveRevisionViaGh(
   repository: string,
   ref: string,
   signal: AbortSignal,
+  ask?: GhExchange,
 ): Promise<string> {
-  return commitNamedBy(
-    await runGh(["api", refEndpoint(repository, ref), "--jq", ".sha"], signal),
-  );
+  const args = ["api", refEndpoint(repository, ref), "--jq", ".sha"] as const;
+  if (ask === undefined) {
+    return commitNamedBy(await runGh(args, signal));
+  }
+  const { failure, body } = await ask(args, signal);
+  if (failure !== undefined) {
+    throw new GhFailure(failure);
+  }
+  return commitNamedBy(body);
 }
 
 // Which commit the published branch `branch` names now, or undefined when
@@ -117,10 +132,11 @@ export async function checkHeadsViaGh(
   repository: string,
   earlier: HeadsAnswer | undefined,
   signal: AbortSignal,
+  ask?: GhExchange,
 ): Promise<HeadsAnswer> {
   const conditional =
     earlier?.etag === undefined ? [] : ["-H", `If-None-Match: ${earlier.etag}`];
-  const answer = await execGh(
+  const answer = await (ask ?? execGh)(
     ["api", ...conditional, headsEndpoint(repository)],
     signal,
   );
