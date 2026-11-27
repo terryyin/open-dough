@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Koharu-chan",
+  "email": "koharu-chan@example.org",
+  "identity": "SEED-413#github-request-lifetime-and-evidence-via-vitest",
+  "mode": "story-branch",
+  "branch": "cursor/prove-github-request-lifetime-and-failure-eviden",
+  "host": "cursor",
+  "model": "grok-4.7"
+}
