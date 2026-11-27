@@ -51,6 +51,11 @@ export function restMembershipReads(reads: readonly string[]): string[] {
   );
 }
 
+// The Board's REST membership reads among `calls`, besides the checks.
+export function restMembershipAsked(calls: readonly GhCall[]): string[] {
+  return restMembershipReads(readsBesideChecks(calls));
+}
+
 // Notes a call among what an origin was asked, unless it is a revision check.
 export function observe(observed: ObservedRequest[], call: GhCall): void {
   if (!isHeadsCheck(call)) {

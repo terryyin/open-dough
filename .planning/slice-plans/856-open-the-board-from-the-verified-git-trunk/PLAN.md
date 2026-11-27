@@ -105,7 +105,7 @@ Budget 14 active minutes.
 ### 3. End a pending cold open at the deadline and recover it
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A cold open held at the Git transfer ends at the Board deadline,
 then recovers on its own; an eligible cold failure retries on its schedule.
@@ -179,6 +179,13 @@ found" a refusal, but the delivered `verifiedOriginTrunk.ts` and its spec
 treat it, and "Authentication failed", as unavailable, so they retry.
 REST `mainReads` no longer counts cold opens; slices 3–4 use
 `noteColdOpens` in `transientRecoveryPage.ts` instead.
+
+Slice 3 (2026-11-27) holds or disconnects the Git transfer through
+`e2e/observation/heldTrunkTransfer.ts`, which `sharedObserverOpen.ts` shares.
+It deleted the pinned-backlog recovery case: one Git transfer reads trunk and
+backlog together, and an unreadable backlog no longer recovers on its own.
+`heldUploadPack` must be set up before the first open and holds every later
+call; the dashboard's process-group close ends a transfer still held.
 
 ## Local gate
 

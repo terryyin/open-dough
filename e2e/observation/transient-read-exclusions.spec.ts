@@ -27,14 +27,12 @@ import {
   publishCommittedBacklog,
   publishGitOriginFailure,
 } from "../../dashboard/test-support/publishedOrigin.ts";
-import {
-  readsBesideChecks,
-  restMembershipReads,
-} from "../../dashboard/test-support/originObservation.ts";
+import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
 import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import {
   noteColdOpens,
+  originUnreachable,
   transientRecovery,
 } from "../../dashboard/test-support/transientRecoveryPage.ts";
 
@@ -70,9 +68,7 @@ for (const { failure, problem } of [
     await expect(parts(page).problem).toContainText(
       "Reload the page to read again.",
     );
-    expect(
-      restMembershipReads(readsBesideChecks(githubFor(page).calls)),
-    ).toEqual([]);
+    expect(restMembershipAsked(githubFor(page).calls)).toEqual([]);
   });
 }
 
@@ -91,9 +87,7 @@ test("an unreadable backlog stays actionable without a loop or REST membership",
   await expect(parts(page).problem).toContainText(
     "Reload the page to read again.",
   );
-  expect(restMembershipReads(readsBesideChecks(githubFor(page).calls))).toEqual(
-    [],
-  );
+  expect(restMembershipAsked(githubFor(page).calls)).toEqual([]);
 });
 
 test("a malformed backlog stays a reload problem and is not asked again", async ({
@@ -141,7 +135,7 @@ test("switching project cancels the unresolved recovery wait", async ({
   await page.goto("/");
   await expectProblemAndNoSnapshot(
     page,
-    "The published trunk is unavailable: Git could not read main of terryyin/open-dough from origin.",
+    originUnreachable(),
     transientRecovery,
   );
   await untilPageReadsAnswered(page);
@@ -152,7 +146,5 @@ test("switching project cancels the unresolved recovery wait", async ({
   await page.clock.runFor(20_000);
   expect(openDoughOpens).toHaveLength(1);
   await expect(parts(page).problem).toHaveCount(0);
-  expect(restMembershipReads(readsBesideChecks(githubFor(page).calls))).toEqual(
-    [],
-  );
+  expect(restMembershipAsked(githubFor(page).calls)).toEqual([]);
 });

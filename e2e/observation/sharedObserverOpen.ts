@@ -1,13 +1,7 @@
 // One project's two tabs opened together while its verified Git trunk check
 // is held at the origin's upload-pack, for ./shared-observer-reads.spec.ts:
 // the published history, the held seed, and what the tabs show and ask.
-import { readFileSync } from "node:fs";
 import type { Page } from "@playwright/test";
-import {
-  heldUploadPack,
-  readUntilClosed,
-  signalFifo,
-} from "../../dashboard/backend-tests/review/verifiedOriginTrunkCase.ts";
 import {
   expect,
   githubFor,
@@ -27,13 +21,12 @@ import {
   restMembershipReads,
 } from "../../dashboard/test-support/originObservation.ts";
 import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
-import { routedOrigin } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
-import { homeReviewRepository } from "../../dashboard/test-support/support/reviewRepositoryFixture.ts";
 import { defaultRepository as repository } from "../../dashboard/test-support/publishedOrigin.ts";
 import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
 import { holdingAnswer } from "../../dashboard/test-support/support/heldGitHubAnswer.ts";
+import { holdTrunkTransfer } from "./heldTrunkTransfer.ts";
 
 export const seedPath = ".planning/seeds/SEED-263-shared.md";
 const title = "A story both tabs show";
@@ -99,12 +92,7 @@ export async function openedTogether(
       return listing.answer;
     },
   );
-  const pack = heldUploadPack(
-    home,
-    homeReviewRepository(home, repository),
-    routedOrigin(home, repository),
-  );
-  const held = readUntilClosed(pack.heldFifo);
+  const transfer = holdTrunkTransfer(home, repository);
   const releaseSeed = origin.hold(seedPath);
   githubFor(page).serve(
     doughnutRepository,
@@ -113,17 +101,15 @@ export async function openedTogether(
   const other = await page.context().newPage();
   const tabs = [page, other];
   await Promise.all(tabs.map((tab) => tab.goto("/")));
-  await held;
-  expect(readFileSync(pack.log, "utf8")).toBe("call\ncall\nheld\n");
+  await transfer.held;
+  expect(transfer.log()).toBe("call\ncall\nheld\n");
   expect(restMembershipReads(askedOfOpenDough(page))).toEqual([]);
   return {
     other,
     origin,
     releaseSeed,
     releaseListing,
-    // Git is blocked in the gate's read. A later release has no reader, and a
-    // blocking open would keep the worker alive until Playwright force-kills it.
-    releaseGit: () => signalFifo(pack.releaseFifo, true),
-    releaseGitIfHeld: () => signalFifo(pack.releaseFifo, false),
+    releaseGit: transfer.release,
+    releaseGitIfHeld: transfer.releaseIfHeld,
   };
 }

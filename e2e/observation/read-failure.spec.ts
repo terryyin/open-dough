@@ -18,10 +18,8 @@ import {
   publishGitOriginFailure,
   type GitOriginFailure,
 } from "../../dashboard/test-support/publishedOrigin.ts";
-import {
-  readsBesideChecks,
-  restMembershipReads,
-} from "../../dashboard/test-support/originObservation.ts";
+import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
+import { originUnreachable } from "../../dashboard/test-support/transientRecoveryPage.ts";
 import {
   inspectDashboardStory,
   refreshHistory,
@@ -64,8 +62,7 @@ function backlogWith(queued: BacklogEntry[], tail = ""): string {
   return `${valid}${tail}`;
 }
 
-const unreachable =
-  "The published trunk is unavailable: Git could not read main of terryyin/open-dough from origin.";
+const unreachable = originUnreachable();
 
 const failedOpenings: {
   when: string;
@@ -117,9 +114,7 @@ for (const { when, origin, problem, recovery } of failedOpenings) {
         "or when it is next seen.",
       );
     }
-    expect(
-      restMembershipReads(readsBesideChecks(githubFor(page).calls)),
-    ).toEqual([]);
+    expect(restMembershipAsked(githubFor(page).calls)).toEqual([]);
   });
 }
 
@@ -216,5 +211,5 @@ test("read failure and retry publishes the first snapshot and withdraws the fail
     takenCards: 1,
     cards: 4,
   });
-  expect(restMembershipReads(readsBesideChecks(origin.requests))).toEqual([]);
+  expect(restMembershipAsked(origin.requests)).toEqual([]);
 });

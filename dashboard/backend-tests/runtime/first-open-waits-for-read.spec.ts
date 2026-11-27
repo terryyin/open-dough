@@ -13,10 +13,7 @@ import {
   givePageItsTurns,
   untilPublishedWorkRead,
 } from "../../test-support/pageRequestNotes.ts";
-import {
-  readsBesideChecks,
-  restMembershipReads,
-} from "../../test-support/originObservation.ts";
+import { restMembershipAsked } from "../../test-support/originObservation.ts";
 import { commitPublishedOrigin } from "../../test-support/support/publishedOrigin.ts";
 import { publishMovingHistory } from "../../test-support/publishedMovingOrigin.ts";
 import {
@@ -46,9 +43,6 @@ import {
 // by an answer later than that -- and the test waits on the read, never on it.
 const slowAnswerMs = 6_000;
 
-const restMembership = (calls: Parameters<typeof readsBesideChecks>[0]) =>
-  restMembershipReads(readsBesideChecks(calls));
-
 test("a membership check right after an open waits for a published-work read slower than an expect's bound", async ({
   page,
   dashboard,
@@ -76,7 +70,7 @@ test("a membership check right after an open waits for a published-work read slo
     await signalFifo(pack.releaseFifo, false);
   }
   await expect(parts(page).reading).toHaveCount(0);
-  expect(restMembership(githubFor(page).calls)).toEqual([]);
+  expect(restMembershipAsked(githubFor(page).calls)).toEqual([]);
 });
 
 test("a published-work read that fails for good ends the wait, and the membership check then fails at once naming the titles", async ({
@@ -94,7 +88,7 @@ test("a published-work read that fails for good ends the wait, and the membershi
     `The published trunk is unavailable: origin has no branch for main of ${defaultRepository}.`,
   );
   await expect(problem).toContainText("Reload the page to read again.");
-  expect(restMembership(githubFor(page).calls)).toEqual([]);
+  expect(restMembershipAsked(githubFor(page).calls)).toEqual([]);
 
   // Nothing is on its way and the page reads no more on its own, so the
   // check fails without waiting out an expectation's bound: it is over
@@ -185,7 +179,7 @@ machineTest(
       await signalFifo(pack.releaseFifo, true);
       await waited;
       await expect(board.getByRole("article").first()).toBeVisible();
-      expect(restMembership(server.github.calls)).toEqual([]);
+      expect(restMembershipAsked(server.github.calls)).toEqual([]);
     } finally {
       await signalFifo(pack.releaseFifo, false);
       await server.close();

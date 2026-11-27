@@ -17,11 +17,20 @@ import {
 import { timeSaid } from "./limitNotice.ts";
 import type { OriginAnswer } from "./originAnswers.ts";
 import type { MovingOrigin } from "./publishedMovingOrigin.ts";
-import { pathsRead, type ObservedRequest } from "./publishedOrigin.ts";
+import {
+  defaultRepository,
+  pathsRead,
+  type ObservedRequest,
+} from "./publishedOrigin.ts";
 
 // What the problem says while no published work is shown: when this page
 // reads it again.
 export const transientRecovery = "This page reads the published work at";
+
+// What the problem says when Git cannot read `repository`'s trunk from its
+// origin: the cold open's failure the page recovers from on its own.
+export const originUnreachable = (repository: string = defaultRepository) =>
+  `The published trunk is unavailable: Git could not read main of ${repository} from origin.`;
 
 // What the problem says while detail of the shown snapshot, still unread or
 // withheld by the limit, is labeled where it is shown and read again later.
