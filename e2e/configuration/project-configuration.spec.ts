@@ -26,7 +26,6 @@ import {
   sessionEntryShowing,
   shortRevision,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { publishRetainedProjectStory } from "../../dashboard/test-support/support/retainedProjectStory.ts";
 
 let fixture: ReturnType<typeof projectConfigurationMachine>;
 test.beforeEach(() => {
@@ -52,11 +51,12 @@ test("production seeds its projects and shows a previously saved session", async
   });
   const records = readFileSync(launchStoreFile(machineHome(fixture.machine)));
   const server = await fixture.start("preview");
-  publishRetainedProjectStory(
-    server,
+  server.github.serve(
     firstSeed.repository,
-    { identity, title },
-    firstSeed.ref,
+    makeMe.aRepository
+      .withTrunkBranch(firstSeed.ref)
+      .takingStories({ identity, title })
+      .please(),
   );
   await openUntilRead(page, server.baseURL);
   const projectRadios = page

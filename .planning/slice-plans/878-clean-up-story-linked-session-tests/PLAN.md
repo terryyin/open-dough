@@ -460,7 +460,7 @@ Evidence (2026-11-27):
 
 ### 9. Arrange records on a published story through MakeMe
 Type: Structure
-Status: planned
+Status: done
 Proof: one MakeMe builder step arranges a launch record on a published
 story, for example `aLaunchRecord.onStory(...)`. Another arranges an
 origin with a Taken story. Together they replace
@@ -468,6 +468,22 @@ origin with a Taken story. Together they replace
 `publishRevision` / `publishCommittedFiles` story setup in specs. Specs
 import fewer support modules. Full backend and E2E suites pass locally
 before landing.
+
+Evidence (2026-11-27):
+- `makeMe.aRepository.takingStories(...)` arranges an origin with Taken
+  stories. `FakeGitHub.serve` and `describedFiles` accept its one-revision
+  description.
+- `aDoneCaptureCase().withTakenStory(story)` covers the backend capture
+  cases.
+- `makeMe.aLaunchRecord.executing({ ...story, source })` already arranges a
+  launch record on a published story, so no alias was added.
+- `publishRetainedProjectStory` and the E2E `takenStoryFiles` are deleted
+  with `retainedProjectStory.ts`.
+- Ad hoc `publishRevision` calls that publish their own scenario fact stay:
+  agent profiles, the watch list, an unrefined story, an installed skill,
+  `takeRevision`, option or dependency revisions, and plain files.
+- Specs import 3 fewer support modules. The touched specs and
+  `project-restored-session` pass.
 
 ## Concern evidence
 

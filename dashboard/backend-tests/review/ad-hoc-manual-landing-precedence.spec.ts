@@ -11,7 +11,7 @@ import { keepAttempt } from "../../server/launchAttemptStore.ts";
 import { bindRecord } from "../../server/launchRecordBinding.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
 import { localFolder } from "../../server/localFolder.ts";
-import { source, takenStoryFiles } from "../support/doneCaptureCase.ts";
+import { source } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardReporting } from "../support/publisherDashboardOrigin.ts";
 
@@ -23,7 +23,7 @@ test("an early quiet Done keeps its verified manual pair when the native session
     at,
   } = await aDoneCaptureCase()
     .withOrigin()
-    .withBaseFiles(takenStoryFiles(storyA))
+    .withTakenStory(storyA)
     .withWorkspace("draft")
     .withWork(
       (at) => makeMe.aCheckoutWork.committing("early", { at: at(30) }),

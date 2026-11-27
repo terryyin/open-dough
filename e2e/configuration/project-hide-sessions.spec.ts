@@ -4,7 +4,6 @@ import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
 import { projectAddMachine } from "../../dashboard/test-support/support/projectAddMachine.ts";
-import { publishRetainedProjectStory } from "../../dashboard/test-support/support/retainedProjectStory.ts";
 import { doughnutRepository } from "../../dashboard/test-support/doughnutProject.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { identity } from "../../dashboard/test-support/agentLaunchBoundary.ts";
@@ -51,10 +50,12 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
   mkdirSync(doughnutFolder, { recursive: true });
   const server = await fixture.start("preview");
   const sessionTitle = "Retained Doughnut session";
-  publishRetainedProjectStory(server, doughnutRepository, {
-    identity,
-    title: sessionTitle,
-  });
+  server.github.serve(
+    doughnutRepository,
+    makeMe.aRepository
+      .takingStories({ identity, title: sessionTitle })
+      .please(),
+  );
   const sessionName = `Doughnut · Execution · ${sessionTitle}`;
   const sessionId = server.claudeListsSession({
     name: sessionName,

@@ -10,12 +10,7 @@ import { keepAttempt } from "../../server/launchAttemptStore.ts";
 import type { LaunchHost } from "../../server/launchHosts.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
 import { localFolder } from "../../server/localFolder.ts";
-import {
-  markDone,
-  source,
-  takenStoryFiles,
-  undoDone,
-} from "../support/doneCaptureCase.ts";
+import { markDone, source, undoDone } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardReporting } from "../support/publisherDashboardOrigin.ts";
 
@@ -27,7 +22,7 @@ async function aSessionWithHeldRename() {
     at,
   } = await aDoneCaptureCase()
     .withOrigin()
-    .withBaseFiles(takenStoryFiles(storyA))
+    .withTakenStory(storyA)
     .withCheckoutLaunch("default-launch", { launched: 60 }, (launch) =>
       launch
         .adHoc({ title: storyA.title, storyIdentity: storyA.identity })
