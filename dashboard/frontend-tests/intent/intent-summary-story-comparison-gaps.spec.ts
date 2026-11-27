@@ -101,7 +101,7 @@ test("a queued selection renders no previous Summary comparison or Baseline colu
   const summary = await openSummary(entry);
   await expectComparisonRows(summary, entryComparisonRows);
 
-  await selectStory(queued.identity, "Story B");
+  await selectStory(queued.identity);
   await openSummary(entry);
   await expectNoComparisonFraming(summary);
   await expect

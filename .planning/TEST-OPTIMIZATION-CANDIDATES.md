@@ -79,3 +79,30 @@
 - **Decision or evidence needed:** a measured plumbing rewrite of
   `buildRepository` proven against every history consumer, or a developer
   decision to accept the cost with `prepareRepository` prewarming per spec.
+
+### intent-story-frame-render
+
+- **Affected test or fixture:** `dashboard/frontend-tests/intent/intent-ci-page-mount.ts`
+  `mountIntentCiPage`, as `openStoryChanges`
+  (`intent-story-changes-fixtures.ts`) and the other Intent story fixtures
+  mount it; `intent-story-intent-only.spec.ts` is the measured case.
+- **Observed cost and conditions:** after selecting directly, activating
+  controls in-page and polling every 5 ms (2026-11-27, local, load 20–29),
+  the six `intent-story-intent-only.spec.ts` cases took 173–272 ms each in a
+  full group run, down from 629–2084 ms (load 8). A mount took 11–160 ms,
+  opening Intent on the selected story 30–190 ms, choosing Whole project
+  30–230 ms, and reselecting the story 60–90 ms. That time is the configured
+  frame's own React rendering, not waits. The target is 100 ms a case.
+- **Unique protection:** the Intent filters and the story's choices as the
+  configured page composes them: the Recent stories scope, the page-kept
+  reading place across Development and Whole project, and selection.
+- **Alternatives tried:** removing the Board detour on selection, in-page
+  activation and the 5 ms poll interval (kept). Untried: mounting the
+  story-only cases (no Whole project or perspective switch) on
+  `intent-story-perspective.tsx`'s `mountStoryIntent`, which renders
+  `IntentPerspective` without the frame; and profiling the story view's
+  first render with a trace to find avoidable render work.
+- **Decision or evidence needed:** a focused comparison of the story-only
+  cases on `mountStoryIntent` against the frame mount at comparable load, and
+  a render profile showing whether the remaining cost is in test-only
+  composition or in the product's first render.

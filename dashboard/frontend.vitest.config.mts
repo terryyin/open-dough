@@ -27,6 +27,9 @@ export default defineConfig({
     ),
     includeTaskLocation: true,
     isolate: true,
+    // Page waits read the in-page DOM, so each settles within a frame of its
+    // condition rather than Vitest's default 50 ms poll.
+    expect: { poll: { interval: 5 } },
     // A file's history traversals stay inside its own tester frame.
     setupFiles: [
       "dashboard/test-support/component-mount/historyTraversalGuard.ts",

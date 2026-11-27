@@ -2,7 +2,7 @@
 // work, perspective and page reads, while ConfiguredDashboardFrame and
 // ConfiguredDashboardContent own frame, banner, notice and scroll composition
 // (../../src/configuredDashboardFrame.tsx, ../../src/configuredDashboardContent.tsx).
-import { createElement, Fragment, useEffect } from "react";
+import { createElement, Fragment, useContext, useEffect } from "react";
 import { expect } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
@@ -14,6 +14,10 @@ import { FollowUpNavigationOnPage } from "../../src/ciFollowUpNavigation.tsx";
 import type { DashboardRoute } from "../../src/dashboardRouteUrl.ts";
 import { LaunchesOnPage } from "../../src/pageLaunches.ts";
 import { PageReadsOnPage, type PageReads } from "../../src/pageReads.tsx";
+import {
+  StorySelectionOnPage,
+  type PageStorySelection,
+} from "../../src/pageStorySelection.tsx";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
@@ -27,7 +31,6 @@ import { machineSessionsAnswering } from "../../test-support/component-mount/mac
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { withStoryResultFixture } from "../../test-support/component-mount/storyResultFixture.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
-import { developmentCard } from "./intent-ci-development-card-page.ts";
 
 // The review a case leaves unavailable, as with no local review workspace.
 const unavailableReviewSource: ReviewSource = {
@@ -50,7 +53,23 @@ export const unmeasuredHostSessions: PageReads["sessions"] = {
     ),
 };
 
-type Shown = { readonly work: PublishedWork; readonly showsIntent: boolean };
+// Hands the case the page's story selection, which a Board card toggles.
+function SelectionHandle({
+  onSelection,
+}: {
+  readonly onSelection: (selection: PageStorySelection | undefined) => void;
+}) {
+  onSelection(useContext(StorySelectionOnPage));
+  return null;
+}
+
+// `opened` says whether the page's content is shown; while it is not, Intent
+// is closed as it is on Development, and opening it reads the selection anew.
+type Shown = {
+  readonly work: PublishedWork;
+  readonly showsIntent: boolean;
+  readonly opened: boolean;
+};
 
 function CommittedView({
   shown,
@@ -67,7 +86,8 @@ function CommittedView({
 
 // The Sessions sidebar starts closed, the Board at its first column and Recent
 // stories at `recentStories`, whatever an earlier case in this browser kept,
-// and the case's end restores what was kept. The page's reads are bound once:
+// and the case's end restores what was kept. With `selected`, the page opens
+// with that story already selected, as after choosing its Board card. The page's reads are bound once:
 // each project's notes and review states are created from the reads current
 // at their first use, as production mounts PageReadsOnPage once with constant
 // reads, so a case supplies every reply in `reads` at mount and never changes
@@ -81,6 +101,7 @@ export async function mountIntentCiPage({
   initialPerspective = "intent",
   retryReference = () => undefined,
   recentStories = [],
+  selected,
   reads,
 }: {
   readonly work: PublishedWork;
@@ -91,12 +112,17 @@ export async function mountIntentCiPage({
   readonly initialPerspective?: "development" | "intent";
   readonly retryReference?: () => void;
   readonly recentStories?: readonly RecentStory[];
+  readonly selected?: string;
   readonly reads: Pick<PageReads, "intent" | "ci"> & Partial<PageReads>;
 }) {
   withPagePreferences();
   withFramePreference(recentStoriesKey, JSON.stringify(recentStories));
   const launches = machineSessionsAnswering({ answer: machine });
-  let shown: Shown = { work, showsIntent: initialPerspective === "intent" };
+  let shown: Shown = {
+    work,
+    showsIntent: initialPerspective === "intent",
+    opened: selected === undefined,
+  };
   const pageReads = pageReadsSupplying(
     withStoryResultFixture(
       {
@@ -111,6 +137,10 @@ export async function mountIntentCiPage({
     [work, ...otherWork].map((snapshot) => [snapshot.source.id, snapshot]),
   );
   let committed: Shown | undefined;
+  let selection: PageStorySelection | undefined;
+  const onSelection = (next: PageStorySelection | undefined) => {
+    selection = next;
+  };
   const onCommit = (next: Shown) => {
     committed = next;
   };
@@ -175,29 +205,31 @@ export async function mountIntentCiPage({
                   Fragment,
                   null,
                   createElement(CommittedView, { shown, onCommit }),
-                  createElement(ConfiguredDashboardContent, {
-                    source,
-                    work: shown.work,
-                    route,
-                    destination: undefined,
-                    showsIntent,
-                    showsRoster: false,
-                    showsBoard,
-                    storyNotice,
-                    attempt: { status: "read" },
-                    reading: false,
-                    withheld: false,
-                    recoversAt: undefined,
-                    limitedUntil: undefined,
-                    notice: "",
-                    launches,
-                    visibility: "visible",
-                    readFailure: undefined,
-                    openRoster: noop,
-                    rosterAgent: undefined,
-                    onBack: noop,
-                    showStories: noop,
-                  }),
+                  createElement(SelectionHandle, { onSelection }),
+                  shown.opened &&
+                    createElement(ConfiguredDashboardContent, {
+                      source,
+                      work: shown.work,
+                      route,
+                      destination: undefined,
+                      showsIntent,
+                      showsRoster: false,
+                      showsBoard,
+                      storyNotice,
+                      attempt: { status: "read" },
+                      reading: false,
+                      withheld: false,
+                      recoversAt: undefined,
+                      limitedUntil: undefined,
+                      notice: "",
+                      launches,
+                      visibility: "visible",
+                      readFailure: undefined,
+                      openRoster: noop,
+                      rosterAgent: undefined,
+                      onBack: noop,
+                      showStories: noop,
+                    }),
                 ),
             }),
           ),
@@ -215,19 +247,25 @@ export async function mountIntentCiPage({
     mounted.rerender(render());
     await expect.poll(() => committed).toBe(next);
   }
+  // Selects the story as its Board card does, while Intent is closed, and
+  // opens Intent on it.
+  async function selectStory(identity: string) {
+    if (shown.opened) await show({ ...shown, opened: false });
+    else await expect.poll(() => committed).toBe(shown);
+    selection?.select({ project: shown.work.source.id, identity });
+    await show({ ...shown, showsIntent: true, opened: true });
+    await expect
+      .element(page.getByRole("main", { name: "Intent", exact: true }))
+      .toHaveAttribute("data-selected-story", identity);
+  }
+  if (selected !== undefined) await selectStory(selected);
   const showDevelopment = () => show({ ...shown, showsIntent: false });
   const showIntent = () => show({ ...shown, showsIntent: true });
   return {
     showDevelopment,
     showIntent,
     showWork: (next: PublishedWork) => show({ ...shown, work: next }),
-    async selectStory(identity: string, title: string) {
-      await showDevelopment();
-      await developmentCard(title).toggle();
-      await showIntent();
-      await expect
-        .element(page.getByRole("main", { name: "Intent", exact: true }))
-        .toHaveAttribute("data-selected-story", identity);
-    },
+    // The card's own toggle is proved with the Board.
+    selectStory,
   };
 }

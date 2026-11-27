@@ -127,7 +127,7 @@ test("each Taken card shows recorded slice progress or its plan's gap as the pla
   );
   await showsBar("2 of 3 slices recorded complete", laterStatuses);
 
-  await board.selectStory(first.identity, counted);
+  await board.selectStory(first.identity);
   await intentStoryCompare().chooseTab("Intent coverage");
   const coverage = page.getByRole("region", {
     name: "Intent coverage",

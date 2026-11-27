@@ -2,6 +2,7 @@
 import { expect } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import type { PublishedSource } from "../../src/publishedSource.ts";
+import { activateButton } from "../page-objects/activateButton.ts";
 import {
   popover,
   recent as button,
@@ -35,18 +36,23 @@ export const storyHeadingIsReadable = () => {
   );
 };
 
+// Opens the scope choices by activation; the popover's pointer and keyboard
+// behavior is proved with Recent stories. A selected story out of view is
+// revealed first, so the click's commit is awaited before the next click
+// opens the choices.
 async function openScopeChoices() {
   if (popover.query() !== null) return;
-  await userEvent.click(button);
+  await activateButton(button);
+  await new Promise<void>((resolve) => setTimeout(resolve, 0));
   if (popover.query() === null) {
     await expect.poll(storyHeadingIsReadable).toBe(true);
-    await userEvent.click(button);
+    await activateButton(button);
   }
 }
 
 export async function chooseWholeProject() {
   await openScopeChoices();
-  await userEvent.click(wholeProject);
+  await activateButton(wholeProject);
   await expect.element(popover).not.toBeInTheDocument();
 }
 
@@ -65,7 +71,7 @@ export function intentRecentStories(project: PublishedSource) {
     choose: () => userEvent.click(button),
     async chooseRow(identity: string, source = project) {
       await openScopeChoices();
-      await userEvent.click(recentChoice(source.label, identity));
+      await activateButton(recentChoice(source.label, identity));
       await expect.element(popover).not.toBeInTheDocument();
     },
     // The list, opened from the button, holds these rows in order.

@@ -126,7 +126,7 @@ test("Intent coverage waits for the done record, then distinguishes a failed rea
       done: { readBodies },
     },
   });
-  await dashboard.selectStory(record.identity, record.title);
+  await dashboard.selectStory(record.identity);
   await intentStoryCompare().chooseTab("Intent coverage");
   await expect
     .element(coverage.getByRole("status"))

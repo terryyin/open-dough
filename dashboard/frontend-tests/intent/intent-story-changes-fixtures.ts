@@ -155,6 +155,7 @@ export async function openStoryChanges({
   const mounted = await mountIntentCiPage({
     work: workAt(revision, hasWorkspace, title),
     machine: storyMachine,
+    selected: storyA.identity,
     reads: {
       ...(storyNotes === undefined ? {} : { storyNotes }),
       intent: {
@@ -189,8 +190,7 @@ export async function openStoryChanges({
       },
     },
   });
-  const selectStoryA = () => mounted.selectStory(storyA.identity, title);
-  await selectStoryA();
+  const selectStoryA = () => mounted.selectStory(storyA.identity);
   return {
     ...mounted,
     selectStoryA,

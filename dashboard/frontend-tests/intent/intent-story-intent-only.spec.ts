@@ -23,7 +23,7 @@ test("Intent only starts off, then hides changes no location selects and keeps s
   await expect.element(story.intentOnly).not.toBeChecked();
   await expect.element(story.file(changed.product)).toBeVisible();
 
-  await story.intentOnly.click();
+  await story.toggleIntentOnly();
   await expect.element(story.intentOnly).toBeChecked();
   await expect.element(story.changesOnly).toBeChecked();
   for (const name of [changed.product, changed.notes])
@@ -41,7 +41,7 @@ test("both filters over a production-only change say no files match and keep bot
   const story = intentStoryCompare();
   await story.browseFiles();
   await expect.element(story.file(changed.product)).toBeVisible();
-  await story.intentOnly.click();
+  await story.toggleIntentOnly();
   await expect.element(story.noMatch).toBeVisible();
   await expect.element(story.intentOnly).toBeChecked();
   await expect.element(story.changesOnly).toBeChecked();
@@ -52,9 +52,9 @@ test("an open production file stays open, not called missing, when Intent only h
   await openStoryChanges();
   const story = intentStoryCompare();
   await story.browseFiles();
-  await story.file(changed.product).click();
+  await story.openFile(changed.product);
   await expect.poll(story.diffName).toBe(changed.product);
-  await story.intentOnly.click();
+  await story.toggleIntentOnly();
   await expect.element(story.file(changed.product)).not.toBeInTheDocument();
   await expect.poll(story.diffName).toBe(changed.product);
   await expect.poll(story.readingText).not.toContain("is not in revision");
@@ -77,7 +77,7 @@ test("whole project offers Intent only without Changes only and narrows its loca
   });
   const story = intentStoryCompare();
   await story.browseFiles();
-  await story.changesOnly.click();
+  await story.toggleChangesOnly();
   await expect.element(story.changesOnly).not.toBeChecked();
 
   await chooseWholeProject();
@@ -86,7 +86,7 @@ test("whole project offers Intent only without Changes only and narrows its loca
   await expect.element(story.intentOnly).not.toBeChecked();
   await story.expandFolderPath("dashboard/tests");
   await expect.element(story.file(readme)).toBeVisible();
-  await story.intentOnly.click();
+  await story.toggleIntentOnly();
   await expect.element(story.file(readme)).not.toBeInTheDocument();
   await expect.element(story.file("dashboard/tests/a.spec.ts")).toBeVisible();
 
@@ -111,16 +111,16 @@ test("a story's Changes only choice survives a round trip through whole project,
   });
   const story = intentStoryCompare();
   await story.browseFiles();
-  await story.changesOnly.click();
+  await story.toggleChangesOnly();
   await expect.element(story.changesOnly).not.toBeChecked();
 
   await chooseWholeProject();
   await story.browseFiles();
   await expect.element(story.noMatch).not.toBeInTheDocument();
-  await story.intentOnly.click();
+  await story.toggleIntentOnly();
   await expect.element(story.noMatch).toBeVisible();
   await expect.element(story.intentOnly).toBeChecked();
-  await story.intentOnly.click();
+  await story.toggleIntentOnly();
   await expect.element(story.noMatch).not.toBeInTheDocument();
 
   await mounted.selectStoryA();
@@ -133,7 +133,7 @@ test("whole project keeps Intent only across leaving Intent, apart from the stor
   const story = intentStoryCompare();
   await chooseWholeProject();
   await story.browseFiles();
-  await story.intentOnly.click();
+  await story.toggleIntentOnly();
   await expect.element(story.intentOnly).toBeChecked();
 
   await mounted.showDevelopment();

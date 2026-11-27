@@ -133,7 +133,7 @@ async function openStoryChanges() {
       })
       .please(),
   });
-  await mounted.selectStory(storyA.identity, storyA.title);
+  await mounted.selectStory(storyA.identity);
   return { ...mounted, reads };
 }
 

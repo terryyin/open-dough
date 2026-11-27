@@ -72,6 +72,7 @@ export async function openDoneReading({
   const opened = await mountIntentCiPage({
     work: workAt(projectRevision),
     machine: machine.please(),
+    selected: storyA.identity,
     reads: {
       ci: inertCiReads(),
       intent: { ...reads.intent, readLocations, readFile },
@@ -84,7 +85,6 @@ export async function openDoneReading({
       done: doneReads,
     },
   });
-  await opened.selectStory(storyA.identity, storyA.title);
   return {
     showFreshWork: () => opened.showWork(workAt(freshRevision)),
   };

@@ -146,8 +146,7 @@ export async function openSummaryComparison(
     .toHaveAttribute("data-selected-story", story.identity);
   await intentStoryCompare().listRevision();
   return {
-    selectStory: (identity: string, title: string) =>
-      mounted.selectStory(identity, title),
+    selectStory: (identity: string) => mounted.selectStory(identity),
     comparisonReads: scope.asked.comparisons,
     proofReads: scope.asked.proofs,
   };

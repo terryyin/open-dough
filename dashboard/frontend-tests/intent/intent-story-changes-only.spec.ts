@@ -54,18 +54,18 @@ test("Changes only starts on and lists just the story's changed paths; off lists
   await expect.element(story.noMatch).not.toBeInTheDocument();
 
   const file = story.file(changed.modified);
-  await file.click();
+  await story.openFile(changed.modified);
   await expect.poll(story.diffName).toBe(changed.modified);
   await story.chooseTab("Intent coverage");
   await expect
     .element(page.getByRole("tabpanel", { name: "Intent coverage" }))
     .toBeVisible();
   await expect.element(file).toHaveAttribute("aria-pressed", "false");
-  await file.click();
+  await story.openFile(changed.modified);
   await expect.poll(story.diffName).toBe(changed.modified);
   await expect.element(story.changesOnly).toBeChecked();
 
-  await story.changesOnly.click();
+  await story.toggleChangesOnly();
   await expect.element(story.changesOnly).not.toBeChecked();
   await expect.element(story.file(keptPath)).toBeVisible();
   for (const name of changedInFirstLocation)
@@ -76,7 +76,7 @@ test("Changes only starts on and lists just the story's changed paths; off lists
   await expect.element(story.changesOnly).not.toBeChecked();
   await expect.element(story.file(keptPath)).toBeVisible();
 
-  await mounted.selectStory(storyB.identity, storyB.title);
+  await mounted.selectStory(storyB.identity);
   await expect.element(story.changesOnly).toBeChecked();
   await expect
     .element(story.changesOnly)
@@ -91,10 +91,10 @@ test("an open untouched file stays open, not called missing, when Changes only h
   await openStoryChanges();
   const story = intentStoryCompare();
   await story.browseFiles();
-  await story.changesOnly.click();
-  await story.file(keptPath).click();
+  await story.toggleChangesOnly();
+  await story.openFile(keptPath);
   await expect.poll(story.readingShown).toBe(true);
-  await story.changesOnly.click();
+  await story.toggleChangesOnly();
   await expect.element(story.file(keptPath)).not.toBeInTheDocument();
   await expect.poll(story.readingShown).toBe(true);
   await expect.poll(story.readingText).toContain(keptPath);
@@ -111,7 +111,7 @@ test("a product-only comparison lists just that file, and an empty comparison sa
   await expect.element(story.noMatch).not.toBeInTheDocument();
   await expect.element(scopeToggle("dashboard/tests")).not.toBeInTheDocument();
 
-  await story.changesOnly.click();
+  await story.toggleChangesOnly();
   await expect
     .element(scopeToggle("dashboard/tests"))
     .toHaveAttribute("aria-expanded", "false");
@@ -119,14 +119,14 @@ test("a product-only comparison lists just that file, and an empty comparison sa
   review = makeMe.aStoryReview.please();
   await story.refresh();
   await expect.element(story.file(changed.product)).not.toBeInTheDocument();
-  await story.changesOnly.click();
+  await story.toggleChangesOnly();
   await expect.element(story.noMatch).toBeVisible();
   await expect.element(story.changesOnly).toBeChecked();
 
-  await story.changesOnly.click();
+  await story.toggleChangesOnly();
   await expect.element(story.noMatch).not.toBeInTheDocument();
   await scopeToggle("dashboard/tests").click();
-  await story.file(modifiedPath).click();
+  await story.openFile(modifiedPath);
   await intentFileReading(modifiedPath).shows("a 11");
 });
 

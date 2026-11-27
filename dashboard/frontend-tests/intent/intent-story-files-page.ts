@@ -5,6 +5,7 @@
 // lead while the project tree is read or its read failed, with Retry.
 import { expect } from "vitest";
 import { userEvent } from "vitest/browser";
+import { activateButton } from "../page-objects/activateButton.ts";
 import "../page-objects/cssLocator.ts";
 import { fileLayout, intentPage as intent } from "./intent-file-layout-page.ts";
 
@@ -23,6 +24,8 @@ export function intentStoryFiles() {
   });
   const folder = (path: string) =>
     tree.getByCSS(`li[data-folder-path="${CSS.escape(path)}"]`);
+  // A listed file's control, named by its kind and path.
+  const file = (name: string) => sidebar.getByRole("button", fileNamed(name));
   const changesOnly = intent.getByRole("checkbox", {
     name: "Changes only",
     exact: true,
@@ -52,7 +55,7 @@ export function intentStoryFiles() {
       );
       await expect.element(toggle).toBeVisible();
       if (toggle.element().getAttribute("aria-expanded") === "false")
-        await userEvent.click(toggle);
+        await activateButton(toggle);
       await expect.element(toggle).toHaveAttribute("aria-expanded", "true");
     }
   }
@@ -83,6 +86,9 @@ export function intentStoryFiles() {
     inventoryRead,
     changesOnly,
     intentOnly,
+    // These cases exercise the filters' response to activation.
+    toggleChangesOnly: () => activateButton(changesOnly),
+    toggleIntentOnly: () => activateButton(intentOnly),
     // The notice that the chosen filters leave no path.
     noMatch: intent.getByText("No files match the chosen filters", {
       exact: true,
@@ -91,11 +97,11 @@ export function intentStoryFiles() {
     async listRevision() {
       await browseFiles();
       if ((changesOnly.element() as HTMLInputElement).checked)
-        await userEvent.click(changesOnly);
+        await activateButton(changesOnly);
       await expect.element(changesOnly).not.toBeChecked();
     },
-    // A listed file's control, named by its kind and path.
-    file: (name: string) => sidebar.getByRole("button", fileNamed(name)),
+    file,
+    openFile: (name: string) => activateButton(file(name)),
     // A location's or folder's toggle, by its name and whether it is open.
     folderToggle: (name: string, open: boolean) =>
       intent.getByRole("button", {

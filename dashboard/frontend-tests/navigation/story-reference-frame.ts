@@ -110,8 +110,23 @@ export async function followReference(
   } else await link.click();
 }
 
+// The Board has finished bringing `card` in: its row no longer slides or
+// withholds the card's column, whose length lets the Board scroll the focused
+// card the rest of the way (../../src/columnPaging.ts).
+function boardRests(card: Element) {
+  const row = card.closest(".board-row");
+  if (row === null) return true;
+  if (row.hasAttribute("data-sliding")) return false;
+  const column = [...row.querySelectorAll("[data-column]")].findIndex(
+    (candidate) => candidate.contains(card),
+  );
+  const hidden = (row.getAttribute("data-hidden") ?? "").split(" ");
+  return !hidden.includes(String(column + 1));
+}
+
 export async function showsReached(card: Locator, portion = 0.5) {
   await expect.element(card).toHaveFocus();
+  await expect.poll(() => boardRests(card.element())).toBe(true);
   await expect
     .poll(() => {
       const box = card.element().getBoundingClientRect();

@@ -84,6 +84,7 @@ export async function openIntentFileLayout({
         branch: story.branch,
       })
       .please(),
+    ...(selected ? { selected: story.identity } : {}),
     reads: {
       intent: {
         ...intent,
@@ -109,7 +110,6 @@ export async function openIntentFileLayout({
       },
     },
   });
-  if (selected) await mounted.selectStory(story.identity, title);
   return {
     ...mounted,
     showOtherProject: () => mounted.showWork(otherWork),

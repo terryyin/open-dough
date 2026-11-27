@@ -55,8 +55,8 @@ test("choosing another remembered story in Intent shows its start while Intent s
     work: storiesTakenWork,
     reads: intentReads,
   });
-  await mounted.selectStory(runningStory.identity, runningStory.title);
-  await mounted.selectStory(failingStory.identity, failingStory.title);
+  await mounted.selectStory(runningStory.identity);
+  await mounted.selectStory(failingStory.identity);
   await recent.lists([
     { identity: failingStory.identity, checked: true },
     { identity: runningStory.identity, checked: false },
@@ -80,7 +80,7 @@ test("Whole project from the Intent chooser clears the selected story and opens 
       }),
     },
   });
-  await mounted.selectStory(failingStory.identity, failingStory.title);
+  await mounted.selectStory(failingStory.identity);
   const ci = intentCiStatus();
   await ci.judges(failingStory.branch);
   await recent.choose();
@@ -120,7 +120,7 @@ test("a recent story in another project switches the project and reads its story
       { project: doughnutSource.id, identity: otherStory.identity },
     ],
   });
-  await mounted.selectStory(failingStory.identity, failingStory.title);
+  await mounted.selectStory(failingStory.identity);
   await expect.element(storyHeading).toHaveTextContent(failingStory.title);
   await showsIntentBookmark(failingStory.title);
 
