@@ -17,6 +17,8 @@
 
 - Slice 2 accepted at `0a78f6038f543ce3d8e7ec0f72ed29b1e780c702`.
 
+- Slice 3 accepted at `41ca3f16a6808c5db39c8e11f440b3c247687626`.
+
 ## Goal and scope
 
 Give Dashboard maintainers fast, typed Node Vitest proof of how the
@@ -194,7 +196,7 @@ Only the two subject specs changed. Review found the existing typed terminal, fa
 ### 4. Let the developer's Done take over a reported rename
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: A quiet completion report enters `NativeDoneMarks.reported` for a kept
@@ -208,6 +210,10 @@ a kept record with its completion receipt. Premise 2's manual Done ran its
 default branch capture over a plain folder with no Git and recorded no
 problem, so the slice needs no origin. The legacy 15.6 s is mostly that
 setup.
+
+Accepted proof: `caffeinate -s -i npm run test:dashboard:backend -- 'sessions/agent-completion-quiet-rename\.spec\.ts$' --workers=1` ran three Node cases with zero Chromium cases and zero retries. Summed case time fell from 17.213 s to 3.436 s. The real kept record and forwarding store spy establish the retained manual time and absence of an automatic write. The fake PTY establishes the single rename and clean hang-up, or no typed keys on closing. The timeout case retains its cause until the later manual retry. Dashboard typecheck and whitespace check passed. See `slice4-return.md` and its receipts in the Git evidence directory.
+
+Only the subject spec changed. The test uses the existing reporting, store, host and PTY boundaries, with no new shared API or refactor candidate.
 
 ### 5. Mark a Codex session Done and end only its attachments
 
@@ -329,7 +335,7 @@ Slice-plan refinement was not needed. Each Behavior slice owns one Done
 family, converts and removes its own legacy cases, and reuses the same
 typed composition. Slice 7's small admission and answer change is the only
 structure, and it serves only its own Behavior. Slices 5 and 7 are near the
-15-minute limit: slice 5 converts 11 Codex cases and slice 7 adds the
+15-minute limit: slice 5 converts 12 Codex cases and slice 7 adds the
 deletion seam. Slice 5's estimate assumes Codex Done needs no real Git origin. The
 four legacy Codex Done specs import neither `startOrigin` nor a queued
 repository, so they never had one. This review found
