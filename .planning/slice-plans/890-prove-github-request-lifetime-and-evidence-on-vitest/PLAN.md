@@ -268,7 +268,7 @@ reads whose four queued paths never appear. A later read is HTTP 503
 ### 4. Share one authenticated owner across two Dashboards and CI
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Two separately running Dashboard consumers and the installed CI
 diagnostic share one owner under a single host/login. Together they
@@ -284,7 +284,25 @@ outcomes. Read each Dashboard's diagnostics and confirm the peer settles
 after the other client departs or closes. This process-level case runs on
 Node Vitest with real owners and child processes.
 
-Legacy: `shared-request-owner.spec.ts`.
+Legacy: `shared-request-owner.spec.ts`. Its Node replacement is green,
+so that Playwright file is removed with this slice. Nothing else names it.
+
+Accepted at `9512f637` with the Node specs uncommitted. Refactor pass
+skipped: the new files are this slice's specs, both under 250 lines, and
+they use the existing owner and CI entry point. No production contract
+changed.
+`shared-request-owner-node.spec.ts` (198) and
+`shared-request-owner-peer-node.spec.ts` (167) passed 5/5. One owner
+serves both Dashboards and CI, eight distinct in-flight calls is the
+high-water mark, and a shared content read is asked once. A rate limit
+holds the other Dashboard and makes CI exit 75 with the call count
+unchanged. When the wait ends, one call goes first and the high-water
+mark of the rest is 3. Each Dashboard's diagnostics record the shared
+403. After one client is cut and one Dashboard closes, the peer reads
+return 200 under the same owner. Command:
+`caffeinate -s -i npm run test:dashboard:backend -- 'shared-request-owner-.*node\.spec\.ts' --workers=1`
+(exit 0, 5.81 s). `npm run typecheck:dashboard` exited 0. Records:
+`slice-4-owner.log.run.json` and `slice-4-owner-typecheck.log.run.json`.
 
 ### 5. Expose bounded local diagnostics for admitted readers
 
@@ -414,8 +432,8 @@ its delivered slices share only test patterns with these slices.
   Trunk: `origin/main`.
 - Published claim: `735c60a52ea2cd88e8746df5e06edfcb1d9f81b2` on that story
   branch. `pendingCi: unobserved` — the claim published before this observer
-  was armed. Slice 2 is published at
-  `221d5527ff33234c838de5af5943c2efd26a3b63` on the same branch. That SHA is
+  was armed. Slice 3 is published at
+  `9512f637b4e8a137a09113c390ab6c4f3b095272` on the same branch. That SHA is
   the previously published base for the next increment. Unpublished
   candidate: none.
 - CI: GitHub Actions, workflow `ci.yml` (display name `CI`, id `351271804`),
