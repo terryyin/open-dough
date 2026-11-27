@@ -100,7 +100,9 @@ passes its projects through. Project DOM is unchanged. Slice 3 widens the
 option label to a rendered node with its own accessible name. Proof: the
 local-gate navigation run plus `project-keyboard-navigation.spec.ts`, 14
 passed, and the dashboard typecheck. The consumer trace found no changed
-contract for the E2E project-hide or narrow banner journeys.
+contract for the E2E project-hide or narrow banner journeys. CI repair:
+`intent-story-compare-done.spec.ts` now waits for the location reads that
+follow the shown review (raced in CI run 45980462617).
 
 ### 2. Choose the story or session from the compact Intent picker
 
