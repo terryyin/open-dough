@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "sessionId": "e728bcfc-96d0-4bc4-8e25-a193c6f0e381",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-27T04:35:42.926Z",
+  "story": "SEED-413#prove-session-retention-and-input-on-vitest",
+  "ranges": [
+    {
+      "base": "43c08a78ca26c17a0239e52731292963fc3124fd",
+      "candidate": "a1ea886b4d7646da070e847687a1672be565b3ea"
+    },
+    {
+      "base": "a1ea886b4d7646da070e847687a1672be565b3ea",
+      "candidate": "d8da4bcdae75074299bb4331ebdb0563ed51296f"
+    },
+    {
+      "base": "d8da4bcdae75074299bb4331ebdb0563ed51296f",
+      "candidate": "9ab47cab0892d736cafc9376b64abbed5909bc65"
+    },
+    {
+      "base": "9ab47cab0892d736cafc9376b64abbed5909bc65",
+      "candidate": "7a580698114364e54c0b4eb7b65ce5c6c5c2c6e7"
+    },
+    {
+      "base": "7a580698114364e54c0b4eb7b65ce5c6c5c2c6e7",
+      "candidate": "18ab13b691805575c7c6fa696e6a098531a21bc5"
+    },
+    {
+      "base": "18ab13b691805575c7c6fa696e6a098531a21bc5",
+      "candidate": "fe067ebc860e273794093427438608184679f717"
+    },
+    {
+      "base": "fe067ebc860e273794093427438608184679f717",
+      "candidate": "3cf7103239729be9434c60247137cae175947166"
+    },
+    {
+      "base": "3cf7103239729be9434c60247137cae175947166",
+      "candidate": "0336a7b04a00199049305c75f1489ee1e5745924"
+    },
+    {
+      "base": "0336a7b04a00199049305c75f1489ee1e5745924",
+      "candidate": "162a60bd6b5378db843deadc972fbac8728c6352"
+    },
+    {
+      "base": "e2774c6481e8a3e7787b85babb99845a68b9e093",
+      "candidate": "8c2b9985676c9c89707118eff0d43020bb72d78e"
+    },
+    {
+      "base": "6656107c8ab9b33e998f6393e5df4491bc74449d",
+      "candidate": "85685cc147b1e1ad1dcecea8ac3385365f550f81"
+    }
+  ]
+}
