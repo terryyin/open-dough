@@ -243,7 +243,7 @@ review before and after reload (`slice4-cursor-default.json`).
 ### 5. Prove Cursor held-session sharing, reuse, and revision invalidation on Node Vitest
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 Proof: Convert `cursor-held-sessions-revision.spec.ts` (2 cases) to plain Node
@@ -261,6 +261,11 @@ against an in-process HTTP stand-in runner written to
   return `runner: "running"` with `label: ["working"]` and the held
   `sessionId`, reuse the settled result within the reuse window without
   another runner read, and read again once the window expires.
+
+Accepted proof: two Node cases passed with zero retries and zero Playwright
+selections (`slice5-backend-final.json` in Git evidence). Dashboard typecheck
+passed. The surviving sharing case includes the removed spec's running state,
+working label, held ID, and reuse assertion over the real HTTP reader.
 
 ### 6. Convert the opt-in Sessions replay measurement to Node Vitest and retire unused support
 
