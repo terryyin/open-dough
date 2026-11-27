@@ -147,7 +147,7 @@ Delivered: the three cases converted in place with `test.skipIf`. Vitest
 ### 3. Recover a dead runner and retain held-session evidence
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12 active minutes.
 
 Proof: Convert the two dead-address cases that remain in
@@ -158,6 +158,9 @@ the same conversation. Observe the last-held file after keep, explicit
 hangup and sudden death. Use the real runner and read the kept key
 through the production file reader. Browser proof retains automatic
 revival and its Done, never-held and failed-revive controls.
+
+Delivered: both dead-address cases and the last-held case converted in
+place, Vitest 3/3. They needed no scenario bodies from the shared modules.
 
 ### 4. Give one machine home ownership of its runner
 

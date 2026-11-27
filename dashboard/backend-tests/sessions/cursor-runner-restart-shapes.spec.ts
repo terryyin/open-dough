@@ -8,10 +8,11 @@
 // Deterministic fake-Cursor proof only: real `cursor-agent` resumption
 // after a real runner kill and after a real machine reboot, with a
 // scoped session, remains pending native verification under ADR 0005
-// and is claimed nowhere here.
+// and is claimed nowhere here. Cases run in order: the fixture sets HOME
+// and PATH for the runner client.
 import { spawn } from "node:child_process";
 import net from "node:net";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { computeRunnerBuildId } from "../../server/hosts/cursor/runnerBuild.ts";
 import { ensureCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
@@ -32,7 +33,9 @@ test("a dead pid with its stale address left behind starts a fresh current runne
     await keepWorkingClient(fixture);
     const heldPid = fixture.cursor.attaches()[0]?.pid ?? 0;
     const stale = await killCursorRunnerLeavingAddress(fixture.home);
-    await expect.poll(() => processRunning(heldPid)).toBe(false);
+    await expect
+      .poll(() => processRunning(heldPid), { timeout: 5_000 })
+      .toBe(false);
 
     // Reopening goes through ensureCursorRunner's acceptance checks
     // (alive pid + accepting port): the dead pid fails them, so a fresh
@@ -76,7 +79,9 @@ test("a port reused after the runner died does not revive its stale address", as
       });
     });
     if (gone.pid === undefined) throw new Error("No short-lived pid.");
-    await expect.poll(() => processRunning(gone.pid)).toBe(false);
+    await expect
+      .poll(() => processRunning(gone.pid), { timeout: 5_000 })
+      .toBe(false);
     writeRunnerAddress(fixture, { ...stale, pid: gone.pid });
 
     await expect(ensureCursorRunner(fixture.home)).resolves.toBe(true);
