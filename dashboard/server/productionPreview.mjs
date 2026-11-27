@@ -49,6 +49,8 @@ async function startPreviewOn(port, options) {
           signal: AbortSignal.timeout(2_000),
         });
         if (response.ok && !ended) {
+          // From here only stop() ends it, so the preview closes cleanly.
+          process.ownShutdown();
           return {
             url,
             pid: process.child.pid,

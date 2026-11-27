@@ -84,7 +84,7 @@ caffeinate -s -i npm run test:dashboard:backend -- authenticated-read-incident-r
 
 ### 1. Close the served preview's incident record on watcher SIGHUP
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–15 active minutes, excluding test commands.
 
 Behavior: Given the watcher has activated a production preview, SIGHUP stops
@@ -95,6 +95,24 @@ client continue. Replacement and unexpected loss keep their existing meaning.
 Proof: Retain the discriminating incident-record observation in the watcher
 journey and run the local gate above. Review affected callers, then refactor
 and publish under the execution workflow.
+
+## Candidate proof
+
+Slice 1, on 2026-11-27 from `111d8d6f9` plus the uncommitted slice, load
+average 7–12, under the local gate's `caffeinate -s -i` commands:
+
+- Watcher family: 25 of 25 passed with one worker and zero retries,
+  including the new SIGHUP incident-record observation.
+- Diagnostics case "a clean close ends the record…": 1 of 1 passed.
+- Discrimination: without only the preview's `ownShutdown()` handover,
+  `production-watcher.spec.ts` failed the SIGHUP test with `process-ended`
+  missing from the captured preview's record.
+- Consumer trace (`ownShutdown`, `startDeploymentPreview`,
+  `startProductionPreview`, `terminate(`, `process-ended`): the watcher is the
+  only preview owner. `command()`, `gitRunner.ts`, `dashboardBuild.ts` and the
+  timeout proof fixture never hand over shutdown, so cancellation still
+  force-stops them. A preview cancelled before it serves is still killed, and
+  `ownShutdown()` throws if cancellation came first.
 
 ## Preparation review
 

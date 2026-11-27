@@ -49,6 +49,8 @@ let runner: { port: number; pid: number };
 let startedRunner: number | undefined;
 let cursorSessionId: string;
 let cursorClientPid: number;
+// The incident record of a process that closed itself cleanly.
+const cleanClose = ["process-started", "process-ended"];
 // Setup publishes pinned main and starts the watcher; the first test observes
 // its activation and the next starts development, so the shared hook holds
 // only the preparation. The worker has already prepared the application source.
@@ -151,10 +153,7 @@ test("the next published main replaces production at the same URL and leaves the
   next = await fixture.publish(fixture.markerChanges("NEXT MAIN"), "Next main");
   const replaced = await productionReplacement(watcher, served, next);
   // The replaced preview, stopped under npm, closed its incident record cleanly.
-  expect(processRecord(fixture.root, replacedServer)).toEqual([
-    "process-started",
-    "process-ended",
-  ]);
+  expect(processRecord(fixture.root, replacedServer)).toEqual(cleanClose);
   await productionPage.reload();
   await expect(productionPage).toHaveTitle("NEXT MAIN");
   expect(processRunning(cursorClientPid)).toBe(true);
@@ -173,6 +172,7 @@ test("SIGHUP quietly ends production and its checkouts and leaves development, t
 }) => {
   const watcher = machine.running();
   const { fixture, developmentPage } = started();
+  const closedServer = previewServer(fixture.root, served.pid);
   const retired = waitForEmptyDirectory(
     watcher,
     productionDeployments(fixture.home),
@@ -180,6 +180,8 @@ test("SIGHUP quietly ends production and its checkouts and leaves development, t
   watcher.signal("SIGHUP");
   await retired;
   await watcher.exited;
+  // The served preview closed its own incident record before the watcher exited.
+  expect(processRecord(fixture.root, closedServer)).toEqual(cleanClose);
   expect(watcher.output()).not.toContain("Production dashboard could not run");
   await watcher.stop();
   machine.watcher = undefined;
