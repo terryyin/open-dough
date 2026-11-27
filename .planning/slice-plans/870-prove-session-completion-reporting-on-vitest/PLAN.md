@@ -211,7 +211,7 @@ the in-process `reportCompletion` never prints.
 ### 4. Keep later reports and the developer's intent apart from an old receipt
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 13–15 active minutes.
 
 Proof: After slice 3's quiet receipt, a fresh unfinished report replaces
@@ -225,6 +225,16 @@ fresh collaborator. A malformed retry is refused (409). After the record is
 deleted, the retry is refused and `bindRecord` refuses to recreate it.
 Convert the rest of `agent-completion-quiet-closure.spec.ts` and
 `completionRecoveryIntent.ts`.
+
+Delivered: the new Node spec `agent-completion-later-reports.spec.ts`
+(4 cases, 0.26–0.44 s) owns the rest of the legacy quiet-closure case,
+which is deleted with `completionRecoveryIntent.ts` and the
+`observeCompletionFaults` export. A replay over a fresh `ReportedDone`
+hands on no Done unless its receipt is still the current completion. The
+native interrupt and listing checks of the legacy intent observation, and
+the CLI-only stderr retry line, stay with the retained E2E journeys
+(`agent-completion-quiet` runs `failedCompletionRetry`). Candidate selectors
+so far: `agent-completion-(identity|refusals|quiet-recovery|later-reports)`.
 
 ### 5. Close a launch whose story returned to the queue, and answer final report requests
 
