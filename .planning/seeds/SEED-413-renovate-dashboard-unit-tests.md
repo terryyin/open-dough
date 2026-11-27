@@ -388,72 +388,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 - **Provenance.** Named by the post-change refactor pass of
   [session retention, one-shot starts and input](https://github.com/terryyin/open-dough/blob/162a60bd6b5378db843deadc972fbac8728c6352/.planning/slice-plans/874-prove-session-retention-and-input-on-vitest/PLAN.md#3-refuse-a-session-policy-that-cannot-be-established).
 
-<a id="fast-runtime-unit-cases"></a>
-
-### Prove Dashboard runtime behavior in fast unit cases
-
-**Identity:** SEED-413#fast-runtime-unit-cases
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/879-prove-runtime-in-fast-unit-cases/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6664899992f0a92394a4cc898ddbf7444dbe7b00397c0b3c2769bf763117a887","plan":"4d8b3bd7112181dd9f65f1d7d2c5df4a2bda2747649480b7040b92b9a63d243d"}}
-```
-
-- **Goal.** Maintainers changing Dashboard serving, production deployment or
-  the test harness get feedback from `dashboard/backend-tests/runtime/` in
-  seconds. Today the folder's cases start real servers, builds, npm installs,
-  Git origins and whole test runners. On 2026-11-27 at `07bc4aab5`, the
-  maintained backend command over the folder ran 40 specs and 133 cases
-  (27 Playwright specs with 90 cases, 13 Vitest specs with 43 cases). It took
-  3 min 23 s wall and 289.7 s summed case time at a load average of about 14.
-  102 cases took over 100 ms. The slowest specs were `kept-history-worker`
-  (33.0 s, 3 cases), `dashboard-artifact-demand` (27.1 s, 7),
-  `runner-ownership` (24.4 s, 4), `production-deployment` (23.5 s, 4),
-  `production-watcher-refusals` (22.9 s, 3) and `first-open-waits-for-read`
-  (21.0 s, 4).
-- **Scope.**
-  - Every surviving case in the folder runs on Node Vitest at about 100 ms
-    or less. Recount the folder from fetched trunk at execution; the same
-    target holds for cases added since.
-  - Cases are small. Each case states its precondition in domain words and
-    composes it directly with [MakeMe](../../.agents/skills/dough-makeme/SKILL.md)
-    builders, as typed values the production operation reads. Production
-    operations take that typed state, as
-    [directly testable production code](../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support)
-    describes, instead of a mounted HOME, a started server, a build, a
-    runner or a real origin.
-  - Each rule is proven once by an example of its own concern, not by every
-    combination of host, mode, signal or outcome. Remove or merge a case
-    when another case already proves its behavior, naming the survivor.
-    The folder ends with fewer cases.
-  - Real process, Git, npm, build, browser and runner behavior is proven by a
-    limited number of end-to-end checks. Use an existing one first:
-    `e2e/runtime/production-watcher*.spec.ts` or the runner scripts in
-    `Distribution/tests/test-runner/`. Add an end-to-end case only for real
-    process behavior nothing else observes, and name each one in the plan.
-  - Out of scope: removing the backend Playwright configuration and runner
-    path, the `observation/` harness specs, the four `start-origin-*`
-    fixture specs and the launch-options specimen. These stay with
-    [runner cutover](#retire-legacy-dashboard-backend-runner).
-- **Key examples.**
-  - A production deployment that selects origin main's commit: the case
-    gives the typed origin and local state, and the selection names the
-    origin commit. No checkout is cloned or installed. The pinned install,
-    build and serve stays proven by the production watcher end-to-end
-    journeys.
-  - A watcher whose production port is occupied: the case gives an occupied
-    port as typed state and sees the refusal, with no watcher process
-    started.
-  - Shared artifact demand: build completion, failure and interruption while
-    workers wait are proven once, through the demand coordinator with a
-    controlled build. The real app and server bundle builds are proven once
-    end to end. The folder no longer repeats them for each artifact and
-    runner.
-  - The fake `gh` wire's frame decoding is proven with frames as values. One
-    case per malformed shape is not needed when one table proves the rule.
-  - Runner ownership: concurrent runs that record only their own selection
-    stay proven by `Distribution/tests/test-runner/dashboard-concurrent-runs.sh`.
-    The unit folder proves the run-directory and selection decisions from
-    typed inputs.
-
 <a id="fast-runtime-unit-case-cleanup"></a>
 
 ### Correct the fast runtime cases' leftovers
@@ -515,8 +449,8 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 - **Boundary.** Own the remaining Playwright launch-options runner specimen
   if still present and the four `start-origin-*` private fixture contracts.
   Replace harness contracts still in use and retire cases proving removed
-  setup. Every `runtime/` spec belongs to
-  [fast runtime cases](#fast-runtime-unit-cases). Remove the backend Playwright config, the backend dual-runner
+  setup. Every `runtime/` spec already runs on Node Vitest after
+  [fast runtime cases](https://github.com/terryyin/open-dough/blob/7fdf8e265edfb72ded348f3845080a186f5a39f1/.planning/slice-plans/879-prove-runtime-in-fast-unit-cases/PLAN.md). Remove the backend Playwright config, the backend dual-runner
   path and unused backend request/server wrappers. Keep test contracts shared
   by frontend or E2E until their own last consumer is gone. Own the private
   stand-in fixture and runner process teardown in `observation/`
@@ -598,7 +532,7 @@ or removed once its behavior or duplicate is accounted for.
 | 2 observation Playwright paths | [Prove Dashboard machine observations in Node Vitest](#machine-observation-via-vitest) |
 | Five observation harness specs | [Runner cutover](#retire-legacy-dashboard-backend-runner) |
 | 13 configuration specs and nine product-facing runtime specs listed below | [Configuration and serving](https://github.com/terryyin/open-dough/blob/13d7e049249851833514e2eb598eacb022d34fba/.planning/slice-plans/868-prove-dashboard-configuration-and-serving-on-vitest/PLAN.md), completed on Node Vitest |
-| Other 30 runtime specs, which prove test infrastructure, and the speed of all runtime specs | [Prove Dashboard runtime behavior in fast unit cases](#fast-runtime-unit-cases) |
+| Other 30 runtime specs, which prove test infrastructure, and the speed of all runtime specs | [Prove Dashboard runtime behavior in fast unit cases](https://github.com/terryyin/open-dough/blob/7fdf8e265edfb72ded348f3845080a186f5a39f1/.planning/slice-plans/879-prove-runtime-in-fast-unit-cases/PLAN.md), completed on Node Vitest |
 
 The nine product-facing runtime specs are `boundary-server`,
 `dev-server-cache-ownership`, `production-deployment`,

@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Rina-chan",
-  "email": "rina-chan@example.org",
-  "identity": "SEED-413#fast-runtime-unit-cases",
-  "mode": "story-branch",
-  "branch": "claude/prove-dashboard-runtime-behavior-in-fast-unit-ca",
-  "host": "claude"
-}

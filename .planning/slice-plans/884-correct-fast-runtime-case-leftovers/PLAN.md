@@ -5,7 +5,7 @@
 
 ## Goal and scope
 
-Correction of [plan 879](../879-prove-runtime-in-fast-unit-cases/PLAN.md)
+Correction of [plan 879](https://github.com/terryyin/open-dough/blob/7fdf8e265edfb72ded348f3845080a186f5a39f1/.planning/slice-plans/879-prove-runtime-in-fast-unit-cases/PLAN.md)
 (`SEED-413#fast-runtime-unit-cases`, commits `b7f5b8ff0`..`5b4c52038`),
 from its execution retrospective's outcome review. Test and test-support
 changes only; no product behavior changes. The runner cutover stays with
