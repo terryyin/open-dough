@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "96428a1c-d737-40ca-9a41-7d6cdc0fba3b",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-27T10:13:05.572Z",
+  "story": "SEED-418#keep-session-review-proof-after-retirement",
+  "ranges": [
+    {
+      "base": "f01c091e488d381b33b770ee763426ef15cf7dac",
+      "candidate": "da6792e3c48967383f485e3a0959524c78217e51"
+    }
+  ]
+}

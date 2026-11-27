@@ -15,12 +15,22 @@ this story.
 
 ## Current decisions
 
-- Consume the supplier's single-session scope and the session entry it
-  resolves within the selected project and story. Reuse its published UUID
-  association with the retained launch. For a retained-only session, identify
-  it by its host and session ID. Keep no separate Home selection or metadata
-  cache. The supplier's dependency agreement owns availability of this
-  scope. Inspect its landed selection and proof fixtures before editing.
+- Consume the session scope Intent's compact **Review scope** dropdown
+  selects (`useStorySessionScope`) and the session that
+  `storySessions` in `followUpSessions.ts` resolves for its key, with the
+  retained launch and published record already joined by UUID. For a
+  retained-only session, identify it by its host and session ID. Keep no
+  separate Home selection or metadata cache. Keeping the chosen scope when
+  the reviewer returns Home is this story's promise, not the supplier's;
+  slice 1 proves it.
+- Name an ad hoc session without a retained launch "Title unavailable", as
+  the Review scope dropdown already does, so Home and the dropdown agree.
+- Taken SEED-418#keep-session-review-proof-after-retirement moves the
+  story's session list out of Follow up's module and resets the scope on
+  reselection; Taken SEED-418#announce-compact-dropdown-choice changes the
+  dropdown's accessible value. Before editing, check `git log` on fetched
+  trunk for the session list, scope hook and dropdown files, and build on
+  whatever has landed.
 - Reuse the retained request title and Ad hoc workflow label exposed by
   `launchSubject`. Read `request.instruction` from the same launch, as
   `followUpContext.ts` does for its original request. Render the original
@@ -63,6 +73,13 @@ Seven cases passed across both files. The Done-card cases also observed a
 published and retained follow-up listed once and the existing follow-up
 composer's original-request field. The new proof uses the supplier's actual
 session selector to observe Home.
+
+Rechecked at `3e6d25262` on 27 November 2026, after the compact dropdown and
+ad hoc titles landed: `launchSubject`, `sessionListing` and
+`IntentStoryEvidence` are unchanged since `bae6287ee`. The baseline command
+with `dashboard/frontend-tests/intent/intent-session-scope-titles.spec.ts`
+added passed all nine cases, including a published-only ad hoc session
+named "Title unavailable" that still selects its own comparison.
 
 ## Ordered slices
 

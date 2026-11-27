@@ -5,13 +5,10 @@
 import { expect, test } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import { minutesAgo } from "../../../Distribution/tests/support/testDataDefaults.mjs";
-import { publishedSessionRecordSchema } from "../../src/publishedSessionRecord.ts";
-import { mountBoardFrame } from "../navigation/board-frame-mount.ts";
-import { boardWork } from "../navigation/board-work.ts";
 import {
   catalogs,
   followUp,
+  mountKeptCounterpart,
   other,
   source,
 } from "./recently-done-card-membership-mount-page.ts";
@@ -172,46 +169,7 @@ test("a card holding a closed follow-up offers only the story's own sessions as 
 });
 
 test("a follow-up published from another machine while its kept counterpart is Done here shows one entry, on its source card", async () => {
-  const record = publishedSessionRecordSchema.parse(
-    makeMe.aSessionRecord
-      .forStory(source.identity)
-      .closedAt(minutesAgo(5))
-      .please(),
-  );
-  const kept = makeMe.aLaunchRecord
-    .adHoc({
-      instruction: "Counterpart here",
-      title: "Counterpart here",
-      storyIdentity: source.identity,
-      followUp: makeMe.aFollowUp.ofStory(source, "a".repeat(40)).please(),
-    })
-    .reportingThrough({
-      origin: "https://dashboard.example",
-      reference: record.sessionId,
-      command: "node report.mjs",
-    })
-    .inClaudeSession({ sessionId: "counterpart-here" })
-    .launchedAt(minutesAgo(20))
-    .markedDoneAt(minutesAgo(6))
-    .please();
-  const { done, doneBodies } = catalogs({ "open-dough": [source] });
-  const sourceCatalog = done["open-dough"];
-  if (sourceCatalog === undefined) throw new Error("No source catalog.");
-  const work = boardWork([], {
-    done: { ...sourceCatalog, revision: "a".repeat(40) },
-    publishedSessions: {
-      status: "listed",
-      revision: "a".repeat(40),
-      sessions: [record],
-    },
-  });
-  await mountBoardFrame(
-    work,
-    { width: 1280, height: 900 },
-    "stories",
-    { answer: makeMe.aMachineAnswer.observingDone(kept).please() },
-    { done: doneBodies },
-  );
+  await mountKeptCounterpart();
 
   await expect
     .element(heldSessions(source.title))

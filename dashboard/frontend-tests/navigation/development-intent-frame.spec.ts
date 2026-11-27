@@ -14,6 +14,7 @@ import {
   showsProjectBoard,
   showsUnconfiguredIntent,
 } from "./development-intent-frame-page.ts";
+import { compactProject } from "./dashboard-header-reading.ts";
 
 test("Development and Intent keep their names, marks and selected project's published work", async () => {
   await mountPerspectiveFrame();
@@ -67,14 +68,13 @@ test("Development and Intent keep their names, marks and selected project's publ
 test("at a phone width the perspective stays reachable under the compact title, and choosing a project there keeps Intent", async () => {
   const height = 844;
   await mountPerspectiveFrame({ width: 390, height });
-  const compact = page.getByRole("button", { name: "Project", exact: true });
-  await expect.element(compact).toHaveTextContent("Open Dough");
+  await expect.element(compactProject).toHaveTextContent("Open Dough");
   await intentChoice.click();
   await showsUnconfiguredIntent("Open Dough");
-  await compact.click();
+  await compactProject.click();
   await page.getByRole("option", { name: "Doughnut", exact: true }).click();
-  await expect.element(compact).toHaveTextContent("Doughnut");
-  await expect.element(compact).toHaveFocus();
+  await expect.element(compactProject).toHaveTextContent("Doughnut");
+  await expect.element(compactProject).toHaveFocus();
   const explanation = await showsUnconfiguredIntent("Doughnut");
   expect(params().get("project")).toBe("doughnut");
   expect(params().get("perspective")).toBe("intent");

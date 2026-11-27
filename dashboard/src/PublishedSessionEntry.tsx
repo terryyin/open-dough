@@ -1,4 +1,6 @@
-// A published comparison without a retained launch on this Done card.
+// A published comparison without a retained launch on this Done card, with
+// its review state (`./SessionReviewStateAction.tsx`) when given.
+import type { ReactNode } from "react";
 import type { PublishedSessionRecord } from "./publishedSessionRecord.ts";
 import { followUpSessionKey } from "./followUpRequest.ts";
 import { useOpenStoryChanges } from "./pageStoryReviewOpening.tsx";
@@ -11,9 +13,11 @@ const publishedSessionTitle = "Published session";
 export function PublishedSessionEntry({
   record,
   sourceId,
+  reviewState,
 }: {
   readonly record: PublishedSessionRecord;
   readonly sourceId: string;
+  readonly reviewState?: ReactNode;
 }) {
   const { sessionId, closedAt } = record;
   const name = `${publishedSessionTitle} ${sessionId}`;
@@ -25,6 +29,7 @@ export function PublishedSessionEntry({
         Closed <time dateTime={closedAt}>{closedAt}</time>
       </p>
       <PublishedSessionReviewAction record={record} sourceId={sourceId} />
+      {reviewState}
     </article>
   );
 }

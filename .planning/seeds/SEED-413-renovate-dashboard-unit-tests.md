@@ -305,14 +305,57 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Identity:** SEED-413#published-refresh-lifecycle-via-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/861-prove-published-refresh-lifecycle-on-vitest/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/861-prove-published-refresh-lifecycle-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"1a09e5561b94413ebd42d842f6c35967fc4c60665a5db3978d348d0d353b6b6c","plan":"8570850f22cef831feeb0b5383aed707b60646bb1bb84c30ef02e13876b7e869"}}
 ```
 
-- **For / why.** Give developers observing published progress fast proof that refresh advances to a confirmed readable revision and recovers after failures.
-- **Evaluation.** Given a visible snapshot, a failed check keeps the previous revision. A subsequent confirmed move advances the Board while the open pinned detail stays at its original revision.
-- **Boundary.** Reconcile revision-list, cache and stream proof with plans 856, 853 and 823. Keep real origin movement and the actual stream or browser where delivery, departure, and the displayed recovery cue are observed.
-- **Effort hypothesis.** M, low confidence. Recount surviving proof and size the observed cases during refinement.
-- **Safe stopping point.** Every case for this outcome has a maintained owner or a recorded replacement.
+- **Goal.** Give Dashboard maintainers fast Node Vitest feedback that published
+  revision checks, shared listings, SSE revision streams, cross-revision reuse,
+  and machine-retained answers preserve their confirmation, failure, cleanup,
+  and byte-budget guarantees.
+- **Scope.** Account for all fifteen named observation specs (60 legacy
+  Chromium cases) in plan 861. Preserve machine-retained answer persistence,
+  permissions, failure/miss handling, and LRU byte-budget eviction; pinned
+  backlog reads and conditional revision checks with ETag, fallback, rate-limit
+  wait validation, and refusal; cross-revision comparison reuse, bounds,
+  merge/rename accuracy, concurrency, failure isolation, and history reuse;
+  shared listing reuse windows, scope isolation, timeout/failure clearing, and
+  abort on close; and SSE revision-stream delivery, shared pacing, subscriber
+  and setup departure, boundary close, and preview gzip flushing. Drive the
+  typed production seams directly in Node Vitest, keeping a small Node HTTP
+  witness only where wire headers, SSE framing, gzip flushing, or request and
+  subprocess departure supply the proof. Keep browser rendering, recovery cues,
+  and real-origin Board journeys with their existing E2E owners. Measure the
+  same maintained one-worker selection before and after, account for every
+  migrated, consolidated, or retained case, and delete test-support wrappers
+  whose last caller leaves. Plans 856 and 853 own the verified Git cold open
+  and in-place Refresh; plan 823 owns moving automatic observation and pinned
+  reads to local Git; plans 860 and 862 own published read admission and
+  authenticated GitHub request ownership.
+- **Key examples.** After one process answers a project at revision A, a later
+  process on the same machine home answers pinned reads from the retained store
+  (asking only for the recorded branch head beside membership), while another
+  home, a torn or foreign entry, a previously failed, missing, or rate-limited
+  read, or a read pinned at an unheard revision still asks upstream; writes
+  over the byte budget evict least-recently-used entries while keeping recently
+  used ones. A revision check returns unchanged on matching head or 304 and
+  changed with an updated ETag when main moves; one source's ETag is never sent
+  for another; a non-rate-limit listing failure falls back to the ref alone
+  without branch heads for that check only; rate limits validate and bound
+  `Retry-After` or `X-RateLimit-Reset` (defaulting to 60 s); malformed, mixed,
+  unknown-source, or cross-origin checks are refused before any upstream call.
+  When a configured ref moves from A to B within 10 commits and under 300
+  files, untouched records, listings, and history facts at B reuse A's answers
+  after one shared comparison and per-commit read, while touched, merged,
+  renamed, removed, behind/diverged, over-bound, or failed-comparison reads
+  fetch at B, and a rate-limited comparison fails the record without blocking
+  the backlog. Settled listings serve later checks for the same source and
+  scope within the reuse window (with each caller's own `since` and watched
+  branches), survive a departing requester, and are cleared by fallback,
+  timeout, rate limit, scope change, or boundary close. Two SSE revision
+  streams for one source at different revisions and watched branches share one
+  listing per pace tick and stop polling when the last stream closes; a page
+  departing or boundary closing during held scope setup asks upstream nothing
+  and leaves no timer; preview gzip delivers the first event without buffering.
 - **Replacement trace.** [Published Dashboard reads and evidence before the split](https://github.com/terryyin/open-dough/blob/fb8983cb8eb62b38c79fbc293b491128f411bdb2/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest).
 
 **Plan.** [Prove published refresh lifecycle in Node Vitest](../slice-plans/861-prove-published-refresh-lifecycle-on-vitest/PLAN.md)
@@ -323,14 +366,33 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Identity:** SEED-413#authenticated-github-observation-via-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"e7a8441f570fec0b5a49dd59ed5697daf396596e90f2bc394d77b7c6c51f4834","plan":"4716b0677c409b45bd8ec459d74b587a0635c8f9e4357c712cedf67e664cec6e"}}
 ```
 
-- **For / why.** Give maintainers fast proof that the authenticated GitHub workload shares eligible requests, reports failures, and releases its callers and processes.
-- **Evaluation.** When two Dashboards and CI share an eligible request, the owner sends it once. A cooldown delays callers, a departing waiter leaves other work running, and an exhausted retry records the bounded incident.
-- **Boundary.** Use the surviving revision-check or pinned read for caller-specific proof. Reconcile plan 858’s trigger move. Keep real cross-process ownership and actual subprocess lifetime observations.
-- **Effort hypothesis.** L, low confidence. Recount surviving proof and size the observed cases during refinement.
-- **Safe stopping point.** Every case for this outcome has a maintained owner or a recorded replacement.
+- **Goal.** Give Dashboard and CI maintainers fast Node Vitest feedback that
+  authenticated GitHub reads share the eligible workload, honor waits and
+  request lifetimes, and leave bounded, safe evidence of failures.
+- **Scope.** Account for the 23 legacy observation paths in plan 862.
+  Preserve retry classification, cooldown and resumption, queue and sharing
+  behavior, Dashboard and CI owner wiring, actual child-process cleanup,
+  request timing, and incident evidence across shutdown and restart.
+  Use the surviving revision check for check-specific outcomes and pinned
+  reads when one upstream attempt is part of the proof. Keep real owner
+  processes, subprocesses, Git, HTTP, and durable files where their behavior
+  supplies the observation. Measure the same maintained one-worker workload
+  before and after. Board cold open and refresh routing, session and Review
+  reads, browser recovery, login isolation, and runner cutover have separate
+  owners.
+- **Key examples.** Two Dashboards and CI share the owner's eight available
+  turns. Concurrent identical reads reach GitHub once, while different
+  questions get their own answers. A directed cooldown answers queued reads
+  without dispatching them. After it expires, one read goes first, and a
+  renewed limit holds back the others. A departing pinned-read waiter leaves
+  a peer's read running. The last departure ends that child, while a check's
+  tracked listing can outlive the requesting connection. A failed shared
+  invocation leaves one safe diagnostic per observing Dashboard. After a
+  restart, the same machine retains bounded evidence with the original
+  attribution and distinguishes a clean close from a lost process.
 - **Replacement trace.** [Published Dashboard reads and evidence before the split](https://github.com/terryyin/open-dough/blob/fb8983cb8eb62b38c79fbc293b491128f411bdb2/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest).
 
 **Plan.** [Prove authenticated GitHub observation in Node Vitest](../slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md)

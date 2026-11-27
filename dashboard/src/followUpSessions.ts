@@ -5,7 +5,11 @@ import {
   type FollowUpSessionChoice,
 } from "./followUpRequest.ts";
 import type { LaunchRecord } from "./launchRecord.ts";
-import { launchKindName, sessionWorkflowName } from "./launchWorkflow.ts";
+import {
+  launchKindName,
+  launchSubject,
+  sessionWorkflowName,
+} from "./launchWorkflow.ts";
 import type { PublishedSessionRecord } from "./publishedSessionRecord.ts";
 import { hostName } from "./sessionCapabilities.ts";
 import { reportingReferenceOf } from "./sessionListing.ts";
@@ -76,11 +80,14 @@ export function storySessions(
 }
 
 // A session as one of Intent's review scopes: keyed once by its reporting
-// reference, named by its workflow and time, and carrying its published
-// record's UUID when one is listed.
+// reference and carrying its published record's UUID when one is listed. An
+// ad hoc session is named by its retained launch's title, otherwise as
+// "Title unavailable" with its close time; other sessions by their workflow
+// and time.
 export type SessionScope = {
   readonly key: string;
   readonly label: string;
+  readonly adHoc: boolean;
   readonly published?: string;
 };
 
@@ -96,16 +103,22 @@ export function storySessionScopes(
   return storySessions(records, published, sourceId, identity)
     .map(({ choice, retained, published: record }) => {
       const time = retained?.launchedAt ?? record?.closedAt ?? "";
-      const kind =
-        retained === undefined
+      const adHoc =
+        (retained?.request.workflow ?? record?.workflow) === "ad-hoc";
+      const kind = adHoc
+        ? "Title unavailable"
+        : retained === undefined
           ? sessionWorkflowName(record.workflow)
           : launchKindName(retained.request.workflow);
-      const label = `${kind} — ${new Date(time).toLocaleString()}`;
+      const label =
+        adHoc && retained !== undefined
+          ? launchSubject(retained.request).title
+          : `${kind} — ${new Date(time).toLocaleString()}`;
       const key = followUpSessionKey(choice);
       const scope: SessionScope =
         record === undefined
-          ? { key, label }
-          : { key, label, published: record.sessionId };
+          ? { key, label, adHoc }
+          : { key, label, adHoc, published: record.sessionId };
       return { time, scope };
     })
     .toSorted((a, b) => a.time.localeCompare(b.time))

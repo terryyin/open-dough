@@ -4,6 +4,7 @@ import { localSettingRequest } from "./localSettingRequest.ts";
 import {
   storyReviewStateEndpoint,
   storyReviewStatesAnswerSchema,
+  type StoryReviewMark,
   type StoryReviewStateChange,
 } from "./storyReviewState.ts";
 
@@ -14,20 +15,23 @@ const notRead = "The review state could not be read.";
 // and a rejected change's message when the dashboard gives none.
 export const reviewStateNotSaved = "The review state could not be saved.";
 
-/** Reads a project's reviewed stories, or changes one and answers with them. */
+/** Reads a project's story marks by story identity, or changes one and
+ * answers with them. */
 export type StoryReviewStatesReadSource = (
   project: string,
   change?: StoryReviewStateChange,
-) => Promise<ReadonlySet<string>>;
+) => Promise<ReadonlyMap<string, StoryReviewMark>>;
 
 export const authenticatedStoryReviewStatesReads: StoryReviewStatesReadSource =
   async (project, change) =>
-    new Set(
-      storyReviewStatesAnswerSchema.parse(
-        await localSettingRequest(
-          `${storyReviewStateEndpoint}?id=${encodeURIComponent(project)}`,
-          change,
-          change === undefined ? notRead : reviewStateNotSaved,
-        ),
-      ).reviewed,
+    new Map(
+      Object.entries(
+        storyReviewStatesAnswerSchema.parse(
+          await localSettingRequest(
+            `${storyReviewStateEndpoint}?id=${encodeURIComponent(project)}`,
+            change,
+            change === undefined ? notRead : reviewStateNotSaved,
+          ),
+        ).stories,
+      ),
     );

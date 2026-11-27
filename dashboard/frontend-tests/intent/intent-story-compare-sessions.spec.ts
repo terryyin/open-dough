@@ -1,14 +1,10 @@
-// A Done story's published sessions are Intent's review scopes under
-// Sessions, beside Whole story: each once, oldest first, ad hoc follow-ups
+// A Done story's published sessions are Intent's review scopes in its
+// Review scope dropdown, after Whole story: each once, oldest first, ad hoc follow-ups
 // included. A chosen session reads its review by UUID; the case's review
 // answers, keyed by `published`, own the Git judgment.
 import { expect, test } from "vitest";
-import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
-import {
-  activateComparisonControl,
-  intentStoryCompare,
-} from "./intent-story-compare-page.ts";
+import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import {
   doneIdentity,
   doneSource,
@@ -47,12 +43,6 @@ const sessionReviews = new Map(
   ]),
 );
 
-const sessions = () => page.getByRole("radiogroup", { name: "Sessions" });
-const sessionNames = () =>
-  [...sessions().element().querySelectorAll("label")].map((label) =>
-    label.textContent.trim(),
-  );
-
 const openWithSessions = (
   machine?: Parameters<typeof openDoneStoryComparison>[0]["machine"],
 ) => {
@@ -74,17 +64,18 @@ test("a Done story lists its published sessions once each, oldest first", async 
   const { opened } = openWithSessions();
   await opened;
 
-  await expect.element(sessions()).toBeVisible();
-  expect(sessionNames()).toEqual([
+  const story = intentStoryCompare();
+  await expect.element(story.scope).toHaveTextContent("Whole story");
+  expect(await story.scopeNames()).toEqual([
     "Whole story",
     `Refinement — ${closed(firstRefinement)}`,
     `Execution — ${closed(execution)}`,
     `Refinement — ${closed(secondRefinement)}`,
-    `Ad hoc — ${closed(followUp)}`,
+    `Title unavailable — ${closed(followUp)}`,
   ]);
   await expect
-    .element(intentStoryCompare().choice("Whole story"))
-    .toBeChecked();
+    .element(story.scopeOption("Whole story"))
+    .toHaveAttribute("aria-selected", "true");
 });
 
 test("a chosen session reviews its own changes by its UUID", async () => {
@@ -93,9 +84,7 @@ test("a chosen session reviews its own changes by its UUID", async () => {
   const story = intentStoryCompare();
   await expect.poll(story.summaryText).toContain("Published completion");
 
-  await activateComparisonControl(
-    story.choice(`Refinement — ${closed(secondRefinement)}`),
-  );
+  await story.chooseScope(`Refinement — ${closed(secondRefinement)}`);
   await expect
     .poll(story.summaryText)
     .toContain(`Refinement — ${closed(secondRefinement)}`);
@@ -111,12 +100,13 @@ test("Whole story returns from a session to the story comparison", async () => {
   await opened;
   const story = intentStoryCompare();
   const chosen = `Refinement — ${closed(secondRefinement)}`;
-  await activateComparisonControl(story.choice(chosen));
+  await story.chooseScope(chosen);
   await expect
     .poll(story.treeText)
     .toContain(`${secondRefinement.sessionId}.txt`);
 
-  await activateComparisonControl(story.choice("Whole story"));
+  await story.chooseScope("Whole story");
+  await expect.element(story.scope).toHaveTextContent("Whole story");
   await expect.poll(story.summaryText).toContain("Published completion");
   await expect.poll(story.treeText).toContain("a.spec.ts");
   expect(story.treeText()).not.toContain(`${secondRefinement.sessionId}.txt`);
@@ -147,25 +137,24 @@ test("a session also known from a launch here is listed once", async () => {
   );
   await opened;
 
-  await expect.element(sessions()).toBeVisible();
-  expect(sessionNames().filter((name) => name.startsWith("Ad hoc"))).toEqual([
-    `Ad hoc — ${new Date(kept.launchedAt).toLocaleString()}`,
-  ]);
+  const names = await intentStoryCompare().scopeNames();
+  expect(names).toContain("Follow up here");
+  expect(names.filter((name) => name.startsWith("Title unavailable"))).toEqual(
+    [],
+  );
 });
 
 test("a newly selected story starts at Whole story", async () => {
   const { opened } = openWithSessions();
   const mounted = await opened;
   const story = intentStoryCompare();
-  await activateComparisonControl(
-    story.choice(`Execution — ${closed(execution)}`),
-  );
+  await story.chooseScope(`Execution — ${closed(execution)}`);
   await expect
-    .element(story.choice(`Execution — ${closed(execution)}`))
-    .toBeChecked();
+    .element(story.scope)
+    .toHaveTextContent(`Execution — ${closed(execution)}`);
 
   await mounted.selectStory(undefined);
   await mounted.selectStory(doneIdentity);
-  await expect.element(story.choice("Whole story")).toBeChecked();
+  await expect.element(story.scope).toHaveTextContent("Whole story");
   await expect.poll(story.summaryText).toContain("Published completion");
 });

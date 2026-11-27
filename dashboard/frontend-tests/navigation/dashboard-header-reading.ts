@@ -18,10 +18,21 @@ export const projectChoices = banner.getByRole("radiogroup", {
   name: "Project",
   exact: true,
 });
-export const compactProject = banner.getByRole("button", {
+export const compactProject = banner.getByRole("combobox", {
   name: "Project",
   exact: true,
 });
+// Whether the banner shows `label` as the chosen project, as a checked tab
+// or as the compact control's value where the tabs no longer fit.
+export function showsChosenProject(label: string) {
+  const tab = projectChoices
+    .getByRole("radio", { name: label, exact: true })
+    .query();
+  return (
+    (tab instanceof HTMLInputElement && tab.checked) ||
+    compactProject.query()?.textContent.trim() === label
+  );
+}
 export const settings = banner.getByRole("button", {
   name: "System settings",
   exact: true,

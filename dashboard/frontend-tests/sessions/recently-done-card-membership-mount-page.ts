@@ -1,6 +1,11 @@
 // Closed story follow-ups and their source stories' published done catalogs
 // for the mounted Board's Recently done membership cases.
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { minutesAgo } from "../../../Distribution/tests/support/testDataDefaults.mjs";
+import { publishedSessionRecordSchema } from "../../src/publishedSessionRecord.ts";
+import type { StoryReviewStatesReadSource } from "../../src/storyReviewStatesReadSource.ts";
+import { mountBoardFrame } from "../navigation/board-frame-mount.ts";
+import { boardWork } from "../navigation/board-work.ts";
 
 export const source = {
   identity: "SEED-390#probe-follow-up-source",
@@ -72,4 +77,62 @@ export function catalogs(listed: Record<string, (typeof source)[]>) {
     .holding([source, other].map(record))
     .please().doneReads;
   return { done, doneBodies };
+}
+
+// Mounts the Board with the source story's "Counterpart here" follow-up Done
+// here 6 minutes ago and its published record, from another machine, closed
+// 5 minutes ago; without `kept`, only the published record. Answers the
+// published session id.
+export async function mountKeptCounterpart(
+  reviewStates?: StoryReviewStatesReadSource,
+  { kept: retained = true }: { kept?: boolean } = {},
+) {
+  const record = publishedSessionRecordSchema.parse(
+    makeMe.aSessionRecord
+      .forStory(source.identity)
+      .closedAt(minutesAgo(5))
+      .please(),
+  );
+  const kept = makeMe.aLaunchRecord
+    .adHoc({
+      instruction: "Counterpart here",
+      title: "Counterpart here",
+      storyIdentity: source.identity,
+      followUp: makeMe.aFollowUp.ofStory(source, "a".repeat(40)).please(),
+    })
+    .reportingThrough({
+      origin: "https://dashboard.example",
+      reference: record.sessionId,
+      command: "node report.mjs",
+    })
+    .inClaudeSession({ sessionId: "counterpart-here" })
+    .launchedAt(minutesAgo(20))
+    .markedDoneAt(minutesAgo(6))
+    .please();
+  const { done, doneBodies } = catalogs({ "open-dough": [source] });
+  const sourceCatalog = done["open-dough"];
+  if (sourceCatalog === undefined) throw new Error("No source catalog.");
+  const work = boardWork([], {
+    done: { ...sourceCatalog, revision: "a".repeat(40) },
+    publishedSessions: {
+      status: "listed",
+      revision: "a".repeat(40),
+      sessions: [record],
+    },
+  });
+  await mountBoardFrame(
+    work,
+    { width: 1280, height: 900 },
+    "stories",
+    {
+      answer: retained
+        ? makeMe.aMachineAnswer.observingDone(kept).please()
+        : makeMe.aMachineAnswer.please(),
+    },
+    {
+      done: doneBodies,
+      ...(reviewStates === undefined ? {} : { reviewStates }),
+    },
+  );
+  return record.sessionId;
 }

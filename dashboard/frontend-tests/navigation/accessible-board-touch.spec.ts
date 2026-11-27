@@ -12,6 +12,7 @@ import {
   useTouchScreen,
 } from "./board-touch-page.ts";
 import { boardWork, story } from "./board-work.ts";
+import { compactProject } from "./dashboard-header-reading.ts";
 
 const identity = `SEED-090#${"a-long-anchor-".repeat(6)}end`;
 const title = `Keep a title with ${"Uninterruptedlyconcatenated".repeat(5)} and ordinary words readable across the Board`;
@@ -68,11 +69,9 @@ function textFitsInCard(part: Element, card: Element) {
   );
 }
 
-const project = () =>
-  page.getByRole("button", { name: "Project", exact: true });
 async function chooseProject(label: string) {
-  await expect.element(project()).toBeVisible();
-  await tapWhereShown(project().element());
+  await expect.element(compactProject).toBeVisible();
+  await tapWhereShown(compactProject.element());
   const option = page.getByRole("option", { name: label, exact: true });
   await expect.element(option).toBeVisible();
   await tapWhereShown(option.element());
@@ -192,7 +191,7 @@ test("project and column navigation keep a long story readable and its detail op
     ["Backlog 3 entries", "Recently done 2 entries"],
   );
   await expect
-    .poll(() => project().element().textContent.trim())
+    .poll(() => compactProject.element().textContent.trim())
     .toBe("Open Dough");
 });
 

@@ -67,10 +67,11 @@ test("a Done story chooses each captured result and returns to Published complet
   await expect.poll(story.treeText).toContain("older.txt");
   await expect.poll(story.revisions).toContain(oid("2").slice(0, 7));
 
-  // Each run reads locations from its accepted result.
-  expect(new Set(locationRevisions)).toEqual(
-    new Set([doneCompletion, oid("4"), oid("2")]),
-  );
+  // Each run reads locations from its accepted result. That read follows the
+  // shown review in its own effect, so wait for it.
+  await expect
+    .poll(() => new Set(locationRevisions))
+    .toEqual(new Set([doneCompletion, oid("4"), oid("2")]));
 
   // Published completion again returns to it.
   await story.choose("Published completion");

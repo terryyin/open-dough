@@ -8,6 +8,7 @@ import { minutesAgo } from "../../../Distribution/tests/support/testDataDefaults
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { DoneRecordReadSource } from "../../src/doneRecordReadSource.ts";
 import type { StoryReviewStatesReadSource } from "../../src/storyReviewStatesReadSource.ts";
+import type { StoryReviewMark } from "../../src/storyReviewState.ts";
 import { mountBoardFrame } from "../navigation/board-frame-mount.ts";
 import { boardWork } from "../navigation/board-work.ts";
 import { doneCard } from "../sessions/recently-done-column-page.ts";
@@ -18,35 +19,77 @@ export const storyC = { identity: "SEED-503#review-c", title: "Review C" };
 export const doneStories = [storyA, storyB, storyC];
 
 // Each project's review states as the machine's local records keep them,
-// from the stories `reviewed` lists, with every change saved in order.
-export function reviewStateStore(reviewed: Record<string, string[]> = {}) {
+// from the stories `reviewed` lists (marked now, unless a case gives their
+// `reviewedAt`), with every change saved in order and marked at the clock.
+export function reviewStateStore(
+  reviewed: Record<string, string[]> = {},
+  markedAt: Record<string, string> = {},
+) {
+  const now = () => new Date().toISOString();
   const saved = new Map(
-    Object.entries(reviewed).map(([project, ids]) => [project, new Set(ids)]),
+    Object.entries(reviewed).map(([project, ids]) => [
+      project,
+      new Map<string, StoryReviewMark>(
+        ids.map((id) => [id, { reviewedAt: markedAt[id] ?? now() }]),
+      ),
+    ]),
   );
   const changes: string[] = [];
   const of = (project: string) => {
-    const stories = saved.get(project) ?? new Set<string>();
+    const stories = saved.get(project) ?? new Map<string, StoryReviewMark>();
     saved.set(project, stories);
     return stories;
   };
   const read: StoryReviewStatesReadSource = (project, change) => {
     const stories = of(project);
     if (change !== undefined) {
-      changes.push(`${project} ${change.identity} ${String(change.reviewed)}`);
-      if (change.reviewed) stories.add(change.identity);
-      else stories.delete(change.identity);
+      const { identity, session, reviewed } = change;
+      changes.push(
+        `${project} ${identity}${session === undefined ? "" : ` ${session}`} ${String(reviewed)}`,
+      );
+      const mark = stories.get(identity);
+      if (session !== undefined)
+        stories.set(identity, {
+          ...mark,
+          sessions: { ...mark?.sessions, [session]: reviewed },
+        });
+      else if (reviewed) stories.set(identity, { reviewedAt: now() });
+      else stories.delete(identity);
     }
-    return Promise.resolve(new Set(stories));
+    return Promise.resolve(new Map(stories));
   };
-  return { read, changes, reviewed: (project: string) => [...of(project)] };
+  return {
+    read,
+    changes,
+    reviewed: (project: string) =>
+      [...of(project)]
+        .filter(([, mark]) => mark.reviewedAt !== undefined)
+        .map(([identity]) => identity),
+  };
 }
+
+// A session of `story` Done `doneAgo` minutes ago.
+export const doneSessionOf = (
+  story: { identity: string; title: string },
+  sessionId: string,
+  doneAgo: number,
+) =>
+  makeMe.aLaunchRecord
+    .executing(story)
+    .inClaudeSession({ sessionId })
+    .launchedAt(minutesAgo(doneAgo + 1))
+    .markedDoneAt(minutesAgo(doneAgo))
+    .please();
 
 export function reviewBoard({
   answer,
   viewport = { width: 1280, height: 900 },
+  markedAt = {},
 }: {
   answer?: MachineAnswer;
   viewport?: { width: number; height: number };
+  // Open Dough stories already marked reviewed, at each one's `reviewedAt`.
+  markedAt?: Record<string, string>;
 } = {}) {
   const { done, doneReads } = makeMe.aDoneCatalog
     .holding(
@@ -72,7 +115,10 @@ export function reviewBoard({
       return doneReads.readBodies(project, revision, files, signal);
     },
   };
-  const reviewStates = reviewStateStore();
+  const reviewStates = reviewStateStore(
+    { "open-dough": Object.keys(markedAt) },
+    markedAt,
+  );
   const work = boardWork([], { done });
   return {
     reviewed: (project = "open-dough") => reviewStates.reviewed(project),
@@ -119,6 +165,9 @@ export function reviewCard(name: string) {
     }),
     reviewedButton: actions.getByRole("button", {
       name: "Reviewed",
+      exact: true,
+    }),
+    partiallyReviewed: actions.getByText("Partially reviewed", {
       exact: true,
     }),
     question,
