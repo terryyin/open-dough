@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "sessionId": "897e2851-9833-4ad2-b638-cc74522b4b3f",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-27T09:15:59.005Z",
+  "story": "SEED-449#complete-closure-on-repaired-basis",
+  "ranges": [
+    {
+      "base": "08571a719c65d40b0424463cdf0c3729136a104a",
+      "candidate": "eeec1afb504b139e29111789d5c14e0ad4422435"
+    },
+    {
+      "base": "8f6a3bcdcd0dd492cfb00f3b8561b483cb2356ca",
+      "candidate": "0bd73b1c7d6a9d9292500f991e7ae0617af9ec89"
+    }
+  ]
+}
