@@ -219,6 +219,21 @@ still takes 0.9–1.8 s, mostly fixture history and Review sync. Refactor pass
 skipped: the slice edited only its subject spec and removed a callerless
 helper.
 
+## Execution complete
+
+Product advice: The six legacy specs now run as 17 Node Vitest cases with no
+Playwright case, and the two Intent browser journeys stay as the receipt
+witnesses. This supplier's runner-cutover condition is met once integrated.
+Two recommendations for wrap-up:
+- Each Git-backed Start case still takes 0.9–1.8 s, mostly building the
+  fixture origin and syncing Review, so the campaign's ~100 ms aim is unmet
+  for this family. A shared prebuilt fixture history is a hypothesis to test
+  in the remaining SEED-413 stories, not a promise of this one.
+- The held-gate cases in `agent-launch-duplicate.spec.ts` and
+  `agent-launch-codex-duplicate.spec.ts` miss their 3 s native-launch poll
+  under load (about 17), on the base and on this change alike. Under the
+  failure policy they need a correction owner.
+
 ## Proof and local gate
 
 From the repository root, use a fresh absolute backend proof-record path
