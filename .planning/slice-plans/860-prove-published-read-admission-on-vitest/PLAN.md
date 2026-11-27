@@ -242,7 +242,7 @@ fixture cleanup, parameter binding and partial-object assertion. See
 ### 3. Admit the recorded branch and its resolved head
 
 Type: Behavior
-Status: planned
+Status: done
 
 At a pinned Taken entry, resolve the branch named by its recorded profile,
 then read its plan at the resolved head. Refuse unrelated branch and path
@@ -257,6 +257,42 @@ Git, and a controlled branch-head provider. Exercise the existing parser
 for the branch/watch refusals. Keep the one multi-step case in
 `authenticated-branch-read-boundary.spec.ts` and the branch/watch rows in
 `authenticated-read-refusal.spec.ts`.
+
+Accepted proof. [authenticated-branch-read-boundary.spec.ts](../../../dashboard/backend-tests/observation/authenticated-branch-read-boundary.spec.ts)
+uses the parser, dispatched branch and revision reads, real BranchHeads and
+PinnedTexts, and Git history with distinct trunk, resolved and advanced plan
+bytes. A true origin branch absent from the Taken profile, and the Trunk
+Mode profile, refuse with 404. The real Git head gives 409 until observed.
+Both refusals leave provider calls empty. Resolution yields the exact
+branch and head. An unrelated path is refused and the exact plan is read
+at the resolved commit. Moving the branch with trunk held checks that a
+watched read admits the new head with one listing and one pinned plan read.
+[authenticated-read-branch-request.spec.ts](../../../dashboard/backend-tests/observation/authenticated-read-branch-request.spec.ts)
+matches the parser's exact 400 outcomes for all four branch and five watch
+input variants. The adapter returns each parser refusal before dispatch.
+The ten replacements passed before the corresponding Chromium removals.
+
+```sh
+caffeinate -s -i npm run test:dashboard:backend -- \
+  'observation/authenticated-(branch-read-boundary|read-(branch-request|refusal|http))\.spec\.ts$' \
+  'review/verified-origin-trunk\.spec\.ts$' --workers=1
+caffeinate -s -i npm run typecheck:dashboard
+caffeinate -s -i npm run test:e2e -- \
+  stories/branch-slice-progress.spec.ts observation/auto-refresh-branches.spec.ts --workers=1
+```
+
+Thirty backend cases passed (24 Node and six retained Chromium) in 13.88 s.
+The nine parser cases summed to 2.57 ms. Typecheck and both Board E2E journeys passed.
+The journeys retain visible branch detail and watched progress proof
+through the installed dispatch, in 16.23 s total. See `s3-return.md`,
+`s3-consumer-trace.md` and the retained runner records.
+
+The independent refactor put the sole case's real Git fixture in its own
+lifetime and shared the precise plan-read assertions. The focused branch
+case and typecheck passed after that edit. The branch case took 729 ms
+including Git materialization, which the earlier 64–130 ms samples
+measured outside the case. See `s3-refactor-node.log.run.json` and
+`s3-refactor-consumer-trace.md`.
 
 ### 4. Answer accepted-publication containment
 

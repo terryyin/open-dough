@@ -1,6 +1,5 @@
-// Parameter refusal catalogs for ./authenticated-read-refusal.spec.ts: listed
-// records, branch reads, and watched branches that the boundary must refuse
-// before launching `gh`.
+// Parameter refusal cases for ./authenticated-read-refusal.spec.ts
+// and ./authenticated-read-branch-request.spec.ts.
 import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 const revision = "ab".repeat(20);

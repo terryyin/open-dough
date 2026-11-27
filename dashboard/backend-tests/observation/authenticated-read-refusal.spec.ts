@@ -1,5 +1,4 @@
-// Parameter refusals through a real read request. Local-origin
-// and method admission are observed by ./authenticated-read-http.spec.ts.
+// Listed-record and Done catalog parameter refusals over HTTP.
 
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
@@ -14,11 +13,7 @@ import {
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { describedBacklog } from "../../test-support/describedRevisions.ts";
-import {
-  branchReadRefusals,
-  listedReadRefusals,
-  watchedBranchRefusals,
-} from "./authenticatedReadRefusalCases.ts";
+import { listedReadRefusals } from "./authenticatedReadRefusalCases.ts";
 
 test.describe.configure({ mode: "serial" });
 
@@ -85,17 +80,5 @@ test.describe("authenticated read boundary refusal (development environment)", (
       test(`refuses ${listed} ${refused.read} before launching gh`, () =>
         expectRefusedParameters(`${named}&${refused.query}`, refused.error));
     }
-  }
-  // A branch read names a branch the server can put into GitHub's endpoint
-  // unchanged, and reads a file only at a head it names as a commit.
-  for (const refused of branchReadRefusals) {
-    test(`refuses a branch read ${refused.read} before launching gh`, () =>
-      expectRefusedParameters(refused.query, refused.error));
-  }
-  // A revision check watches only branches named plainly enough to compare
-  // with GitHub's listing, and watching belongs to a revision check alone.
-  for (const refused of watchedBranchRefusals) {
-    test(`refuses a watched branch ${refused.read} before launching gh`, () =>
-      expectRefusedParameters(refused.query, refused.error));
   }
 });
