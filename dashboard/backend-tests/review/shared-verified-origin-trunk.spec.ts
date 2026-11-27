@@ -30,7 +30,12 @@ const observedTrunk = (revision: string, backlog: string) => ({
   kind: "observed",
   value: {
     askedAt: expect.any(String) as unknown,
-    trunk: { kind: "verified", revision, backlog },
+    trunk: {
+      kind: "verified",
+      revision,
+      backlog,
+      confirmedAt: expect.any(String) as unknown,
+    },
   },
 });
 

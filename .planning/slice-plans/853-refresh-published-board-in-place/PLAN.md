@@ -126,11 +126,15 @@ gate is the repository's `remote.origin.uploadpack`; the test gate gained a
 `reviewOnly` option that lets the Board's probe and fetch through by the
 calling Git client's command line, the only distinguishing signal (same
 remote, ref and wire request).
+CI run 45981492323 on `d1e4063` failed `dashboard-frontend` only: Vitest's
+browser connection closed mid-run (`VITEST_BROWSER_CONNECTION_CLOSED`) and
+later files reported no cases. That repair is owned by the Taken
+SEED-413#keep-full-frontend-runs-connected; this plan does not duplicate it.
 
 ### 3. Open from a durable confirmation without fetching
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A verified check publishes its revision and confirmation time
 together in one durable record after the pinned backlog read. An open whose
@@ -143,6 +147,17 @@ the record write after B is local, restart the server; the open answers A
 and its time with the failure reported, then B after retry; with origin at
 B, a later open answers a later time with zero fetches (counted Git calls).
 Budget 14 active minutes.
+
+Delivered (6 active minutes): `boardConfirmation.ts` records
+`{ref, revision, confirmedAt}` as `open-dough-board-confirmation.json` in the
+Review repository; `verifiedOriginTrunk.ts` pins and observes a revision only
+after that write. A record whose revision origin still advertises answers
+with a new `confirmedAt` and only the `ls-remote` probe (upload-pack count
++1). A failed write answers the former confirmation marked `unrecorded`; the
+open's wire answer does not yet carry `confirmedAt` or that failure (slice 4
+puts the time on the wire; G1 gives slice 5 the failure). Proof:
+`board-confirmation.spec.ts`; `authenticated-read-shared-trunk.spec.ts`'s
+later open now reaches upload-pack once.
 
 ### 4. Show the confirmation and refresh an unchanged Board
 
@@ -173,6 +188,13 @@ Proof: E2E: with A rendered, hold B and fail before publication; verify A
 and the failure, then recover to B; settle an automatic read begun before
 the Refresh after it and check the shown time stays the Refresh's. Budget
 14 active minutes.
+
+## Story obligations
+
+### G1. A failed confirmation write is not yet reported to the client
+Reported: slice 3 — "On a failed record write it answers A with no failure reported to the client."
+Story clause: "If B's fetch or confirmation write fails, A and its time stay and the failure is shown."
+Disposition: receiving slice 5
 
 ## Concern review
 

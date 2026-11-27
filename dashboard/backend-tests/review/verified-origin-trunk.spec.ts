@@ -26,7 +26,7 @@ test("an initial publication pins the published commit and its backlog bytes", a
       .withRevision("published", { files: { [backlogPath]: published } })
       .please(),
   );
-  await expect(read()).resolves.toEqual({
+  await expect(read()).resolves.toMatchObject({
     kind: "verified",
     revision: repository.trunkSha,
     backlog: published,
@@ -41,7 +41,7 @@ test("a changed publication answers the new probed commit's backlog", async () =
       .withRevision("published", { files: { [backlogPath]: first } })
       .please(),
   );
-  await expect(read()).resolves.toEqual({
+  await expect(read()).resolves.toMatchObject({
     kind: "verified",
     revision: repository.trunkSha,
     backlog: first,
@@ -56,7 +56,7 @@ test("a changed publication answers the new probed commit's backlog", async () =
     "origin",
     "HEAD:refs/heads/main",
   );
-  await expect(read()).resolves.toEqual({
+  await expect(read()).resolves.toMatchObject({
     kind: "verified",
     revision: moved,
     backlog: next,
@@ -94,7 +94,7 @@ test("a transfer held while the ref moves from A to B is rejected, and a retry s
   git(repository.origin, "update-ref", "refs/heads/main", publishedB);
   await signalFifo(releaseFifo, true);
   await expect(first).resolves.toEqual({ kind: "rejected" });
-  await expect(read()).resolves.toEqual({
+  await expect(read()).resolves.toMatchObject({
     kind: "verified",
     revision: repository.revisions.b,
     backlog: atB,
@@ -189,7 +189,7 @@ test("Review fetches of another commit beside the check leave its verified revis
       syncedReviewRepository(source, signal, "story"),
       syncedReviewRepository(source, signal, "story"),
     ]);
-    expect(checked).toEqual({
+    expect(checked).toMatchObject({
       kind: "verified",
       revision: repository.trunkSha,
       backlog: published,
