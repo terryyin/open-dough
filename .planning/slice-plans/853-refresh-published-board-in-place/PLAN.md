@@ -257,6 +257,19 @@ guards removed it failed (shown time became the late read's); with them it
 passes. A read already under way when Refresh is pressed is the Refresh's
 read, and a superseded request is dropped by its aborted signal.
 
+## Execution complete
+
+Product advice: no change to priority; the near-future direction (intent
+review) is not served by this story or SEED-430's next one. Plan 823
+(follow published progress) now leads with two corrections from this
+review: report a failed confirmation whatever revision is shown (a failed
+write after an automatic advance silently moved the Board back with no
+alert), and end stalled Review fetches through the owned transport. Its
+shared-refresh slice should publish automatic observation through the same
+confirmation record, retiring the interim `confirmedAt ?? retrievedAt` and
+the `reviewOnly` test gate. The cold/warm request baseline (cold 2, warm 1
+requests to origin) is carried into 823's premises.
+
 ## Story obligations
 
 ### G1. A failed confirmation write is not yet reported to the client
