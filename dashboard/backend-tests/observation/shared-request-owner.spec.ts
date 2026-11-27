@@ -2,7 +2,7 @@
 // request owner. It limits upstream turns, shares concurrent reads and rate
 // limits, and keeps other reads running when a dashboard stops waiting.
 // Single-process turns and waits are covered by authenticated-read-turns.spec.ts
-// and authenticated-read-cooldown.spec.ts.
+// and authenticated-read-admission.spec.ts.
 
 import { expect, test as base } from "../../test-support/support/pageTest.ts";
 import { untilReported } from "../../test-support/support/directedWait.ts";

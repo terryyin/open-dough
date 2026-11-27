@@ -174,7 +174,7 @@ for both pages' first read.
 ### 2. Hold queued reads and resume one read at a time
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A directed limit or undirected backoff holds API reads across
 projects, including requests already queued. In-flight reads keep their
@@ -196,6 +196,24 @@ Legacy: `authenticated-read-backoff.spec.ts`,
 `authenticated-read-cooldown-reach.spec.ts`,
 `authenticated-read-wait-in-turn.spec.ts`,
 `authenticated-read-resumption.spec.ts`.
+
+Delivered: `authenticated-read-admission.spec.ts` (13 Node cases, 0–6 ms)
+owns the undirected doubling and reset, directed waits, queued refusal,
+one-call-first and ordinary-failure rules through `ReadAdmission` with
+`readAnswer` inputs built by `asGhReply`. `authenticated-read-resumption.spec.ts`
+(4 Node cases) keeps the production `execGh` → owner → real CLI witness: one
+call first after a real 1 s directed wait, then a second project's read, the
+revision check and the profile setting held back with one upstream call.
+`configuration/project-add-while-held.spec.ts` (1 Node case) shows Add
+finding the branch through Git while the wait holds. Times under external
+load 6–17: 1.3 s, 0.16 s and 0.44 s. Final selector:
+`(observation/authenticated-read-(admission|resumption)|configuration/project-add-while-held)\.spec\.ts$`;
+0 Chromium cases remain. `resumingReads.ts` and `heldBackReads.servedRefusing`
+lost their last callers and are removed.
+
+CI on `c1b14609` met the frontend `VITEST_BROWSER_CONNECTION_CLOSED`
+closure, which [plan 881](../881-keep-full-frontend-runs-connected/PLAN.md)
+owns and is diagnosing; this branch changes no frontend path.
 
 ### 3. Share matching questions and report the cost of a turn
 

@@ -122,7 +122,7 @@ test.describe("authenticated read boundary: a refused shared read fails every wa
     expect(answers.map(({ body }) => failed(body))).toEqual([waited, waited]);
 
     // GitHub's wait holds back every read of this server until it has passed
-    // (./authenticated-read-cooldown.spec.ts).
+    // (./authenticated-read-admission.spec.ts).
     await untilReported(answeredAt, waited.retryAfterSeconds);
     const next = await readAt(server, since(revision));
     expect(next.status).toBe(200);
