@@ -3,9 +3,11 @@
 ## Use the builder
 
 Use the project's shared test-data factory, domain-named chained operations,
-and the project's completion operation. When the builder lacks what your test
-needs or makes setup awkward, improve the shared builder as part of writing the
-test.
+and the project's completion operation. To continue from a value the test
+already holds, such as fixture output or an earlier result, start from the
+factory's `the<Shape>(value)` access rather than a helper that takes the value.
+When the builder lacks what your test needs or makes setup awkward, improve the
+shared builder as part of writing the test.
 
 ```text
 reader = makeMe.aReader.identifiedAs("reader-7").please()
@@ -18,15 +20,6 @@ expect(actual).toEqual(true)
 State meaningful identities, times, and other scenario facts at the call site
 through builder operations. Leave incidental values to the builder's defaults.
 The note's owner matters here, and the builder can supply its title.
-
-Keep building on a value the test already holds, such as a checkout a fixture
-supplied or a record completed earlier, by wrapping it again with the
-factory's `the` access. It answers a builder over that value, with the same
-chained operations and completion.
-
-```text
-draft = makeMe.theCheckout(checkout).withFile("notes.txt", "draft").committed().please()
-```
 
 Reach a stereotype example that tests share through its named example on the
 builder (a data mother). The name stands for the facts the scenario relies on;
@@ -63,15 +56,11 @@ Add one to the shared factory if that shape has no builder yet.
 Each factory access supplies a fresh builder, and each completed value owns its
 mutable state.
 
-Add a builder operation, default or named example only to meet a concrete
-setup need in a consuming test or to produce valid data. Rely on the consuming
-test to exercise the setup it depends on and on existing validation to check
-the data. Skip tests dedicated to the builder itself. Remove builder behavior
-when neither reason applies.
-
-Add a `the<Shape>` access when tests work further on values they already
-hold. Give it the operations those tests need, in place of helper functions
-that each take the value as an argument.
+Add a builder operation, default, `the<Shape>` access or named example only to
+meet a concrete setup need in a consuming test or to produce valid data. Rely
+on the consuming test to exercise the setup it depends on and on existing
+validation to check the data. Skip tests dedicated to the builder itself.
+Remove builder behavior when neither reason applies.
 
 Add a named example when tests repeat the same stereotype data. Build it from
 the builder's own operations and return the builder, so a test can refine it
