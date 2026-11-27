@@ -2,10 +2,13 @@
 // action from a reviewed story in either appearance, before selecting a card.
 import { expect, test } from "vitest";
 import { userEvent } from "vitest/browser";
+import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
+import { minutesAgo } from "../../../Distribution/tests/support/testDataDefaults.mjs";
 import { contrastRatio, painted } from "../../test-support/composedColours.ts";
 import { settingsColourScheme } from "../configuration/system-settings-browser.ts";
 import { paintContrast } from "../configuration/system-settings-reading.ts";
 import {
+  doneSessionOf,
   reviewBoard,
   reviewCard,
   storyA,
@@ -92,5 +95,25 @@ for (const appearance of [
     await expectWarning(a, appearance);
     await expect.element(a.markAsReviewed).toHaveFocus();
     await expectQuietReviewed(b, appearance.quiet);
+  });
+
+  test(`a partially reviewed story keeps the outstanding action beside a legible badge in ${appearance.scheme} appearance`, async () => {
+    await settingsColourScheme()(appearance.scheme);
+    await reviewBoard({
+      answer: makeMe.aMachineAnswer
+        .observingUnavailable(
+          doneSessionOf(storyA, "before", 40),
+          doneSessionOf(storyA, "after", 20),
+        )
+        .please(),
+      markedAt: { [storyA.identity]: minutesAgo(30) },
+    }).mount();
+    const a = reviewCard(storyA.title);
+    await expect.element(a.partiallyReviewed).toBeVisible();
+    await userEvent.unhover(a.markAsReviewed);
+    await expectWarning(a, appearance);
+    expect(textContrast(a.partiallyReviewed.element())).toBeGreaterThanOrEqual(
+      4.5,
+    );
   });
 }

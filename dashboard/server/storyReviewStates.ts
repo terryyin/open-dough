@@ -1,15 +1,19 @@
 // This machine's story review states (`../src/storyReviewState.ts`), kept by
 // project id and story identity in
 // `~/.open-dough/dashboard/story-review-states.json`, resolved through
-// `HOME`: an entry means the story is reviewed, and no entry means it is not.
-// A missing or unreadable file reads as every story unreviewed. The
-// file is read, replaced atomically, and moved aside when unreadable as
+// `HOME`: an entry's `reviewedAt` is when the story was marked reviewed, its
+// `sessions` the explicit marks of single sessions, and no entry means none.
+// A missing or unreadable file reads as every story unreviewed. The file is
+// read, replaced atomically, and moved aside when unreadable as
 // `./machineJsonStore.ts` describes.
 
 import type { IncomingMessage } from "node:http";
 import { z } from "zod";
 import {
+  storyReviewMarkSchema,
   storyReviewStateChangeSchema,
+  type StoryReviewMark,
+  type StoryReviewStateChange,
   type StoryReviewStatesAnswer,
 } from "../src/storyReviewState.ts";
 import { configuredProject } from "./projectConfiguration.ts";
@@ -24,7 +28,7 @@ import {
 
 const storeSchema = z.record(
   z.string(),
-  z.record(z.string(), z.object({ reviewedAt: z.iso.datetime() })),
+  z.record(z.string(), storyReviewMarkSchema),
 );
 
 type StoredStates = z.infer<typeof storeSchema>;
@@ -38,32 +42,42 @@ const stateStore = (): MachineJsonStore<StoredStates> => ({
 const answerOf = (
   stored: StoredStates,
   project: string,
-): StoryReviewStatesAnswer => ({
-  reviewed: Object.keys(stored[project] ?? {}),
-});
+): StoryReviewStatesAnswer => ({ stories: stored[project] ?? {} });
 
 async function reviewStates(project: string): Promise<StoryReviewStatesAnswer> {
   const read = await readMachineJson(stateStore());
   return answerOf(read.kind === "document" ? read.document : {}, project);
 }
 
+// A story's change sets `reviewedAt` to now, or clears it, and clears its
+// sessions' explicit marks; a session's change sets that session's mark.
+function changedMark(
+  mark: StoryReviewMark | undefined,
+  { session, reviewed }: StoryReviewStateChange,
+): StoryReviewMark | undefined {
+  if (session === undefined)
+    return reviewed ? { reviewedAt: new Date().toISOString() } : undefined;
+  return {
+    ...mark,
+    sessions: { ...mark?.sessions, [session]: reviewed },
+  };
+}
+
 async function changeReviewState(
   project: string,
-  identity: string,
-  reviewed: boolean,
+  change: StoryReviewStateChange,
 ): Promise<StoryReviewStatesAnswer> {
-  let answer: StoryReviewStatesAnswer = { reviewed: [] };
+  let answer: StoryReviewStatesAnswer = { stories: {} };
   await replaceMachineJson(stateStore(), (stored) => {
+    const stories = stored[project] ?? {};
     const others = Object.fromEntries(
-      Object.entries(stored[project] ?? {}).filter(
-        ([kept]) => kept !== identity,
-      ),
+      Object.entries(stories).filter(([kept]) => kept !== change.identity),
     );
+    const mark = changedMark(stories[change.identity], change);
     const next = {
       ...stored,
-      [project]: reviewed
-        ? { ...others, [identity]: { reviewedAt: new Date().toISOString() } }
-        : others,
+      [project]:
+        mark === undefined ? others : { ...others, [change.identity]: mark },
     };
     answer = answerOf(next, project);
     return next;
@@ -71,8 +85,8 @@ async function changeReviewState(
   return answer;
 }
 
-// One request naming a configured project: GET answers its reviewed stories,
-// POST sets or clears one story's state and answers the same.
+// One request naming a configured project: GET answers its saved marks,
+// POST sets or clears one story's or session's state and answers the same.
 export async function answerStoryReviewStates(
   req: IncomingMessage,
   signal: AbortSignal,
@@ -94,5 +108,5 @@ export async function answerStoryReviewStates(
   if (!change.success)
     throw new RefusedRequest(400, "The review state request is malformed.");
   signal.throwIfAborted();
-  return changeReviewState(project, change.data.identity, change.data.reviewed);
+  return changeReviewState(project, change.data);
 }

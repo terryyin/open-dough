@@ -21,7 +21,9 @@ import { sessionKey } from "./sessionReference.ts";
 // available, opens as the row did. It is current, and outlined, while the
 // Side panel shows its session.
 
-import { useStoryReviewStates } from "./storyReviewStates.ts";
+import { sessionReviewed, useStoryReviewStates } from "./storyReviewStates.ts";
+import { publishedRecordOf, reviewableSession } from "./recentlyDoneListing.ts";
+import { useCurrentPublishedSessions } from "./recentlyDoneShownLinks.ts";
 import { useId } from "react";
 import { ChevronRight, MessageSquareText } from "lucide-react";
 import { Icon, IconButton } from "./Icon.tsx";
@@ -78,10 +80,18 @@ export function SessionsSidebarSessionEntry({
     source,
     selection !== undefined && reviewObserved,
   );
+  // The same session as its story card counts: its published record, while
+  // its project's work is read, gives its completion.
+  const published = useCurrentPublishedSessions(source);
+  const reviewable = reviewableSession(
+    record,
+    publishedRecordOf(record, published),
+  );
   const needsReview =
     completedStory !== undefined &&
     reviewed !== undefined &&
-    !reviewed.has(completedStory);
+    reviewable !== undefined &&
+    !sessionReviewed(reviewed.get(completedStory), reviewable);
   const { title, identity, name, modelWords } = launchSubject(record.request);
   const { entryClass, label, tone, unreadReportWords } = shownSession(record);
   const { note } = sessionShown(record);
@@ -108,7 +118,7 @@ export function SessionsSidebarSessionEntry({
   const facts = [
     ...(needsReview
       ? [
-          "Needs review: this story has not been marked reviewed on this machine.",
+          "Needs review: this session has not been marked reviewed on this machine.",
         ]
       : []),
     ...(limitation === undefined ? [] : [limitation]),
@@ -153,7 +163,7 @@ export function SessionsSidebarSessionEntry({
         <span
           id={reviewId}
           className="sessions-sidebar-session-entry-review"
-          aria-label="Needs review: this story has not been marked reviewed on this machine."
+          aria-label="Needs review: this session has not been marked reviewed on this machine."
         >
           Needs review
         </span>

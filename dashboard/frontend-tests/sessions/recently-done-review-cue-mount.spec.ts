@@ -6,7 +6,7 @@
 // cue. At narrow touch width a long title leaves the cue and separate
 // touch-sized Select and Open usable. Ad hoc rows' association evidence:
 // ./recently-done-sessions-review-cue-{evidence,races}.spec.ts (SEED-426).
-import { expect, onTestFinished, test, vi } from "vitest";
+import { expect, test } from "vitest";
 import { page } from "vitest/browser";
 import { reviewCard } from "../stories/recently-done-review-state-mount-page.ts";
 import {
@@ -16,7 +16,9 @@ import {
   duplicateTitle,
   localSessionTitle,
   localTitle,
+  onTheBoard,
   openReviewCue,
+  pollWithFakeTimers,
 } from "./recently-done-review-cue-mount-page.ts";
 import {
   adHocTitle,
@@ -34,22 +36,21 @@ import {
   useTouchScreen,
 } from "../navigation/board-touch-page.ts";
 
-// Operates the Board's cards with the Sessions sidebar closed, then reopens it.
-async function onTheBoard(act: () => Promise<void>) {
-  const sessions = page.getByRole("button", { name: /^Sessions/ });
-  await sessions.click();
-  await act();
-  await sessions.click();
-}
-
-function pollWithFakeTimers() {
-  vi.useFakeTimers({
-    toFake: ["setTimeout", "clearTimeout", "setInterval", "clearInterval"],
+// A story mark covers the sessions completed by then: a session of the same
+// story completed after the mark still shows Needs review, naming the session.
+test("a session completed after its story's mark keeps a Needs review cue that names the session", async () => {
+  const later = "A later Open Dough session of the story";
+  const frame = openReviewCue({
+    extra: [cueSession(later, 1, "open-dough")],
+    openDoughMarkedAt: minutesAgo(2),
   });
-  onTestFinished(() => {
-    vi.useRealTimers();
-  });
-}
+  const shown = await frame.mount();
+  await expect.poll(() => cueOf(shown.row(later))).toBe(true);
+  expect(cueOf(shown.row(localSessionTitle))).toBe(false);
+  expect(cueIn(shown.row(later))?.getAttribute("aria-label")).toBe(
+    "Needs review: this session has not been marked reviewed on this machine.",
+  );
+});
 
 test("equal identities use their own project's review state; every shown matching row shares successful card changes while the Board stays put", async () => {
   const frame = openReviewCue();

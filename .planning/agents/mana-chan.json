@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Mana-chan",
-  "email": "mana-chan@example.org",
-  "identity": "SEED-418#track-review-state-per-session",
-  "mode": "story-branch",
-  "branch": "claude/track-review-status-for-each-session",
-  "host": "claude"
-}
