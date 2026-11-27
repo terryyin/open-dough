@@ -42,9 +42,9 @@ import type { GhCall, RepositoryAnswerer } from "./support/fakeGitHub.ts";
 import {
   disconnectOriginThroughServedHomes,
   expectServedHomesReach,
-  refuseOriginThroughServedHomes,
   routeServedHomesToPublication,
 } from "./support/fixtureOriginRoute.ts";
+import { refuseOriginThroughServedHomes } from "./support/fixtureOriginRefusal.ts";
 import {
   commitPublishedOrigin,
   type PublishedOrigin,

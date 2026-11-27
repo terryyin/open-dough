@@ -118,7 +118,7 @@ Proof: Move the cold cases of `transient-read-recovery.spec.ts` (empty-page
 ### 4. Keep cold opens isolated per project and per journey
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A held or failed cold open of one project never affects another,
 each catalog project opens at its verified trunk, and a reload during an API
@@ -186,6 +186,15 @@ It deleted the pinned-backlog recovery case: one Git transfer reads trunk and
 backlog together, and an unreadable backlog no longer recovers on its own.
 `heldUploadPack` must be set up before the first open and holds every later
 call; the dashboard's process-group close ends a transfer still held.
+
+Slice 4 (2026-11-27): `e2e/observation` plus the two story specs passed
+(126). The backend observation and runtime run failed only in
+`kept-history-worker.spec.ts` (:30, :75) and `mounted-boundary-server.spec.ts`
+(:170), at load 22–34 from other worktrees. This story does not touch those
+files, and they passed on a targeted rerun at load 26–30. Slices 1–4 publish
+on that targeted proof and the hosted CI verdict, which this execution owns.
+A Board opened from Git during an API limit still reads at the revision, so
+count Board-open requests only.
 
 ## Local gate
 

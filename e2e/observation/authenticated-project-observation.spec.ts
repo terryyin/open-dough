@@ -20,10 +20,9 @@ import {
   openDirection,
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import {
-  notLoggedIn,
-  publishCommittedFiles,
-} from "../../dashboard/test-support/publishedOrigin.ts";
+import { publishCommittedFiles } from "../../dashboard/test-support/publishedOrigin.ts";
+import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
+import { refuseOriginThroughServedHomes } from "../../dashboard/test-support/support/fixtureOriginRefusal.ts";
 import {
   catalogExpectations,
   expectPinnedGhCalls,
@@ -49,7 +48,7 @@ const credentialMarker = "gho_should-never-reach-a-browser-4c3b2a1f0e9d";
 
 test.use({ extraEnv: { GH_TOKEN: credentialMarker } });
 
-test("authenticated project observation: each catalog project opens and reloads through the local boundary; missing gh login reports a read failure that a reload after restored access recovers", async ({
+test("authenticated project observation: each catalog project opens and reloads through the local boundary; a refused credential reports a read failure that a reload after restored access recovers", async ({
   page,
   github,
   dashboard: server,
@@ -134,31 +133,25 @@ test("authenticated project observation: each catalog project opens and reloads 
       expectPinnedGhCalls(calls, expected);
     });
 
-    await test.step(`reloading ${expected.label} resolves ${expected.ref} again through local gh`, async () => {
-      const before = calls.length;
+    await test.step(`reloading ${expected.label} opens ${expected.ref} again at its verified Git trunk`, async () => {
       await reloadUntilRead(page);
       await expect(readRevision).toContainText(
         shortRevision(expected.revision),
       );
-      await expect.poll(() => calls.length).toBeGreaterThan(before);
-      expect(calls[before]?.argv).toEqual([
-        "api",
-        "--include",
-        `repos/${expected.repository}/commits/${expected.ref}`,
-        "--jq",
-        ".sha",
-      ]);
+      expect(restMembershipAsked(calls)).toEqual([]);
     });
   }
 
   const doughnutRepository = catalogPublications.doughnut.repository;
   const originalDoughnutRevision =
     observed.get(doughnutRepository)?.revision ?? "";
-  let previousDoughnutAnswerer: ReturnType<typeof github.serve>;
+  let restoreAccess: (() => void) | undefined;
 
-  await test.step("without a gh login, the selected project reports its own actionable failure and no snapshot", async () => {
-    previousDoughnutAnswerer = github.serve(doughnutRepository, () =>
-      Promise.resolve(notLoggedIn),
+  await test.step("with its credential refused, the selected project reports its own actionable failure and no snapshot", async () => {
+    restoreAccess = refuseOriginThroughServedHomes(
+      github,
+      doughnutRepository,
+      401,
     );
     expectServedHomesReach(
       github,
@@ -167,7 +160,7 @@ test("authenticated project observation: each catalog project opens and reloads 
     );
     await projectTab(page, "Doughnut").check();
     await expect(problem).toContainText(
-      "The local GitHub CLI is not logged in, so main of nerds-odd-e/doughnut could not be read. Run `gh auth login` (check with `gh auth status`), then reload the page.",
+      "GitHub answered HTTP 401 to the local GitHub CLI while reading main of nerds-odd-e/doughnut. Check that `gh auth status` succeeds and that this login can read nerds-odd-e/doughnut, then reload the page.",
     );
     await expect(page.getByRole("article")).toHaveCount(0);
     await expect(problem).toContainText("Reload the page to read again.");
@@ -176,12 +169,10 @@ test("authenticated project observation: each catalog project opens and reloads 
 
   await test.step("after access is restored, reloading shows the selected project's published work", async () => {
     const { doughnut } = catalogExpectations;
-    if (previousDoughnutAnswerer === undefined) {
-      throw new Error(
-        "expected the Doughnut answerer from before the login refusal",
-      );
+    if (restoreAccess === undefined) {
+      throw new Error("expected the Doughnut credential refusal to restore");
     }
-    github.serve(doughnutRepository, previousDoughnutAnswerer);
+    restoreAccess();
     expectServedHomesReach(
       github,
       doughnutRepository,
@@ -196,6 +187,9 @@ test("authenticated project observation: each catalog project opens and reloads 
       shortRevision(originalDoughnutRevision),
     );
     await expect(problem).toHaveCount(0);
+    expect(
+      restMembershipAsked(observed.get(doughnutRepository)?.requests ?? []),
+    ).toEqual([]);
   });
 
   await test.step("the browser only ever asked its own server; nothing credential-like reached it", async () => {
