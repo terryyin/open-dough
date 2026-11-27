@@ -2,7 +2,7 @@
 // instruction when that client's screen is ready. Opening the terminal joins
 // that client. A screen that is not ready does not receive the instruction.
 // A client that leaves before acceptance is agent-terminal-cursor-exit.spec.ts.
-import { test, expect } from "../../test-support/support/pageTest.ts";
+import { describe, expect, test } from "vitest";
 import { launch } from "../../test-support/agentLaunchBoundary.ts";
 import { shows } from "../../test-support/agentTerminalBoundary.ts";
 import { installFakeCursor } from "../../test-support/support/fakeCursor.ts";
@@ -22,7 +22,7 @@ const notice =
 const unconfirmed =
   "This launch's recorded conversation has a first input that is not confirmed, so no other conversation was started. Check the recorded conversation for that input.";
 
-test.describe(`Cursor launch turn`, () => {
+describe(`Cursor launch turn`, () => {
   test("an instructed launch shows that client and accepts typing", async () => {
     const cursor = installFakeCursor({ screen: "working" });
     await withInstructedCursor(
@@ -40,10 +40,8 @@ test.describe(`Cursor launch turn`, () => {
         }
         const sessionId = session.sessionId;
         const workspace = session.continuation.workspace;
-        expect(recorded.firstInput).toMatchObject({
-          state: "confirmed",
-          instruction: expect.stringContaining(instruction),
-        });
+        expect(recorded.firstInput?.state).toBe("confirmed");
+        expect(recorded.firstInput?.instruction).toContain(instruction);
         expect(cursor.calls().map((call) => call.args)).toEqual([
           ["create-chat"],
         ]);
@@ -84,7 +82,7 @@ test.describe(`Cursor launch turn`, () => {
         expect(server.claudeAttaches()).toEqual([]);
       },
     );
-  });
+  }, 60_000);
 
   test("an empty chat that shows Plan, search, build anything receives the instruction", async () => {
     const cursor = installFakeCursor({ screen: "composer" });
@@ -94,17 +92,15 @@ test.describe(`Cursor launch turn`, () => {
       instruction,
       (server) => {
         const recorded = keptCursor(server.home);
-        expect(recorded.firstInput).toMatchObject({
-          state: "confirmed",
-          instruction: expect.stringContaining(instruction),
-        });
+        expect(recorded.firstInput?.state).toBe("confirmed");
+        expect(recorded.firstInput?.instruction).toContain(instruction);
         const pid = cursor.attaches()[0]?.pid ?? 0;
         expect(enteredInstruction(cursor, pid)).toBe(
           recorded.firstInput?.instruction,
         );
       },
     );
-  });
+  }, 60_000);
 
   test("a long multiline instruction is submitted after Cursor shows it as pasted text", async () => {
     const cursor = installFakeCursor({ screen: "composer" });
@@ -123,7 +119,7 @@ test.describe(`Cursor launch turn`, () => {
         );
       },
     );
-  });
+  }, 60_000);
 
   test("an answer typed while the agent is asking reaches that client", async () => {
     const cursor = installFakeCursor({ screen: "waiting" });
@@ -148,7 +144,7 @@ test.describe(`Cursor launch turn`, () => {
         expect(keptCursor(server.home).firstInput?.state).toBe("uncertain");
       },
     );
-  });
+  }, 60_000);
 
   test("a trust prompt that never becomes the composer does not receive the instruction", async () => {
     const cursor = installFakeCursor({ screen: "trust" });
@@ -180,7 +176,7 @@ test.describe(`Cursor launch turn`, () => {
         expect(cursor.attaches()).toHaveLength(1);
       },
     );
-  });
+  }, 60_000);
 
   test("a screen that is not ready receives the instruction when it becomes ready", async () => {
     const cursor = installFakeCursor({
@@ -219,5 +215,5 @@ test.describe(`Cursor launch turn`, () => {
         expect(processRunning(pid)).toBe(true);
       },
     );
-  });
+  }, 60_000);
 });

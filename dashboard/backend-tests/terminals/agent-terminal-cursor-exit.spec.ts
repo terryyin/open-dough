@@ -1,7 +1,7 @@
 // A Cursor client that leaves before the first prompt is accepted.
 // An exit Cursor printed is recorded as ended, and Continue adds no
 // session. A client that is gone without that ending is replaced.
-import { test, expect } from "../../test-support/support/pageTest.ts";
+import { describe, expect, test } from "vitest";
 import { launch } from "../../test-support/agentLaunchBoundary.ts";
 import { installFakeCursor } from "../../test-support/support/fakeCursor.ts";
 import {
@@ -15,7 +15,7 @@ import { processRunning } from "../../test-support/support/processGroup.ts";
 
 const instruction = "hold this launch";
 
-test.describe(`Cursor client exit`, () => {
+describe(`Cursor client exit`, () => {
   test("a client that exits before the prompt is accepted shows Cursor's text and Continue adds no session", async () => {
     const printed = "Error: No prompt provided for print mode\r\n";
     const cursor = installFakeCursor({
@@ -64,7 +64,7 @@ test.describe(`Cursor client exit`, () => {
         expect(cursor.attaches()).toHaveLength(1);
       },
     );
-  });
+  }, 60_000);
 
   test("the client exiting does not accept the instruction, and the next launch submits it in a new conversation", async () => {
     const cursor = installFakeCursor({ screen: "trust" });
@@ -76,7 +76,9 @@ test.describe(`Cursor client exit`, () => {
       async (server) => {
         const pid = cursor.attaches()[0]?.pid ?? 0;
         process.kill(pid, "SIGKILL");
-        await expect.poll(() => processRunning(pid)).toBe(false);
+        await expect
+          .poll(() => processRunning(pid), { timeout: 5_000 })
+          .toBe(false);
         await new Promise((resolve) => setTimeout(resolve, 300));
         expect(keptCursor(server.home).firstInput?.state).toBe("uncertain");
         expect(enteredInstruction(cursor, pid)).not.toContain(instruction);
@@ -109,5 +111,5 @@ test.describe(`Cursor client exit`, () => {
         });
       },
     );
-  });
+  }, 60_000);
 });

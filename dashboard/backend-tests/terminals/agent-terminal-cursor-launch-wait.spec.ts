@@ -3,7 +3,7 @@
 // the client kept. Each case ends the launch wait once its kept state is
 // observed. Ordinary ready settlement is covered in
 // agent-terminal-cursor-launch.spec.ts.
-import { test, expect } from "../../test-support/support/pageTest.ts";
+import { describe, expect, test } from "vitest";
 import { instructionDeliveryTimedOutExplanation } from "../../server/hosts/cursor/instructionDelivery.ts";
 import { launchWaitMs } from "../../test-support/support/launchWait.ts";
 import { installFakeCursor } from "../../test-support/support/fakeCursor.ts";
@@ -40,7 +40,7 @@ function expectInstructionDeliveryTimedOut(
   );
 }
 
-test.describe(`Cursor launch wait`, () => {
+describe(`Cursor launch wait`, () => {
   test("the launch wait abort leaves the client running and a later ready screen accepts the instruction", async () => {
     const cursor = installFakeCursor({ screen: "working", holdPaint: true });
     await withInstructedCursor(
@@ -73,7 +73,7 @@ test.describe(`Cursor launch wait`, () => {
           .toHaveLength(1);
       },
     );
-  });
+  }, 60_000);
 
   test("a submitted paste chip left silent times out as uncertain while first input stays confirmed", async () => {
     const cursor = installFakeCursor({
@@ -100,11 +100,13 @@ test.describe(`Cursor launch wait`, () => {
       },
       async (server) => {
         await expect
-          .poll(() => keptFirstInputState(server.home))
+          .poll(() => keptFirstInputState(server.home), {
+            timeout: launchWaitMs,
+          })
           .toBe("confirmed");
       },
     );
-  });
+  }, 60_000);
 
   test("a launch wait on workspace trust explains the kept prompt, and the developer's terminal answer confirms its instruction", async () => {
     const cursor = installFakeCursor({ screen: "trust-unframed" });
@@ -155,5 +157,5 @@ test.describe(`Cursor launch wait`, () => {
       },
       heldOnWorkspaceTrust,
     );
-  });
+  }, 60_000);
 });

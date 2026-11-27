@@ -5,7 +5,7 @@
 import { mkdtempSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect } from "../../test-support/support/pageTest.ts";
+import { describe, expect, test } from "vitest";
 import { launch } from "../../test-support/agentLaunchBoundary.ts";
 import {
   refusedStatus,
@@ -13,7 +13,10 @@ import {
 } from "../../test-support/agentTerminalBoundary.ts";
 import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import { waitUntil } from "../../test-support/support/waitUntil.ts";
-import type { FakeCursor } from "../../test-support/support/fakeCursor.ts";
+import {
+  installFakeCursor,
+  type FakeCursor,
+} from "../../test-support/support/fakeCursor.ts";
 import {
   openCursorTerminal,
   type CursorTerminal,
@@ -25,12 +28,12 @@ import {
   expectKeptCursorInstruction,
   startCursorDashboard,
   stayedUp,
-  workingKeptCursorTest as test,
 } from "../../test-support/support/keptCursorTurn.ts";
 import { processRunning } from "../../test-support/support/processGroup.ts";
 import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 
 const instruction = "continue this session";
+const polled = { timeout: 5_000 };
 
 async function join(
   server: DashboardServer,
@@ -41,10 +44,14 @@ async function join(
   const sizes = cursor.sizes(pid).length;
   const terminal = await openCursorTerminal(server, sessionId);
   await expect
-    .poll(() => terminal.controls())
+    .poll(() => terminal.controls(), polled)
     .toEqual([{ readiness: "attached" }]);
-  await expect.poll(() => terminal.output()).toContain("ctrl+c to stop");
-  await expect.poll(() => cursor.sizes(pid).length).toBeGreaterThan(sizes);
+  await expect
+    .poll(() => terminal.output(), polled)
+    .toContain("ctrl+c to stop");
+  await expect
+    .poll(() => cursor.sizes(pid).length, polled)
+    .toBeGreaterThan(sizes);
   let painted = cursor.sizes(pid).length;
   let quiet = false;
   while (!quiet) {
@@ -62,10 +69,9 @@ async function join(
   return terminal;
 }
 
-test.describe(`Cursor embedded terminal`, () => {
-  test("a working Cursor client survives detach and a new socket joins it", async ({
-    cursor,
-  }) => {
+describe(`Cursor embedded terminal`, () => {
+  test("a working Cursor client survives detach and a new socket joins it", async () => {
+    const cursor = installFakeCursor({ working: true });
     const machine = mkdtempSync(path.join(tmpdir(), "dough-cursor-terminal-"));
     let server: DashboardServer | undefined;
     try {
@@ -143,55 +149,49 @@ test.describe(`Cursor embedded terminal`, () => {
       expect(codexResumeLog(server)).toBe("");
       const pid = attach?.pid ?? 0;
 
-      await test.step("closing the socket leaves the working client running", async () => {
+      // closing the socket leaves the working client running
+      {
         terminal.socket.close();
         await terminal.closed;
         await stayedUp(cursor, pid);
-        expect(keptCursor(server?.home ?? "").session.sessionId).toBe(
-          sessionId,
-        );
-      });
+        expect(keptCursor(server.home).session.sessionId).toBe(sessionId);
+      }
 
-      const joined =
-        await test.step("a new socket joins the same pid", async () => {
-          const next = await join(
-            server as DashboardServer,
-            cursor,
-            sessionId,
-            pid,
-          );
-          next.send({ input: "kept-turn" });
-          await expect.poll(() => cursor.input(pid)).toContain("kept-turn");
-          expect(keptCursor(server?.home ?? "").session).toEqual(
-            recorded.session,
-          );
-          return next;
-        });
+      // a new socket joins the same pid
+      const joined = await join(server, cursor, sessionId, pid);
+      {
+        joined.send({ input: "kept-turn" });
+        await expect
+          .poll(() => cursor.input(pid), polled)
+          .toContain("kept-turn");
+        expect(keptCursor(server.home).session).toEqual(recorded.session);
+      }
 
-      const alongside =
-        await test.step("a second open socket shares that client", async () => {
-          const before = joined.output();
-          const next = await openCursorTerminal(
-            server as DashboardServer,
-            sessionId,
-          );
-          await expect
-            .poll(() => next.controls())
-            .toEqual([{ readiness: "attached" }]);
-          await expect.poll(() => next.output()).toContain("ctrl+c to stop");
-          // Both sockets share live output; the new socket also has replay.
-          const added = () => joined.output().slice(before.length);
-          await expect
-            .poll(
-              () =>
-                added().includes("ctrl+c to stop") &&
-                next.output().endsWith(added()),
-            )
-            .toBe(true);
-          expect(cursor.attaches()).toHaveLength(1);
-          expect(cursor.attaches()[0]?.pid).toBe(pid);
-          return next;
-        });
+      // a second open socket shares that client
+      let alongside: CursorTerminal;
+      {
+        const before = joined.output();
+        const next = await openCursorTerminal(server, sessionId);
+        await expect
+          .poll(() => next.controls(), polled)
+          .toEqual([{ readiness: "attached" }]);
+        await expect
+          .poll(() => next.output(), polled)
+          .toContain("ctrl+c to stop");
+        // Both sockets share live output; the new socket also has replay.
+        const added = () => joined.output().slice(before.length);
+        await expect
+          .poll(
+            () =>
+              added().includes("ctrl+c to stop") &&
+              next.output().endsWith(added()),
+            polled,
+          )
+          .toBe(true);
+        expect(cursor.attaches()).toHaveLength(1);
+        expect(cursor.attaches()[0]?.pid).toBe(pid);
+        alongside = next;
+      }
 
       const attached = cursor.attaches().length;
       const unknown = new URL(terminalUrl(server, "open-dough", "unknown"));
@@ -207,32 +207,30 @@ test.describe(`Cursor embedded terminal`, () => {
       expect(server.claudeAttaches()).toEqual([]);
       expect(codexResumeLog(server)).toBe("");
 
-      await test.step("a dropped connection still leaves that client to rejoin", async () => {
+      // a dropped connection still leaves that client to rejoin
+      {
         joined.socket.terminate();
         alongside.socket.terminate();
         await joined.closed;
         await alongside.closed;
         await stayedUp(cursor, pid);
-        const again = await join(
-          server as DashboardServer,
-          cursor,
-          sessionId,
-          pid,
-        );
+        const again = await join(server, cursor, sessionId, pid);
         again.socket.close();
         await again.closed;
         await stayedUp(cursor, pid);
-      });
+      }
 
-      await test.step("closing the server leaves the kept client running", async () => {
-        await server?.close();
+      // closing the server leaves the kept client running
+      {
+        await server.close();
         server = undefined;
         await stayedUp(cursor, pid, 500);
-      });
+      }
     } finally {
       await server?.close();
       await stopCursorRunner(path.join(machine, "home"));
+      cursor.cleanup();
       rmSync(machine, { recursive: true, force: true });
     }
-  });
+  }, 60_000);
 });

@@ -1,7 +1,7 @@
 // The held current screen reaches first join and reconnect, including the
 // native trust boundary: no completed frame and no output from a join nudge.
 // A completed-frame substitute remains the compatible observation.
-import { test, expect } from "../../test-support/support/pageTest.ts";
+import { describe, expect, test } from "vitest";
 import { shows } from "../../test-support/agentTerminalBoundary.ts";
 import { openCursorTerminal } from "../../test-support/support/cursorTerminal.ts";
 import { installFakeCursor } from "../../test-support/support/fakeCursor.ts";
@@ -15,7 +15,7 @@ import { processRunning } from "../../test-support/support/processGroup.ts";
 
 const instruction = "hold this trust launch";
 
-test.describe(`Cursor trust screen join`, () => {
+describe(`Cursor trust screen join`, () => {
   for (const screen of ["trust", "trust-unframed"] as const) {
     test(`a terminal joined after the launch wait shows the ${screen} Cursor trust prompt`, async () => {
       const cursor = installFakeCursor({ screen });
@@ -64,6 +64,6 @@ test.describe(`Cursor trust screen join`, () => {
         // holds it until the launch wait ends.
         screen === "trust" ? undefined : heldOnWorkspaceTrust,
       );
-    });
+    }, 60_000);
   }
 });

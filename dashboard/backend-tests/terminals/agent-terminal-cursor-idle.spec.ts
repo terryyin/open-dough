@@ -5,7 +5,7 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { test, expect } from "../../test-support/support/pageTest.ts";
+import { describe, expect, test } from "vitest";
 import { launch } from "../../test-support/agentLaunchBoundary.ts";
 import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
@@ -25,6 +25,7 @@ import { stopCursorRunner } from "../../server/hosts/cursor/runnerClient.ts";
 import { processRunning } from "../../test-support/support/processGroup.ts";
 
 const instruction = "continue this session";
+const polled = { timeout: 5_000 };
 
 // Opens one recorded Cursor terminal on a fresh fake cursor. The caller
 // chooses the screen that cursor paints. Cleanup hangs the server up and
@@ -51,7 +52,7 @@ async function withOpenedCursor(
     expect(launched.status).toBe(200);
     const sessionId = keptCursor(server.home).session.sessionId;
     const terminal = await openCursorTerminal(server, sessionId);
-    await expect.poll(() => cursor.attaches()).toHaveLength(1);
+    await expect.poll(() => cursor.attaches(), polled).toHaveLength(1);
     const pid = cursor.attaches()[0]?.pid ?? 0;
     await body({ server, sessionId, terminal, pid });
   } finally {
@@ -62,14 +63,14 @@ async function withOpenedCursor(
   }
 }
 
-test.describe(`detached Cursor screen`, () => {
+describe(`detached Cursor screen`, () => {
   test("a detached follow-up prompt keeps the client and the next open joins it", async () => {
     const cursor = installFakeCursor();
     await withOpenedCursor(
       cursor,
       async ({ server, sessionId, terminal, pid }) => {
         await expect
-          .poll(() => terminal.output())
+          .poll(() => terminal.output(), polled)
           .toContain("→ Add a follow-up");
         expect(terminal.output()).not.toContain("done");
         expect(terminal.output()).not.toContain("ctrl+c to stop");
@@ -79,7 +80,7 @@ test.describe(`detached Cursor screen`, () => {
           screen: ["→ Add a follow-up"],
         });
         await expect
-          .poll(() => terminal.controls())
+          .poll(() => terminal.controls(), polled)
           .toContainEqual({ readiness: "attached" });
 
         terminal.socket.close();
@@ -88,23 +89,27 @@ test.describe(`detached Cursor screen`, () => {
 
         const next = await openCursorTerminal(server, sessionId);
         await expect
-          .poll(() => next.controls())
+          .poll(() => next.controls(), polled)
           .toContainEqual({ readiness: "attached" });
-        await expect.poll(() => next.output()).toContain("→ Add a follow-up");
+        await expect
+          .poll(() => next.output(), polled)
+          .toContain("→ Add a follow-up");
         expect(cursor.attaches()).toHaveLength(1);
         expect(cursor.attaches()[0]?.pid).toBe(pid);
         expect(processRunning(pid)).toBe(true);
         next.send({ input: "follow-up" });
-        await expect.poll(() => cursor.input(pid)).toContain("follow-up");
+        await expect
+          .poll(() => cursor.input(pid), polled)
+          .toContain("follow-up");
       },
     );
-  });
+  }, 60_000);
 
   test("a detached Cursor client waiting for an answer stays running", async () => {
     const cursor = installFakeCursor({ screen: "waiting" });
     await withOpenedCursor(cursor, async ({ terminal, pid }) => {
       await expect
-        .poll(() => terminal.output())
+        .poll(() => terminal.output(), polled)
         .toContain("Which color do you prefer");
       expect(terminal.output()).toContain("Red");
       expect(terminal.output()).toContain("Blue");
@@ -114,12 +119,14 @@ test.describe(`detached Cursor screen`, () => {
       await terminal.closed;
       await stayedUp(cursor, pid, 500);
     });
-  });
+  }, 60_000);
 
   test("an unrecognized Cursor screen keeps the detached client", async () => {
     const cursor = installFakeCursor({ screen: "unrecognized" });
     await withOpenedCursor(cursor, async ({ terminal, pid }) => {
-      await expect.poll(() => terminal.output()).toContain("Cursor Agent");
+      await expect
+        .poll(() => terminal.output(), polled)
+        .toContain("Cursor Agent");
       expect(terminal.output()).not.toContain("Add a follow-up");
       expect(terminal.output()).not.toContain("ctrl+c to stop");
       expect(terminal.output()).not.toContain("Which color do you prefer");
@@ -127,17 +134,19 @@ test.describe(`detached Cursor screen`, () => {
       await terminal.closed;
       await stayedUp(cursor, pid, 500);
     });
-  });
+  }, 60_000);
 
   test("a detached working Cursor screen stays running", async () => {
     const cursor = installFakeCursor({ screen: "working" });
     await withOpenedCursor(cursor, async ({ terminal, pid }) => {
-      await expect.poll(() => terminal.output()).toContain("ctrl+c to stop");
+      await expect
+        .poll(() => terminal.output(), polled)
+        .toContain("ctrl+c to stop");
       expect(terminal.output()).toContain("Add a follow-up");
       expect(terminal.output()).not.toContain("Which color do you prefer");
       terminal.socket.close();
       await terminal.closed;
       await stayedUp(cursor, pid, 500);
     });
-  });
+  }, 60_000);
 });
