@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "cd0444ac-10d2-4c84-9a4a-17fd6375efb6",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-27T02:02:53.306Z",
+  "story": "SEED-413#prove-cursor-runner-lifecycle-on-vitest",
+  "ranges": [
+    {
+      "base": "565aa93028c91b89e572e192e88977aa84425cf4",
+      "candidate": "14c7b8cc049d8d16bed12797388dfa2edee6e154"
+    }
+  ]
+}
