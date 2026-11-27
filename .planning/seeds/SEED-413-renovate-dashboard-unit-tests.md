@@ -713,7 +713,12 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   project state directly, without a stubbed `HOME` or mounted configuration.
   A retry after interruption uses the retained attempt identity and request.
   An update drain refuses new starts and continuations and waits until the
-  accepted attempt's outcome is durably recorded.
+  accepted attempt's outcome is durably recorded. The held-gate cases in
+  `agent-launch-duplicate.spec.ts` and `agent-launch-codex-duplicate.spec.ts`
+  pass under the load other local suites create. On 2026-11-27, at a load
+  average of about 17, three of them missed their 3 s wait for the native
+  launch, while each spec passed alone, both before and after the
+  published Follow up story's continuation change.
 - **Boundary.** Extend the typed decision and persistence split used for
   session and landing state to launch attempts. Keep focused production
   adapter proof for persistence and configuration, and preserve the real
