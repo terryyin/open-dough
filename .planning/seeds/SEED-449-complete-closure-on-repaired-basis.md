@@ -15,7 +15,7 @@ scope: one story
 
 **Identity:** SEED-449#complete-closure-on-repaired-basis
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planless"}
 ```
 
 **Goal:** A Trunk Mode wrap-up whose closure changes only CI-ignored paths can
@@ -36,7 +36,18 @@ basis failed because of another writer's commit.
   session record unpublished. The worktree
   `.worktrees/a-problem-with-this-new-additional-foundry-unit` is kept until
   this lands.
-- **Direction.** Settle a failed basis that is not this execution's, once a
-  later successful snapshot that contains the closure validates it, or offer
-  an explicit recorded exception that still runs the record and retirement
-  stages. Keep a failure on the execution's own registered revision binding.
+- **Scope.** The observer's integrated-state judge
+  (`Distribution/src/skills/dough-execute-plan/scripts/ci-integrated-state.mjs`)
+  and the completion guidance that states its rule (`ci-completion-wait.md`),
+  with their Distribution tests. An ignored-only (`not_required`) registered
+  revision whose applicable basis failed becomes eligible for integrated-state
+  validation when that basis is not one of this execution's registered
+  revisions. The existing validation still applies: a successful current
+  attempt, with any required jobs, at a later same-target snapshot that
+  contains the revision.
+- **Key examples.** A planning-only closure whose basis is another writer's
+  failed commit completes as `integrated_state` once a later green snapshot
+  containing it is validated. While no such snapshot exists it stays a
+  failure. When the failed basis is one of this execution's own registered
+  revisions, it stays a failure even after a later green snapshot. A pending
+  or cancelled basis keeps its current behavior.
