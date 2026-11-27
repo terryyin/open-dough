@@ -1,6 +1,6 @@
 // Keep a story's displayed published comparison while refreshing its evidence.
 
-import type { AdHocSessionDetails } from "./followUpSessions.ts";
+import type { AdHocSessionDetails } from "./storySessions.ts";
 import { useRef, useState } from "react";
 import type { LaunchRecord } from "./launchRecord.ts";
 import {

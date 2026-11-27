@@ -9,7 +9,7 @@ import {
 import { launchKindName } from "./launchWorkflow.ts";
 import { PublishedRangeSwitch } from "./StoryReviewSessionRuns.tsx";
 import type { ReviewRunChoice } from "./storyReviewLandedRun.ts";
-import type { SessionScope } from "./followUpSessions.ts";
+import type { SessionScope } from "./storySessions.ts";
 import { IntentScopeSelect } from "./IntentScopeSelect.tsx";
 
 export type StoryCompare = {

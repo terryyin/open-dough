@@ -219,7 +219,7 @@ scope label and the comparison survive without it.
 
 ### 5. Give the session list its own module and drop leftovers
 Type: Structure
-Status: planned
+Status: done
 
 Change: Move `storySessions`, `SessionScope` and `storySessionScopes` from
 `followUpSessions.ts` into a session-listing module that Intent and Follow up
@@ -239,6 +239,28 @@ Proof: `npm run typecheck:dashboard`, `npm run lint`, the
 `e2e/intent/intent-session-scope.spec.ts`,
 `e2e/sessions/recently-done-published-sessions.spec.ts` and
 `e2e/navigation/side-panel-content-replacement.spec.ts`.
+
+Accepted on `308492186`.
+- The story's session list and the sibling's `AdHocSessionDetails`, which
+  `SessionScope` carries, moved to `dashboard/src/storySessions.ts`.
+  `followUpSessions.ts` keeps Follow up's names, and the server's imports are
+  unchanged.
+- `expectSpansWorkarea` and `expectDrawerOver` are deleted.
+- The two-run and warning case in `intent-session-scope.spec.ts` is removed
+  after the gate. Breaking the two-run choice failed Recently done `:113` and
+  `:197` and session-runs `:50`, `:64` and `:82`. Breaking the warning failed
+  `:197` and `:82`.
+- `executionName` in `intent-story-compare-page.ts` names execution scopes for
+  the Intent specs.
+- The race case was not added and the Side panel step was not narrowed. See
+  G1.
+
+## Story obligations
+
+### G1. The held-read race keeps its E2E proof
+Reported: slice 5 — "The new race case passes but has not been shown to catch the race"
+Story clause: "so Intent's diff and session review cannot regress silently"
+Disposition: no user cost "so Intent's diff and session review cannot regress silently": the race stays proved. The step "a held read never answers a later session's changes" in `e2e/navigation/side-panel-content-replacement.spec.ts:48` is unchanged and passed on this candidate (`s5c-sidepanel`). In the frontend mount the late answer never showed, even with both `useReviewRead.ts` staleness checks bypassed, so a frontend case there would observe nothing. The Review scope dropdown is disabled while a read is pending, so the race can't be reached from inside Intent.
 
 ## Decisive premises
 

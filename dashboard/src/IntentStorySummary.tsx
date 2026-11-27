@@ -9,7 +9,7 @@ import {
   type LensComparison,
 } from "./IntentStoryComparison.tsx";
 import type { IntentDoneRecord } from "./IntentStoryCoverage.tsx";
-import type { AdHocSessionDetails } from "./followUpSessions.ts";
+import type { AdHocSessionDetails } from "./storySessions.ts";
 import { commitShaPattern } from "./authenticatedReadRules.ts";
 import type { CiComparisonRange } from "./selectedCiComparison.ts";
 import { storyChangesGapWords } from "./storyChangesGapWords.ts";

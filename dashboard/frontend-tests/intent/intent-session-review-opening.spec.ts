@@ -27,7 +27,6 @@ import {
 import { heldSessions } from "../sessions/recently-done-column-page.ts";
 import {
   adHocOption,
-  executionName,
   expectIntentAt,
   fitsWithin,
   mountDoneStory,
@@ -43,7 +42,10 @@ import { unanswered } from "../../test-support/support/waitUntil.ts";
 import { heldReply } from "./intent-ci-evidence-page.tsx";
 import { inertCiReads, openDoughSource } from "./intent-ci-status-fixtures.ts";
 import { intentRecentStories } from "./intent-recent-stories-page.ts";
-import { intentStoryCompare } from "./intent-story-compare-page.ts";
+import {
+  executionName,
+  intentStoryCompare,
+} from "./intent-story-compare-page.ts";
 
 test("Review session changes on a session published from another machine opens Intent at that session", async () => {
   const { reads } = await mountDoneStory();

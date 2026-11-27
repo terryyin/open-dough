@@ -242,3 +242,7 @@ export function intentStoryCompare() {
       textOf(purpose.element().querySelector(".story-review-code")),
   };
 }
+
+// An execution session's Review scope option is named by its close time.
+export const executionName = ({ closedAt }: { readonly closedAt: string }) =>
+  `Execution — ${new Date(closedAt).toLocaleString()}`;

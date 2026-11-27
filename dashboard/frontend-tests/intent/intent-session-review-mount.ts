@@ -25,7 +25,10 @@ import {
   source,
 } from "../sessions/recently-done-card-membership-mount-page.ts";
 import { doneCard } from "../sessions/recently-done-column-page.ts";
-import { intentStoryCompare } from "./intent-story-compare-page.ts";
+import {
+  executionName,
+  intentStoryCompare,
+} from "./intent-story-compare-page.ts";
 
 export const published = publishedSessionRecordSchema.parse(
   makeMe.aSessionRecord
@@ -74,9 +77,6 @@ export const adHocFollowUp = (
 };
 export const retained = adHocFollowUp("Follow up here", retainedRecord, 20);
 
-// An execution session is named by its close time.
-export const executionName = (record: PublishedSessionRecord) =>
-  `Execution — ${new Date(record.closedAt).toLocaleString()}`;
 export const publishedName = executionName(published);
 export const retainedName = "Follow up here";
 // An ad hoc option is named by its icon and then its title.

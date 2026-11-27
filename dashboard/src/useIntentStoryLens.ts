@@ -9,7 +9,7 @@
 // and by its identity until that record says more; what is known of that
 // record also qualifies its Intent coverage (`./IntentStoryCoverage.tsx`).
 
-import type { AdHocSessionDetails } from "./followUpSessions.ts";
+import type { AdHocSessionDetails } from "./storySessions.ts";
 import { useDoneDetails } from "./doneDetails.ts";
 import { unreadableDoneRecord } from "./doneRecord.ts";
 import { usePublishIntentStoryTitle } from "./intentStoryTitle.tsx";
