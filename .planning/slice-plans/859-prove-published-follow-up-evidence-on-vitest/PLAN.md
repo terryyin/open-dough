@@ -177,7 +177,7 @@ export one continuation operation from `agentLaunchAccept.ts` that
 ### 6. Send and retain the selected session evidence
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 11–14 active minutes.
 
 Move `agent-launch-follow-up-selection` and `agent-launch-follow-up-published-sessions`.
@@ -185,6 +185,16 @@ Use the real selected-session join with published ranges, a matching local
 record, a fallback without publication and a different story's record.
 Observe the exact selected session facts, exclusion of foreign evidence,
 and the identical saved input after the original source record disappears.
+
+Delivered: both specs run in Node through the real `followUpStorySessions`
+join; letting the join include another story's record failed the
+published-sessions case. `continueKeptAttempt` in `agentLaunchAccept.ts` is
+the one continuation operation for `AgentLaunches`, the harness and the
+notes and uncertain-continuation specs. The gate ran 16 cases (14 Node) in
+32.0 s; the moved cases take 0.8 and 1.0 s against 5.1 and 8.5 s. In the
+111-spec consumer run at load 17–19, three held-gate duplicate cases missed
+their 3 s native-launch poll; alone they passed 3 of 3 on both the base and
+this change, so that load sensitivity predates this story.
 
 ### 7. Refuse page-authored evidence at Start value admission
 

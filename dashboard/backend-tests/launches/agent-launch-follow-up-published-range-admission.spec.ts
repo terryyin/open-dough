@@ -25,7 +25,7 @@ test("a published file Follow up requires the exact recorded range, literal path
     base: secondBase,
     candidate: await advance({ [path]: "rewritten in range two\n" }),
   };
-  const published = await start.publishSession(first, second);
+  const published = await start.publishSession(storyA.identity, first, second);
   // The follow-up starts from a file the session's second range showed.
   const review = await start.publishedSessionReviewOf(published, "1");
   expect(review).toMatchObject({

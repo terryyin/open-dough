@@ -7,7 +7,7 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { LaunchAttemptOwner } from "../../server/launchAttemptOwner.ts";
 import type { AttemptRun } from "../../server/launchAttemptSettlement.ts";
 import { keptAttempts } from "../../server/launchAttemptStore.ts";
-import { preContinuationAnswer } from "../../server/launchPreAcceptance.ts";
+import { continueKeptAttempt } from "../../server/agentLaunchAccept.ts";
 import { machineDashboardPath } from "../../server/machineHome.ts";
 import {
   appendConfiguredProject,
@@ -62,12 +62,7 @@ function machine() {
     owner,
     file: machineDashboardPath("launch-attempts.json"),
     continueAttempt: (id: string, run: AttemptRun) =>
-      owner.continueAttempt(
-        source.id,
-        id,
-        (request) => preContinuationAnswer(source, id, request, progress),
-        run,
-      ),
+      continueKeptAttempt(owner, source, id, progress, run),
   };
 }
 

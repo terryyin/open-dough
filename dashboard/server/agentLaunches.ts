@@ -32,7 +32,6 @@ import {
   type Recorded,
 } from "./recordedSessionLookup.ts";
 import { creationView } from "./launchCreation.ts";
-import { preContinuationAnswer } from "./launchPreAcceptance.ts";
 import { SavedSessionServices } from "./savedSessionServices.ts";
 import { StartProgress } from "./startProgress.ts";
 import { attemptRun } from "./launchRun.ts";
@@ -51,7 +50,10 @@ import {
   applyPreparedWorktreeUpdate,
   prepareWorktreeUpdate,
 } from "./worktreeUpdateRetry.ts";
-import { acceptLaunchRequest } from "./agentLaunchAccept.ts";
+import {
+  acceptLaunchRequest,
+  continueKeptAttempt,
+} from "./agentLaunchAccept.ts";
 import { observedMachineRecords } from "./machineSessionObservation.ts";
 import { withUnboundRecovery } from "./unboundLaunchRecovery.ts";
 import { followUpStorySessions, publishedDoneStory } from "./followUpStory.ts";
@@ -199,10 +201,11 @@ export class AgentLaunches {
     source: PublishedSource,
     id: string,
   ): Promise<Acceptance> {
-    return this.owner.continueAttempt(
-      source.id,
+    return continueKeptAttempt(
+      this.owner,
+      source,
       id,
-      (request) => preContinuationAnswer(source, id, request, this.progress),
+      this.progress,
       this.runAttempt(source),
     );
   }
