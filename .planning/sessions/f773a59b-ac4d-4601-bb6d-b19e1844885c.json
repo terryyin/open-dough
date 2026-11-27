@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "f773a59b-ac4d-4601-bb6d-b19e1844885c",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-27T07:38:10.428Z",
+  "story": "SEED-423#read-handoff-and-admitted-landing-from-dashboard-records",
+  "ranges": [
+    {
+      "base": "456961f8b966dc13562d945ba1324e66c1629d07",
+      "candidate": "6f3b44b6539029b09a98c91f83352a3a003d38fe"
+    }
+  ]
+}
