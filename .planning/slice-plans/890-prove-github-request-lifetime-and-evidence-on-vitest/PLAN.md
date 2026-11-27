@@ -5,12 +5,13 @@
 **Identity:** SEED-413#github-request-lifetime-and-evidence-via-vitest
 
 **Split from:** SEED-413#authenticated-github-observation-via-vitest at its
-delivered slice 3. Slices 1–5 here are that story's slices 4–8 of
-[plan 862](https://github.com/terryyin/open-dough/blob/71cc76188db2356fd0f4cd2f064cfd27be95c037/.planning/slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md),
-mapped unchanged in order. Plan 862 keeps slices 1–3 (classified failures
-and the output bound, held and resumed reads, shared requests and turn
-timing). After its cleanup, recover it from Git history at the revision
-that lands it.
+delivered slice 3. These slices continue that story's slices 4–8 of
+[plan 862](https://github.com/terryyin/open-dough/blob/71cc76188db2356fd0f4cd2f064cfd27be95c037/.planning/slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md).
+Plan 862's slice 4 is slices 1–3 here, split after the first execution
+overrun. Slices 4–7 here remain plan 862's slices 5–8 in that order.
+Plan 862 keeps slices 1–3 (classified failures and the output bound, held
+and resumed reads, shared requests and turn timing). After its cleanup,
+recover it from Git history at the revision that lands it.
 
 ## Goal and scope
 
@@ -88,6 +89,23 @@ checks and the browser journeys retain their existing owners.
   boundary instead.
 - The story-obligations script reads slices only under the exact heading
   `## Ordered slices`.
+- Slice 1 overran on 27 November 2026. The clock pause settled 17.2 active
+  minutes (`storyOverruns` 1); the attempt had already stopped at 15.8,
+  before any proof. Completed proof: none. The sizing assumption that failed
+  is that nine real-CLI lifetime observations can be written and proved in
+  one 15-minute slice. Writing three specs used the whole budget and none
+  ran. Those unproven files were removed:
+  `authenticated-read-owned-lifetime.spec.ts`,
+  `authenticated-read-owned-bound.spec.ts`, and
+  `authenticated-read-owned-close.spec.ts`. The attempt report remains at
+  `open-dough/evidence/slice-1-report.md` in this worktree's Git directory.
+  `GitHubRequests` in `dashboard/server/ghRead.ts` captures
+  `DOUGH_READ_TIMEOUT_MS` when the module is evaluated, so a short bound has
+  to be set before that module loads. `startInProcessAuthenticatedRead` does
+  not set `DOUGH_REVISION_CHECK_REUSE_MS`; the predecessor servers set it to
+  0. Neither fact was executed. Later slices were left as they were: this
+  assumption is about packing those lifetime observations together, not
+  about the shared-owner, diagnostics, incident, or stall slices.
 
 ## Premises and baseline
 
@@ -108,7 +126,7 @@ OPEN_DOUGH_DASHBOARD_BACKEND_TIMES="$proof_dir/times.txt" \
 | Consuming operation | Observed result and planning consequence |
 | --- | --- |
 | Maintained one-worker selection above at `b0db97567` | The 32 cases below passed, including the shared Dashboard/CI owner, CLI process death, same-PID restart, and folded stall. Keep these consumers where the effect or timing must be real. |
-| `node --test --test-concurrency=1` on Distribution's `github-request-{answer,owner,disconnect}.test.mjs` at `d4b27c516` | 18/18 passed. The real owner shared one request and capped active calls across processes, preserved a peer's call and kept a departing call recorded until its CLI process died. These are independent owner-level baselines for slices 1 and 2. |
+| `node --test --test-concurrency=1` on Distribution's `github-request-{answer,owner,disconnect}.test.mjs` at `d4b27c516` | 18/18 passed. The real owner shared one request and capped active calls across processes, preserved a peer's call and kept a departing call recorded until its CLI process died. These are independent owner-level baselines for the lifetime slices (1–3) and the shared-owner slice (4). |
 | Maintained backend runner with `--workers=1` selecting `observation/shared-observation.spec.ts` and `review/shared-verified-origin-trunk.spec.ts` at `d4b27c516` | 10 Node cases passed. The mixed runner selects plain Node cases without a runner change; plan 862's slices 1–3 ran their Node replacements through it. |
 | E2E `--list --reporter=list` on the four named browser paths above at `d4b27c516` | Nine Chromium cases selected. These are retained browser owners. |
 
@@ -140,34 +158,72 @@ until its named observations are green. A path split across slices retires
 when its last replacement is green. Keep each slice within 15 active
 minutes.
 
-### 1. End owned subprocesses when their last owner leaves
+### 1. Leave a shared read alive for its remaining waiter
 
 Type: Behavior
 Status: planned
 
 Behavior: One departing waiter leaves a shared pinned read alive for its
-peer. Last pinned departure, the work's own timeout, and boundary close
-release their work. A revision check's shared listing can outlive its
-requester and ends at its bound or on close. A late waiter keeps its own
-bound and cannot extend the call's. Closing ends outstanding and queued
-waits. The close hook acts with the socket still open, and subsequent
-reads are refused before asking GitHub.
+peer, and the last departure releases that read. A revision check's shared
+listing stays alive after its requester leaves. Ending that listing at its
+bound or on close belongs to slices 2 and 3.
 
-Proof: Mount the production read middleware or the existing
-`localBoundaryPlugin` through Node HTTP. Use the real CLI fixture with
-pinned and check requests, observe child PID alive at dispatch and gone on
-the named trigger, and verify the peer or later requester gets its answer.
-For the hook case invoke the production hook with the client connection
-held open so socket close cannot explain cleanup. Keep bounded drains and
-teardown in every path.
+Proof: Mount the production read path over Node HTTP with the real CLI
+child. Observe the child PID still alive after one of two pinned waiters
+leaves and gone after the last one leaves, and the staying or later
+requester's answer. Observe the listing PID still alive after its
+requester leaves. Keep bounded drains and teardown.
 
-Legacy: `authenticated-read-shared-waiters.spec.ts`,
+Legacy: the two waiter cases in `authenticated-read-shared-waiters.spec.ts`,
+and in `authenticated-read-subprocess-lifecycle.spec.ts` the case that
+ends a pinned read when its only request is abandoned and the case that
+leaves a revision-check listing running after its requester disconnects.
+Those files also hold cases for slices 2 and 3; retire a file only when
+its last replacement is green.
+
+### 2. End a read at its own bound
+
+Type: Behavior
+Status: planned
+
+Behavior: The work's own timeout releases a stalled pinned read and a
+stalled revision check. A late waiter keeps its own bound and cannot
+extend the call's bound.
+
+Proof: Use the real CLI child. `GitHubRequests` captures
+`DOUGH_READ_TIMEOUT_MS` when `dashboard/server/ghRead.ts` is evaluated, so
+set the short bound before that module loads. Observe the child gone at
+that bound, and a late joiner answered inside its own bound without a
+second upstream call while the first call is held. Set
+`DOUGH_REVISION_CHECK_REUSE_MS=0`, matching the predecessor servers,
+because `startInProcessAuthenticatedRead` does not.
+
+Legacy: the bounded-timeout cases in
+`authenticated-read-subprocess-lifecycle.spec.ts`, and the late-join cases
+in `authenticated-read-shared-failures.spec.ts`.
+
+### 3. Release owned work when the boundary closes
+
+Type: Behavior
+Status: planned
+
+Behavior: Boundary close releases a held pinned read and a held revision
+check, including one read that two requests still wait on. Closing ends
+outstanding and queued waits. The close hook acts with the socket still
+open, and a later read is refused before asking GitHub.
+
+Proof: Invoke the production close hook with the client connection held
+open, so socket close cannot explain cleanup. Observe the child PID gone
+before fixture teardown, queued work absent from the upstream calls, and
+the following read refused with the upstream call count unchanged.
+
+Legacy: the close case in `authenticated-read-shared-waiters.spec.ts`,
+the server-shutdown cases in
 `authenticated-read-subprocess-lifecycle.spec.ts`,
-`authenticated-read-plugin-hooks.spec.ts`, the late-join cases left in
-`authenticated-read-shared-failures.spec.ts`, and the close case left in
+`authenticated-read-plugin-hooks.spec.ts`, and the close case in
 `authenticated-read-turns.spec.ts`.
 
-### 2. Share one authenticated owner across two Dashboards and CI
+### 4. Share one authenticated owner across two Dashboards and CI
 
 Type: Behavior
 Status: planned
@@ -188,7 +244,7 @@ Node Vitest with real owners and child processes.
 
 Legacy: `shared-request-owner.spec.ts`.
 
-### 3. Expose bounded local diagnostics for admitted readers
+### 5. Expose bounded local diagnostics for admitted readers
 
 Type: Behavior
 Status: planned
@@ -213,7 +269,7 @@ fixture and read the incident history.
 Legacy: `authenticated-read-diagnostics.spec.ts`,
 `authenticated-read-diagnostics-bounds.spec.ts`.
 
-### 4. Read bounded incident evidence after shutdown and restart
+### 6. Read bounded incident evidence after shutdown and restart
 
 Type: Behavior
 Status: planned
@@ -238,7 +294,7 @@ Legacy: `authenticated-read-incident-record.spec.ts`,
 `authenticated-read-incident-record-restart.spec.ts`, and the process
 lifecycle case of `authenticated-read-incident-record-lifecycle.spec.ts`.
 
-### 5. Report measured stalls and fold excess stalls at close
+### 7. Report measured stalls and fold excess stalls at close
 
 Type: Behavior
 Status: planned
@@ -288,11 +344,12 @@ stall case of `authenticated-read-incident-record-lifecycle.spec.ts`.
 ### G1. Oversized-output incident record (first reported in slice 1 of plan 862)
 Reported: slice 1 — "The incident-history record check was not carried over: source, category `content`, cause `output-bound`, no status or rate limit, and no secret in the history."
 Story clause: "leave bounded, safe evidence of failures"
-Disposition: receiving slice 3
+Disposition: receiving slice 5
 
 ## Plan review
 
-Mapped from plan 862's reviewed slices 4–8 without changing their
+Mapped from plan 862's reviewed slices 4–8. Execution then split that
+slice 4 into slices 1–3 after it overran; slices 4–7 keep the later
 boundaries. The cases that need a live child, a second Dashboard plus CI,
 or durable incident evidence use their own production boundaries.
 Splitting stall measurement from record persistence lets each close
@@ -300,3 +357,37 @@ against its own observable result. G1 moved with the diagnostics slice
 that owns incident evidence. No current production seam needs a
 preparatory Structure slice, and no outcome of plan 862 must land first:
 its delivered slices share only test patterns with these slices.
+
+## Execution context
+
+- Mode: story-branch. Replanning permission: existing planning authority
+  (no `--replan` or `--no-replan`).
+- Readiness: Changed since readiness review. Take and delivery do not renew it.
+- Owned workspace (reused):
+  `/Users/terryyin/git/open-dough/.worktrees/prove-github-request-lifetime-and-failure-eviden`,
+  branch `cursor/prove-github-request-lifetime-and-failure-eviden`,
+  starting revision `44891364bd2c78e5084af84aa8993be191221056`.
+- Integration checkout: `/Users/terryyin/git/open-dough` on `main`.
+- Publication target: `origin/cursor/prove-github-request-lifetime-and-failure-eviden`.
+  Trunk: `origin/main`.
+- Published claim: `735c60a52ea2cd88e8746df5e06edfcb1d9f81b2` on that story
+  branch. `pendingCi: unobserved` — the claim published before this observer
+  was armed. Unpublished candidate: none.
+- CI: GitHub Actions, workflow `ci.yml` (display name `CI`, id `351271804`),
+  repo `terryyin/open-dough`, branch
+  `cursor/prove-github-request-lifetime-and-failure-eviden`.
+  `integratedStateCompletion` is `{ "check": "ci.yml", "context": "push" }`.
+  Observer: `/tmp/dough-ci-501/watch-vX6kgx`.
+- Checkout setup: Node `24.21.0`, `node scripts/setup-native.mjs npm` and
+  `npm run typecheck:dashboard` passed in this checkout. Bash 5.3.20 is
+  `/opt/homebrew/bin/bash`; put it first on `PATH` for shell checks.
+- Expensive proof (2026-11-27, this host): macOS on AC, 16 logical CPUs,
+  load about 5.4–6.6 while another worktree ran one frontend Vitest file.
+  Decision: run a backend selection at `--workers=1` under
+  `caffeinate -s -i`. Reconsider if load stays above about 12 or a required
+  case times out from contention. The planning baseline at `b0db97567`
+  still matches these specs aside from a comment retarget in
+  `authenticated-read-subprocess-lifecycle.spec.ts`; do not remeasure the
+  whole 13-path family before the lifetime slices. The first attempt's
+  unproven specs were removed. The next lifetime slice starts from zero
+  with `--split-from 1`.
