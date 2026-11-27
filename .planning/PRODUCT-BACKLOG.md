@@ -91,3 +91,4 @@ intent introduced or affected by a newly developed story.
 - [Introduce Cucumber to E2E Test](seeds/SEED-405-introduce-cucumber-to-e2e-test.md#introduce-cucumber-to-e2e-test) — SEED-405#introduce-cucumber-to-e2e-test
 - [Recover expired session reviews from Git history](seeds/SEED-418-review-published-session-changes.md#recover-expired-session-reviews) — SEED-418#recover-expired-session-reviews
 - [Decide whether claim closure needs its own borrowed-checkout refresh rule](seeds/SEED-423-shrink-the-installed-distribution.md#decide-borrowed-checkout-refresh-rule) — SEED-423#decide-borrowed-checkout-refresh-rule
+- [Change launch records beside a running server under its lock](seeds/SEED-413-renovate-dashboard-unit-tests.md#lock-launch-store-writes-beside-server) — SEED-413#lock-launch-store-writes-beside-server
