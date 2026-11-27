@@ -187,7 +187,7 @@ the actual native call to catch re-establishment or policy replacement.
 ### 6. Save bounded images in the admitted session's own directory
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 14 active minutes.
 
 Proof: Replace all four `session-attachment-boundary` cases. Reuse
@@ -202,6 +202,8 @@ across sequential and concurrent requests, sanitized filenames, opaque-ID
 hashing, and the obstructing path and existing files after storage refuses.
 The [paste image journey](../../../e2e/terminals/agent-terminal-touch-paste-image.spec.ts)
 owns the browser gesture and next terminal input.
+
+- Proof recorded (2026-11-27, Node Vitest, 1 worker): all four `session-attachment-boundary` cases run on Node Vitest against a real loopback listener calling production `answer()`, with typed records bound through `bindRecord` and availability from a `launches.stateOf` spy. They observe 405/403/404/415/400/413 refusal precedence with `no-store` and no folder, no terminal attach, 410 for an unavailable session, numbered sanitized files with exact bytes across sequential and concurrent uploads, 503 with the obstructing file and earlier image kept, and the hashed `~<sha256>` directory for an opaque ID. Passed 4/4; typecheck exited 0. At load 17–19 the legacy rerun summed 8.194 s and Vitest 0.423–0.574 s. The Codex metadata-error path to unavailability stays observed in `terminals/agent-terminal-codex.spec.ts` and the Codex observation-status specs. Learning: a real `codex` on the developer PATH is reached unless the spec installs the fake Codex, so the spec installs it. Refactor pass skipped: subject spec only.
 
 ### 7. Bound an instruction transcription request through completion
 
