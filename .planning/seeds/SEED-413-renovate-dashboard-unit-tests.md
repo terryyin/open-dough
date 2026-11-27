@@ -512,26 +512,28 @@ have their own stories.
 
 **Identity:** SEED-413#fast-runtime-unit-case-cleanup
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/884-correct-fast-runtime-case-leftovers/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/884-correct-fast-runtime-case-leftovers/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"5bfc55d84a75cc2ba70de73e792f3aef03aa2167d5ad956200ff2d03730287f1","plan":"1dacbd0261a1b9c7e1e9078807396373fce70c5a8aa05e1ece2fb45a34c2f18c"}}
 ```
 
-- **Goal.** Correction of
-  fast runtime unit cases (`SEED-413#fast-runtime-unit-cases`, plan 879, commits
-  `b7f5b8ff0`..`5b4c52038`). The fast runtime folder keeps its promise
-  without leaving cost elsewhere: the membership check's fail-fast rule is
-  proven by a unit case, so no E2E journey waits out a 5 s bound for it, and
-  the folder starts no Git process.
+- **Goal.** Maintainers running the fast runtime unit cases keep that
+  folder's delivered promises without an end-to-end wait or a Git process.
+  Correction of fast runtime unit cases (`SEED-413#fast-runtime-unit-cases`,
+  plan 879, commits `b7f5b8ff0`..`5b4c52038`). Staging refuses a checkout
+  that is not the selected commit before it installs or builds. The
+  membership check's fail-fast rule is a unit case, so no journey waits out
+  a 5 s bound. The folder starts no Git process.
 - **Scope.**
-  - Prove that staging refuses a fetched checkout that is not the selected
-    commit before install or build (Intent Coverage gap at `b4e218f6b`).
+  - Prove, in the runtime folder and without starting Git or npm, that
+    staging refuses a fetched checkout that is not the selected commit
+    before install or build (Intent Coverage gap at `b4e218f6b`).
   - Prove that `expectMembership` fails at once, naming the titles, when the
     published-work read fails for good, in `page-read-waits.spec.ts`, and
     drop the block slice 8 appended to
     `e2e/observation/transient-read-exclusions.spec.ts`.
   - Prove `writeHomeRoutes`/`homeRoutes` by parsing and serializing config
-    text, and remove the real `git ls-remote` refusal case from
-    `committed-origin-routing.spec.ts`; Git's own refusal stays with the
-    journeys that use `expectServedHomesReach`.
+    text, and remove the real `git ls-remote` case from
+    `committed-origin-routing.spec.ts`. Git finding the published revision
+    stays with the journeys that use `expectServedHomesReach`.
   - Remove cases that only restate a constant or stub
     (`boundary-server` seed ids, `processOnly`'s own message,
     `withRestoredEnv`, the `finishRouteHandlers` stub call, the one-line mode
@@ -540,6 +542,8 @@ have their own stories.
     lost their outside callers.
   - Out of scope: production behavior changes; the backend runner cutover.
 - **Key examples.**
+  - A fetched checkout whose HEAD is not the selected commit: staging refuses
+    with the mismatch message and does not install or build.
   - A malformed backlog: the unit case gives a failed published-work read
     and sees the membership check fail at once with both titles; the E2E
     journey no longer pays a 5 s bound.
