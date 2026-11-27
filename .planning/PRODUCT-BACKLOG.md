@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 - [Remove leftover unbound recovery and overlapping story-linked session tests](seeds/SEED-447-clean-up-story-linked-session-tests.md#clean-up-story-linked-session-tests) — SEED-447#clean-up-story-linked-session-tests ([plan](slice-plans/878-clean-up-story-linked-session-tests/PLAN.md))
 - [Read the blank Start handoff and admitted landing from Dashboard records](seeds/SEED-423-shrink-the-installed-distribution.md#read-handoff-and-admitted-landing-from-dashboard-records) — SEED-423#read-handoff-and-admitted-landing-from-dashboard-records ([plan](slice-plans/880-read-handoff-and-admitted-landing/PLAN.md))
 - [Prove Dashboard runtime behavior in fast unit cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#fast-runtime-unit-cases) — SEED-413#fast-runtime-unit-cases ([plan](slice-plans/879-prove-runtime-in-fast-unit-cases/PLAN.md))
+- [Complete a planning-only closure once trunk repairs its failed basis](seeds/SEED-449-complete-closure-on-repaired-basis.md#complete-closure-on-repaired-basis) — SEED-449#complete-closure-on-repaired-basis
 
 ## Backlog list
 
@@ -97,4 +98,3 @@ intent introduced or affected by a newly developed story.
 - [Introduce Cucumber to E2E Test](seeds/SEED-405-introduce-cucumber-to-e2e-test.md#introduce-cucumber-to-e2e-test) — SEED-405#introduce-cucumber-to-e2e-test
 - [Recover expired session reviews from Git history](seeds/SEED-418-review-published-session-changes.md#recover-expired-session-reviews) — SEED-418#recover-expired-session-reviews
 - [Decide whether claim closure needs its own borrowed-checkout refresh rule](seeds/SEED-423-shrink-the-installed-distribution.md#decide-borrowed-checkout-refresh-rule) — SEED-423#decide-borrowed-checkout-refresh-rule
-- [Complete a planning-only closure once trunk repairs its failed basis](seeds/SEED-449-complete-closure-on-repaired-basis.md#complete-closure-on-repaired-basis) — SEED-449#complete-closure-on-repaired-basis

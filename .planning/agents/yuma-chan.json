@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yuma-chan",
+  "email": "yuma-chan@example.org",
+  "identity": "SEED-449#complete-closure-on-repaired-basis",
+  "mode": "trunk",
+  "branch": "origin/main",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}
