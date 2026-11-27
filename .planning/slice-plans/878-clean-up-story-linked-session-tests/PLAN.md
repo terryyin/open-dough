@@ -485,6 +485,20 @@ Evidence (2026-11-27):
 - Specs import 3 fewer support modules. The touched specs and
   `project-restored-session` pass.
 
+Full local gate (2026-11-27, at load 18–23, under `caffeinate -s -i`):
+- Three cases failed on bounds the load could exceed. Each is repaired:
+  - `agent-launch-model` refused launch: the 5 s wait covered a 4.2 s Take
+    and refusal, so it now waits within `launchWaitMs`.
+  - `mounted-boundary-server` held pid: the 5 s poll covered 3–4 s of
+    admission, so it now polls within `launchWaitMs`.
+  - `intent-done-default-answer-selection` spent about 31 s, 10 s of it on
+    a real Codex launch and integration that only produced a landing
+    record. It now composes that landing through MakeMe, as for Story B,
+    and passes in 17–23 s.
+- Each repaired spec passes 5 of 5 at load 22–36.
+- `agent-launch-boundary.spec.ts:208` uses the same kind of 4 s
+  `heldClaudePid` poll and has not failed yet.
+
 ## Concern evidence
 
 Refinement was not needed: each slice is one structural correction with its
