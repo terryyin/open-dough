@@ -588,31 +588,77 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Identity:** SEED-413#prove-cursor-turns-on-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/872-prove-cursor-turns-on-vitest/PLAN.md","assessment":"not-ready","reasons":["Goal, scope, and key examples are not recorded. The plan is provisional and awaits story refinement before slice-plan refinement or execution."],"basis":{"document":"04ddae38218fe3c50af16a5623ccd1cda6dfa6025fc23c1ec840c2058fc11712","plan":"8191e30cd390a254bad9b1e8fe34e36e9b2a1a04a7a238dc55849250c82f4bbc"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/872-prove-cursor-turns-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6064845124dff1a9ff5f219045287516e9788e0d5d7199af86cb9743131c8f6b","plan":"d835165a52a82e6d83ef2f3af7957ec8615dffb65dd827d73eca0d16400b11c6"}}
 ```
 
-- **For / why.** Developers changing a Cursor terminal get fast feedback on when that client receives its instruction and whether a detached client stays.
-- **Evaluation.** Given an instructed Cursor launch, the client receives the instruction only when its screen is ready, an unconfirmed or exited client does not confirm it, and a detached client stays running for the next socket.
-- **Boundary.** Own `terminals/agent-terminal-cursor.spec.ts`,
-  `terminals/agent-terminal-cursor-exit.spec.ts`,
-  `terminals/agent-terminal-cursor-idle.spec.ts`,
-  `terminals/agent-terminal-cursor-launch.spec.ts`,
-  `terminals/agent-terminal-cursor-launch-wait.spec.ts`, and
-  `terminals/agent-terminal-cursor-trust-join.spec.ts` (18 cases). Keep the
-  fake `cursor-agent` PTY where the observation is what that process
-  receives or whether it stays up. Terminal attach, Codex resume, and
-  `closeServer` belong to
-  [terminal attach](#prove-terminal-attach-and-cursor-turns-on-vitest).
-  Runner start and replacement belong to
-  [Cursor runner lifecycle](#prove-cursor-runner-lifecycle-on-vitest).
-- **Effort hypothesis.** M, low confidence. The cases already describe the
-  turns; moving them off Playwright is the work.
-- **Safe stopping point.** Cursor turn behavior stays observable on the
-  legacy runner if this story waits.
+- **Goal.** Developers changing a Cursor terminal get fast Node Vitest
+  feedback on when that client receives its instruction, when an
+  unconfirmed or exited client does not confirm it, and whether a detached
+  client stays for the next socket.
+- **Scope.** Move these six legacy specs (18 cases) off backend Playwright
+  and account for each observation:
+  `terminals/agent-terminal-cursor.spec.ts` (1),
+  `terminals/agent-terminal-cursor-idle.spec.ts` (4),
+  `terminals/agent-terminal-cursor-launch.spec.ts` (6),
+  `terminals/agent-terminal-cursor-launch-wait.spec.ts` (3),
+  `terminals/agent-terminal-cursor-trust-join.spec.ts` (2), and
+  `terminals/agent-terminal-cursor-exit.spec.ts` (2).
+  - Prove an instructed launch writes the instruction only when the screen
+    is ready. A working client or the empty composer confirms it. A
+    question accepts a typed answer and leaves the instruction
+    unconfirmed. A trust prompt that never becomes the composer does not
+    receive it. A screen that becomes ready later does.
+  - Prove a held first paint, a silent paste chip, or workspace trust
+    answers uncertain and leaves the client running. A later ready screen
+    or the developer's terminal answer confirms the instruction. A
+    terminal joined during the wait shows the trust prompt and sends no
+    instruction.
+  - Prove a client that exits before acceptance records Cursor's text and
+    repeating the launch adds no session. Killing the client leaves the
+    instruction unconfirmed, and the next launch submits it in a new
+    conversation.
+  - Prove a detached follow-up, question, unrecognized, or working screen
+    leaves the process running. The next open of the follow-up client
+    joins it and accepts typing. A working client survives detach, a
+    second socket, a dropped connection, and server close, and a restarted
+    server joins the same process. An unknown session and a foreign origin
+    add no attach.
+  - Keep the fake `cursor-agent` PTY where the observation is what that
+    process receives or whether it stays up. Drive the existing boundary
+    server through `startCursorDashboard` and `withInstructedCursor`.
+    Product behavior stays unchanged. Add no test-support wrapper, and
+    remove a helper only when dashboard and end-to-end tests have no
+    remaining caller.
+  - Terminal attach, Codex resume, and `closeServer` belong to
+    [terminal attach](#prove-terminal-attach-and-cursor-turns-on-vitest).
+    Runner start, replacement, and survival across runner death belong to
+    [Cursor runner lifecycle](#prove-cursor-runner-lifecycle-on-vitest).
+    Browser page journeys stay in `e2e/terminals/`.
+- **Key examples.**
+  - Given an instructed Cursor launch, a ready composer or working screen
+    receives the instruction and the record is confirmed. A question
+    accepts a typed answer and leaves the instruction unconfirmed. A trust
+    prompt that never becomes the composer does not receive it, and a
+    screen that becomes ready later does.
+  - Given a held first paint, a silent paste chip, or workspace trust, the
+    launch answers uncertain and leaves the client running. A later ready
+    screen or the developer's terminal answer confirms the instruction. A
+    terminal joined during the wait shows the trust prompt and sends no
+    instruction.
+  - Given a client that prints an exit before acceptance, the launch
+    records that text and repeating it adds no session. Killing the client
+    leaves the instruction unconfirmed, and the next launch submits it in
+    a new conversation.
+  - Given a detached follow-up, question, unrecognized, or working screen,
+    closing the socket leaves the process running, and the next open of
+    the follow-up client accepts typing. A working client also survives a
+    second socket, a dropped connection, server close, and a restarted
+    server joining the same process. An unknown session and a foreign
+    origin add no attach.
 - **Replacement trace.** Split from [terminal attach and Cursor turns](#prove-terminal-attach-and-cursor-turns-on-vitest)
   during this preparation, because the two outcomes do not fit one plan.
 
-**Plan.** [Prove Cursor turns in Node Vitest](../slice-plans/872-prove-cursor-turns-on-vitest/PLAN.md) — awaiting story refinement.
+**Plan.** [Prove Cursor turns in Node Vitest](../slice-plans/872-prove-cursor-turns-on-vitest/PLAN.md)
 
 <a id="prove-cursor-runner-lifecycle-on-vitest"></a>
 
