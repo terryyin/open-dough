@@ -52,9 +52,9 @@ Read at `c1c80a3a0`.
   The Cursor hook returns that text or an empty object. The writer is a new
   module: `unattachedStart.ts` must not grow past 250 lines.
 - **One comparison record.** Claim closure adopts `{ base, candidate }` from
-  the retained landing it already reads. The acceptance time is stored with
-  that local file at the moment `resolveLaunchLanding` stamps the mark today.
-  It is omitted from the body posted to the Dashboard, so
+  the retained landing it already reads. The local `landing-current.json`
+  selection keeps the acceptance time set by `resolveLaunchLanding` with the
+  selected input path. The posted body stays the same, so
   `landingSubmissionSchema` stays strict and `receivedAt` is not the stamp.
   Closure applies `rangeUncertainty` to the note and that stored time.
 - **No second range store.** `recordAcceptedIncrement` stops writing
@@ -96,6 +96,8 @@ Read at `c1c80a3a0`.
 - Checkout readiness passed with `npm ci` and `npm run typecheck:dashboard`.
 - The execution branch observer uses GitHub Actions `ci.yml`, coordinator
   `koharu-423-627e2271`, directory `/tmp/dough-ci-501/watch-ZwcvKe`.
+- Slice 1 accepted on the remote execution branch at
+  `04ab521011f711d3628c88c81e597efb578b62b8`.
 
 ## Ordered slices
 
@@ -118,13 +120,13 @@ Observed through the installed shell and Cursor hook after real Dashboard
 Starts. Six focused backend cases passed, including a read
 while the private launch document was unavailable, Done and deletion, the
 replacement and restoration of the Git directory, and nonblank and review
-Starts and the unchanged reporting header in a native first input. Dashboard
-typecheck passed. Existing eligible launches gain the
+Starts. The checks also verified the shared reporting header in a native
+first input. Dashboard typecheck passed. Existing eligible launches gain the
 ready handoff on the next successful launch-record write.
 
 ### 2. Adopt the admitted landing from the retained comparison
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Two admitted launches have landed from one borrowed checkout, and
 the later launch has replaced that checkout's session record → each claim
@@ -141,6 +143,14 @@ removes the retained landing instead of the Git-directory files. Add the
 overlap-at-acceptance mark and the overlap-after-acceptance absence to that
 spec. `recordAcceptedIncrement` still updates `open-dough/session-record`:
 `node --test Distribution/tests/skills/dough-execute-plan/execution-session-evidence-delivery.test.mjs Distribution/tests/skills/dough-execute-plan/execution-session-evidence-start.test.mjs`.
+
+Focused Dashboard checks observed both exact published pairs, both overlap
+orders, live-session replacement, missing and mismatched evidence holds,
+no-change closure, and CLI resume. Focused Distribution checks observed
+strict wire compatibility, legacy timestamp-free input, live evidence, and
+ordinary session close. Dashboard typecheck passed. With a legacy selection,
+an overlap note receives the shared-checkout mark because its order relative
+to acceptance is unknown.
 
 ## Proof ownership and local gate
 

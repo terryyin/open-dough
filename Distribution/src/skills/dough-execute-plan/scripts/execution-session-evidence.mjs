@@ -2,29 +2,14 @@
 // path `open-dough/session-record` holding the session UUID, workflow, story
 // and the ordered accepted increment pairs. A fresh native claim, admission or
 // preparation announcement starts a new UUID; a resumed start keeps the file.
-// An accepted pair with a bound Dashboard launch reference is also retained
-// under that reference, so another session in the checkout can replace the
-// current record without losing the earlier launch's comparison.
 import { randomUUID } from "node:crypto";
 import { readGitPathJson, replaceGitPathJson } from "./git-path-json-store.mjs";
-import {
-  executionSessionWorkflow,
-  hasSessionStory,
-  isSessionId,
-} from "./session-record.mjs";
+import { executionSessionWorkflow } from "./session-record.mjs";
 
 const sessionEvidencePath = "open-dough/session-record";
 
 export function readSessionEvidence(workspace) {
   return readGitPathJson(workspace, sessionEvidencePath);
-}
-
-const acceptedLaunchPath = (reference) =>
-  `open-dough/accepted-launches/${reference}.json`;
-
-export function readAcceptedLaunchEvidence(workspace, reference) {
-  if (isSessionId(reference))
-    return readGitPathJson(workspace, acceptedLaunchPath(reference));
 }
 
 function writeSessionEvidence(workspace, evidence) {
@@ -68,16 +53,6 @@ export function recordAcceptedIncrement(
   { base, candidate, reference, story, uncertainty },
 ) {
   const range = { base, candidate, ...(uncertainty && { uncertainty }) };
-  if (isSessionId(reference) && hasSessionStory(story)) {
-    const launch =
-      readAcceptedLaunchEvidence(workspace, reference) ??
-      freshSession(reference, story);
-    if (launch.sessionId === reference && launch.story === story) {
-      if (!launch.ranges.some((prior) => sameAcceptedPair(prior, range)))
-        launch.ranges.push(range);
-      replaceGitPathJson(workspace, acceptedLaunchPath(reference), launch);
-    }
-  }
   const kept = readSessionEvidence(workspace);
   const evidence =
     reference && kept?.sessionId !== reference

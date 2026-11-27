@@ -88,14 +88,17 @@ export async function resumeManagedExecutionIncrement(request) {
         identity: oneShotIdentity,
       })
     : undefined;
-  const { landingContext: resolvedLanding, ...sessionEvidence } =
-    await resolveLaunchLanding({
-      landingContext,
-      workspace,
-      branch,
-      remote,
-      targetRef,
-    });
+  const {
+    landingContext: resolvedLanding,
+    acceptedAt,
+    ...sessionEvidence
+  } = await resolveLaunchLanding({
+    landingContext,
+    workspace,
+    branch,
+    remote,
+    targetRef,
+  });
   let published;
   try {
     published = await resumeInterruptedPublication({
@@ -105,6 +108,7 @@ export async function resumeManagedExecutionIncrement(request) {
       suffixBase,
       remote,
       landingContext: resolvedLanding,
+      landingAcceptedAt: acceptedAt,
       branch,
       backlogPath: request.backlogPath,
       supersededShas,

@@ -2,7 +2,6 @@
 // no change through the installed wrap-up children, run from the borrowed
 // default checkout given as an alias. The installed reporting script runs in
 // process (../support/installedReporting.ts) against the kept record.
-import { randomUUID } from "node:crypto";
 import { existsSync, symlinkSync } from "node:fs";
 import path from "node:path";
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from "vitest";
@@ -10,18 +9,8 @@ import { doneRecordFileName } from "../../../Distribution/src/skills/dough-produ
 import { sessionRecordPathBeside } from "../../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { settleAttempt } from "../../server/launchAttemptSettlement.ts";
-import { keepAttempt } from "../../server/launchAttemptStore.ts";
-import { launchHost } from "../../server/launchHosts.ts";
-import { keptRecords } from "../../server/launchRecordStore.ts";
-import { attemptRun } from "../../server/launchRun.ts";
-import { OwnedAttempts } from "../../server/ownedAttempts.ts";
 import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
-import { StartProgress } from "../../server/startProgress.ts";
-import {
-  admittedCompletion,
-  finishAdmittedClaim,
-} from "../../test-support/support/admittedSessionCompletion.ts";
+import { finishAdmittedClaim } from "../../test-support/support/admittedSessionCompletion.ts";
 import {
   installFakeCodex,
   type FakeCodex,
@@ -32,11 +21,11 @@ import {
 } from "../../test-support/support/startOrigin.ts";
 import { keepStartedOrigin } from "../../test-support/support/startOriginPreparation.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
+import { admitCodexLaunch } from "../support/admittedCodexLaunch.ts";
 import {
   reportInstalled,
   reportingInvocation,
 } from "../support/installedReporting.ts";
-import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
 
 const source = makeMe.aPublishedSource.openDough.please();
 const repository = queuedReadyRepository().please();
@@ -76,30 +65,13 @@ afterEach(async () => {
 
 test("ordinary no-change wrap-up closes the admitted claim and keeps the borrowed checkout", async () => {
   const head = git(origin.project, "rev-parse", "HEAD");
-  const attempt = makeMe.anAcceptedAttempt
-    .adHoc({ host: "codex", instruction: "Confirm the current behavior" })
-    .withId(randomUUID())
-    .acceptedAt(new Date().toISOString())
-    .reportingTo(dashboardOrigin)
-    .please();
-  await keepAttempt(attempt);
-  const owned = new OwnedAttempts();
-  await settleAttempt(
-    owned,
-    owned.own(attempt.request, attempt),
-    (own, notes) =>
-      attemptRun(source, own, {
-        progress: new StartProgress(),
-        doneMarks: { reported: vi.fn() },
-        native: launchHost,
-        notes,
-      }),
+  const admitted = await admitCodexLaunch(
+    source,
+    origin,
+    "Confirm the current behavior",
   );
-  const [record] = await keptRecords(source.id);
-  const admitted = admittedCompletion(record?.request, origin);
   const { claim, identity, reporting, landingContext } = admitted;
   const base = claim.publishedSha;
-  expect((await origin.originGit("rev-parse", "main")).trim()).toBe(base);
 
   const nativeAlias = path.join(origin.machine, "borrowed-checkout-alias");
   symlinkSync(origin.project, nativeAlias, "dir");

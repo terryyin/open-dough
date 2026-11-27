@@ -3,12 +3,13 @@
 // and a context that names none (a session with no story) is retained and
 // delivered by its launch reference alone.
 import assert from "node:assert/strict";
-import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import {
   captureAcceptedLanding,
+  readRetainedLandingComparison,
   reportLanding,
   retainLandingComparison,
 } from "../../../src/skills/dough-execute-plan/scripts/dashboard-landing.mjs";
@@ -53,11 +54,17 @@ test("a context naming no story is retained before the push and recorded after a
     landingContext: file,
   });
 
+  const acceptedAt = "2026-11-25T06:00:00.000Z";
   const pending = await retainLandingComparison(
     file,
     { candidate: revision, suffixBase: base },
-    publication,
+    { ...publication, acceptedAt },
   );
+  assert.deepEqual(await readRetainedLandingComparison(file, context), {
+    base,
+    candidate: revision,
+    acceptedAt,
+  });
   const retained = JSON.parse(await readFile(pending, "utf8"));
   assert.equal("identity" in retained, false);
   assert.deepEqual(
@@ -74,6 +81,7 @@ test("a context naming no story is retained before the push and recorded after a
   );
   for (const { report } of requests) {
     assert.equal("identity" in report, false);
+    assert.equal("acceptedAt" in report, false);
     assert.equal(report.delivery, retained.delivery);
   }
   // Accepted capture clears the open expectation; unacknowledged would not.
@@ -92,6 +100,17 @@ test("a context naming no story is retained before the push and recorded after a
     ),
     "ENOENT",
   );
+
+  // The previous selection format remains a verifiable range of unknown age.
+  await writeFile(
+    path.join(path.dirname(file), "landing-current.json"),
+    JSON.stringify({ pending }),
+  );
+  assert.deepEqual(await readRetainedLandingComparison(file, context), {
+    base,
+    candidate: revision,
+    acceptedAt: undefined,
+  });
 });
 
 test("unacknowledged capture leaves the first-landing expectation open", async (t) => {

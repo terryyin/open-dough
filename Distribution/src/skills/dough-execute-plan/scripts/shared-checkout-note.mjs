@@ -42,11 +42,11 @@ export function sharedCheckoutNoteOnReadFailure(error) {
 }
 
 // The mark for a range accepted at `acceptedAt` under `note`: shared-checkout
-// when the overlap's start is unknown or at or before the acceptance,
-// otherwise none.
+// when either time is unknown or the overlap started by the acceptance.
 export function rangeUncertainty(note, acceptedAt) {
   if (!note) return undefined;
-  return note.since === undefined ||
+  return acceptedAt === undefined ||
+    note.since === undefined ||
     Date.parse(acceptedAt) >= Date.parse(note.since)
     ? sharedCheckoutUncertainty
     : undefined;

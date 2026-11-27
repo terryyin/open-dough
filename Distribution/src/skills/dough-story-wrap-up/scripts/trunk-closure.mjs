@@ -122,6 +122,7 @@ export async function finishTrunkClosure({
       remote,
       targetRef,
       tracking,
+      beforeCleanup,
       final,
       backlogPath,
     }));
