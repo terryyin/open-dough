@@ -6,7 +6,7 @@
 // ./intent-cached-reads.spec.ts. Newer revisions:
 // ./intent-revision-notice.spec.ts.
 import { expect, onTestFinished, test } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { pygardonFeatures } from "../../../Distribution/tests/support/publishedFilesTestData.mjs";
 import type { readRepositoryFileAt } from "../../src/authenticatedRead.ts";
@@ -18,6 +18,7 @@ import {
   publishedDetailPath,
   workWithPublishedDetail,
 } from "./intent-read-recovery-page.tsx";
+import { activateButton } from "../page-objects/activateButton.ts";
 
 const featurePath = pygardonFeatures.jobs;
 const featureFiles = makeMe.somePublishedFiles.ofPygardonFeatures
@@ -88,30 +89,30 @@ test("a feature selected while startup detail completes stays selected with its 
   expect(detailSettled).toBe(false);
 
   // Membership is already on the Board while the canonical detail stays held.
-  await userEvent.click(development);
+  await activateButton(development);
   await expect.element(queuedCard()).toBeVisible();
   await expect
     .element(queuedCard().getByText("Reading preparation…", { exact: true }))
     .toBeVisible();
 
-  await userEvent.click(intentChoice);
+  await activateButton(intentChoice);
   await (await browser.open(featurePath)).shows("Scenario: Archive a job");
   expect(locationsReads).toHaveLength(1);
 
   releaseDetail();
   await expect.poll(() => detailSettled).toBe(true);
-  await userEvent.click(development);
+  await activateButton(development);
   const card = queuedCard();
   await expect
     .element(card.getByText("Reading preparation…", { exact: true }))
     .not.toBeInTheDocument();
-  await userEvent.click(card.getByRole("button", { name: "Inspect story" }));
+  await activateButton(card.getByRole("button", { name: "Inspect story" }));
   await expect
     .element(card.getByRole("region", { name: "Detail for Queued seed" }))
     .toBeVisible();
   await expect.element(card.getByText(goal, { exact: true })).toBeVisible();
 
-  await userEvent.click(intentChoice);
+  await activateButton(intentChoice);
   await browser.showsFolderExpanded(folder);
   const reading = intentFileReading(featurePath);
   await reading.isSelected();

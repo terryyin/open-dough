@@ -30,6 +30,7 @@ import {
 import { withoutBreakingHints } from "./intent-file-reading-page.ts";
 import { intentCiStatus } from "./intent-ci-status-page.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
+import { activateButton } from "../page-objects/activateButton.ts";
 
 const storyA = {
   identity: "SEED-1#story-a",
@@ -140,8 +141,8 @@ async function openStoryChanges() {
 test("the deep spec read with Changes only on, out collapsed and Purpose scrolled is shown the same after Development and back, without reading again", async () => {
   const mounted = await openStoryChanges();
   await expect.element(story.changesOnly).toBeChecked();
-  await story.folderToggle("out", true).click();
-  await story.file(deepSpec).click();
+  await activateButton(story.folderToggle("out", true));
+  await activateButton(story.file(deepSpec));
   await expect.poll(story.diffCode).toContain("long 120");
   const offset = await story.scrollReadingHalfway();
   expect(offset).toBeGreaterThan(20);
@@ -167,9 +168,9 @@ test("the deep spec read with Changes only on, out collapsed and Purpose scrolle
 
 test("another project shows none of the reading place, and choosing the project again starts its reading afresh", async () => {
   const mounted = await openStoryChanges();
-  await story.changesOnly.click();
-  await story.folderToggle("out", true).click();
-  await story.file(deepSpec).click();
+  await activateButton(story.changesOnly);
+  await activateButton(story.folderToggle("out", true));
+  await activateButton(story.file(deepSpec));
   await expect.poll(story.diffCode).toContain("long 120");
   expect(await story.scrollReadingHalfway()).toBeGreaterThan(20);
 

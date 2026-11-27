@@ -4,7 +4,6 @@
 // no-match notice, and the listed files' controls; in Project Intent, the
 // lead while the project tree is read or its read failed, with Retry.
 import { expect } from "vitest";
-import { userEvent } from "vitest/browser";
 import { activateButton } from "../page-objects/activateButton.ts";
 import "../page-objects/cssLocator.ts";
 import { fileLayout, intentPage as intent } from "./intent-file-layout-page.ts";
@@ -70,7 +69,7 @@ export function intentStoryFiles() {
     }),
     projectTreeProblem,
     retryProjectTree: () =>
-      userEvent.click(
+      activateButton(
         projectTreeProblem.getByRole("button", { name: "Retry", exact: true }),
       ),
     tree,

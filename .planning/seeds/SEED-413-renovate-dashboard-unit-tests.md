@@ -179,6 +179,32 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
     after branch entry and before the launch flavors fold into MakeMe, so
     the fold covers the final builders.
 
+<a id="keep-full-frontend-runs-connected"></a>
+
+### Keep full Dashboard frontend runs connected to their browser
+
+**Identity:** SEED-413#keep-full-frontend-runs-connected
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+```
+
+- **Goal.** A full local `npm run test:dashboard:frontend` finishes every
+  file. Today it sometimes stops early when the browser connection closes.
+- **Evidence (2026-11-27, local macOS, two workers, load 7–31).** Five of
+  eight full runs stopped after 201–300 of 331 files with
+  `VITEST_BROWSER_CONNECTION_CLOSED` (`rpc is closed, cannot call
+  "createTesters"`) on an Intent file that never started. Baseline
+  `67d52b5fa` stopped in one of its two runs. Chromium stderr (`DEBUG=pw:browser`)
+  showed a freshly connected tester logging `[vite] server connection lost`
+  about 150 ms after `[vite] connected.`, in the same browser process, with no
+  renderer crash. A watcher log showed no file events during a run. The
+  largest renderer grew from ~480 MB to ~1.3 GB over a run, under a 3.5 GB
+  JS heap limit.
+- **Scope.** Find what closes the tester's server connection (the Vitest
+  browser orchestrator under `vitest.standalone()` in
+  `dashboard/test-support/support/groupVitest.mjs`) and make full runs
+  complete, locally and in CI.
+
 <a id="renovate-remaining-backend-families-after-browser-reporter"></a>
 
 ### Prove machine-session reads through typed backend answers

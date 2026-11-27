@@ -4,7 +4,7 @@
 // ./intent-ci-status-homepage.spec.ts.
 
 import { expect, test } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentLocations } from "../../src/authenticatedIntentRead.ts";
 import { filesColumnVisible, workOf } from "./intent-ci-homepage-page.ts";
@@ -16,6 +16,7 @@ import {
   openDoughSource,
 } from "./intent-ci-status-fixtures.ts";
 import { intentCiStatus } from "./intent-ci-status-page.ts";
+import { activateButton } from "../page-objects/activateButton.ts";
 
 const passed = "Passed at a1b2c3d (Add login)";
 
@@ -85,7 +86,7 @@ test("project CI remains readable while locations load, fail and recover without
     );
   await ci.answers(passed);
 
-  await userEvent.click(
+  await activateButton(
     failure.getByRole("button", { name: "Retry", exact: true }),
   );
   await expect.poll(filesColumnVisible).toBe(true);

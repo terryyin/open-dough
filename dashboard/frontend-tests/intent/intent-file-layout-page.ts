@@ -1,6 +1,7 @@
 import { expect, vi } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
 import { sidebarPlacement } from "../../test-support/sidebarPlacement.ts";
+import { activateButton } from "../page-objects/activateButton.ts";
 
 export const intentPage = page.getByRole("main", {
   name: "Intent",
@@ -64,7 +65,7 @@ export function fileLayout() {
     },
     // Files shown, whether it starts docked or as a closed drawer.
     async showFiles() {
-      if ((await settledPlacement()) === "hidden") await toggle.click();
+      if ((await settledPlacement()) === "hidden") await activateButton(toggle);
       await this.showsFiles(true);
     },
     // The reader uncovered: an open Files drawer closes, docked Files stays,
@@ -72,7 +73,7 @@ export function fileLayout() {
     async uncoverReader() {
       if (toggle.query() === null) return;
       if ((await settledPlacement()) !== "drawer") return;
-      await toggle.click();
+      await activateButton(toggle);
       await this.showsFiles(false);
     },
     async showsFullReader() {

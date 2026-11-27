@@ -1,6 +1,6 @@
 // Operate the bookmark's scope choices and observe the resulting Intent view.
 import { expect } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page } from "vitest/browser";
 import type { PublishedSource } from "../../src/publishedSource.ts";
 import { activateButton } from "../page-objects/activateButton.ts";
 import {
@@ -68,7 +68,7 @@ export function intentRecentStories(project: PublishedSource) {
   const recent = {
     // Clicks the button, which returns to a selected story out of view and
     // otherwise toggles the list.
-    choose: () => userEvent.click(button),
+    choose: () => activateButton(button),
     async chooseRow(identity: string, source = project) {
       await openScopeChoices();
       await activateButton(recentChoice(source.label, identity));

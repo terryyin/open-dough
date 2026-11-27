@@ -153,6 +153,9 @@ test("folders start collapsed, and folder names select a Summary of their files 
   await tree.summaryExcludes(jobsFolder);
 });
 
+// Accepted cost: trusted Enter and Space presses, each waiting on a rendered
+// frame, are the only proof that native keys operate the toggles and names;
+// synthetic key events trigger no native button activation.
 test("location and folder controls work by keyboard", async () => {
   const tree = await mountScopeTree();
   const features = tree.toggle(featuresPath);

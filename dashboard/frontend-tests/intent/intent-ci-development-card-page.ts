@@ -6,6 +6,7 @@
 import { expect } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { boardReading, columns } from "../navigation/board-reading-page.ts";
+import { activateButton } from "../page-objects/activateButton.ts";
 
 // Pages the Board to the column holding `card` when the card is outside the
 // viewport, until the paging brings it in.
@@ -19,7 +20,7 @@ async function showColumnOf(card: Element) {
     boardReading.column(column).element().contains(card),
   );
   if (name === undefined) return;
-  await userEvent.click(boardReading.control(name));
+  await activateButton(boardReading.control(name));
   await expect.poll(shown).toBe(true);
 }
 
@@ -29,6 +30,8 @@ export function developmentCard(title: string) {
     async toggle() {
       await expect.element(card).toBeInTheDocument();
       await showColumnOf(card.element());
+      // The card tells its empty area from its controls by the pointer's
+      // position, so the heading takes a real click.
       await userEvent.click(
         card.getByRole("heading", { name: title, exact: true }),
       );

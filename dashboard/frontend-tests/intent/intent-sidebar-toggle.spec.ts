@@ -22,6 +22,7 @@ import {
 } from "./intent-recent-stories-page.ts";
 import { openDoughSource } from "./intent-ci-status-fixtures.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
+import { activateButton } from "../page-objects/activateButton.ts";
 
 const proof = intentPage.getByRole("region", { name: "Proof", exact: true });
 const proofTab = intentPage
@@ -41,7 +42,7 @@ test("Hide files gives the reading pane the width under the story's header; Show
   await story.browseFiles();
   await expect.element(story.changesOnly).toBeChecked();
   const selected = story.file(deepFile);
-  await selected.click();
+  await activateButton(selected);
   await expect.poll(story.diffName).toBe(deepFile);
   await story.chooseProof();
   await expect.element(proof).toBeVisible();
@@ -49,7 +50,7 @@ test("Hide files gives the reading pane the width under the story's header; Show
   const before = files.reading();
   await expect.element(projectView("CI status")).not.toBeInTheDocument();
 
-  await files.toggle.click();
+  await activateButton(files.toggle);
   await files.showsFiles(false);
   await files.showsFullReader();
   expect(files.reading().width).toBeGreaterThan(before.width);
@@ -58,7 +59,7 @@ test("Hide files gives the reading pane the width under the story's header; Show
   );
   await expect.element(proof).toBeVisible();
 
-  await files.toggle.click();
+  await activateButton(files.toggle);
   await files.showsFiles(true);
   await expect.element(story.changesOnly).toBeChecked();
   await expect.element(selected).toHaveAttribute("aria-pressed", "true");
@@ -109,7 +110,7 @@ test("changed Intent roots keep their full-width row and change mark when select
     expect(marked).toMatchObject({ fullWidth: true, controlsShowHeader: true });
   }
   const marked = locationHeaderLook(changed);
-  await scopeName(changed).click();
+  await activateButton(scopeName(changed));
   await expect
     .element(scopeName(changed))
     .toHaveAttribute("aria-pressed", "true");
@@ -149,12 +150,12 @@ test("the hidden column stays hidden across scopes and Development, with its own
   const files = fileLayout();
   const story = intentStoryCompare();
   await story.browseFiles();
-  await files.toggle.click();
+  await activateButton(files.toggle);
   await files.showsFiles(false);
 
   await chooseWholeProject();
   await files.showsFiles(true);
-  await projectView("Optimization Candidates").click();
+  await activateButton(projectView("Optimization Candidates"));
   await expect.element(files.toggle).not.toBeInTheDocument();
   await intentRecentStories(openDoughSource).chooseRow("SEED-A#a");
   await files.showsFiles(false);

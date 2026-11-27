@@ -63,10 +63,14 @@ Act as the reader does, as soon as the page allows it. Render and deliver
 input directly, with `IS_REACT_ACT_ENVIRONMENT` unset, and wait only for what
 the action changes through retrying assertions (`expect.element`,
 `expect.poll`). A synchronous read follows a retrying assertion on the same
-render. Locator input such as `userEvent.click` already waits until its
-target can take it. The Project Intent revision cases
-(`intent/intent-revision-*.spec.ts`) are the example: rendering and
-clicking without a settle wait cut their summed time by about a fifth.
+render. Page objects activate controls in the page through
+[`activateButton`](page-objects/activateButton.ts). Trusted input (`userEvent`
+and Locator `click`) waits on rendered frames, which headless Chromium
+produces only every 50–80 ms under local load. Keep trusted input for the
+keys, taps and pointer moves that a case's own behavior is about. The Project
+Intent cases (`intent/`) are the example: activating in the page cut their
+summed time to about a third; a control that takes focus from a pointer
+press uses `pressButton`.
 
 Story Notes is the reference family:
 `stories/story-notes-dialog.spec.ts` mounts the dialog,

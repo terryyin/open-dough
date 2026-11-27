@@ -7,13 +7,14 @@ import { expect } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
 import { fileName, scopeName, scopeToggle } from "./intent-browser-page.ts";
 import { intentFileReading } from "./intent-file-reading-page.ts";
+import { activateButton } from "../page-objects/activateButton.ts";
 
 const textOf = (locator: Locator) => () => locator.query()?.textContent ?? "";
 
 function disclosure(locator: Locator) {
   const control = {
     async click() {
-      await userEvent.click(locator);
+      await activateButton(locator);
       return control;
     },
     // Operates the control from the keyboard with KEY ("{Enter}" or " ").
@@ -77,7 +78,7 @@ export function intentScopeTree() {
     // The selectable name of the location or folder at PATH.
     name: (path: string) => disclosure(scopeName(path)),
     async openFile(path: string) {
-      await userEvent.click(fileName(path));
+      await activateButton(fileName(path));
       return intentFileReading(path);
     },
     // The file at PATH sits inside a collapsed folder.

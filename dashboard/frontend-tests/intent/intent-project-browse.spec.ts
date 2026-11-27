@@ -90,7 +90,7 @@ test("an Intent location and a regular folder share the selection, and Intent on
   await reading.shows(`tracked ${guide}`);
   await (await intentScopeTree().openFile(feature)).shows(`tracked ${feature}`);
 
-  await files.intentOnly.click();
+  await files.toggleIntentOnly();
   await expect.element(files.file(helper)).not.toBeInTheDocument();
   await expect.element(files.file(feature)).toBeVisible();
   await expect.element(files.folder("src")).not.toBeInTheDocument();
@@ -111,7 +111,7 @@ test("without configured locations the project opens a tracked document, and Int
   await files.expandShownFolderPath("docs");
   await (await intentScopeTree().openFile(guide)).shows(`tracked ${guide}`);
 
-  await files.intentOnly.click();
+  await files.toggleIntentOnly();
   await expect.element(files.folder("docs")).not.toBeInTheDocument();
   await expect
     .element(
