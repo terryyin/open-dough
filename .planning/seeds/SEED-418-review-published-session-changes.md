@@ -95,6 +95,9 @@ touch panes.
 ### Keep Intent's session review and its proof whole after the retirement
 
 **Identity:** SEED-418#keep-session-review-proof-after-retirement
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/882-keep-session-review-proof-after-retirement/PLAN.md"}
+```
 
 **Goal.** A developer reviewing a story in Intent gets the scope the story
 promised, and its maintainers keep the proof the retired Side panel review
