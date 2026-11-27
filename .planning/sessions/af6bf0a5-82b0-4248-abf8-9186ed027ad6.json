@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "sessionId": "af6bf0a5-82b0-4248-abf8-9186ed027ad6",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-27T03:30:51.137Z",
+  "story": "SEED-413#finish-backend-vitest-renovation-after-launch-attachments",
+  "ranges": [
+    {
+      "base": "edadf51598ec2331c5ce0dabd75ff7cda737476f",
+      "candidate": "016844466102563cd646bbb68973018b3adb6696",
+      "uncertainty": "shared-checkout"
+    }
+  ]
+}
