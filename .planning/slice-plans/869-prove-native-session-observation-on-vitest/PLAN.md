@@ -367,3 +367,10 @@ alert family and retiring its own legacy Playwright specs. Slice 4's optional
 default matching `withStates` and `SessionAlerts`. All three decisive premises
 were observed in this checkout. This review found no remaining slice-specific
 concern.
+
+## Execution complete
+
+Product advice: no change to the story order or product direction. Keep
+backend runner retirement gated on the remaining coverage suppliers. This
+story preserves the native observation and notification boundaries while
+moving the focused checks to Node and retaining the browser journeys.
