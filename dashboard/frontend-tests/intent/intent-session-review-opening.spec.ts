@@ -3,7 +3,8 @@
 // session published from another machine and one this machine retained.
 // The Review scope dropdown names that session, keeps it through a dismissal
 // and switches label and comparison together on a choice, also by touch on a
-// phone.
+// phone. The session applies to that opening only: the story selected again
+// starts at Whole story.
 // The session's review is read by its UUID; the review answers, keyed by
 // `published`, own the Git judgment.
 import { expect, test } from "vitest";
@@ -13,7 +14,11 @@ import {
   tapWhereShown,
   useTouchScreen,
 } from "../navigation/board-touch-page.ts";
-import { source } from "../sessions/recently-done-card-membership-mount-page.ts";
+import { selectCard } from "../navigation/recent-stories-frame.ts";
+import {
+  other,
+  source,
+} from "../sessions/recently-done-card-membership-mount-page.ts";
 import { heldSessions } from "../sessions/recently-done-column-page.ts";
 import {
   adHocOption,
@@ -27,6 +32,8 @@ import {
   retainedRecord,
   reviewSessionChanges,
 } from "./intent-session-review-mount.ts";
+import { openDoughSource } from "./intent-ci-status-fixtures.ts";
+import { intentRecentStories } from "./intent-recent-stories-page.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
 test("Review session changes on a session published from another machine opens Intent at that session", async () => {
@@ -45,6 +52,24 @@ test("Review session changes on a session retained here opens Intent at its key"
   await expectIntentAt(retainedName);
   expect(reads).toContain(retainedRecord.sessionId);
   expect(reads).not.toContain(published.sessionId);
+});
+
+test("a story selected again after Review session changes starts at Whole story", async () => {
+  await mountDoneStory({ others: [other] });
+  await selectCard(other.title);
+  await reviewSessionChanges(heldSessions(source.title).first()).click();
+  await expectIntentAt(retainedName, "1 changed file");
+
+  const recent = intentRecentStories(openDoughSource);
+  await recent.chooseRow(other.identity);
+  await recent.selects(other.identity);
+  await recent.chooseRow(source.identity);
+
+  await expectIntentAt(
+    "Whole story",
+    "2 changed files",
+    "Published completion",
+  );
 });
 
 test("Escape keeps the opened session and its comparison; choosing Whole story switches both", async () => {

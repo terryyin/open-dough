@@ -1,7 +1,8 @@
 // The mounted Board frame with a Done story whose sessions open Intent's
 // review: an execution published from another machine and an ad hoc
-// follow-up this machine retained, plus any further published `records` and
-// retained `launches`. Each review read is recorded by its `published` UUID.
+// follow-up this machine retained, plus any further published `records`,
+// retained `launches` and Done `others`. Each review read is recorded by its
+// `published` UUID.
 import { expect } from "vitest";
 import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
@@ -63,6 +64,7 @@ const fileOf = (sessionId: string) => `${sessionId}.txt`;
 export async function mountDoneStory({
   records = [] as readonly (typeof published)[],
   launches = [] as readonly (typeof retained)[],
+  others = [] as readonly (typeof source)[],
 } = {}) {
   const reads: (string | undefined)[] = [];
   const review: ReviewSource = {
@@ -84,7 +86,7 @@ export async function mountDoneStory({
       );
     },
   };
-  const { done, doneBodies } = catalogs({ "open-dough": [source] });
+  const { done, doneBodies } = catalogs({ "open-dough": [source, ...others] });
   const sourceCatalog = done["open-dough"];
   if (sourceCatalog === undefined) throw new Error("No source catalog.");
   await mountBoardFrame(

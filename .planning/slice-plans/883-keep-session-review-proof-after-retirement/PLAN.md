@@ -97,7 +97,7 @@ where the premises below were observed.
 
 ### 1. A story selected again starts at Whole story
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: **Review session changes** opened story X at session S → the
 developer selects story Y and then X again → X shows **Whole story** chosen
@@ -109,6 +109,19 @@ story through **Review session changes**, selects the other story and then
 the first through **Recent stories** (`intent-recent-stories-page.ts`
 `chooseRow`), and observes **Whole story** checked. Premise P1 observed this
 case failing at `a0f4b5a8e`.
+
+Accepted on `d7eff060e`: `useStoryComparison.ts` drops `lastOpening` once the
+hook renders another story without its own opening. The case "a story selected
+again after Review session changes starts at Whole story" fails without that
+and passes with it. The `dashboard/frontend-tests/intent` folder and the
+Recently done and Side panel E2E specs pass.
+
+Learning: trunk delivered the sibling `SEED-418#review-scope-dropdown`
+(`0c7a1f771`, `392ecc8c4`) during execution. The branch fast-forwarded to it.
+The scope control is now a dropdown: **Whole story** is read from
+`intentStoryCompare().scope`, not a checked radio. Mount helpers live in
+`intent-session-review-mount.ts`. Slices 2–5 still apply, with
+`storySessionScopes` still in `followUpSessions.ts`.
 
 ### 2. A chosen session's pending read measures nothing
 Type: Behavior
