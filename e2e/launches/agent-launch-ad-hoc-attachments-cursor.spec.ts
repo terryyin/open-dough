@@ -1,7 +1,8 @@
-// Ad hoc Cursor Start session with one attached image: the first prompt's
-// developer part ends with the same Attached images path list as Claude and
-// Codex (typed text, blank line, then the numbered absolute path under the
-// test HOME's launch-attachments folder), then reporting context.
+// Ad hoc Cursor Start session with a chosen model and only one attached
+// image: the native input's first prompt is the Attached images path list
+// (the numbered absolute path under the test HOME's launch-attachments
+// folder), then reporting context and the Taken story line. The generic
+// attachment journey is ./agent-launch-ad-hoc-attachments.spec.ts.
 
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import {
@@ -21,65 +22,6 @@ import {
   pngA,
   writePickedImages,
 } from "../../dashboard/test-support/support/launchAttachmentFixtures.ts";
-
-test("Cursor Start session with one attached image ends the prompt's developer part with its copied path", async ({
-  page,
-  dashboard,
-  origin,
-  cursor,
-}, testInfo) => {
-  const original = (await origin.originGit("rev-parse", "main")).trim();
-  await publishCommittedOrigin(page, {
-    repoDir: origin.origin,
-    revision: original,
-    repository: "terryyin/open-dough",
-    follows: true,
-  });
-  await page.goto("/");
-
-  const picked = writePickedImages(testInfo, [
-    { name: "card.png", bytes: pngA },
-  ]);
-
-  const text = "Why is this card clipped?";
-  await page
-    .getByRole("button", { name: "Start session in Open Dough" })
-    .click();
-  const dialog = page.getByRole("dialog");
-  await dialog.getByRole("combobox", { name: "Host" }).selectOption("cursor");
-  await expect(dialog).toHaveAccessibleName(
-    "Start a session in Open Dough in Cursor",
-  );
-  await startSessionField(dialog).fill(text);
-
-  await pickImagesInDialog(page, dialog, picked);
-  await expect(
-    dialog
-      .getByRole("list", { name: "Attached images" })
-      .getByText("Image 1 · card.png"),
-  ).toBeVisible();
-
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await startedSession(page);
-
-  await expect.poll(() => cursor.attaches()).toHaveLength(1);
-  const client = cursor.attaches()[0];
-  if (client === undefined) {
-    throw new Error("Cursor did not start a terminal client.");
-  }
-  await expect.poll(() => cursor.input(client.pid)).toMatch(/\r$/u);
-  const prompt = cursor.input(client.pid).replace(/\r$/u, "");
-  const record = keptRecord(dashboard.home);
-
-  const expectedPrefix = `${text}\n\nAttached images:\n1. `;
-  expect(prompt.startsWith(expectedPrefix)).toBe(true);
-  const rest = prompt.slice(expectedPrefix.length);
-  const [attachedPath, reporting, ...extra] = rest.split("\n\n");
-  expect(extra).toEqual([`Taken story: ${launchStoryIdentity(record)}`]);
-  expectCopiedAttachmentPath(attachedPath ?? "", dashboard.home, "1-card.png");
-  expectReportingBlock(reporting, record.request, dashboard);
-  expect(record.request.attachments).toEqual([attachedPath]);
-});
 
 test("Cursor Start session with a chosen model and only an image is admitted", async ({
   page,
@@ -109,11 +51,6 @@ test("Cursor Start session with a chosen model and only an image is admitted", a
   await expect(startSessionField(dialog)).toHaveValue("");
 
   await pickImagesInDialog(page, dialog, picked);
-  await expect(
-    dialog
-      .getByRole("list", { name: "Attached images" })
-      .getByText("Image 1 · card.png"),
-  ).toBeVisible();
 
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   await startedSession(page);
@@ -127,11 +64,7 @@ test("Cursor Start session with a chosen model and only an image is admitted", a
   const prompt = cursor.input(client.pid).replace(/\r$/u, "");
   const record = keptRecord(dashboard.home);
 
-  expect(record.request.title).toMatch(
-    /^Ad hoc work — \d{1,2} \w{3}, \d\d:\d\d$/,
-  );
   expect(record.request.model).toBe("gpt-5.2");
-  expect(record.request).not.toHaveProperty("instruction");
 
   const expectedPrefix = "Attached images:\n1. ";
   expect(prompt.startsWith(expectedPrefix)).toBe(true);

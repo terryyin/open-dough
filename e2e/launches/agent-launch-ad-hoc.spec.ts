@@ -120,42 +120,36 @@ installedTest.describe("installed catalog", () => {
     },
   );
 
-  for (const [described, blank] of [
-    ["an empty field", ""],
-    ["only spaces", "   "],
-  ] as const) {
-    installedTest(
-      `starting with ${described} sends no instruction`,
-      async ({ page, dashboard, origin }) => {
-        dashboard.claudeScenario("launched");
-        await openBacklog(page, origin, true);
-        const dialog = startSessionDialog(page, "Open Dough");
+  installedTest(
+    "starting with an empty field sends no instruction",
+    async ({ page, dashboard, origin }) => {
+      dashboard.claudeScenario("launched");
+      await openBacklog(page, origin, true);
+      const dialog = startSessionDialog(page, "Open Dough");
 
-        await startSession(page, "Open Dough").click();
-        await startSessionField(dialog).fill(blank);
-        await dialog.getByRole("button", { name: "Start" }).click();
+      await startSession(page, "Open Dough").click();
+      await dialog.getByRole("button", { name: "Start" }).click();
 
-        await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
-        const [started] = dashboard.claudeLaunches();
-        expect(started).not.toHaveProperty("instruction");
-        const record = await expectBorrowedLaunch(dashboard);
-        expect(record?.request).not.toHaveProperty("instruction");
-        const reporting = record?.request.reporting;
-        if (reporting === undefined) throw new Error("Missing reporting.");
-        expect(reporting.landingContext).toBe(
-          path.join(
-            dashboard.home,
-            ".open-dough/dashboard/reporting",
-            reporting.reference,
-            "landing-context.json",
-          ),
-        );
-        expect(started?.name).toMatch(
-          /^Open Dough · Ad hoc · Ad hoc work — \d{1,2} \w{3}, \d\d:\d\d$/,
-        );
-      },
-    );
-  }
+      await expect(sessionEntriesIn(parts(page).taken)).toHaveCount(1);
+      const [started] = dashboard.claudeLaunches();
+      expect(started).not.toHaveProperty("instruction");
+      const record = await expectBorrowedLaunch(dashboard);
+      expect(record?.request).not.toHaveProperty("instruction");
+      const reporting = record?.request.reporting;
+      if (reporting === undefined) throw new Error("Missing reporting.");
+      expect(reporting.landingContext).toBe(
+        path.join(
+          dashboard.home,
+          ".open-dough/dashboard/reporting",
+          reporting.reference,
+          "landing-context.json",
+        ),
+      );
+      expect(started?.name).toMatch(
+        /^Open Dough · Ad hoc · Ad hoc work — \d{1,2} \w{3}, \d\d:\d\d$/,
+      );
+    },
+  );
 });
 
 test("starting on Pygardon uses Pygardon's folder and lists the session in the sidebar under Pygardon, not in Open Dough's Recently done", async ({

@@ -49,11 +49,6 @@ test("Codex Start session with one attached image ends the text input with its c
   await startSessionField(dialog).fill(text);
 
   await pickImagesInDialog(page, dialog, picked);
-  await expect(
-    dialog
-      .getByRole("list", { name: "Attached images" })
-      .getByText("Image 1 · card.png"),
-  ).toBeVisible();
 
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
   await expect(dialog).toBeHidden();

@@ -344,7 +344,7 @@ Evidence (2026-11-27):
 
 ### 5. Keep one Claude default-start journey and one attachments journey
 Type: Structure
-Status: planned
+Status: done
 Proof: one Claude default-start journey in `agent-launch-ad-hoc.spec.ts`
 proves admission, the card session and the title. Its "only spaces" variant
 is removed after a mounted case shows the page drops a whitespace-only
@@ -357,6 +357,24 @@ E2E case count and CI time for the touched files drop against the baseline
 - attachments: 23.8 s;
 - attachments-codex: 8.0 s;
 - attachments-cursor: 15.4 s.
+
+Evidence (2026-11-27):
+- The "only spaces" E2E variant is removed. It now survives as the
+  whitespace run of `responsive-unattached-startup.spec.ts:163`, which goes
+  through the real `startAdHoc`: no instruction is sent and the terminal opens.
+- `-attachments` merges its three cases into one no-text journey: pick,
+  remove and renumber, paste, the image-list prompt, the copied bytes and the
+  record shape.
+- Codex keeps its turn/start delivery.
+- Cursor keeps one model-and-image native-input case. Its text-plus-image
+  fact survives in Codex and in `developer-part.spec.ts:15`. Its generic list
+  checks survive in the `-attachments` journey and
+  `launch-attachments.spec.ts:82`.
+- Cases went from 11 to 7. Local times at load 8 then 14:
+  - ad-hoc: 19.4 s → 17.3 s;
+  - attachments: 16.8 s → 4.4 s;
+  - attachments-codex: 6.2 s → 4.7 s;
+  - attachments-cursor: 10.7 s → 4.2 s.
 
 ### 6. Merge the retained ad hoc story journeys and push follow-up availability down
 Type: Structure
