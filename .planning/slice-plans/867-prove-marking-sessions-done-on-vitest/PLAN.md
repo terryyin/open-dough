@@ -27,6 +27,8 @@
 
 - Slice 7 accepted at `82810a8f6adf0b9ed83c23315d9f6aa7f6a49a1f`.
 
+- Slice 8 accepted at `2fa7e5889c04166955b599a353c9c1b24120b2af`.
+
 ## Goal and scope
 
 Give Dashboard maintainers fast, typed Node Vitest proof of how the
@@ -378,3 +380,11 @@ deletion seam. Slice 5's estimate assumes Codex Done needs no real Git origin. T
 four legacy Codex Done specs import neither `startOrigin` nor a queued
 repository, so they never had one. This review found
 no other slice-specific concern.
+
+## Execution complete
+
+Product advice: no change. Maintain the existing backend runner cutover dependency and the sibling story order. This delivery accounts for all 58 legacy cases and leaves only the maintained Node selection for these 14 specs. The measured reduction supports the existing migration direction.
+
+The review considered the eight published slice commits and the separate browser fixture repair recorded above. The typed Done and reopen proof reads actual host and machine-store behavior. Deletion retains the same admission, answer, error and cleanup ordering, with its production route verified by the named consumers. Real browser and native disconnect behavior remain with the existing journeys. The migration was driven by replacement of existing behavioral proof. It added no E2E case. The direct domain mapping and local operational state remain consistent with Accepted ADRs 0002 and 0008. The sequential timing comparison and its workload limits address ADR 0010. No product correction or scope decision arose from this review.
+
+Story branch CI for the final delivered candidate is pending. Process review remains selected for wrap-up after the configured Intent Coverage check on the migrated deletion protection.
