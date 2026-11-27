@@ -24,6 +24,7 @@ import type { PublishedObservationReadSource } from "./publishedObservationReadS
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import { carryOutRead, type ReadRequest } from "./requestedRead.ts";
+import type { RefAsk } from "./requestedRead.ts";
 import { limitsMetSince } from "./readingLimit.ts";
 import { recordSettledOutcomes, useLimitRecovery } from "./limitRecovery.ts";
 import { useTransientRecoverySchedule } from "./transientRecovery.ts";
@@ -138,14 +139,15 @@ export function usePublishedObservation(
   }, [readRequest, source, schedule]);
 
   // Ref afresh, or the revision a check named. Recovery asks mark the wait
-  // so hide can release that ask alone.
-  const askRead = (revision: string | undefined, forRecovery = false) => {
-    setRecoveryAsk(forRecovery);
+  // so hide can release that ask alone; a fresh ask outwaits a settled check.
+  const askRead = (revision: string | undefined, why?: RefAsk) => {
+    const fresh = why === "fresh";
+    setRecoveryAsk(why === "recovery");
     startReading();
     clearNotice();
     readAgain();
     setReadSettled(false);
-    setReadRequest((last) => ({ asked: last.asked + 1, revision }));
+    setReadRequest((last) => ({ asked: last.asked + 1, revision, fresh }));
   };
 
   // Only moved story-branch progress; the rest of what is shown stays.
@@ -175,7 +177,7 @@ export function usePublishedObservation(
       readSettled,
       visibility,
       readAfresh: () => {
-        askRead(undefined, true);
+        askRead(undefined, "recovery");
       },
     });
 
@@ -212,7 +214,7 @@ export function usePublishedObservation(
   // Launch reconciliation's fresh read; an in-flight read stands for it.
   // Outstanding recovery or a standing login limit is not bypassed.
   const readAfresh = () => {
-    if (!reading && !blocksFreshRead) askRead(undefined);
+    if (!reading && !blocksFreshRead) askRead(undefined, "fresh");
   };
 
   // Replace the observation whole for another project: clear local recovery

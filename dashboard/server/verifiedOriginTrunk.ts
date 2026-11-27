@@ -9,9 +9,9 @@ import { GhFailure } from "./ghFailure.ts";
 import { remoteBranchHead } from "./gitTargetFetch.ts";
 import {
   defaultGitOutputLimit,
+  fetchGitTransport,
   GitFailure,
   runGit,
-  runGitUntilClosed,
   type GitCall,
 } from "./gitRunner.ts";
 import {
@@ -85,7 +85,8 @@ export async function verifiedOriginTrunk(
     return transportOutcome(error, signal);
   }
   try {
-    await runGitUntilClosed(
+    // Owned through cancellation: the deadline ends Git and its transport.
+    await fetchGitTransport(
       [...githubGitCredentials, "fetch", "--quiet", "--refmap=", "origin", ref],
       call,
     );

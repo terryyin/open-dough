@@ -66,18 +66,24 @@ export type PublishedSnapshot = {
 
 // Resolves the source's ref to one commit and reads its backlog at that
 // commit, both on the local server. Given a revision already resolved, reads
-// the backlog at exactly that commit instead of resolving the ref again.
+// the backlog at exactly that commit instead of resolving the ref again. A
+// `fresh` ref read is answered only by a server check begun after it asked.
 export async function readPublishedSnapshot(
   source: PublishedSource,
   signal: AbortSignal,
   revision?: string,
+  fresh = false,
 ): Promise<PublishedSnapshot> {
   const reading =
     revision === undefined
       ? readingRefOf(source)
       : readingPathAt(source.backlogPath, revision);
   const pinnedTo =
-    revision === undefined ? "" : `&revision=${encodeURIComponent(revision)}`;
+    revision === undefined
+      ? fresh
+        ? "&fresh=1"
+        : ""
+      : `&revision=${encodeURIComponent(revision)}`;
   const body = await authenticatedGet(
     `source=${encodeURIComponent(source.id)}${pinnedTo}`,
     reading,

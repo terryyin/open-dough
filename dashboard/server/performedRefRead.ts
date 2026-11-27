@@ -5,11 +5,11 @@
 
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { GhFailure, type UnavailableTrunkPart } from "./ghFailure.ts";
-import { observeProjectRevision } from "./observedSessionLandings.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
 import type {
   AskedOriginTrunk,
+  OriginTrunkDemand,
   SharedVerifiedOriginTrunk,
 } from "./sharedVerifiedOriginTrunk.ts";
 import type { VerifiedOriginTrunk } from "./verifiedOriginTrunk.ts";
@@ -19,8 +19,9 @@ export async function performVerifiedTrunkRead(
   pinned: PinnedTexts,
   source: PublishedSource,
   signal: AbortSignal,
+  demand: OriginTrunkDemand,
 ): Promise<Outcome> {
-  const demanded = await trunks.demand(source, pinned, signal);
+  const demanded = await trunks.demand(source, pinned, signal, demand);
   if (demanded.kind === "departed") {
     signal.throwIfAborted();
     throw signal.reason;
@@ -38,7 +39,6 @@ function admit(
 ): Outcome {
   if (trunk.kind === "verified") {
     const { revision, backlog } = trunk;
-    observeProjectRevision(pinned, source, revision);
     // This backlog is the revision a later trunk is compared with.
     pinned.answeredBacklog(source, revision);
     return answered({ revision, backlog, askedAt });

@@ -72,7 +72,7 @@ Review keeps its own fetch and sync record.
 ### 1. Bound the verified trunk check and keep reconciliation's read fresh
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A Git transfer that stalls past the Board's read deadline is ended,
 so the next open or reload of that project starts a new check instead of
@@ -87,6 +87,19 @@ transfer past the deadline is aborted and a later demand starts afresh; with
 production reuse, a fresh demand after a settled check starts a new one while
 a staggered tab still shares. One E2E reconciliation case at production
 reuse. Budget 14 active minutes.
+
+Delivered (10 active minutes): the check runs under an injectable deadline
+(default `readWaitLimitMs`) through the process-owned `fetchGitTransport`;
+the former `runGitUntilClosed` waited on stdio the transport child held, so
+an abort never returned. Only launch reconciliation's `readAfresh` sends
+`&fresh=1`. Both backend cases failed before the change; the E2E case failed
+with the client flag removed. Learnings: inject the deadline signal in
+backend cases (a wall-clock deadline raced the transfer hold under load);
+`scripts/test.sh` refuses Playwright specs, so E2E runs through
+`npm run test:e2e -- <files>`. The full backend run at load 20–70 failed only
+launch-timing specs that base `d56cd6957` failed equally at the same load
+(`agent-launch-{,codex-}duplicate`: base 10/13 and 2/13 failed, branch 10/13
+then 13/13 passed); CI decides the whole suite.
 
 ### 2. Keep the Board check's fetch apart from Review's
 

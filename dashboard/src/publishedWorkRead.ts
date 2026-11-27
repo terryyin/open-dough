@@ -29,6 +29,7 @@ export async function readPublishedWork(
   knownRevision: string | undefined,
   shown: PublishedWork | undefined,
   reads: PublishedObservationReadSource,
+  fresh = false,
 ): Promise<PublishedWork> {
   return withinReadWait(signal, async (untilEither, bound) => {
     try {
@@ -45,7 +46,7 @@ export async function readPublishedWork(
             };
       const snapshot = await trackSettledAsk(
         outcomes,
-        reads.readSnapshot(source, untilEither, knownRevision),
+        reads.readSnapshot(source, untilEither, knownRevision, fresh),
         {
           question: membershipQuestion,
           of: (read) => ({

@@ -10,11 +10,11 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 import { GitTargetFetches } from "./gitTargetFetch.ts";
 import {
   defaultGitOutputLimit as maxBuffer,
+  fetchGitTransport,
   gitExitedOne,
   gitProblem,
   runGit,
   runGitUntilClosed,
-  runGitWithProgressUntilClosed,
 } from "./gitRunner.ts";
 import { whileGitProgresses } from "./gitFetchProgress.ts";
 import {
@@ -141,7 +141,7 @@ async function fetchPublishedRef(
       `+refs/heads/${ref}:${trackingRef(ref)}`,
     ];
     if (progress === undefined) await runGitUntilClosed(args, call);
-    else await runGitWithProgressUntilClosed(args, call, progress);
+    else await fetchGitTransport(args, call, progress);
     const revision = await verifiedRef(repository, ref, signal);
     await record(repository, { lastSyncedAt: new Date().toISOString() });
     return revision;

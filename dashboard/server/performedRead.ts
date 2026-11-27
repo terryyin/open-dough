@@ -215,6 +215,7 @@ export async function perform(
                 pinned,
                 source,
                 signal,
+                { fresh: read.fresh },
               );
           }
         }),

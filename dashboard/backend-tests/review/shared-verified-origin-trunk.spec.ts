@@ -10,6 +10,7 @@ import { SharedVerifiedOriginTrunk } from "../../server/sharedVerifiedOriginTrun
 import {
   backlogPath,
   bareReview,
+  git,
   heldUploadPack,
   opened,
   readUntilClosed,
@@ -145,7 +146,9 @@ test("a joined open past a short bound is unanswered and the opener still observ
   releaseWhenFinished(releaseFifo, [opener]);
   await expect(held).resolves.toBe("held\n");
   await expect(
-    checks.demand(source, freshPin(), new AbortController().signal, 50),
+    checks.demand(source, freshPin(), new AbortController().signal, {
+      waitMs: 50,
+    }),
   ).resolves.toEqual({ kind: "unanswered" });
   await signalFifo(releaseFifo, true);
   await expect(opener).resolves.toEqual(
@@ -154,4 +157,72 @@ test("a joined open past a short bound is unanswered and the opener still observ
   await expect(
     pinned.reader(source, repository.trunkSha, signal)(source.backlogPath),
   ).resolves.toBe(backlog);
+});
+
+test("a transfer held past the read deadline is ended and the next open starts a new check", async () => {
+  const backlog = "Published membership.\n";
+  const { repository, source, pinned } = await opened(published(backlog));
+  const { heldFifo, releaseFifo } = heldUploadPack(
+    repository.fixture,
+    reviewRepositoryPath(source),
+    repository.origin,
+  );
+  const held = readUntilClosed(heldFifo);
+  const deadlines: AbortController[] = [];
+  const checks = new SharedVerifiedOriginTrunk({
+    reuseMs: () => 0,
+    deadline: () => {
+      const deadline = new AbortController();
+      deadlines.push(deadline);
+      return deadline.signal;
+    },
+  });
+  const stalled = expect(
+    checks.demand(source, pinned, new AbortController().signal),
+  ).rejects.toMatchObject({ reason: { kind: "timed-out" } });
+  await expect(held).resolves.toBe("held\n");
+  deadlines[0]?.abort();
+  await stalled;
+  const heldAgain = readUntilClosed(heldFifo);
+  const reopened = checks.demand(
+    source,
+    freshPin(),
+    new AbortController().signal,
+  );
+  releaseWhenFinished(releaseFifo, [reopened]);
+  await expect(heldAgain).resolves.toBe("held\n");
+});
+
+test("within production reuse a fresh demand starts a new check while a staggered tab shares the settled one", async () => {
+  const backlog = "Published membership.\n";
+  const { repository, source, pinned } = await opened(published(backlog));
+  bareReview(reviewRepositoryPath(source), repository.origin);
+  const checks = new SharedVerifiedOriginTrunk();
+  await expect(
+    checks.demand(source, pinned, new AbortController().signal),
+  ).resolves.toEqual(observedTrunk(repository.trunkSha, backlog));
+  git(
+    repository.integration,
+    "commit",
+    "--allow-empty",
+    "--quiet",
+    "-m",
+    "Moved",
+  );
+  git(
+    repository.integration,
+    "push",
+    "--quiet",
+    "origin",
+    `HEAD:${source.ref}`,
+  );
+  const moved = git(repository.integration, "rev-parse", "HEAD");
+  await expect(
+    checks.demand(source, freshPin(), new AbortController().signal),
+  ).resolves.toEqual(observedTrunk(repository.trunkSha, backlog));
+  await expect(
+    checks.demand(source, freshPin(), new AbortController().signal, {
+      fresh: true,
+    }),
+  ).resolves.toEqual(observedTrunk(moved, backlog));
 });
