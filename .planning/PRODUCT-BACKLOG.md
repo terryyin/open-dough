@@ -33,10 +33,10 @@ intent introduced or affected by a newly developed story.
 - [Follow published progress from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git ([plan](slice-plans/823-follow-published-progress-from-local-git/PLAN.md))
 - [Retire the held-read race step that cannot fail](seeds/SEED-418-review-published-session-changes.md#prove-or-retire-held-read-race-step) — SEED-418#prove-or-retire-held-read-race-step ([plan](slice-plans/890-prove-or-retire-held-read-race-step/PLAN.md))
 - [Prove GitHub request lifetime and failure evidence in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#github-request-lifetime-and-evidence-via-vitest) — SEED-413#github-request-lifetime-and-evidence-via-vitest ([plan](slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md))
+- [Correct the fast runtime cases' leftovers](seeds/SEED-413-renovate-dashboard-unit-tests.md#fast-runtime-unit-case-cleanup) — SEED-413#fast-runtime-unit-case-cleanup ([plan](slice-plans/884-correct-fast-runtime-case-leftovers/PLAN.md))
 
 ## Backlog list
 
-- [Correct the fast runtime cases' leftovers](seeds/SEED-413-renovate-dashboard-unit-tests.md#fast-runtime-unit-case-cleanup) — SEED-413#fast-runtime-unit-case-cleanup
 - [Read Board records at their published pins](seeds/SEED-430-read-published-project-data-from-local-git.md#read-board-records-at-published-pins) — SEED-430#read-board-records-at-published-pins
 - [Share one project refresh across Board and Review](seeds/SEED-430-read-published-project-data-from-local-git.md#share-one-refresh-across-board-and-review) — SEED-430#share-one-refresh-across-board-and-review
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git
