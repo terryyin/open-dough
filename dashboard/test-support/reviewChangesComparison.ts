@@ -151,7 +151,7 @@ export class ReviewComparison {
   }
 
   #scope() {
-    return this.#review.getByRole("button", {
+    return this.#review.getByRole("combobox", {
       name: "Review scope",
       exact: true,
     });

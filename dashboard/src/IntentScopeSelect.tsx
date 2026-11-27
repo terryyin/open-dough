@@ -1,6 +1,6 @@
 // Intent's review scope, the whole story or one of its sessions, chosen
-// from a compact dropdown (./CompactSelect.tsx) whose closed button names the
-// chosen scope. An ad hoc session shows its title after an "Ad hoc" icon. A
+// from a compact dropdown (./CompactSelect.tsx) whose closed combobox
+// announces the chosen scope. An ad hoc session shows its title after an "Ad hoc" icon. A
 // choice commits the session's existing key, so options that read alike
 // still choose their own session.
 import { CompactSelect, type CompactSelectOption } from "./CompactSelect.tsx";
