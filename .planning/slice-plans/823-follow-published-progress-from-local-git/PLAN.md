@@ -117,6 +117,13 @@ typecheck. The independent refactor reused the shared endpoint in the
 unchanged-Board case, which passed again with typecheck. The browser proof
 retains the warning and recovery through a real failed confirmation write.
 
+CI repair: the frontend job in [run 46020043455](https://github.com/terryyin/open-dough/actions/runs/46020043455)
+observed the blank Start test before its terminal presentation effect. This
+branch imports the test fix from `c446520f5`, which waits for one presentation
+and still checks the record, control, and focus. All four focused Chromium
+cases and Dashboard typecheck passed. The next push will check that the
+imported synchronization holds in one hosted run of the full frontend suite.
+
 ### 2. Separate stream delivery from observation demand
 
 Type: Structure
