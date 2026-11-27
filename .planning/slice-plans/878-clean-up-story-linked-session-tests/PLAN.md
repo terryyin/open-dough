@@ -148,7 +148,7 @@ Preserved behaviors:
   plan's execution base, read from the Playwright report artifacts. The
   reviewed reference is run 45768101743: 145 touched E2E tests averaged
   7.1 s and 111 touched backend tests averaged 1.9 s.
-- No `test.slow()`. Keep the default timeout. Slice 5 removes the four
+- No `test.slow()`. Keep the default timeout. Slice 6 removes the four
   `setTimeout` overrides unless one is shown to be essential.
 - Order relative to [plan 876](../876-open-session-changes-in-intent/PLAN.md):
   this correction is queued first. Its slice 3 trims
@@ -162,7 +162,7 @@ Preserved behaviors:
 - Local gate: Dashboard typecheck, plus each slice's focused selection
   through `scripts/test.sh <files>` or `npm run test:dashboard:backend --` /
   `npm run test:dashboard:frontend --`. Run full local suites only before
-  landing shared test-support changes (slices 6–8). Use Homebrew bash 5
+  landing shared test-support changes (slices 7–9). Use Homebrew bash 5
   under `caffeinate -s -i` from a fully awake machine on AC power.
 
 ## Decisive premises
@@ -171,8 +171,8 @@ Preserved behaviors:
 | --- | --- | --- |
 | Slice 1 deletes unbound recovery | Read-only live-store check on 2026-11-27: only one record has no story; it is closed (`doneAt` 2026-11-09). No candidate attempt has a matching open record. `launchRun.ts` refuses new records with no story. | Repeat the check at execution; stop and ask if an open record with no story appears. |
 | Slice 1 deletes `followUpBoundaryCases.ts` | `git grep` at `dd230d271` finds no importer. | None. |
-| Slice 4 removes E2E input and wording variants | At `dd230d271`, `backend-tests/launches/ad-hoc-start-labels.spec.ts` and `agent-launch-model-boundary.spec.ts` assert the "Ad hoc work" title. `frontend-tests/launches/responsive-unattached-startup.spec.ts` covers the mounted admission states. The Codex E2E repeats text, blank and whitespace input (`agent-launch-ad-hoc-codex.spec.ts:54`); the Cursor E2E repeats blank and text input (`-cursor.spec.ts:42`). | Before removing each variant, name its surviving lower-level case, or add one. |
-| Slices 6–8 owners | `dashboardParts.ts` already exports `doneSessionEntriesOf` / `shownDoneSessionEntriesOf`, used by 25 E2E specs. `expandStoryCardDoneHistory` is used by 10 files and `showDoneHistory` by 6. | Slice 6 routes the remaining hand-built paths through them. |
+| Slices 4–5 remove E2E input and wording variants | At `dd230d271`, `backend-tests/launches/ad-hoc-start-labels.spec.ts` and `agent-launch-model-boundary.spec.ts` assert the "Ad hoc work" title. `frontend-tests/launches/responsive-unattached-startup.spec.ts` covers the mounted admission states. The Codex E2E repeats text, blank and whitespace input (`agent-launch-ad-hoc-codex.spec.ts:54`); the Cursor E2E repeats blank and text input (`-cursor.spec.ts:42`). | Before removing each variant, name its surviving lower-level case, or add one. |
+| Slices 7–9 owners | `dashboardParts.ts` already exports `doneSessionEntriesOf` / `shownDoneSessionEntriesOf`, used by 25 E2E specs. `expandStoryCardDoneHistory` is used by 10 files and `showDoneHistory` by 6. | Slice 7 routes the remaining hand-built paths through them. |
 
 ## Ordered slices
 
@@ -309,18 +309,56 @@ Evidence (2026-11-27):
   `agent-launch-retained-history.spec.ts` failed before the fix and passes
   after it; the E2E case passed `--repeat-each 5`.
 
-### 4. Keep one admitted Start journey and host-specific E2E only
+### 4. Keep host-specific Codex and Cursor E2E only
+Type: Structure
+Status: done
+Proof: the Codex and Cursor ad hoc specs keep only their host behavior:
+- Codex: thread creation, plus the blank start's focus and "Awaiting first
+  instruction" state;
+- Cursor: create-chat, the "Conversation created in Cursor" wording, the
+  empty native input on a blank start, and the blank-model refusal.
+
+The default-start repeats (admission, card session, title, request shape)
+are removed and name their Claude survivors. The responsive Start keeps one
+host. Before an E2E variant is removed, its input variants and wording are
+shown in backend or mounted tests, adding a mounted case where one is
+missing. E2E case count drops.
+
+Evidence (2026-11-27):
+- Slice 4 overran its budget. On Terry's choice it was split: this slice keeps
+  the completed host trims, and slice 5 takes the rest.
+- The Codex whitespace variant is removed. It survives in
+  `developer-part.spec.ts:4` and `ad-hoc-start-labels.spec.ts:40`.
+- The Codex and Cursor default-start repeats now survive here:
+  - admission, the card session and the sidebar title: the instructed Claude
+    journey in `agent-launch-ad-hoc.spec.ts`;
+  - the "Ad hoc work — <date>" title: its empty-field case;
+  - "Admitting a story.": `responsive-session-start.spec.ts:160`.
+- The responsive Codex case is removed. It survives as the Claude case at
+  `responsive-session-start.spec.ts:160`, plus
+  `responsive-unattached-startup.spec.ts`.
+- A new mounted case in `launch-record-details.spec.ts` shows "First input
+  accepted" versus "Opened without an instruction" on Codex session details.
+- E2E cases in scope went from 19 to 17. Locally, `ad-hoc-codex` went from
+  29.0 s to 15.3 s.
+
+### 5. Keep one Claude default-start journey and one attachments journey
 Type: Structure
 Status: planned
-Proof: one Claude default-start journey proves admission, the card
-session and the title. Codex and Cursor specs keep only their host behavior.
-Attachments keep one journey plus each host's distinct delivery. The
-responsive Start keeps one host. Before an E2E variant is removed, its
-input variants (blank, whitespace, text) and wording are shown in backend
-or mounted tests, adding a mounted case where one is missing. E2E case
-count and CI time for the touched files drop.
+Proof: one Claude default-start journey in `agent-launch-ad-hoc.spec.ts`
+proves admission, the card session and the title. Its "only spaces" variant
+is removed after a mounted case shows the page drops a whitespace-only
+instruction. Attachments keep one journey, in `-attachments`, plus each
+host's distinct delivery (`-attachments-codex`, `-attachments-cursor`). The
+repaired continuation case stays. Each removed case names its survivor.
+E2E case count and CI time for the touched files drop against the baseline
+(run 45961498530):
+- ad-hoc: 33.2 s;
+- attachments: 23.8 s;
+- attachments-codex: 8.0 s;
+- attachments-cursor: 15.4 s.
 
-### 5. Merge the retained ad hoc story journeys and push follow-up availability down
+### 6. Merge the retained ad hoc story journeys and push follow-up availability down
 Type: Structure
 Status: planned
 Proof: the four `recently-done-sessions-*ad-hoc*` specs become at most two
@@ -330,7 +368,7 @@ workspace-gone vs terminal-open pair in `agent-launch-follow-up-session`
 become mounted cases plus at most one E2E follow-up journey. CI time
 drops against the baseline.
 
-### 6. Read session placement through one owner
+### 7. Read session placement through one owner
 Type: Structure
 Status: planned
 Proof: no spec builds the `storyCard → showColumn → expandStoryCardDoneHistory`
@@ -338,7 +376,7 @@ path by hand. Specs use the `dashboardParts.ts` readers (active and done),
 and `showDoneHistory` is gone. The touched E2E files pass, and the full E2E
 suite passes locally before landing.
 
-### 7. Open an installed Board and read the reporting input through one owner each
+### 8. Open an installed Board and read the reporting input through one owner each
 Type: Structure
 Status: planned
 Proof: one fixture step opens an installed Board, replacing
@@ -347,7 +385,7 @@ Proof: one fixture step opens an installed Board, replacing
 `expectAdHocReportingInput`. The touched E2E files pass, and the full E2E
 suite passes locally before landing.
 
-### 8. Arrange records on a published story through MakeMe
+### 9. Arrange records on a published story through MakeMe
 Type: Structure
 Status: planned
 Proof: one MakeMe builder step arranges a launch record on a published
@@ -361,8 +399,9 @@ before landing.
 ## Concern evidence
 
 Refinement was not needed: each slice is one structural correction with its
-own proof, and there are eight slices, at the limit. The original slice 6
-combined three independent owners, so it was split into slices 6 and 7. No slice-specific
+own proof. The original slice 6 combined three independent owners, so it was
+split into what are now slices 7 and 8. Slice 4 overran during execution and
+was split into slices 4 and 5 at Terry's choice, which leaves nine slices. No slice-specific
 concern remains.
 
 Interim behavior: none. Each slice keeps every preserved behavior when it
