@@ -7,6 +7,7 @@ import {
 } from "../../test-support/support/fakeGitHub.ts";
 import { processAlive } from "../../test-support/support/processGroup.ts";
 import { startInProcessAuthenticatedRead } from "../../test-support/support/inProcessAuthenticatedRead.ts";
+import { pinnedRead, readUrl } from "../../test-support/support/sharedReads.ts";
 import { expect, test, inProcessFixture } from "../support/fakeGhInProcess.ts";
 
 test("the real owner receives exact argv and binary stdout without a call PID", async ({
@@ -147,10 +148,9 @@ test("closing the authenticated boundary cancels its held in-process API call", 
   });
   try {
     boundary.github.serve(everyRepository, hangs);
-    const reading = fetch(
-      `${boundary.origin}/__authenticated-read?source=open-dough`,
-      { headers: { Origin: boundary.origin } },
-    ).catch(() => undefined);
+    const reading = fetch(readUrl(boundary.origin, pinnedRead), {
+      headers: { Origin: boundary.origin },
+    }).catch(() => undefined);
     await expect.poll(() => boundary.github.unansweredCalls).toBe(1);
     expect(existsSync(boundary.gh.pidPath)).toBe(false);
     await boundary.closeBoundary();

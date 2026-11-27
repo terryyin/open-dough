@@ -12,6 +12,7 @@ import {
   everyRepository,
   hangs,
 } from "../../test-support/support/fakeGitHub.ts";
+import { pinnedRead, readUrl } from "../../test-support/support/sharedReads.ts";
 import { expect, test } from "../support/fakeGhInProcess.ts";
 
 test("an explicitly selected boundary server reaches the fast owner with its API executable poisoned", async ({
@@ -26,10 +27,9 @@ test("an explicitly selected boundary server reaches the fast owner with its API
     requestOwnerRoot: client.gh.requestOwnerRoot,
   });
   try {
-    const reading = fetch(
-      `${server.baseURL}/__authenticated-read?source=open-dough`,
-      { headers: { Origin: server.origin } },
-    ).catch(() => undefined);
+    const reading = fetch(readUrl(server.baseURL, pinnedRead), {
+      headers: { Origin: server.origin },
+    }).catch(() => undefined);
     await expect.poll(() => client.github.unansweredCalls).toBe(1);
     expect(client.apiLaunched()).toBe(false);
     expect(server.ghPid()).toBeUndefined();

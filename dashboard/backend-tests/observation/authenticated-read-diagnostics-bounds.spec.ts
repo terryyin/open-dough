@@ -28,6 +28,12 @@ import {
   defaultRepository,
 } from "../../test-support/publishedOriginBasics.ts";
 import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
+import {
+  checkedAt,
+  pinnedAt,
+  pinnedRead,
+  readUrl,
+} from "../../test-support/support/sharedReads.ts";
 import { keepingOrigin } from "../../test-support/support/publishedRepository.ts";
 import {
   inspect,
@@ -53,14 +59,7 @@ test("keeps only the newest 100 failures and filters by configured source", asyn
           httpErrorAnswer(503, `wave-${String(at)} ${secretMarker}`),
         ),
       );
-      expect(
-        (
-          await rawRequest({
-            url: `${isolated.baseURL}/__authenticated-read?source=${knownSourceId}`,
-            headers: { Origin: isolated.origin },
-          })
-        ).status,
-      ).toBe(502);
+      expect((await pinnedAt(isolated)).status).toBe(502);
     }
     const openDough = await inspect(isolated, knownSourceId);
     expect(openDough.failures).toHaveLength(100);
@@ -91,14 +90,7 @@ test("omits optional, malformed, and oversized metadata and never retains secret
       everyRepository,
       failsWith(`fatal: ${secretMarker}\nGH_TOKEN=${secretMarker}\n`),
     );
-    expect(
-      (
-        await rawRequest({
-          url: `${isolated.baseURL}/__authenticated-read?source=${knownSourceId}`,
-          headers: { Origin: isolated.origin },
-        })
-      ).status,
-    ).toBe(502);
+    expect((await pinnedAt(isolated)).status).toBe(502);
 
     isolated.github.serve(everyRepository, () =>
       Promise.resolve(
@@ -113,14 +105,7 @@ test("omits optional, malformed, and oversized metadata and never retains secret
         }),
       ),
     );
-    expect(
-      (
-        await rawRequest({
-          url: `${isolated.baseURL}/__authenticated-read?source=${knownSourceId}`,
-          headers: { Origin: isolated.origin },
-        })
-      ).status,
-    ).toBe(502);
+    expect((await pinnedAt(isolated)).status).toBe(502);
 
     const seen = await inspect(isolated);
     expect(seen.body).not.toContain(secretMarker);
@@ -150,7 +135,10 @@ test("ordinary waiter departure does not record a diagnostic failure", async () 
   try {
     isolated.github.serve(everyRepository, hangs);
     const abandoned = abandonedRequest({
-      url: `${isolated.baseURL}/__authenticated-read?source=${knownSourceId}`,
+      url: readUrl(isolated.baseURL, {
+        source: knownSourceId,
+        query: pinnedRead,
+      }),
       headers: { Origin: isolated.origin },
     });
     await expect
@@ -189,12 +177,9 @@ test("pinned content failures carry the admitted pin without changing the shared
     const { revision } = published;
     server.github.serve(defaultRepository, published);
     expectServedHomesReach(server.github, defaultRepository, revision);
-    const membership = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
-      headers: { Origin: server.origin },
-    });
-    expect(membership.status).toBe(200);
-    expect(JSON.parse(membership.body)).toMatchObject({ revision });
+    const checked = await checkedAt(server);
+    expect(checked.status).toBe(200);
+    expect(JSON.parse(checked.body)).toMatchObject({ revision });
     server.github.serve(
       defaultRepository,
       keepingOrigin(

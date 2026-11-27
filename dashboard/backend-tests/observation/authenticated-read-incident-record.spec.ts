@@ -22,7 +22,7 @@ import {
   startFakeGitHub,
 } from "../../test-support/support/fakeGitHub.ts";
 import { httpErrorAnswer } from "../../test-support/originAnswers.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { checkedAt, pinnedAt } from "../../test-support/support/sharedReads.ts";
 import { defaultRepository } from "../../test-support/publishedOriginBasics.ts";
 import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
 import {
@@ -33,18 +33,12 @@ import {
   secretMarker,
   developmentBoundary,
   startDashboardServer,
-  type DashboardServer,
 } from "../../test-support/support/readDiagnostics.ts";
 
 test("a replaced server lists the failures the earlier one retained, newest first, with their attribution and nothing secret", async () => {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-incidents-"));
   const owner = privateRequestOwner();
   const github = await startFakeGitHub();
-  const read = (server: DashboardServer) =>
-    rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
-      headers: { Origin: server.origin },
-    });
   try {
     const first = await startDashboardServer({
       ...developmentBoundary,
@@ -66,7 +60,7 @@ test("a replaced server lists the failures the earlier one retained, newest firs
       const published = publishes({});
       github.serve(everyRepository, published);
       expectServedHomesReach(github, defaultRepository, published.revision);
-      const initial = await read(first);
+      const initial = await checkedAt(first);
       expect(initial.status).toBe(200);
       expect(JSON.parse(initial.body)).toMatchObject({
         revision: published.revision,
@@ -94,17 +88,17 @@ test("a replaced server lists the failures the earlier one retained, newest firs
           httpErrorAnswer(403, `forbidden ${socketPath} ${secretMarker}`),
         ),
       );
-      expect((await read(first)).status).toBe(502);
+      expect((await pinnedAt(first)).status).toBe(502);
       // `gh` fails after the owner asked: where it failed is unknown.
       github.serve(
         everyRepository,
         failsWith(`fatal: dial ${socketPath}\nGH_TOKEN=${secretMarker}\n`),
       );
-      expect((await read(first)).status).toBe(502);
+      expect((await pinnedAt(first)).status).toBe(502);
       // The owner ends while the read waits on it: a local failure.
       github.serve(everyRepository, hangs);
       const callsBefore = first.ghCalls().length;
-      const held = read(first);
+      const held = pinnedAt(first);
       await expect
         .poll(() => first.ghCalls().length, { timeout: 10_000 })
         .toBeGreaterThan(callsBefore);
@@ -148,7 +142,7 @@ test("a replaced server lists the failures the earlier one retained, newest firs
         expect(entry).toMatchObject({
           kind: "failed-read",
           source: knownSourceId,
-          category: "ref",
+          category: "content",
           ownerPid: standing.pid,
           ownerGeneration: standing.generation,
           ownerProtocol: standing.protocol,

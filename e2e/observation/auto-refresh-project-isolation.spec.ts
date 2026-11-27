@@ -78,14 +78,11 @@ test.describe("project read isolation of automatic checks", () => {
         request.kind !== "unknown" &&
         request.repository === "terryyin/open-dough",
     );
-  // Since the switch, GitHub was asked only for Doughnut: its membership
-  // read, detail at its own revision, and then its own checks -- nothing a
+  // Since the switch, GitHub was asked only for Doughnut: detail at its own
+  // revision, and then its own checks -- nothing a
   // late Open Dough answer could have started.
   function expectOnlyDoughnutAsked(calls: readonly GhCall[], revision: string) {
     expect(openDoughCalls(calls)).toEqual([]);
-    expect(calls.filter(({ request }) => request.kind === "ref")).toHaveLength(
-      1,
-    );
     expect(headsChecks(calls).map(({ argv }) => argv)).toEqual([
       doughnutCheckArgv,
     ]);

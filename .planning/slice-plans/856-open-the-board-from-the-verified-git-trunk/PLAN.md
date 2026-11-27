@@ -27,9 +27,9 @@ automatic observation, branches, other records, and Review callers
 ## Current decisions
 
 - Execution resumes only after
-  [plan 858](../858-move-authenticated-read-proofs-off-the-board-ref-read/PLAN.md)
-  lands; its server patch is this plan's slice 1 switch. Slice 1 then
-  reruns its proof on the merged trunk.
+  SEED-430#move-authenticated-read-proofs-off-the-board-ref-read lands (done
+  2026-11-27); its retargeted specs pass with this plan's slice 1 server
+  switch applied. Slice 1 then reruns its proof on the merged trunk.
 
 - The switch point is the `ref` case in
   [performed reads](../../../dashboard/server/performedRead.ts). It calls the

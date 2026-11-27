@@ -14,21 +14,17 @@ import { expect, test } from "../../test-support/support/pageTest.ts";
 import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
 import { httpErrorAnswer } from "../../test-support/originAnswers.ts";
 import { processRunning } from "../../test-support/support/processGroup.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { pinnedAt } from "../../test-support/support/sharedReads.ts";
 import {
   developmentBoundary,
   incidentEntries,
   inspect,
-  knownSourceId,
   startDashboardServer,
   type DashboardServer,
 } from "../../test-support/support/readDiagnostics.ts";
 
 async function failedRead(server: DashboardServer): Promise<void> {
-  const failed = await rawRequest({
-    url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
-    headers: { Origin: server.origin },
-  });
+  const failed = await pinnedAt(server);
   expect(failed.status).toBe(502);
 }
 

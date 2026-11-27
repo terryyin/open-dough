@@ -12,12 +12,11 @@ import path from "node:path";
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
 import { httpErrorAnswer } from "../../test-support/originAnswers.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { pinnedAt } from "../../test-support/support/sharedReads.ts";
 import {
   incidentEntryLines,
   incidentFiles,
   inspect,
-  knownSourceId,
   secretMarker,
   developmentBoundary,
   startDashboardServer,
@@ -30,14 +29,7 @@ test("the incident record keeps its newest entries within its entry and byte bou
     server.github.serve(everyRepository, () =>
       Promise.resolve(httpErrorAnswer(503, `${wave} ${secretMarker}`)),
     );
-    expect(
-      (
-        await rawRequest({
-          url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}`,
-          headers: { Origin: server.origin },
-        })
-      ).status,
-    ).toBe(502);
+    expect((await pinnedAt(server)).status).toBe(502);
   };
   const entryLines = () => incidentEntryLines(machine);
   const noStalls = { DOUGH_STALL_THRESHOLD_MS: String(600_000) };

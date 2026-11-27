@@ -1,7 +1,7 @@
 // The wait GitHub directs when it rate-limits a read, at the local
 // authenticated read boundary (../../server/ghRead.ts): whichever read GitHub
-// refuses -- a content read, a directory listing, a history read, a ref
-// resolution, or a branch-head resolution -- the answer says GitHub asked to
+// refuses -- a content read, a directory listing, a history read, a revision
+// check, or a branch-head resolution -- the answer says GitHub asked to
 // wait and carries that wait, whether GitHub directed it with `Retry-After` or
 // with a reset time once nothing remains. An unmarked `403` and a `404` carry
 // no wait. A rate limit that directs nothing waits as the process backs off:
@@ -28,6 +28,7 @@ import {
 } from "../../test-support/originAnswers.ts";
 import {
   readAt,
+  revisionCheck,
   sharedReadsPublished,
   sharedSeedPath,
   sharedSeedRead,
@@ -72,9 +73,9 @@ const readKinds: readonly ReadKind[] = [
       `the last commit of ${sharedSeedPath} at ${revision}`,
   },
   {
-    name: "a ref resolution",
-    query: () => "",
-    refused: (request) => request.kind === "ref",
+    name: "a revision check",
+    query: () => revisionCheck,
+    refused: (request) => request.kind === "matching-refs",
     reading: () => `main of ${repository}`,
   },
   {

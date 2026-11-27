@@ -3,8 +3,8 @@
 // subprocess -- not through the browser. A synthetic `gh` on each isolated
 // server process's PATH can hold a call open on command, so these tests can
 // prove that a `gh` subprocess this boundary owns actually ends -- rather
-// than being merely discarded -- when the last waiter disconnects (membership
-// and extra-path reads), on its own read timeout, and on server shutdown. A
+// than being merely discarded -- when the last waiter disconnects (pinned
+// reads), on its own read timeout, and on server shutdown. A
 // revision-check listing runs under its own tracked controller
 // (../../server/revisionChecks.ts), so a departed requester leaves `gh`
 // alive until the listing settles or the boundary closes; that disconnect
@@ -16,7 +16,7 @@
 // This spec covers the boundary's subprocess lifecycle. Its HTTP contract is
 // covered separately in ./authenticated-read-refusal.spec.ts and
 // ./authenticated-read-boundary.spec.ts, which share this suite's harness
-// (../../test-support/support/dashboardServer.ts). Membership reads, extra-path reads, and
+// (../../test-support/support/dashboardServer.ts). Pinned reads and
 // revision checks differ by URL shape and, for disconnect, by whether the
 // held work is the request itself or a shared listing. Every catalog source
 // reaches that ownership through the same code, so each read kind is
@@ -38,9 +38,10 @@ import {
   hangs,
 } from "../../test-support/support/fakeGitHub.ts";
 import {
-  authenticatedReadKinds,
-  authenticatedReadUrl,
-} from "../../test-support/support/authenticatedReadUrl.ts";
+  pinnedRead,
+  readUrl,
+  revisionCheck,
+} from "../../test-support/support/sharedReads.ts";
 import {
   developmentBoundary,
   startDashboardServer,
@@ -54,7 +55,13 @@ import {
 
 test.describe.configure({ mode: "serial" });
 
-test.describe("authenticated read boundary: last-waiter disconnect ends membership and extra-path subprocesses (development environment)", () => {
+// Each read kind whose `gh` subprocess the boundary owns.
+const readKinds = [
+  { label: "pinned read", query: pinnedRead },
+  { label: "revision check", query: revisionCheck },
+] as const;
+
+test.describe("authenticated read boundary: last-waiter disconnect ends pinned-read subprocesses (development environment)", () => {
   let server: DashboardServer;
 
   test.beforeAll(async () => {
@@ -68,27 +75,23 @@ test.describe("authenticated read boundary: last-waiter disconnect ends membersh
     await server.close();
   });
 
-  for (const { kind, label } of authenticatedReadKinds.filter(
-    ({ kind: readKind }) => readKind !== "revision-check",
-  )) {
-    test(`terminates a held ${label} when the request is abandoned (client disconnect)`, async () => {
-      server.github.serve(everyRepository, hangs);
-      const abandoned = abandonedRequest({
-        url: authenticatedReadUrl(server.baseURL, kind),
-        headers: { Origin: server.origin },
-      });
-      const becameAlive = await waitUntil(() => processAlive(server.ghPid()), {
-        timeoutMs: 5_000,
-      });
-      expect(becameAlive).toBe(true);
-      abandoned.cutAfter(0);
-      const died = await waitUntil(() => !processAlive(server.ghPid()), {
-        timeoutMs: 5_000,
-      });
-      expect(died).toBe(true);
-      expect(server.ghExitedBy()).toBe("SIGTERM");
+  test("terminates a held pinned read when the request is abandoned (client disconnect)", async () => {
+    server.github.serve(everyRepository, hangs);
+    const abandoned = abandonedRequest({
+      url: readUrl(server.baseURL, pinnedRead),
+      headers: { Origin: server.origin },
     });
-  }
+    const becameAlive = await waitUntil(() => processAlive(server.ghPid()), {
+      timeoutMs: 5_000,
+    });
+    expect(becameAlive).toBe(true);
+    abandoned.cutAfter(0);
+    const died = await waitUntil(() => !processAlive(server.ghPid()), {
+      timeoutMs: 5_000,
+    });
+    expect(died).toBe(true);
+    expect(server.ghExitedBy()).toBe("SIGTERM");
+  });
 });
 
 test.describe("authenticated read boundary: revision-check listing survives requester disconnect (development environment)", () => {
@@ -108,7 +111,7 @@ test.describe("authenticated read boundary: revision-check listing survives requ
   test("leaves a held revision check running when the request is abandoned (client disconnect)", async () => {
     server.github.serve(everyRepository, hangs);
     const abandoned = abandonedRequest({
-      url: authenticatedReadUrl(server.baseURL, "revision-check"),
+      url: readUrl(server.baseURL, revisionCheck),
       headers: { Origin: server.origin },
     });
     const becameAlive = await waitUntil(() => processAlive(server.ghPid()), {
@@ -151,11 +154,11 @@ test.describe("authenticated read boundary: bounded timeout without changing the
     await server.close();
   });
 
-  for (const { kind, label } of authenticatedReadKinds) {
+  for (const { label, query } of readKinds) {
     test(`ends a stalled ${label} at the read's own bound`, async () => {
       server.github.serve(everyRepository, hangs);
       const response = await rawRequest({
-        url: authenticatedReadUrl(server.baseURL, kind),
+        url: readUrl(server.baseURL, query),
         headers: { Origin: server.origin },
       });
       expect(response.status).toBe(502);
@@ -172,11 +175,11 @@ test.describe("authenticated read boundary: bounded timeout without changing the
 
 test.describe("authenticated read boundary: subprocess ownership across server shutdown", () => {
   // Left outstanding on purpose: each test's client never disconnects it.
-  // Only `server.close()` acts. An earlier membership case also destroyed
+  // Only `server.close()` acts. An earlier read case also destroyed
   // the connection after close, which confounded the result with the
   // request-disconnect path. The next describe isolates plugin-hook wiring;
   // these prove no owned subprocess survives a real shutdown.
-  for (const { kind, label } of authenticatedReadKinds) {
+  for (const { label, query } of readKinds) {
     test(`ends a held ${label} when the server itself closes`, async () => {
       const server = await startDashboardServer({
         ...developmentBoundary,
@@ -185,7 +188,7 @@ test.describe("authenticated read boundary: subprocess ownership across server s
       });
       server.github.serve(everyRepository, hangs);
       abandonedRequest({
-        url: authenticatedReadUrl(server.baseURL, kind),
+        url: readUrl(server.baseURL, query),
         headers: { Origin: server.origin },
       });
       const becameAlive = await waitUntil(() => processAlive(server.ghPid()), {
