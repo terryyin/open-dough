@@ -33,6 +33,7 @@ intent introduced or affected by a newly developed story.
 - [Prove terminal attach in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-terminal-attach-and-cursor-turns-on-vitest) — SEED-413#prove-terminal-attach-and-cursor-turns-on-vitest ([plan](slice-plans/871-prove-terminal-attach-on-vitest/PLAN.md))
 - [Open the Board from the verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-the-board-from-the-verified-git-trunk) — SEED-430#open-the-board-from-the-verified-git-trunk ([plan](slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md))
 - [Prove Cursor turns in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-cursor-turns-on-vitest) — SEED-413#prove-cursor-turns-on-vitest ([plan](slice-plans/872-prove-cursor-turns-on-vitest/PLAN.md))
+- [Prove Dashboard configuration and serving in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-dashboard-configuration-and-serving-on-vitest) — SEED-413#prove-dashboard-configuration-and-serving-on-vitest ([plan](slice-plans/868-prove-dashboard-configuration-and-serving-on-vitest/PLAN.md))
 
 ## Backlog list
 
@@ -49,7 +50,6 @@ intent introduced or affected by a newly developed story.
 - [Prove published Review comparisons in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-review-comparisons-via-vitest) — SEED-413#published-review-comparisons-via-vitest
 - [Prove retained landing capture in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#landing-capture-evidence-via-vitest) — SEED-413#landing-capture-evidence-via-vitest
 - [Prove Dashboard machine observations in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#machine-observation-via-vitest) — SEED-413#machine-observation-via-vitest
-- [Prove Dashboard configuration and serving in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-dashboard-configuration-and-serving-on-vitest) — SEED-413#prove-dashboard-configuration-and-serving-on-vitest
 - [Choose a session in a story’s change review](seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review) — SEED-418#select-a-story-session-for-review
 - [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof
 - [Explain and repair an empty native admission substitute stream](seeds/SEED-349-native-admission-substitute-empty-stream.md#explain-native-admission-substitute-empty-stream) — SEED-349#explain-native-admission-substitute-empty-stream
