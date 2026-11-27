@@ -18,6 +18,10 @@ import {
 
 export type { Refinement } from "./doneCaptureCaseMaterialization.ts";
 
+// The story every declared landing launch is bound to; its landing reports
+// name it.
+export const declaredStory = "SEED-9#declared-landing";
+
 // The landing a declaring session received.
 type DeclaredLanding = Parameters<LaunchBuilder["withDeclaredLanding"]>[0];
 
@@ -175,8 +179,10 @@ export class DoneCaptureCaseBuilder<
     return this.#with(session, times, (places) =>
       makeMe.aLaunchRecord
         .startedOnMainOf(places.checkout)
+        .adHoc({ title: "Fix the typo", storyIdentity: declaredStory })
         .inClaudeSession({ sessionId: session })
         .withDeclaredLanding({
+          identity: declaredStory,
           repository: places.checkout.gitDirectory,
           workspace: places.worktree(worktree),
           branch: worktree,

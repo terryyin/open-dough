@@ -93,9 +93,13 @@ test.each<Refusal>([
       records: [
         record ??
           makeMe.aLaunchRecord
-            .adHoc({ title: "Declared landing" })
+            .adHoc({
+              title: "Declared landing",
+              storyIdentity: "SEED-9#declared-landing",
+            })
             .inClaudeSession({ sessionId: "declared-decision-session" })
             .withDeclaredLanding({
+              identity: "SEED-9#declared-landing",
               origin: dashboardOrigin,
               ...(deletedAt !== undefined && { deletedAt }),
             })

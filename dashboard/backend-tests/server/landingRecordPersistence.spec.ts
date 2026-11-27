@@ -20,7 +20,10 @@ import {
 } from "../../test-support/support/launchStore.ts";
 import { keepAttempt } from "../../server/launchAttemptStore.ts";
 import { keep, minutesAgo, source } from "../support/doneCaptureCase.ts";
-import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
+import {
+  aDoneCaptureCase,
+  declaredStory,
+} from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
 
 const reference = "11111111-0000-4000-8000-000000000745";
@@ -103,7 +106,10 @@ test.each(["retained", "attempt"] as const)(
       { in: branch },
     );
     const submission = makeMe.aLandingSubmission
-      .forLaunch({ reference })
+      .forLaunch({
+        reference,
+        ...(path === "retained" && { identity: declaredStory }),
+      })
       .comparing({ base, revision })
       .please();
     const receipt = await handleLanding(submission, dashboardOrigin, "prepare");

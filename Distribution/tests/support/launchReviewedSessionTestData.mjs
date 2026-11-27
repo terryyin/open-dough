@@ -28,10 +28,12 @@ import { minutesAgo } from "./testDataDefaults.mjs";
 
 export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
   /**
-   * The session declared a branch and received its storyless landing context.
-   * @param {{ repository?: string, workspace?: string, branch?: string, committedTip?: string, trunkRevision?: string, origin?: string, reference?: string, deletedAt?: string }} [facts]
+   * The session declared a branch and received its landing context for
+   * `identity`, the story its request names.
+   * @param {{ identity?: string, repository?: string, workspace?: string, branch?: string, committedTip?: string, trunkRevision?: string, origin?: string, reference?: string, deletedAt?: string }} [facts]
    */
   withDeclaredLanding({
+    identity,
     repository = "/repo",
     workspace = "/work",
     branch = "dough/decision",
@@ -41,10 +43,14 @@ export class LaunchReviewedSessionBuilder extends LaunchRecordBuilder {
     reference = reportingReference,
     deletedAt,
   } = {}) {
-    const authority = new LandingAuthorityBuilder()
+    const authorityBuilder = new LandingAuthorityBuilder()
       .ofRepository(repository)
-      .inWorktree({ workspace, branch })
-      .please();
+      .inWorktree({ workspace, branch });
+    const authority = (
+      identity === undefined
+        ? authorityBuilder
+        : authorityBuilder.forStory(identity)
+    ).please();
     return this.enteredBranch({
       repository,
       workspace,

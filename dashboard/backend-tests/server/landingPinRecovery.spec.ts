@@ -9,7 +9,10 @@ import {
 import { keptSession } from "../../server/launchRecordStore.ts";
 import { landingReportingReference } from "../../src/launchLanding.ts";
 import { keep, source } from "../support/doneCaptureCase.ts";
-import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
+import {
+  aDoneCaptureCase,
+  declaredStory,
+} from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
 
 async function preparedLanding() {
@@ -29,7 +32,7 @@ async function preparedLanding() {
     { in: branch },
   );
   const submission = makeMe.aLandingSubmission
-    .forLaunch({ reference })
+    .forLaunch({ reference, identity: declaredStory })
     .comparing({ base, revision })
     .please();
   const prepared = await handleLanding(submission, dashboardOrigin, "prepare");

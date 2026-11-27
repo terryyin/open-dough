@@ -8,7 +8,10 @@ import {
   setRecordDoneAt,
 } from "../../server/launchRecordStore.ts";
 import { source } from "../support/doneCaptureCase.ts";
-import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
+import {
+  aDoneCaptureCase,
+  declaredStory,
+} from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardOrigin } from "../support/publisherDashboardOrigin.ts";
 
 const submissionReference = "11111111-0000-4000-8000-000000000737";
@@ -44,7 +47,7 @@ test("Done leaves the prepared receipt recordable after acceptance", async () =>
   const { base } = checkout;
   const workspace = worktrees[branch];
   const submission = makeMe.aLandingSubmission
-    .forLaunch({ reference: submissionReference })
+    .forLaunch({ reference: submissionReference, identity: declaredStory })
     .comparing({ base, revision })
     .please();
   const receipt = await handleLanding(submission, dashboardOrigin, "prepare");
