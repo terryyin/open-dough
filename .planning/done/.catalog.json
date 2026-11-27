@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-370_close-preview-incident-record-on-sighup.json",
+      "identity": "SEED-370#close-preview-incident-record-on-sighup",
+      "completedAt": "2026-11-27T15:11:32.314Z",
+      "blob": "ee10d876831812e00ee847b28ccd2eb3550363a0"
+    },
+    {
       "fileName": "SEED-413_fast-runtime-unit-cases.json",
       "identity": "SEED-413#fast-runtime-unit-cases",
       "completedAt": "2026-11-27T13:35:56.168Z",
@@ -3528,18 +3534,6 @@
       "identity": "SEED-165#keep-cursor-effort-visible",
       "completedAt": "2026-10-28T23:56:59.362Z",
       "blob": "6c7d9d997b0c430bea0846636ff963def149799e"
-    },
-    {
-      "fileName": "SEED-163_reliably-report-dashboard-wrap-up.json",
-      "identity": "SEED-163#reliably-report-dashboard-wrap-up",
-      "completedAt": "2026-10-28T14:50:18.182Z",
-      "blob": "5647aae721c5eb8abd7d82912cc1abe23a1d3478"
-    },
-    {
-      "fileName": "SEED-162_keep-long-running-dashboard-sessions-responsive.json",
-      "identity": "SEED-162#keep-long-running-dashboard-sessions-responsive",
-      "completedAt": "2026-10-28T14:31:57.357Z",
-      "blob": "3fed9eb28222bb9436371c2f9ef2ebd987bb0802"
     }
   ],
   "unreadable": []

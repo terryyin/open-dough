@@ -33,7 +33,6 @@ intent introduced or affected by a newly developed story.
 - [Prove published refresh lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-refresh-lifecycle-via-vitest) — SEED-413#published-refresh-lifecycle-via-vitest ([plan](slice-plans/861-prove-published-refresh-lifecycle-on-vitest/PLAN.md))
 - [Prove authenticated GitHub observation in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#authenticated-github-observation-via-vitest) — SEED-413#authenticated-github-observation-via-vitest ([plan](slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md))
 - [Diagnose Dashboard CI probe flakes](seeds/SEED-413-renovate-dashboard-unit-tests.md#diagnose-dashboard-ci-probe-flakes) — SEED-413#diagnose-dashboard-ci-probe-flakes ([plan](slice-plans/885-diagnose-dashboard-ci-probe-flakes/PLAN.md))
-- [Close the preview's incident record when the watcher ends on SIGHUP](seeds/SEED-370-remove-old-dashboard-deployments.md#close-preview-incident-record-on-sighup) — SEED-370#close-preview-incident-record-on-sighup ([plan](slice-plans/889-close-preview-incident-record-on-sighup/PLAN.md))
 
 ## Backlog list
 
