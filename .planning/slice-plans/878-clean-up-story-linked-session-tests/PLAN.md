@@ -244,6 +244,9 @@ Evidence (2026-11-27):
 - `landing-policy` drops the auto-land capture, which the E2E
   `landing-context` spec proves, and keeps managed delivery with the foreign
   `.git` refusal and the unfinished report.
+- Trunk's SEED-423 change (`04ab52101`) then extended that auto-land case to
+  read the handoff from Dashboard records with the launches file parked. The
+  trunk merge `befa92936` keeps it as that sibling's distinct proof.
 - Local times, at load 14 then 7–18:
   - `landing-policy`: 12.8 s → 2.9 s;
   - `declared-worktree-publication`: 0.9 s → 0.7 s.
@@ -254,7 +257,7 @@ Evidence (2026-11-27):
 
 ### 3. Prove each admitted-session fact once
 Type: Structure
-Status: planned
+Status: done
 Proof: `feedback-maintenance-admission` asserts only that the scheduled
 start carries its due date and story identity. The two backend completion
 specs keep only the no-change range, the second launch from one checkout
@@ -262,6 +265,35 @@ and the lost-evidence hold. `e2e/sessions/admitted-session-completion`
 keeps the borrowed checkout state and the fresh-clone Review, through one
 server. Every finding 2 fact appears in exactly one surviving case, and the
 selection's CI time drops.
+
+Evidence (2026-11-27):
+- Reconciled with trunk's SEED-423 `972db9e53`, which adopts admitted ranges
+  from retained landings and whose assertions are all kept.
+- `feedback-maintenance-admission` asserts only `maintenance.due` and
+  `storyIdentity`. The claim-before-native-session fact survives in
+  `admitted-session-start.spec.ts`, in "dispatches nothing while its
+  admission is held".
+- The no-change spec keeps:
+  - the no-change range;
+  - the cleared `first-landing-expectation.json`.
+
+  The `--outcome completed` report survives in
+  `agent-completion-identity.spec.ts:84`.
+- The shared-checkout spec keeps:
+  - the second launch from one checkout;
+  - the later range's shared-checkout uncertainty;
+  - the lost-evidence holds (retained landing missing or mismatched).
+
+  The landing retry survives in `declared-worktree-publication.spec.ts`.
+- The E2E spec keeps the borrowed checkout state and the fresh-clone Review.
+  Its Intent closure-revision check survives in
+  `e2e/intent/intent-story-completed.spec.ts:86`.
+- Local selection time before the merge, at load 20–34:
+  - backend 28.7 s → 19.5 s;
+  - E2E 27.0 s → 13.4 s.
+- The shared-checkout second-launch case runs about 29.6 s at load about 30,
+  against its 30 s bound. This execution repairs it with the CI repair under
+  the failure policy. See G2 for the server count.
 
 ### 4. Keep one admitted Start journey and host-specific E2E only
 Type: Structure
@@ -328,3 +360,8 @@ lands.
 Reported: slice 2 — "Three other things still use the stubbed `HOME`"
 Story clause: "move landing-refusal and follow-up decision matrices into typed unit tables, keeping one wiring case per integration spec"
 Disposition: no user cost "keep each story-linked session behavior proven once, at the cheapest level that observes it": the refusal matrix now runs in the typed `decideLanding` table without any environment mount. The remaining scratch `HOME` isolates the real installed publication script and the machine attempt store in the kept wiring cases. Dropping it would write to the developer's real home, and removing it would change production signatures outside this correction's scope.
+
+### G2. Admitted-session E2E still starts two servers
+Reported: slice 3 — "the E2E spec started 2 dashboard servers before this slice (the preparation `dashboard` fixture plus the `openFreshClone` reader) and still starts 2"
+Story clause: "keep each story-linked session behavior proven once, at the cheapest level that observes it"
+Disposition: no user cost "keep each story-linked session behavior proven once, at the cheapest level that observes it": the fresh-clone Review needs its own reader server, and the journey is the only one that proves it. Each of its facts is still proven once. One server would mean admitting in process inside the Playwright worker, a fixture redesign that would add no proof.

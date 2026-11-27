@@ -20,11 +20,8 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "../../dashboard/test-support/support/dashboardServer.ts";
-import { publishIntentTrunk } from "../../dashboard/test-support/support/intentStoryWorktree.ts";
-import { intentStory } from "../../dashboard/test-support/support/intentStoryPage.ts";
 import { launchStoreFile } from "../../dashboard/test-support/support/launchStore.ts";
 import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
-import { selectDoneStoryInIntent } from "../../dashboard/test-support/support/selectDoneStoryInIntent.ts";
 import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
 import { trunkCommitFromAnotherWriter } from "../../dashboard/test-support/support/storyBranchIntegration.ts";
 import { git } from "../../dashboard/test-support/support/storyReviewWorktree.ts";
@@ -95,10 +92,8 @@ test("a fresh clone reads the retired admission's story and its exact published 
   openFreshClone,
 }) => {
   const admitted =
-    await test.step("Given an admitted story launches in a borrowed checkout", () => {
-      publishIntentTrunk(origin.project);
-      return admitForCompletion(dashboard, origin, title);
-    });
+    await test.step("Given an admitted story launches in a borrowed checkout", () =>
+      admitForCompletion(dashboard, origin, title));
   const landed =
     await test.step("And the borrowed session publishes its product change", () =>
       landNativeWork(admitted, file));
@@ -184,18 +179,6 @@ test("a fresh clone reads the retired admission's story and its exact published 
     );
     await review.expectNoText(file);
     await review.expectNoText(later);
-  });
-  const { intent } =
-    await test.step("When the reader opens the completed story in Intent", async () => {
-      await review.close();
-      return selectDoneStoryInIntent(page, title, undefined, reader.baseURL);
-    });
-  await test.step("Then Intent shows the completed story and its original closure revision", async () => {
-    const story = intentStory(intent);
-    await expect(story.title).toHaveText(title);
-    await story.headerDetail();
-    await story.browseFiles();
-    await expect(story.header.publishedCompletion).toHaveText(final);
   });
   await test.step("And published reading still needs no local launch storage", () => {
     expect(existsSync(launchStoreFile(reader))).toBe(false);

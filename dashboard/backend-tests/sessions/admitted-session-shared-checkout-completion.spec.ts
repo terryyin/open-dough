@@ -14,14 +14,12 @@ import {
 import { sharedCheckoutNotePathBeside } from "../../../Distribution/src/skills/dough-execute-plan/scripts/shared-checkout-note.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { keptRecords } from "../../server/launchRecordStore.ts";
 import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import {
   finishAdmittedClaim,
   landNativeWork,
   type AdmittedCompletion,
 } from "../../test-support/support/admittedSessionCompletion.ts";
-import { countedGit } from "../../test-support/support/completionRecovery.ts";
 import {
   installFakeCodex,
   type FakeCodex,
@@ -34,10 +32,7 @@ import { keepStartedOrigin } from "../../test-support/support/startOriginPrepara
 import { trunkCommitFromAnotherWriter } from "../../test-support/support/storyBranchIntegration.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
 import { admitCodexLaunch } from "../support/admittedCodexLaunch.ts";
-import {
-  deliverInstalled,
-  retryInstalledLanding,
-} from "../support/installedPublisher.ts";
+import { deliverInstalled } from "../support/installedPublisher.ts";
 
 const source = makeMe.aPublishedSource.openDough.please();
 const repository = queuedReadyRepository().please();
@@ -93,15 +88,6 @@ test("each admitted launch keeps its accepted comparison when another launch lan
     earlierFile,
     deliverInstalled,
   );
-  const receipt = (await keptRecords(source.id)).find(
-    ({ request }) =>
-      request.reporting?.reference === earlier.reporting.reference,
-  )?.landing;
-  if (!receipt) throw new Error("The earlier landing has no receipt.");
-  expect(receipt).toMatchObject({
-    base: earlier.claim.publishedSha,
-    revision: earlierLanded,
-  });
 
   native.threadId = "later-native-session";
   const later = await admitCodexLaunch(source, origin, "Verify later work");
@@ -158,26 +144,6 @@ test("each admitted launch keeps its accepted comparison when another launch lan
       { base: beforeLaterClosure, candidate: laterFinal },
     ],
   });
-  for (const [file, candidate] of [
-    [earlierFile, earlierLanded],
-    [laterFile, laterLanded],
-  ] as const) {
-    expect(
-      (await origin.originGit("rev-list", "main", "--", file)).trim(),
-    ).toBe(candidate);
-  }
-
-  const tip = await origin.originGit("rev-parse", "main");
-  const counted = await countedGit(origin.machine);
-  vi.stubEnv("PATH", counted.env.PATH);
-  expect(await retryInstalledLanding(earlier.landingContext)).toMatchObject({
-    reference: earlier.reporting.reference,
-    base: earlier.claim.publishedSha,
-    revision: earlierLanded,
-    receipt: receipt.receipt,
-  });
-  expect(existsSync(counted.log)).toBe(false);
-  expect(await origin.originGit("rev-parse", "main")).toBe(tip);
   // Two admissions, landings and closures each run real Git children.
 }, 30_000);
 
