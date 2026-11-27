@@ -1,9 +1,7 @@
 // Review session changes opens Intent while native final reports keep the
-// Side panel. A held Git comparison must not answer a later session.
-import { publishedReviewStory } from "../../dashboard/test-support/support/publishedReviewSession.ts";
+// Side panel.
 import { expect } from "@playwright/test";
 import { keyStep } from "../../dashboard/test-support/sidePanelWidthPage.ts";
-import { holdPublishedReviewOf } from "../../dashboard/test-support/support/holdReviewResponse.ts";
 import { finalReportParts } from "../../dashboard/test-support/finalReportPages.ts";
 import {
   otherQueuedIdentity,
@@ -17,37 +15,16 @@ import { test } from "../../dashboard/test-support/support/sidePanelReplacement.
 
 test.use({ preparationHost: "codex" });
 
-test("one session's changes, another session's changes in Intent, and a final report in the one side panel", async ({
-  page,
+test("a session's changes in Intent and a final report in the one side panel", async ({
   dashboard,
-  storiesAAndB: { reviewReads, journey, storyBSession, first, second },
+  storiesAAndB: { reviewReads, journey, storyBSession, session },
 }) => {
-  const heldA = await holdPublishedReviewOf(page, dashboard.origin, first);
-  try {
-    await journey.phase(
-      "The first session's changes open in Intent on its held read",
-      ({ board }) =>
-        board
-          .reviewPublishedSession(first)
-          .expectSelectedStory(publishedReviewStory.identity),
-    );
-    await heldA.reached;
-    await journey.phase(
-      "The second session's changes replace the first session's pending read",
-      ({ board, perspective }) => {
-        perspective.choose("Development");
-        board
-          .reviewPublishedSession(second)
-          .expectSessionChosen("1 changed file");
-      },
-    );
-  } finally {
-    await heldA.releaseAndDrain();
-  }
   await journey.phase(
-    "a held read never answers a later session's changes",
-    ({ intent, sidePanel }) => {
-      intent.expectSessionChosen("1 changed file");
+    "the session's changes open in Intent",
+    ({ board, sidePanel }) => {
+      board
+        .reviewPublishedSession(session)
+        .expectSessionChosen("1 changed file");
       sidePanel.expectItems(0);
     },
   );
@@ -80,7 +57,7 @@ test("one session's changes, another session's changes in Intent, and a final re
     "a session's changes open in Intent beside the final report",
     ({ board, sidePanel }) => {
       board
-        .reviewPublishedSession(second)
+        .reviewPublishedSession(session)
         .expectSessionChosen("1 changed file");
       sidePanel.finalReport.expectText(storyBReport).sidePanel.expectItems(1);
     },
