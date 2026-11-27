@@ -183,6 +183,14 @@ connection after 253 of 327 files, with no assertion failure. That is the
 closure owned by the Taken `SEED-413#keep-full-frontend-runs-connected`. It is
 not repaired here.
 
+CI repair on `4cce05fd2` (run `46001524031`):
+`intent-home-activation-scope.spec.ts:134` hit a race inherited from trunk. The
+page object read `aria-expanded`, yielded, then clicked, so it could close a
+folder that Intent opened during the yield. `expandButton` reads the state and
+clicks in the same task. It is now used by the folder, CI homepage and session
+card disclosures. Evidence:
+[diagnosis record](diagnosis-home-activation-scope-folder-expand.md).
+
 ### 4. Prove published sessions and the chosen run across a refresh
 Type: Structure
 Status: planned
