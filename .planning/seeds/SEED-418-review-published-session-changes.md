@@ -40,6 +40,28 @@ kept across a refresh; the story's session list lives in Follow up's module; and
 test support and one E2E case are left over or redundant.
 [Plan](../slice-plans/883-keep-session-review-proof-after-retirement/PLAN.md).
 
+<a id="prove-or-retire-held-read-race-step"></a>
+
+### Retire the held-read race step that cannot fail
+
+**Identity:** SEED-418#prove-or-retire-held-read-race-step
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/890-prove-or-retire-held-read-race-step/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6ef6275af72f4a92172c9fb2314a2342885fdcea2f532b5e1b3d356b64c342f8","plan":"56e08a54f0a0f0cfbd70b7a13a742676bc08f7a747c79a2d5e4a5ce044ad1163"}}
+```
+
+**Goal.** Maintainers of Intent's session review keep only proof that can
+fail: the Side panel journey stops paying for a step that no break of the
+held-read race fails, while the stale-read guard it seemed to own stays
+proved where the race can happen.
+
+**Scope.** Correct what the retrospective of
+[Keep Intent's session review and its proof whole after the retirement](#keep-session-review-proof-after-retirement)
+found: the step "a held read never answers a later session's changes" in
+`e2e/navigation/side-panel-content-replacement.spec.ts` was never shown to
+fail. Remove that step and the setup only it uses, keeping the journey's
+final-report frame. `useReviewRead.ts` and its staleness checks stay.
+[Plan](../slice-plans/890-prove-or-retire-held-read-race-step/PLAN.md).
+
 <a id="review-selected-sessions-together"></a>
 
 ### Review the combined changes of selected sessions

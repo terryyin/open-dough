@@ -181,7 +181,8 @@ Accepted on `5dca9bbdc`:
 CI on `3def01aa7` (run `45996969418`): `dashboard-frontend` lost its browser
 connection after 253 of 327 files, with no assertion failure. That is the
 closure owned by the Taken `SEED-413#keep-full-frontend-runs-connected`. It is
-not repaired here.
+not repaired here. The same closure recurred on `3494989eb` (run
+`46015067766`, 245 of 332 files).
 
 CI repair on `4cce05fd2` (run `46001524031`):
 `intent-home-activation-scope.spec.ts:134` hit a race inherited from trunk. The
@@ -255,12 +256,36 @@ Accepted on `308492186`.
 - The race case was not added and the Side panel step was not narrowed. See
   G1.
 
+## Execution complete
+
+Product advice:
+- A correction is planned and ready but not queued:
+  [Retire the held-read race step that cannot fail](../../seeds/SEED-418-review-published-session-changes.md#prove-or-retire-held-read-race-step)
+  ([plan 890](../890-prove-or-retire-held-read-race-step/PLAN.md)).
+  Going back to Development unmounts Intent, so the Side panel step can never
+  fail. The `useReviewRead.ts` checks stay proved by
+  `intent-story-compare-fixed.spec.ts:159`.
+- Fold these into the refinement of the queued
+  `SEED-418#review-selected-sessions-together`:
+  - `StorySummary` carries both `sessionChosen` and `session` from one
+    chosen-session key. A single optional chosen-session value would keep
+    future changes to one place.
+  - The Review scope dropdown is disabled while a read is pending. Choosing
+    several sessions may mean several reads.
+- Low priority, and older than this story: session keys
+  (`followUpSessionKey`, `FollowUpSessionChoice`) still come from Follow up's
+  request schema, so a change to Follow up's request format would silently
+  change Intent's scope keys.
+- Learning for intent-protection review: the retired specs' descriptions named
+  the Side panel while they tested Intent. Deliberate break checks found the
+  missing proof where test names did not.
+
 ## Story obligations
 
 ### G1. The held-read race keeps its E2E proof
 Reported: slice 5 — "The new race case passes but has not been shown to catch the race"
 Story clause: "so Intent's diff and session review cannot regress silently"
-Disposition: no user cost "so Intent's diff and session review cannot regress silently": the race stays proved. The step "a held read never answers a later session's changes" in `e2e/navigation/side-panel-content-replacement.spec.ts:48` is unchanged and passed on this candidate (`s5c-sidepanel`). In the frontend mount the late answer never showed, even with both `useReviewRead.ts` staleness checks bypassed, so a frontend case there would observe nothing. The Review scope dropdown is disabled while a read is pending, so the race can't be reached from inside Intent.
+Disposition: no user cost "so Intent's diff and session review cannot regress silently": this story removes no race proof. The step "a held read never answers a later session's changes" at `e2e/navigation/side-panel-content-replacement.spec.ts:48` is unchanged from before the story and passed on this candidate (`s5c-sidepanel`). Bypassing both `useReviewRead.ts` staleness checks never made the late answer show in the frontend mount, and the Review scope dropdown is disabled while a read is pending. No break has been shown to fail that step either; the retrospective's correction [Retire the held-read race step that cannot fail](../../seeds/SEED-418-review-published-session-changes.md#prove-or-retire-held-read-race-step) owns that question.
 
 ## Decisive premises
 
