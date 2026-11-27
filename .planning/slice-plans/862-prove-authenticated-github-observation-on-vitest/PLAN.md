@@ -6,11 +6,18 @@
 
 ## Goal and scope
 
-Give Dashboard and CI maintainers fast Node Vitest proof of authenticated
-GitHub failure classification, admission, request sharing and lifetime, and
-bounded diagnostic evidence. Account for all 23 observation specs below.
-Keep existing product behavior and preserve the proof that needs a real
-socket, subprocess, owner process, Git repository, or durable file.
+Give Dashboard maintainers fast Node Vitest proof of authenticated GitHub
+failure classification, admission under waits, and request sharing and
+turns. Account for the ten observation specs and the delivered cases of
+two shared specs that the slices below name. Keep existing product
+behavior and preserve the proof that needs a real socket, subprocess, Git
+repository, or HTTP response.
+
+This story was split after slice 3. Its former slices 4–8 (owned
+subprocess lifetime, the shared owner across Dashboards and CI,
+diagnostics, and incident evidence) are slices 1–5 of
+[Prove GitHub request lifetime and failure evidence in Node Vitest](../890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md),
+with the G1 obligation and the remaining 13 legacy paths.
 
 [Plan 858](https://github.com/terryyin/open-dough/blob/bca2def1a/.planning/slice-plans/858-move-authenticated-read-proofs-off-the-board-ref-read/PLAN.md)
 moved the general authenticated-read tests away from the Board's cold
@@ -26,7 +33,7 @@ reachable path before recording upstream call counts.
 revision-listing reuse, revision streams, and retained answers. This plan
 keeps the request-sharing interaction those clients rely on, including
 caller-specific answers and failure survival. [Plan 860](https://github.com/terryyin/open-dough/blob/ebdf4ebac57a7d7cd41172def1b8089a2d4fd455/.planning/slice-plans/860-prove-published-read-admission-on-vitest/PLAN.md)
-owns source and published-record read admission. [Plan 823](../823-follow-published-progress-from-local-git/PLAN.md)
+owns source and published-record read admission. [Plan 887](../887-read-board-records-at-published-pins/PLAN.md)
 owns moving further readers to local Git. The installed login-isolation
 checks and the browser journeys retain their existing owners.
 
@@ -38,7 +45,7 @@ checks and the browser journeys retain their existing owners.
   and [plain Vitest](../../NORTH-STAR.md#plain-vitest-for-unit-tests-playwright-only-for-e2e)
   guide this migration. Use the installed `ReadAdmission`, `GitHubRequests`
   and answer parser for owner rules, and the Dashboard's `reportedFailure`,
-  `RevisionChecks`, and `diagnosticsForSource` for the outcomes they own.
+  and `RevisionChecks` for the outcomes they own.
   Use typed inputs and the smallest boundary that supplies independent proof.
 - [ADR 0008, Project dashboard domain and architecture](../../../docs/adrs/0008-project-dashboard-domain-and-architecture-accepted.md)
   and the North Star's [shared Git refresh](../../NORTH-STAR.md#share-one-refresh-for-published-dashboard-git-reads)
@@ -49,16 +56,15 @@ checks and the browser journeys retain their existing owners.
   PID and its exit when a case promises actual subprocess termination.
   The in-process transport does not create that PID.
 - Reuse the installed Distribution owner tests for equivalent protocol
-  rules. They do not supply Dashboard read selection, HTTP timing, receipt
-  of failures by both Dashboards, or CI wiring proof. Keep those assertions
+  rules. They do not supply Dashboard read selection or HTTP timing. Keep those assertions
   on the relevant production callers. Reuse existing test collaborators
   where the real boundary needs them and add zero wrappers to test support.
   Before removing `turnReads.ts`, `directedWait.ts`, `sharedReads.ts`,
-  `readDiagnostics.ts`, `inProcessAuthenticatedRead.ts` or
-  `revisionCheckBoundary.ts` support, trace every actual caller across
-  Dashboard, Distribution, and E2E. In particular, plan 861 still uses
-  `revisionCheckBoundary.ts` and the runtime family still uses the
-  in-process boundary support.
+  `inProcessAuthenticatedRead.ts` or `revisionCheckBoundary.ts` support,
+  trace every actual caller across Dashboard, Distribution, and E2E. In
+  particular, plans 861 and 890 still use `revisionCheckBoundary.ts` or
+  its callers, and the runtime family still uses the in-process boundary
+  support.
 - Keep browser behavior with
   [two tabs sharing turns](../../../e2e/observation/read-turns-across-tabs.spec.ts),
   [rate-limit recovery](../../../e2e/observation/auto-refresh-rate-limit.spec.ts),
@@ -87,9 +93,13 @@ OPEN_DOUGH_DASHBOARD_BACKEND_TIMES="$proof_dir/times.txt" \
 | --- | --- |
 | Maintained one-worker selection with its proof record | The current check and pinned routes ran the 76 cases below, including the real Add Git read, shared Dashboard/CI owner, CLI process death, same-PID restart, and folded stall. Keep these consumers where the effect or timing must be real. |
 | Production `readAnswer` → `reportedFailure` and `ReadAdmission.answered` under Node 24.21.0 | An included 429 with Retry-After 60 reports a 60 s wait, holds another caller unasked and expires at that deadline. A normal CLI failure with stderr `(HTTP n)` carries transient eligibility only for 408/500/502/503/504 among the eight observed statuses. Use the typed seams for the matrix and keep the real caller encoding witness. |
-| `node --test --test-concurrency=1` on Distribution's `github-request-{answer,owner,disconnect}.test.mjs` | 18/18 passed. The real owner shared one request and capped active calls across processes, applied a shared wait and allowed one first call at expiry, preserved a peer's call and kept a departing call recorded until its CLI process died. These are independent owner-level baselines for slices 1–5. |
+| `node --test --test-concurrency=1` on Distribution's `github-request-{answer,owner,disconnect}.test.mjs` | 18/18 passed. The real owner shared one request and capped active calls across processes, applied a shared wait and allowed one first call at expiry, preserved a peer's call and kept a departing call recorded until its CLI process died. These are independent owner-level baselines for slices 2 and 3 here and for plan 890's owner slices. |
 | Maintained backend runner with `--workers=1` selecting `observation/shared-observation.spec.ts` and `review/shared-verified-origin-trunk.spec.ts` | 10 Node cases passed, including shared waiter and direct real Git behavior. The mixed runner can select plain Node cases on this checkout without a runner change. |
 | E2E `--list --reporter=list` on the four named browser paths above | Nine Chromium cases selected. These are retained browser owners. The 76-case baseline and the migration comparison cover the backend family. |
+
+The baseline above covers the whole family before the split. This story's
+before-measurement is its ten retired paths plus the two shared paths;
+plan 890 rebaselined its 13 paths at `b0db97567`.
 
 Baseline per-case times in runner order (milliseconds). File names below use
 the `authenticated-read-` prefix and `.spec.ts` suffix except
@@ -164,7 +174,8 @@ ref alone. They took 8.7 s and 11.2 s at load 38 and carry an essential
 per-test 30 s timeout. Final selector:
 `observation/authenticated-read-(failure-report|output-bound)\.spec\.ts$`;
 0 Chromium cases remain. The retired cap case's incident-history record
-moves to slice 6 (G1).
+(G1) moved with the split to slice 3 of
+[plan 890](../890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md).
 
 CI repair (run 46002005685): the two-page case in
 `e2e/observation/transient-recovery-lifecycle.spec.ts` advanced the clock
@@ -253,8 +264,8 @@ relative to those events.
 Legacy: `authenticated-read-shared.spec.ts`,
 `authenticated-read-turns-timing.spec.ts`, plus shared refusal and later
 retry from `authenticated-read-shared-failures.spec.ts` and the admission
-cases from `authenticated-read-turns.spec.ts`. Slice 4 owns late-join bounds
-and close.
+cases from `authenticated-read-turns.spec.ts`. [Plan 890](../890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md)
+slice 1 owns late-join bounds and close.
 
 Delivered: `authenticated-read-request-turns.spec.ts` (4 Node cases, 0.2–1.2 s)
 drives `GitHubRequests.request` with the real CLI for the eight-call cap,
@@ -265,127 +276,12 @@ reuse, per-check listing answers, isolation and retry after a refused or
 rate-limited shared ask. `authenticated-read-server-timing.spec.ts`
 (1 Node case, 0.3 s) owns `Server-Timing` attribution, including zero
 upstream time for cached and locally refused answers. `shared.spec.ts` and
-`turns-timing.spec.ts` are retired. Three Chromium cases stay for slice 4:
+`turns-timing.spec.ts` are retired. Three Chromium cases stay for plan 890's slice 1:
 the late-join case (2 cases) in `authenticated-read-shared-failures.spec.ts`
 and the close case in `authenticated-read-turns.spec.ts`. Follow-up: a
 directed wait of 1 s reads "wait 1 seconds" in the boundary error.
 
 CI on `8263886d` met the plan 881 frontend closure again.
-
-### 4. End owned subprocesses when their last owner leaves
-
-Type: Behavior
-Status: planned
-
-Behavior: One departing waiter leaves a shared pinned read alive for its
-peer. Last pinned departure, the work's own timeout, and boundary close
-release their work. A revision check's shared listing can outlive its
-requester and ends at its bound or on close. A late waiter keeps its own
-bound and cannot extend the call's. Closing ends outstanding and queued
-waits. The close hook acts with the socket still open, and subsequent
-reads are refused before asking GitHub.
-
-Proof: Mount the production read middleware or the existing
-`localBoundaryPlugin` through Node HTTP. Use the real CLI fixture with
-pinned and check requests, observe child PID alive at dispatch and gone on
-the named trigger, and verify the peer or later requester gets its answer.
-For the hook case invoke the production hook with the client connection
-held open so socket close cannot explain cleanup. Keep bounded drains and
-teardown in every path.
-
-Legacy: `authenticated-read-shared-waiters.spec.ts`,
-`authenticated-read-subprocess-lifecycle.spec.ts`,
-`authenticated-read-plugin-hooks.spec.ts`, and the late-join and close
-cases assigned here from slice 3.
-
-### 5. Share one authenticated owner across two Dashboards and CI
-
-Type: Behavior
-Status: planned
-
-Behavior: Two separately running Dashboard consumers and the installed CI
-diagnostic share one owner under a single host/login. Together they
-respect eight turns and one execution of an eligible duplicate. A wait
-entered by one holds the others, and expiry admits one first call. Both
-Dashboards record their own observation of a shared refusal. Abandoning
-a client or stopping a Dashboard leaves a peer's read running.
-
-Proof: Preserve the existing real owner and CI entry point in a private
-machine home with the same fake GitHub route. Assert one owner record,
-eight maximum held requests, exact duplicate dispatch and CI exit
-outcomes. Read each Dashboard's diagnostics and confirm the peer settles
-after the other client departs or closes. This process-level case runs on
-Node Vitest with real owners and child processes.
-
-Legacy: `shared-request-owner.spec.ts`.
-
-### 6. Expose bounded local diagnostics for admitted readers
-
-Type: Behavior
-Status: planned
-
-Behavior: A fresh diagnostic read is empty and does no upstream work.
-Admitted failures show typed cause, safe metadata and request attribution,
-including a pinned revision, once per shared invocation. Keep the newest
-100 failures and filter to the requested source. Ordinary departure,
-held-back work, and malformed, oversized or secret-like optional metadata
-do not add misleading entries or leak data.
-
-Proof: Drive the production failure observer with an admitted context and
-controlled failed answers, and inspect through `diagnosticsForSource`.
-Use a shared failed read and a departure case to prove the observer fires
-at the invocation boundary. Mount production middleware with a small
-Node HTTP witness for route admission, zero upstream calls for inspection,
-and the matching dev/preview response. Exercise unknown source, disallowed
-origin and non-GET there.
-
-Legacy: `authenticated-read-diagnostics.spec.ts`,
-`authenticated-read-diagnostics-bounds.spec.ts`.
-
-### 7. Read bounded incident evidence after shutdown and restart
-
-Type: Behavior
-Status: planned
-
-Behavior: A new instance on the same machine reads earlier failures with
-original dispatch, failure and owner attribution, newest first. The
-entry/byte budget retains the newest records, counts drops and preserves
-the start time and private permissions across trim. Clean close flushes
-pending writes before the end record. A killed instance is lost, and
-restart in the same PID keeps distinct instances.
-
-Proof: Use the production `appendIncident`, `flushIncidents` and
-`readIncidentRecord` with a private real directory for budget, modes and
-safe bytes. Preserve a real server lifecycle witness using the admitted
-pinned read, clean close and forced exit, then read through
-`diagnosticsForSource` or the existing route. Exercise the real Vite
-restart for same-PID identity. Capture current/ended/lost states from the
-reader, never from injected stand-in process records.
-
-Legacy: `authenticated-read-incident-record.spec.ts`,
-`authenticated-read-incident-record-bounds.spec.ts`,
-`authenticated-read-incident-record-restart.spec.ts`, and the process
-lifecycle case of `authenticated-read-incident-record-lifecycle.spec.ts`.
-
-### 8. Report measured stalls and fold excess stalls at close
-
-Type: Behavior
-Status: planned
-
-Behavior: The next diagnostic read can report a real event-loop stall
-with its delay, start, load, Dashboard revision and process age.
-After three individual stalls in a window, later stalls fold into a
-single entry with the earliest folded time, longest delay and count.
-Close writes that entry.
-
-Proof: Drive `installIncidentLifecycle` and its existing isolated stall
-trigger with real Node event-loop sampling and files. Observe the first
-stall through `diagnosticsForSource`, then prove the folded evidence on
-close via persistent records. Keep the actual clock and event loop for
-the measurement witness.
-
-Legacy: `authenticated-read-incident-record-stalls.spec.ts` and the
-stall case of `authenticated-read-incident-record-lifecycle.spec.ts`.
 
 ## Local gate and delivery
 
@@ -400,32 +296,43 @@ stall case of `authenticated-read-incident-record-lifecycle.spec.ts`.
   [consumer tracing](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#record-the-consumer-trace)
   and run affected unchanged callers. Include the Distribution owner tests
   if their inputs, rules, or consumer path changes.
-- Recount on the execution base and measure the same 23-path workload
-  through the maintained runner after replacement. If a path is
+- Recount on the execution base and measure this story's workload through
+  the maintained runner after replacement: before, the ten retired paths
+  plus all cases of `authenticated-read-shared-failures.spec.ts` and
+  `authenticated-read-turns.spec.ts` at the baseline (their five delivered
+  cases are this story's; their three remaining cases are plan 890's);
+  after, the union of the slices' final selectors. If a path is
   consolidated or renamed, record its final selector and named replacement.
-  Require zero legacy Chromium cases for the 23-path family. Record per-case
+  Require zero legacy Chromium cases for the ten retired paths and for the
+  delivered cases of the two shared paths; plan 890 owns their remaining
+  three Chromium cases and the other 11 paths. Record per-case
   times against roughly 100 ms, counts by runner, summed case time, wall
   time and load. Show the actual cost of the retained process, clock and
   HTTP witnesses, and name and measure any proof moved to E2E under the
   [campaign comparison](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#backend-vitest-replacement-coverage).
   Confirm each old observation has an owner before retirement.
 
-## Story obligations
-
-### G1. Oversized-output incident record (first reported in slice 1)
-Reported: slice 1 — "The incident-history record check was not carried over: source, category `content`, cause `output-bound`, no status or rate limit, and no secret in the history."
-Story clause: "leave bounded, safe evidence of failures"
-Disposition: receiving slice 6
+Measured on 27 November 2026 at `b0db97567` (Node 24.21.0, one worker,
+load 20.6–30.5) with
+`(observation/authenticated-read-(failure-report|output-bound|admission|resumption|request-turns|shared-requests|server-timing)|configuration/project-add-while-held)\.spec\.ts$`:
+49 Node cases and 0 Chromium cases passed with zero retries. Case time
+summed to 13.46 s (median 0.2 ms) and the selection took 19.8 s wall time.
+Before, the ten retired paths took 60.9 s over 39 Chromium cases, and
+`shared-failures` and `turns` took 19.6 s over 8. The retained witnesses
+cost: the real 32 MiB CLI output 5.8 s, a real 2 s directed wait in
+`shared-requests` 3.4 s, a real 1 s wait in `resumption` 1.8 s, real CLI
+turns 1.8 s and Add through Git 0.5 s. 17 cases exceed 100 ms, all real
+CLI, HTTP or Git witnesses. No proof moved to E2E. Every retired
+observation names its owner in its slice's Delivered note.
 
 ## Plan review
 
 Slice-plan refinement ran. Output bounds stay with failure reporting. The
-queue and timing checks share one held-request proof loop. The cases that
-need a live child, a second Dashboard plus CI, or durable incident evidence
-use their own production boundaries. Splitting stall measurement from
-record persistence lets each close against its own observable result.
+queue and timing checks share one held-request proof loop.
 
-The eight slices reuse the current request owner and its caller boundaries.
+The split after slice 3 moved the live-child, shared-owner, diagnostics
+and incident-evidence slices, with G1, to plan 890. The three slices here
+reuse the current request owner and its caller boundaries.
 The larger file groups use direct production outcomes for the case matrices
 and keep wire, real process, or storage checks only for those effects.
 No slice-specific concern remains on the observed basis. No current
