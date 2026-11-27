@@ -56,7 +56,7 @@ import {
 } from "../../dashboard/test-support/transientRecoveryPage.ts";
 import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
 import { unansweredWithinReadWait } from "../../dashboard/src/readWaitBound.ts";
-import { holdTrunkTransfer } from "./heldTrunkTransfer.ts";
+import { holdTrunkTransfer } from "../../dashboard/test-support/heldTrunkTransfer.ts";
 
 const opened = new Date("2026-09-20T08:30:00.000Z");
 

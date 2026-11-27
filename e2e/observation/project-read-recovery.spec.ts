@@ -22,7 +22,7 @@ import {
   transientRecovery,
 } from "../../dashboard/test-support/transientRecoveryPage.ts";
 import { unansweredWithinReadWait } from "../../dashboard/src/readWaitBound.ts";
-import { holdTrunkTransfer } from "./heldTrunkTransfer.ts";
+import { holdTrunkTransfer } from "../../dashboard/test-support/heldTrunkTransfer.ts";
 import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { Backlog } from "../../Distribution/tests/support/repositoryTestData.mjs";

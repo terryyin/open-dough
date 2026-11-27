@@ -26,7 +26,7 @@ import { publishMovingHistory } from "../../dashboard/test-support/publishedMovi
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
 import { holdingAnswer } from "../../dashboard/test-support/support/heldGitHubAnswer.ts";
-import { holdTrunkTransfer } from "./heldTrunkTransfer.ts";
+import { holdTrunkTransfer } from "../../dashboard/test-support/heldTrunkTransfer.ts";
 
 export const seedPath = ".planning/seeds/SEED-263-shared.md";
 const title = "A story both tabs show";

@@ -22,7 +22,7 @@ import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import { backlogPath } from "../../dashboard/test-support/publishedOrigin.ts";
 import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
 import type { GhCall } from "../../dashboard/test-support/support/fakeGitHub.ts";
-import { holdTrunkTransfer } from "./heldTrunkTransfer.ts";
+import { holdTrunkTransfer } from "../../dashboard/test-support/heldTrunkTransfer.ts";
 
 import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";

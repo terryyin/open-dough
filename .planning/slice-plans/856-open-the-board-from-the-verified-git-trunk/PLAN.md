@@ -179,7 +179,7 @@ off `hold("main")`/`answerWith("main")` cold-open gates, using
 ### 8. Read session journeys' backlog from Git
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Session sidebar, alerts and recently-done session journeys show
 the backlog read from the verified Git trunk.
@@ -240,7 +240,7 @@ REST `mainReads` no longer counts cold opens; slices 3–4 use
 `noteColdOpens` in `transientRecoveryPage.ts` instead.
 
 Slice 3 (2026-11-27) holds or disconnects the Git transfer through
-`e2e/observation/heldTrunkTransfer.ts`, which `sharedObserverOpen.ts` shares.
+`dashboard/test-support/heldTrunkTransfer.ts`, which `sharedObserverOpen.ts` shares.
 It deleted the pinned-backlog recovery case: one Git transfer reads trunk and
 backlog together, and an unreadable backlog no longer recovers on its own.
 `heldUploadPack` must be set up before the first open and holds every later
@@ -278,6 +278,11 @@ the Board to keep the opened trunk pass `keepsOpenedTrunk: true`. Slice 9
 must settle `agent-launch-claude-verification.spec.ts:176`, a 5-second
 launch-call poll that failed at load 16–28 here and at the base, and passed
 alone: green in the full suite or hosted CI, or repaired.
+
+Slice 8 (2026-11-27): every session fixture already published through Git;
+only REST backlog `?ref=` assertions and a REST backlog hold changed. The
+navigation journey now offers `holdPygardonOpen`, through
+`dashboard/test-support/heldTrunkTransfer.ts`. All of `e2e/sessions` passed.
 
 ## Local gate
 

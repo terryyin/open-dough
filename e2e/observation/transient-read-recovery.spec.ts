@@ -41,7 +41,7 @@ import {
   originUnreachable,
   transientRecovery,
 } from "../../dashboard/test-support/transientRecoveryPage.ts";
-import { holdTrunkTransfer } from "./heldTrunkTransfer.ts";
+import { holdTrunkTransfer } from "../../dashboard/test-support/heldTrunkTransfer.ts";
 
 const opened = new Date("2026-09-20T08:30:00.000Z");
 

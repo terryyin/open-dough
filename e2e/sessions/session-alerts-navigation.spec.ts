@@ -11,7 +11,7 @@ import {
   notifiedTitle,
   otherTitle,
 } from "../../dashboard/test-support/notificationStoryJourney.ts";
-import { pathsRead } from "../../dashboard/test-support/publishedOrigin.ts";
+import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
 import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import {
   afterFurtherListings,
@@ -65,9 +65,7 @@ for (const mode of ["dev", "preview"] as const) {
       });
       await expect(card).toBeFocused();
       await expect(card).toBeInViewport({ ratio: 0.99 });
-      expect(pathsRead(target)).toContain(
-        `PRODUCT-BACKLOG.md?ref=${target.revisions.target}`,
-      );
+      expect(restMembershipAsked(target.requests)).toEqual([]);
       await expect(page.getByRole("article", { name: otherTitle })).toHaveCount(
         0,
       );

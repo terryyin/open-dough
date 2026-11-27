@@ -1,5 +1,5 @@
 // Git transfers of a project's trunk check that wait, fail or read an
-// older trunk once the Board already opened (../../e2e/observation/heldTrunkTransfer.ts
+// older trunk once the Board already opened (./heldTrunkTransfer.ts
 // holds the cold open itself). The gate is the dashboard's review
 // repository's `remote.origin.uploadpack`, so a start's own pushes and
 // fetches reach the origin unchanged.

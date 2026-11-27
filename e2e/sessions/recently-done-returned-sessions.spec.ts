@@ -27,7 +27,10 @@ import {
   publishCommittedFileHistory,
   publishCommittedFiles,
 } from "../../dashboard/test-support/committedFiles.ts";
-import { pathsRead } from "../../dashboard/test-support/originObservation.ts";
+import {
+  pathsRead,
+  restMembershipAsked,
+} from "../../dashboard/test-support/originObservation.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   at,
@@ -129,7 +132,7 @@ test("a launch returned to the backlog reads Returned to backlog under the unfin
 
   await test.step("while the story is queued, the returned launch sits in the card's Done disclosure and the queued card holds the later launch", async () => {
     await expectMembership(page, { taken: [], backlog: [queuedTitle] });
-    expect(pathsRead(origin)).toContain(`PRODUCT-BACKLOG.md?ref=${queued}`);
+    expect(restMembershipAsked(origin.requests)).toEqual([]);
     await expectApartFrom(backlog);
   });
 
@@ -138,7 +141,7 @@ test("a launch returned to the backlog reads Returned to backlog under the unfin
     expectServedHomesReach(githubFor(page), repository, retaken);
     await reloadUntilRead(page);
     await expectMembership(page, { taken: [queuedTitle], backlog: [] });
-    expect(pathsRead(origin)).toContain(`PRODUCT-BACKLOG.md?ref=${retaken}`);
+    expect(restMembershipAsked(origin.requests)).toEqual([]);
     await expectApartFrom(taken);
   });
 

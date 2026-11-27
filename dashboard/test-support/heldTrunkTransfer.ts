@@ -10,9 +10,9 @@ import {
   heldUploadPack,
   readUntilClosed,
   signalFifo,
-} from "../../dashboard/backend-tests/review/verifiedOriginTrunkCase.ts";
-import { routedOrigin } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
-import { homeReviewRepository } from "../../dashboard/test-support/support/reviewRepositoryFixture.ts";
+} from "../backend-tests/review/verifiedOriginTrunkCase.ts";
+import { routedOrigin } from "./support/fixtureOriginRoute.ts";
+import { homeReviewRepository } from "./support/reviewRepositoryFixture.ts";
 
 export function holdTrunkTransfer(home: string, repository: string) {
   const pack = heldUploadPack(
