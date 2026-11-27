@@ -1,241 +1,248 @@
-// Which commit added an agent profile's current allocation, as the local
-// authenticated read boundary (../../server/authenticatedRead.ts) answers it with
-// `committed=added`, tested directly against real HTTP and a synthetic `gh`
-// on this spec's own isolated server process's PATH that answers from a fake
-// GitHub recording every invocation. It is asked only for a profile the
-// pinned revision lists, walks that profile's history no further than its
-// addition, and refuses anything else before asking GitHub. What the page
-// shows from it is covered in ../../../e2e/stories/agent-roster-avatar.spec.ts. Shares this
-// suite's harness (../../test-support/support/dashboardServer.ts) and
-// ./authenticated-read-boundary.spec.ts's approach.
-
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import {
-  developmentBoundary,
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
-import {
-  everyRepository,
-  publishes,
-} from "../../test-support/support/fakeGitHub.ts";
+import { beforeAll, beforeEach, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import type { RepositoryBuilder } from "../../../Distribution/tests/support/repositoryTestData.mjs";
+import { renderAgentProfile } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { performAdditionRead } from "../../server/additionRead.ts";
+import { GhFailure, runGh } from "../../server/ghRead.ts";
+import { PinnedTexts } from "../../server/pinnedTexts.ts";
+import { parseRequestedRead } from "../../server/requestedRead.ts";
+import { RetainedAnswers } from "../../server/retainedAnswers.ts";
+import { RevisionMemo } from "../../server/revisionMemo.ts";
+import { committedHistoryAnswers } from "../../test-support/committedHistoryAnswers.ts";
+import { listedAt } from "../../test-support/committedOriginRepo.ts";
+import { directoryListingAnswer } from "../../test-support/listingAnswers.ts";
 import {
-  backlogApart,
-  describedRevision,
-} from "../../test-support/describedRevisions.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import { pathChange } from "../../test-support/pathHistoryAnswers.ts";
+  commitAnswerIn,
+  commitListIn,
+  pathChange,
+} from "../../test-support/pathHistoryAnswers.ts";
+import { parseRequest } from "../../test-support/support/ghRequest.ts";
 
-test.describe.configure({ mode: "serial" });
+vi.mock(import("../../server/ghRead.ts"), async (importOriginal) => ({
+  ...(await importOriginal()),
+  runGh: vi.fn(),
+}));
 
-const knownSourceId = "open-dough";
-const knownRepository = "terryyin/open-dough";
-const revision = "fa".repeat(20);
+const source = makeMe.aPublishedSource.openDough.please();
 const agents = ".planning/agents";
-
-// An empty project publishing, at `at`, a preparing profile for each agent
-// named.
-const profiles = (at: string, names: readonly string[]) =>
-  backlogApart(
-    describedRevision(
-      makeMe.aRepository
-        .withRevision("profiles", {
-          agentProfiles: names.map((name) =>
-            makeMe.anAgentProfile.preparing({ name }).please(),
-          ),
-        })
+const yui = `${agents}/yui-chan.json`;
+const akiho = `${agents}/akiho-chan.json`;
+const sola = `${agents}/sola-chan.json`;
+const rina = `${agents}/rina-chan.json`;
+const nana = `${agents}/nana-chan.json`;
+const maki = `${agents}/maki-chan.json`;
+const profiles = (...names: string[]) =>
+  names.map((name) => makeMe.anAgentProfile.preparing({ name }).please());
+const allocator = {
+  name: "Current Allocator",
+  email: "allocator@example.test",
+  date: "2026-09-23T08:30:00Z",
+};
+const changes = makeMe.aRepository
+  .withRevision("older", { agentProfiles: profiles("Yui", "Rina") })
+  .withRevision("vacated", { remove: [yui] })
+  .withRevision("allocated", {
+    agentProfiles: profiles("Yui", "Sola", "Nana", "Maki"),
+    committer: allocator,
+  })
+  .withRevision("edited", {
+    agentProfiles: [
+      makeMe.anAgentProfile
+        .executing({ name: "Yui", identity: "SEED-001#work", mode: "trunk" })
         .please(),
-      at,
-    ),
+    ],
+  })
+  .withRevision("pinned", {
+    agentProfiles: profiles("Akiho"),
+    committer: { ...allocator, date: "2026-09-24T08:30:00Z" },
+  })
+  .withRevision("later", { remove: [yui, sola] });
+const [boundedProfile] = profiles("Rina");
+if (boundedProfile === undefined) throw new Error("Missing bounded profile");
+const profileText = renderAgentProfile(boundedProfile);
+const edits = Array.from(Array(10).keys(), (index) => `edit-${index + 1}`);
+const description = edits
+  .reduce<RepositoryBuilder<string>>(
+    (history, name, index) =>
+      history.withRevision(name, {
+        files: { [rina]: profileText + "\n".repeat(index + 1) },
+      }),
+    changes,
+  )
+  .please();
+
+const addedPastChanged = pathChange(0xb1, "added", "Earlier Committer");
+const omitted = pathChange(0xc0, null, "No matching file");
+const providerOnly = {
+  history: {
+    [nana]: [pathChange(0xb0, "changed", "Later Editor"), addedPastChanged],
+    [maki]: [omitted, pathChange(0xc1, "added", "Unreachable Adder")],
+  },
+};
+
+const upstream = vi.mocked(runGh);
+let origin: string;
+let revisions: Record<string, string>;
+let pinned: PinnedTexts;
+const signal = new AbortController().signal;
+
+beforeAll(async () => {
+  const repository = await materializeRepository(description);
+  ({ origin, revisions } = repository);
+  return repository.cleanup;
+});
+
+function pin(name: string): string {
+  const sha = revisions[name];
+  if (sha === undefined) throw new Error(`No publication named ${name}`);
+  return sha;
+}
+
+beforeEach(() => {
+  pinned = new PinnedTexts(new RevisionMemo(new RetainedAnswers()));
+  const git = committedHistoryAnswers(origin);
+  upstream.mockReset();
+  upstream.mockImplementation((args) => {
+    const request = parseRequest(args);
+    if (!("repository" in request) || request.repository !== source.repository)
+      throw new Error(`Unexpected GitHub request: ${args.join(" ")}`);
+    if (request.kind === "listing") {
+      const files = listedAt(origin, request.revision, request.path) ?? [];
+      const answer = directoryListingAnswer(request.path, files);
+      if (answer.status === 404)
+        return Promise.reject(new GhFailure({ kind: "http", status: 404 }));
+      return Promise.resolve(answer.body);
+    }
+    if (request.kind === "commit-list") {
+      const { revision, path, perPage } = request;
+      const answer = Object.hasOwn(providerOnly.history, path)
+        ? commitListIn(providerOnly, path, perPage)
+        : git.list(revision, path, perPage);
+      if ("body" in answer) return Promise.resolve(answer.body);
+    }
+    if (request.kind === "commit") {
+      const { sha } = request;
+      const supplied = commitAnswerIn([providerOnly], sha);
+      if (supplied !== undefined) return Promise.resolve(supplied.body);
+      const answer = git.commit(sha);
+      const record = JSON.parse(answer.body) as {
+        commit: { committer: { name: string } };
+        committer: { login: string; avatar_url: string } | null;
+      };
+      if (sha === pin("allocated"))
+        record.committer = {
+          login: "current-allocator",
+          avatar_url: "https://avatars.githubusercontent.com/u/1",
+        };
+      if (sha === pin("pinned")) record.commit.committer.name = " ";
+      return Promise.resolve(JSON.stringify(record));
+    }
+    throw new Error(`Unexpected GitHub request: ${args.join(" ")}`);
+  });
+});
+
+function readAt(path: string, revision = pin("pinned")) {
+  const read = parseRequestedRead(
+    new URLSearchParams({ revision, path, committed: "added" }),
   );
+  if (read.kind !== "addition-at") throw new Error("Expected an addition read");
+  return performAdditionRead(pinned, source, read, signal);
+}
 
-test.describe("authenticated profile addition read (development environment)", () => {
-  let server: DashboardServer;
+const requests = () => upstream.mock.calls.map(([args]) => parseRequest(args));
+const commits = () =>
+  requests().flatMap((request) =>
+    request.kind === "commit" ? [request.sha] : [],
+  );
+const answered = (revision: string, path: string, added: unknown) => ({
+  kind: "answered",
+  answer: { revision, path, added },
+});
+const credit = () => ({
+  commit: pin("allocated"),
+  committerName: "Current Allocator",
+  committedAt: "2026-09-23T08:30:00.000Z",
+  login: "current-allocator",
+});
 
-  test.beforeAll(async () => {
-    server = await startDashboardServer(developmentBoundary);
+test("attributes a listed profile to its current allocation at the selected pin", async () => {
+  const revision = pin("pinned");
+  const repository = { repository: source.repository, revision };
+  const reply = answered(revision, yui, credit());
+  await expect(readAt(yui, revision)).resolves.toEqual(reply);
+  expect(requests()).toMatchObject([
+    { ...repository, kind: "listing", path: agents },
+    { ...repository, kind: "commit-list", path: yui, perPage: 10 },
+    { kind: "commit", sha: pin("edited") },
+    { kind: "commit", sha: pin("allocated") },
+  ]);
+  upstream.mockClear();
+  await expect(readAt(yui, revision)).resolves.toEqual(reply);
+  expect(upstream).not.toHaveBeenCalled();
+});
+
+test("credits the addition time when the provider names no usable committer or account", async () => {
+  const revision = pin("pinned");
+  await expect(readAt(akiho)).resolves.toEqual(
+    answered(revision, akiho, {
+      commit: revision,
+      committerName: null,
+      committedAt: "2026-09-24T08:30:00.000Z",
+      login: null,
+    }),
+  );
+});
+
+test("refuses a profile absent at the pin before asking about its history", async () => {
+  const revision = pin("vacated");
+  await expect(readAt(yui, revision)).resolves.toEqual({
+    kind: "refused",
+    status: 404,
+    message: "That path is not reachable from this source revision.",
   });
+  expect(requests()).toMatchObject([
+    { kind: "listing", revision, path: agents },
+  ]);
+});
 
-  test.afterAll(async () => {
-    await server.close();
+test("walks only the ten latest changes even when the actual addition lies deeper", async () => {
+  const revision = pin("edit-10");
+  await expect(readAt(rina, revision)).resolves.toEqual(
+    answered(revision, rina, null),
+  );
+  expect(requests().find(({ kind }) => kind === "commit-list")).toMatchObject({
+    perPage: 10,
+    revision,
+    path: rina,
   });
+  expect(commits()).toEqual(edits.toReversed().map(pin));
+});
 
-  test("answers which commit added a listed agent profile's current allocation, walking its history at the pinned revision no further than that addition", async () => {
-    const yuiPath = `${agents}/yui-chan.json`;
-    const akihoPath = `${agents}/akiho-chan.json`;
-    const commit = (pair: string) => pair.repeat(20);
-    server.github.serve(
-      everyRepository,
-      publishes({
-        ...profiles(revision, ["Yui", "Akiho"]),
-        history: {
-          [yuiPath]: [
-            { sha: commit("e1"), status: "modified", committer: "Mo Modifier" },
-            {
-              sha: commit("e2"),
-              status: "added",
-              committer: "Terry Yin",
-              committedAt: new Date("2026-09-23T08:30:00Z"),
-              login: "terryyin",
-            },
-            { sha: commit("e3"), status: "removed", committer: "Olde" },
-            { sha: commit("e4"), status: "added", committer: "Olde" },
-          ],
-          // Added by a commit whose committer name is blank.
-          [akihoPath]: [{ sha: commit("e5"), status: "added", committer: " " }],
-        },
-      }),
-    );
-    const additionOf = (path: string) =>
-      rawRequest({
-        url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${revision}&path=${encodeURIComponent(path)}&committed=added`,
-        headers: { Origin: server.origin },
-      });
-
-    let callsBefore = server.ghCalls().length;
-    const answered = await additionOf(yuiPath);
-    expect(answered.status).toBe(200);
-    expect(answered.headers["cache-control"]).toBe("no-store");
-    expect(JSON.parse(answered.body)).toEqual({
-      revision,
-      path: yuiPath,
-      added: {
-        commit: commit("e2"),
-        committerName: "Terry Yin",
-        committedAt: "2026-09-23T08:30:00.000Z",
-        login: "terryyin",
-      },
-    });
-    // The listing authorizes the profile; its history is listed at the pinned
-    // revision and walked to the addition, never into the older allocation.
-    expect(server.ghCalls().slice(callsBefore)).toEqual([
-      [
-        "api",
-        "--include",
-        "-H",
-        "Accept: application/vnd.github+json",
-        `repos/${knownRepository}/contents/${agents}?ref=${revision}`,
-      ],
-      [
-        "api",
-        "--include",
-        `repos/${knownRepository}/commits?sha=${revision}&path=${encodeURIComponent(yuiPath)}&per_page=10`,
-      ],
-      ["api", "--include", `repos/${knownRepository}/commits/${commit("e1")}`],
-      ["api", "--include", `repos/${knownRepository}/commits/${commit("e2")}`],
-    ]);
-
-    callsBefore = server.ghCalls().length;
-    expect((await additionOf(yuiPath)).status).toBe(200);
-    expect(server.ghCalls()).toHaveLength(callsBefore);
-
-    const unnamed = await additionOf(akihoPath);
-    expect(JSON.parse(unnamed.body)).toEqual({
-      revision,
-      path: akihoPath,
-      added: {
-        commit: commit("e5"),
-        committerName: null,
-        committedAt: "2026-09-20T08:00:00.000Z",
-        login: null,
-      },
-    });
-
-    // A profile-shaped path the revision does not list is never asked about.
-    callsBefore = server.ghCalls().length;
-    const unlisted = await additionOf(`${agents}/rina-chan.json`);
-    expect(unlisted.status).toBe(404);
-    expect(JSON.parse(unlisted.body)).toEqual({
-      error: "That path is not reachable from this source revision.",
-    });
-    expect(server.ghCalls()).toHaveLength(callsBefore);
-  });
-
-  test("walks at most ten commits, continues past a changed profile, and ends at a commit whose files do not name it", async () => {
-    const path = (name: string) => `${agents}/${name.toLowerCase()}-chan.json`;
-    // Another revision, whose own profile listing names these profiles.
-    const walked = "fb".repeat(20);
-    const tenModified = [...Array(10).keys()].map((at) =>
-      pathChange(0xa0 + at, "modified", "Mo Modifier"),
-    );
-    const pastChanged = pathChange(0xb1, "added", "Chang Ed");
-    server.github.serve(
-      everyRepository,
-      publishes({
-        ...profiles(walked, ["Rina", "Nana", "Maki"]),
-        history: {
-          [path("Rina")]: [...tenModified, pathChange(0xaa, "added", "Deep")],
-          [path("Nana")]: [pathChange(0xb0, "changed", "Mo"), pastChanged],
-          [path("Maki")]: [
-            pathChange(0xc0, null, "Mo"),
-            pathChange(0xc1, "added", "Hidden Adder"),
-          ],
-        },
-      }),
-    );
-    const additionOf = async (name: string) => {
-      const response = await rawRequest({
-        url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${walked}&path=${encodeURIComponent(path(name))}&committed=added`,
-        headers: { Origin: server.origin },
-      });
-      return (JSON.parse(response.body) as { added: unknown }).added;
-    };
-    const asked = () =>
-      server.github.calls.flatMap(({ request }) =>
-        request.kind === "commit" ? [request.sha] : [],
-      );
-
-    // Only the ten latest commits are listed and asked about.
-    const before = asked().length;
-    expect(await additionOf("Rina")).toBeNull();
-    expect(asked().slice(before)).toEqual(tenModified.map(({ sha }) => sha));
-    expect(await additionOf("Nana")).toEqual({
-      commit: pastChanged.sha,
-      committerName: "Chang Ed",
+test("continues past a provider's changed status to the addition", async () => {
+  const revision = pin("pinned");
+  await expect(readAt(nana)).resolves.toEqual(
+    answered(revision, nana, {
+      commit: addedPastChanged.sha,
+      committerName: "Earlier Committer",
       committedAt: "2026-09-20T08:00:00.000Z",
       login: null,
-    });
-    expect(await additionOf("Maki")).toBeNull();
-  });
+    }),
+  );
+});
 
-  test("asks GitHub about a commit once, whichever profile's walk reaches it", async () => {
-    const path = (name: string) => `${agents}/${name.toLowerCase()}-chan.json`;
-    const walked = "fc".repeat(20);
-    // One commit added both profiles; one of them was modified since.
-    const together = pathChange(0xd0, "added", "Both At Once");
-    const since = pathChange(0xd1, "modified", "Mo");
-    server.github.serve(
-      everyRepository,
-      publishes({
-        ...profiles(walked, ["Sola", "Honoka"]),
-        history: {
-          [path("Sola")]: [together],
-          [path("Honoka")]: [since, together],
-        },
-      }),
-    );
-    const additionOf = async (name: string) => {
-      const response = await rawRequest({
-        url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${walked}&path=${encodeURIComponent(path(name))}&committed=added`,
-        headers: { Origin: server.origin },
-      });
-      return (JSON.parse(response.body) as { added: unknown }).added;
-    };
-    const asked = () =>
-      server.github.calls.flatMap(({ request }) =>
-        request.kind === "commit" ? [request.sha] : [],
-      );
+test("stops when a listed commit's file response omits the profile", async () => {
+  await expect(readAt(maki)).resolves.toEqual(
+    answered(pin("pinned"), maki, null),
+  );
+  expect(commits()).toEqual([omitted.sha]);
+});
 
-    const before = asked().length;
-    const added = {
-      commit: together.sha,
-      committerName: "Both At Once",
-      committedAt: "2026-09-20T08:00:00.000Z",
-      login: null,
-    };
-    expect(await additionOf("Sola")).toEqual(added);
-    expect(await additionOf("Honoka")).toEqual(added);
-    expect(asked().slice(before)).toEqual([together.sha, since.sha]);
-  });
+test("fetches a shared addition commit once for two profiles", async () => {
+  const revision = pin("pinned");
+  await expect(readAt(sola)).resolves.toEqual(
+    answered(revision, sola, credit()),
+  );
+  await expect(readAt(yui)).resolves.toEqual(answered(revision, yui, credit()));
+  expect(commits()).toEqual([pin("allocated"), pin("edited")]);
 });
