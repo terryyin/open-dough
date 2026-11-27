@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_prove-follow-up-context-on-vitest.json",
+      "identity": "SEED-413#prove-follow-up-context-on-vitest",
+      "completedAt": "2026-11-27T01:14:59.248Z",
+      "blob": "ddd7767c2a6d1267cfce005bc66c882d3f1e3886"
+    },
+    {
       "fileName": "SEED-430_move-authenticated-read-proofs-off-the-board-ref-read.json",
       "identity": "SEED-430#move-authenticated-read-proofs-off-the-board-ref-read",
       "completedAt": "2026-11-27T00:21:35.531Z",
@@ -3408,12 +3414,6 @@
       "identity": "SEED-159#cursor-start-opens-the-session",
       "completedAt": "2026-10-28T07:48:54.651Z",
       "blob": "ea8e44305461c61f20a050cb9e407e1955bcf2e8"
-    },
-    {
-      "fileName": "SEED-156_recently-done-sessions-in-sidebar.json",
-      "identity": "SEED-156#recently-done-sessions-in-sidebar",
-      "completedAt": "2026-10-28T00:53:51.785Z",
-      "blob": "cb17d513e5426a571e8ade6861c999b37453f95d"
     }
   ],
   "unreadable": []

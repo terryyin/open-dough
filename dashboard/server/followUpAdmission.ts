@@ -30,21 +30,35 @@ import { storyNoteVersion } from "../src/storyNote.ts";
 import { admitFollowUpFile } from "./followUpFileAdmission.ts";
 import {
   publishedFollowUpCardStory,
+  followUpStorySessions,
+  publishedDoneStory,
   requirePublishedFollowUpSessionStory,
-  type followUpStorySessions,
-  type publishedDoneStory,
 } from "./followUpStory.ts";
-import { keptSession, type pendingInputOf } from "./launchRecordStore.ts";
+import { keptSession, pendingInputOf } from "./launchRecordStore.ts";
 import { RefusedRequest } from "./localOrigin.ts";
 import { storyFollowUpMessage } from "./storyFollowUpMessage.ts";
 import { admitStoryComparison } from "./storyReviewHistoricalFileAdmission.ts";
-import { waitingStoryNotes } from "./storyNotes.ts";
+import { machineStoryNotesFile, waitingStoryNotes } from "./storyNotes.ts";
 
 export interface FollowUpContextInput {
   readonly notesFile: string;
   readonly publishedDoneStory: typeof publishedDoneStory;
   readonly followUpStorySessions: typeof followUpStorySessions;
   readonly pendingInputOf: typeof pendingInputOf;
+  readonly keptSession: typeof keptSession;
+  readonly requirePublishedFollowUpSessionStory: typeof requirePublishedFollowUpSessionStory;
+}
+
+// Accept and a retained start resolve a follow-up's context from these reads.
+export function followUpContextInput(): FollowUpContextInput {
+  return {
+    notesFile: machineStoryNotesFile(),
+    publishedDoneStory,
+    followUpStorySessions,
+    pendingInputOf,
+    keptSession,
+    requirePublishedFollowUpSessionStory,
+  };
 }
 
 async function resolveStoryFollowUp(
@@ -103,8 +117,9 @@ async function resolveStoryFollowUp(
 async function resolveSessionFollowUp(
   followUp: Extract<FollowUp, { session: unknown }>,
   source: PublishedSource,
+  input: FollowUpContextInput,
 ): Promise<FollowUp> {
-  const record = await keptSession(source.id, followUp.session);
+  const record = await input.keptSession(source.id, followUp.session);
   if (record === undefined)
     throw new RefusedRequest(
       404,
@@ -116,7 +131,7 @@ async function resolveSessionFollowUp(
       404,
       "The session this follows up has no published story binding.",
     );
-  await requirePublishedFollowUpSessionStory(source, identity);
+  await input.requirePublishedFollowUpSessionStory(source, identity);
   return {
     ...followUp,
     storyIdentity: identity,
@@ -144,7 +159,7 @@ export async function withFollowUpContext(
   if ("session" in request.followUp)
     return {
       ...request,
-      followUp: await resolveSessionFollowUp(request.followUp, source),
+      followUp: await resolveSessionFollowUp(request.followUp, source, input),
     };
   const resolved = await resolveStoryFollowUp(
     request.followUp.story,
@@ -169,6 +184,7 @@ export async function withFollowUpContext(
 export async function retainedFollowUpWithStory(
   request: AgentLaunchRequest,
   source: PublishedSource,
+  input: FollowUpContextInput,
 ): Promise<AgentLaunchRequest | undefined> {
   if (
     request.workflow !== "ad-hoc" ||
@@ -180,7 +196,7 @@ export async function retainedFollowUpWithStory(
   if (followUp.context === undefined) return undefined;
   const record =
     "session" in followUp
-      ? await keptSession(source.id, followUp.session)
+      ? await input.keptSession(source.id, followUp.session)
       : undefined;
   const storyIdentity =
     "story" in followUp
@@ -190,7 +206,7 @@ export async function retainedFollowUpWithStory(
         : storyOf(record.request);
   if (storyIdentity === undefined) return undefined;
   try {
-    await requirePublishedFollowUpSessionStory(source, storyIdentity);
+    await input.requirePublishedFollowUpSessionStory(source, storyIdentity);
   } catch (error) {
     if (error instanceof RefusedRequest) return undefined;
     throw error;

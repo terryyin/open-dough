@@ -202,71 +202,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   observation while an ordinary ask still reuses a held observation. A full
   answer accepted as gzip decodes to the plain response.
 
-<a id="prove-follow-up-context-on-vitest"></a>
-
-### Prove retained follow-up context in Node Vitest
-
-**Identity:** SEED-413#prove-follow-up-context-on-vitest
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/850-prove-follow-up-context-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"923787162c9dded3f2835a7645760f354220f47bfb91c908136a873eea6c5c82","plan":"ff92da91dd39e136070b8d4ff41eddd7a4f6cde53fb06cf3ccf38596443d61c9"}}
-```
-
-- **Goal.** Developers changing the Dashboard's follow-up get fast, typed Node
-  Vitest proof that the receiving agent is sent the right source context, the
-  developer's own request and the reporting context, in that order, and that a
-  retry still sends them after the source record is gone.
-- **Scope.** Move the six legacy specs `agent-launch-follow-up-{boundary,story,identity,live,codex,cursor}.spec.ts`
-  (22 cases) and the post-split `agent-launch-follow-up-membership.spec.ts`
-  (three cases, added with the
-  [story-linked ad hoc sessions](https://github.com/terryyin/open-dough/blob/1ee3eb03b59a2133fdb73dddaf28c9d44fef2de8/.planning/seeds/SEED-439-complete-story-linked-ad-hoc-sessions.md#complete-story-linked-ad-hoc-sessions)
-  binding) off backend Playwright, and account for each observation. Cover
-  the context of a retained session and of a Done story with the Done
-  sessions it selects (a Taken card's follow-up stays with its page journey);
-  what the first input holds and its order on every
-  host; a source's binding to a published story; the identity of a follow-up,
-  its repetition and its continuation after the source expires; and
-  admission that refuses page-composed context, a source the project no
-  longer keeps, or a story membership that is missing, unbound or supplied by
-  the page. Prove them through typed answers and kept records: the
-  admission and first-input builders take the sources they read as typed
-  values, and add no server, request or boundary wrapper to test support.
-  Cases that need a real second process, a real Git origin or a native host
-  keep only that boundary. The
-  [coverage map](#backend-vitest-replacement-coverage) assigns Story Notes,
-  published file, comparison and range selectors, attachment admission,
-  isolated workspace choice and native first input to their owners; this
-  story keeps only what follow-up adds to them, and product behavior stays
-  unchanged.
-- **Key examples.**
-  - Given a Done session retained with a final report, a follow-up names only
-    that session. The first input holds its context, the developer's text,
-    then the reporting context; a blank request sends no part of its own and
-    takes its launch time as title. With an isolated workspace the session's
-    block and the reporting context come first. A report longer than the
-    request field's limit is sent whole. The source stays Done and unchanged.
-  - Given a published Done story with a quiet session kept for it and
-    another still open, a follow-up at the revision shown sends the story's
-    facts and only the selected sessions' context; with no session kept it
-    says so. A story the revision does not publish, or whose record cannot be
-    read, refuses the follow-up before any host starts.
-  - Given two sources with the same instruction, they are two launches.
-    Repeating one after the host refused resumes its kept start, sends its
-    saved context and the instruction once, and keeps the first attempt's
-    identity, even though the source has expired and a page-composed
-    context is refused. A refused follow-up leaves no attachment claimed.
-  - Given a follow-up that Codex or Cursor accepted only in part, Continue
-    or a repeat after the source and attempt records are gone sends the
-    recorded context unchanged, including a legacy story attempt whose
-    instruction was saved apart from its context.
-  - Given a follow-up running on another server, repeating it after the
-    source expires answers with the running attempt and starts nothing.
-  - Given a session with no story binding, a binding the published project
-    does not list, or one the page supplies, no follow-up starts and nothing
-    is kept.
-- **Replacement trace.** Split from [launch starts and recovery](https://github.com/terryyin/open-dough/blob/420905723de59e71180451879726f684dcc7915e/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-starts-and-recovery-on-vitest).
-
-**Plan.** [Prove retained follow-up context in Node Vitest](../slice-plans/850-prove-follow-up-context-on-vitest/PLAN.md)
-
 <a id="prove-native-session-and-terminal-lifecycle-on-vitest"></a>
 
 ### Prove marking sessions done, stopping, deleting and reopening in Node Vitest
@@ -1067,7 +1002,7 @@ or removed once its behavior or duplicate is accounted for.
 | 15 installed execution and refinement specs | [Installed story starts](https://github.com/terryyin/open-dough/blob/79475eaef07720be5bdd25722433060d62f8a19a/.planning/slice-plans/847-prove-installed-story-starts-on-vitest/PLAN.md), completed on Node Vitest with native dispatch and restart in E2E |
 | 18 workspace and scheduled launch specs, plus the cutover's later `admitted-session-duplicate.spec.ts` | [Session workspace choices](https://github.com/terryyin/open-dough/blob/daea1238c354addf980ff601d7b794fe4523c927/.planning/slice-plans/848-prove-session-workspace-starts-on-vitest/PLAN.md), completed on Node Vitest, including the isolated Codex case and restored observations in [plan 854](https://github.com/terryyin/open-dough/blob/cfd4dcfac7e06fa70e73be54cca2ad6626b1ab36/.planning/slice-plans/854-restore-session-workspace-vitest-proof/PLAN.md) |
 | 15 native dispatch and first-input specs | [Host choices and first input](https://github.com/terryyin/open-dough/blob/eac4d5e9e4041f64f603a5afc08378552a9c433c/.planning/slice-plans/849-prove-native-first-input-on-vitest/PLAN.md), completed on Node Vitest with worker shutdown and restart in E2E |
-| 6 ordinary follow-up context specs | [Prove retained follow-up context in Node Vitest](#prove-follow-up-context-on-vitest) |
+| 6 ordinary follow-up context specs | [Prove retained follow-up context in Node Vitest](https://github.com/terryyin/open-dough/blob/76b599da18dca0da2499f87944e2c6020f4f0807/.planning/slice-plans/850-prove-follow-up-context-on-vitest/PLAN.md), completed on Node Vitest |
 | 7 retained launch record specs | [Retained launch records](https://github.com/terryyin/open-dough/blob/29e3287e862e5d5415d32653b3e71c91287b90a8/.planning/slice-plans/851-prove-kept-launch-records-on-vitest/PLAN.md), completed on Node Vitest; the shared-machine spec's catalog fixture checks moved to [runner cutover](#retire-legacy-dashboard-backend-runner) |
 | Four `start-origin-{default,demand,isolation,private}` specs | [Runner cutover](#retire-legacy-dashboard-backend-runner), preserving private installed fixture behavior wherever it remains in use |
 | 14 Done, stop, delete and reopen specs | [Marking sessions done, stopping, deleting and reopening](#prove-native-session-and-terminal-lifecycle-on-vitest) |
