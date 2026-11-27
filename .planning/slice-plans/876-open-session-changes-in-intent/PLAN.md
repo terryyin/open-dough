@@ -123,6 +123,10 @@ Read at `0bff20a80`.
   so a later published record merges), its review selection, `ranges` and
   the no-comparison explanation. The launch-only case has frontend proof
   only. Untested: the story's chosen run surviving a session visit.
+- Slice 3: `sessionEvidenceOf` (`IntentStorySummary.tsx`) turns a chosen
+  session into `selectedRange`, or a `selectedRangeGap` worded by
+  `comparisonGapOf`; `SelectedComparisonEvidence` is `measured` or
+  `unmeasured`. A chosen session never measures the whole story.
 - Follow-up for slice 4: `followUpSessions.ts` and `FollowUpSession` now hold
   a story's sessions in general; rename when slice 4 reshapes that module
   (reaches `dashboard/server/followUpStory.ts`, `followUpAdmission.ts`).
@@ -175,7 +179,7 @@ shared-checkout warning are observed in Intent.
 
 ### 3. Proof follows the chosen session's range
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A Done story's chosen session has a recorded range → Intent's CI
 comparison measures that range's base and candidate as its selected range;
@@ -256,6 +260,23 @@ code, run the review family before landing: frontend `review/` and `intent/`
 (`intent-story-*`), and E2E `e2e/review/`, `e2e/intent/`, `e2e/sessions/`
 and `e2e/navigation/side-panel-*`, on awake macOS on AC under
 `caffeinate -s -i` per [AGENTS.md](../../../AGENTS.md).
+
+## Story obligations
+
+### G1. Story's chosen run after a session visit untested (first reported in slice 1)
+Reported: slice 3 — "No spec checks that a story's chosen run is still chosen after visiting a session."
+Story clause: "**Whole story** keeps today's story comparison choices: Published completion, its landed runs, and Include merged changes."
+Disposition: proved by slice 3: `dashboard/frontend-tests/intent/intent-story-compare-session-evidence.spec.ts` "Whole story keeps the story's chosen landed run after a session visit" chooses a landed run, a session, then Whole story and observes the run still checked and its range measured; Include merged changes is keyed state beside the run (`useStoryComparison.ts`) that a session choice does not reset.
+
+### G2. Proof measures the whole story for a session without a published comparison
+Reported: slice 3 — "Proof and CI comparison stay on the story's measurement and show the existing \"Describes the whole story\" note."
+Story clause: "Choosing it keeps it chosen and says it has no recorded comparison, rather than falling back to the story."
+Disposition: proved by slice 3: `dashboard/frontend-tests/intent/intent-story-compare-session-evidence.spec.ts` "a session without a published record measures nothing and says so; Whole story measures the story again" observes the explanation, no story measurement or whole-story note, and no range read (red-checked in `s3b-red.log`).
+
+### G3. Launch-only session has no E2E observation
+Reported: slice 2 — "no e2e covers this case; the frontend spec is its only proof."
+Story clause: "A session without a recorded landing stays chosen and explains that it has nothing to compare."
+Disposition: proved by slice 2: `dashboard/frontend-tests/intent/intent-story-compare-session-runs.spec.ts` "a session known only from a launch here stays chosen and published no comparison" mounts Intent with a retained launch and no record and observes the chosen radio, the explanation and zero published reads; the launch store is a browser-local input the frontend boundary owns.
 
 ## Plan review
 

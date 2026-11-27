@@ -12,10 +12,15 @@ import type { JudgedReading } from "./useIntentCiJudgment.ts";
 import type { HistoryReading } from "./useIntentCiHistory.ts";
 import type { ShownProof } from "./useIntentCiShownProof.ts";
 
-export type SelectedComparisonEvidence = {
-  readonly comparison: ComparisonReading<SelectedCiComparisonAnswer>;
-  readonly endpointProofs: SelectedComparisonEndpointProofs | undefined;
-};
+// The chosen comparison's CI measurement, or why the choice has no range to
+// measure.
+export type SelectedComparisonEvidence =
+  | {
+      readonly kind: "measured";
+      readonly comparison: ComparisonReading<SelectedCiComparisonAnswer>;
+      readonly endpointProofs: SelectedComparisonEndpointProofs | undefined;
+    }
+  | { readonly kind: "unmeasured"; readonly explanation: string };
 
 export type CiEvidence =
   | { readonly kind: "inactive" }

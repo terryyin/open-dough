@@ -26,6 +26,8 @@ export class StoryReviewBuilder {
   #agent = "claude";
   /** @type {{ ranges?: number, selectedRun?: string, shared?: true }} */
   #session = {};
+  /** @type {{ base: string, candidate: string } | undefined} */
+  #pair;
   /**
    * @param {string} path a file the comparison adds
    * @param {number} lines how many lines long
@@ -107,6 +109,16 @@ export class StoryReviewBuilder {
     return this;
   }
 
+  /**
+   * The commits the comparison runs between, such as a session's recorded range.
+   * @param {string} base
+   * @param {string} candidate
+   */
+  between(base, candidate) {
+    this.#pair = { base, candidate };
+    return this;
+  }
+
   /** @param {string} explanation why the landed run cannot be reviewed */
   landingGap(explanation) {
     this.#kind = "landing-unavailable";
@@ -162,8 +174,10 @@ export class StoryReviewBuilder {
   /** @param {string} [storyStart] @param {ReviewedFile[]} [widened] @returns {StoryReview} */
   #comparison(storyStart, widened) {
     const run = this.#selected;
-    const baseline = run?.comparison?.base ?? storyReviewIds.baseline;
-    const tree = run?.comparison?.revision ?? storyReviewIds.tree;
+    const baseline =
+      this.#pair?.base ?? run?.comparison?.base ?? storyReviewIds.baseline;
+    const tree =
+      this.#pair?.candidate ?? run?.comparison?.revision ?? storyReviewIds.tree;
     const files = structuredClone(this.#files);
     if (this.#kind === "landing-unavailable")
       return { kind: "landing-unavailable", ...this.#gap };

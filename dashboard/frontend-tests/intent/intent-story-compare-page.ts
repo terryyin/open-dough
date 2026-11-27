@@ -40,7 +40,10 @@ export function intentStoryCompare() {
   });
   const compare = header.getByRole("group", { name: "Compare" });
   const purpose = intent.getByRole("region", { name: "Purpose", exact: true });
-  const landingChoices = compare.getByRole("radio", { name: / — / });
+  // The landed runs' choices, apart from the Sessions choices beside them.
+  const landingChoices = compare
+    .getByRole("radiogroup", { name: "Comparison", exact: true })
+    .getByRole("radio", { name: / — / });
   const runChoice = (key: string) =>
     landingChoices.and(page.getByCSS(`[value="${CSS.escape(key)}"]`));
   type View = "CI comparison" | "Intent coverage";

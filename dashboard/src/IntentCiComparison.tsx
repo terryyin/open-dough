@@ -145,14 +145,33 @@ export function IntentCiComparison(props: IntentCiComparisonProps) {
 }
 
 export function SelectedCiComparison({
-  reading,
+  selected,
 }: {
-  readonly reading: SelectedComparisonEvidence["comparison"];
+  readonly selected: SelectedComparisonEvidence;
 }) {
-  const answer = reading.shown;
   return (
     <section className="intent-ci-status" aria-label="CI timing comparison">
       <h3>{ciTimingHeading}</h3>
+      {selected.kind === "unmeasured" ? (
+        <p className="intent-ci-gap">{selected.explanation}</p>
+      ) : (
+        <SelectedCiReading reading={selected.comparison} />
+      )}
+    </section>
+  );
+}
+
+function SelectedCiReading({
+  reading,
+}: {
+  readonly reading: Extract<
+    SelectedComparisonEvidence,
+    { kind: "measured" }
+  >["comparison"];
+}) {
+  const answer = reading.shown;
+  return (
+    <>
       {answer?.kind === "selection" ? (
         <>
           <p className="intent-ci-comparison-framing">
@@ -171,6 +190,6 @@ export function SelectedCiComparison({
         <p className="intent-ci-gap">{reading.failed ?? answer?.explanation}</p>
       )}
       <CheckAgain reading={reading.reading} checkAgain={reading.checkAgain} />
-    </section>
+    </>
   );
 }

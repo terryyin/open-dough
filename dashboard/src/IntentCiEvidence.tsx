@@ -86,6 +86,7 @@ export function IntentCiEvidenceProvider({
   doneEndpoint,
   doneEndpointReason,
   selectedRange,
+  selectedRangeGap,
   children,
 }: {
   readonly source: PublishedSource;
@@ -97,6 +98,8 @@ export function IntentCiEvidenceProvider({
   readonly doneEndpoint?: ScopeHistoryEndpoint;
   readonly doneEndpointReason?: string;
   readonly selectedRange?: CiComparisonRange;
+  // Why a selection has no range to measure; nothing is measured instead.
+  readonly selectedRangeGap?: string;
   readonly children: ReactNode;
 }) {
   const target = ciTargetOf(source, work, selectedIdentity);
@@ -144,6 +147,7 @@ export function IntentCiEvidenceProvider({
     source,
     comparisonIdentity,
     selectedRange,
+    selectedRangeGap,
   );
   const selectedEvidence =
     selectedComparison === undefined ? {} : { selectedComparison };
