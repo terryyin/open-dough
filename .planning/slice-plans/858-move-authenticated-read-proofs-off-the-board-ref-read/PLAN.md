@@ -140,6 +140,21 @@ browser notice comes from the first check after the page opens.
 Proof: Run those specs on trunk and under the patch, then run the Dashboard
 Backend Test and E2E Test suites on trunk. Budget 14 active minutes.
 
+## Execution complete
+
+Product advice:
+
+- The Board open story should decide whether a failed revision check may
+  ask gh twice and record two failures: the listing falls back to
+  `commits/main`, so once the Board relies on checks, each failed check
+  doubles its diagnostics and incidents.
+- The Board open story now also owns `transient-recovery-lifecycle`'s
+  hidden-page due-time and shared empty-page cases, that an armed recovery
+  wait stays project-local, the `askedAt` stamp of the cold read, and the
+  `ref main` expectations its switch already retargets in
+  `shared-observer-reads`, `unchanged-records-refresh` and
+  `reopened-project-reads`.
+
 ## Learnings
 
 Slice 1 (2026-11-26): all 11 specs pass on trunk and under the patch.
