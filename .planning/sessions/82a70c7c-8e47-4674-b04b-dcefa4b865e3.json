@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "82a70c7c-8e47-4674-b04b-dcefa4b865e3",
+  "workflow": "ad-hoc",
+  "closedAt": "2026-11-27T03:29:02.354Z",
+  "story": "SEED-420#browse-one-selectable-review-tree",
+  "ranges": [
+    {
+      "base": "2bae5fca3787e802bfcf72bcce393bd36372e56d",
+      "candidate": "13071af1298b3fd7f490cf523c9fcb44e5f99351"
+    }
+  ]
+}
