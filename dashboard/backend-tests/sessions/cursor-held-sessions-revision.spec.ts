@@ -1,156 +1,177 @@
-// Shared Cursor held-session reads (../../server/hosts/cursor/heldSessions.ts)
-// join only under the same machine documents the read started from. Counted
-// where the runner's address forwards (../../test-support/support/cursorRunnerHeldReads.ts):
-// a launch record written while a held read is outstanding is labeled from a
-// read that includes it, and overlapping asks under unchanged documents still
-// share one runner read. A settled read answers later asks for about one
-// second under those documents; past that window the next ask reads again.
-import { setTimeout as delay } from "node:timers/promises";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { cursorRunnerSessionsEndpoint } from "../../src/cursorRunnerSessions.ts";
-import { agentNotRunningLabel } from "../../src/sessionRecovery.ts";
-import { launch } from "../../test-support/agentLaunchBoundary.ts";
-import { installFakeCursor } from "../../test-support/support/fakeCursor.ts";
-import { holdRunnerSessionsReads } from "../../test-support/support/cursorRunnerHeldReads.ts";
+// Cursor's list and host observation share held runner evidence by machine revision.
+import { once } from "node:events";
+import { mkdtempSync, rmSync } from "node:fs";
+import { createServer } from "node:http";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { expect, onTestFinished, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
-  instructedCursorRequest,
-  keptCursor,
-  withCursorLaunch,
-} from "../../test-support/support/keptCursorTurn.ts";
-import { keepLaunchRecords } from "../../test-support/support/launchStore.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+  heldCursorSessionEvidence,
+  heldCursorSessions,
+} from "../../server/hosts/cursor/heldSessions.ts";
+import { writeCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
+import type { CursorRunnerSessionsResult } from "../../server/hosts/cursor/runnerProtocol.ts";
+import { machineRecordStore } from "../../server/launchRecordStore.ts";
+import { withStates } from "../../server/launchStates.ts";
+import { machineFolder } from "../../server/localFolder.ts";
+import * as machineDocuments from "../../server/machineJsonStore.ts";
+import { agentNotRunningLabel } from "../../src/sessionRecovery.ts";
 
-const instruction = "hold this session";
 const reuseMs = 1_000;
 
-const askList = (dashboard: DashboardServer) =>
-  rawRequest({
-    url: `${dashboard.baseURL}${cursorRunnerSessionsEndpoint}`,
-    headers: { Origin: dashboard.origin },
+async function heldRunner() {
+  const home = mkdtempSync(path.join(tmpdir(), "dough-held-cursor-"));
+  vi.stubEnv("HOME", home);
+  vi.stubEnv("DOUGH_SESSIONS_REUSE_MS", String(reuseMs));
+  vi.stubEnv("DOUGH_TEST_OBSERVATION_CLOCK_AHEAD_FILE", undefined);
+  vi.useFakeTimers({ toFake: ["Date"] });
+  const record = makeMe.aLaunchRecord
+    .executing({
+      identity: "SEED-413#held-cursor",
+      title: "Observe held Cursor",
+    })
+    .inCursorSession({
+      sessionId: "1f946be3-825f-42f4-a295-1602218afefe",
+      continuation: { workspace: home },
+    })
+    .withFirstInput({ state: "confirmed" })
+    .please();
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
   });
-
-const askSessions = (dashboard: DashboardServer) =>
-  rawRequest({
-    url: `${dashboard.baseURL}/__agent-launch`,
-    headers: { Origin: dashboard.origin },
-  });
-
-test("a Cursor record written while a held read is outstanding is labeled from a read that includes it", async () => {
-  const cursor = installFakeCursor({ screen: "working" });
-  await withCursorLaunch({ mode: "boundary" }, cursor, async (dashboard) => {
-    // Installed before the launch, so every runner read passes through it.
-    const gate = await holdRunnerSessionsReads(dashboard);
-    try {
-      const launched = await launch(
-        dashboard,
-        instructedCursorRequest(instruction),
-      );
-      expect(launched.status).toBe(200);
-      await expect.poll(() => cursor.attaches()).toHaveLength(1);
-      const record = keptCursor(dashboard.home);
-
-      // Drop the launch record while the runner still holds the client, so the
-      // next held read begins under documents without it.
-      keepLaunchRecords(dashboard, []);
-
-      const before = gate.sessionsReads();
-      gate.hold();
-      let list!: ReturnType<typeof askList>;
-      let observation!: ReturnType<typeof askSessions>;
-      try {
-        list = askList(dashboard);
-        await expect.poll(() => gate.sessionsReads()).toBe(before + 1);
-        // The joiner's record lands after that read began.
-        keepLaunchRecords(dashboard, [record]);
-        observation = askSessions(dashboard);
-        await delay(300);
-      } finally {
-        gate.release();
-      }
-      await list;
-      const sessions = await observation;
-      expect(sessions.status).toBe(200);
-      const body = JSON.parse(sessions.body) as {
-        records: {
-          session: { sessionId: string };
-          sessionState: { kind?: string; label?: string; activity?: string };
-        }[];
-      };
-      const observed = body.records.find(
-        (entry) => entry.session.sessionId === record.session.sessionId,
-      );
-      expect(observed?.sessionState).toEqual({
-        kind: "available",
-        availability: "loaded",
-        activity: "working",
-      });
-      expect(observed?.sessionState).not.toMatchObject({
-        kind: "unknown",
-        label: agentNotRunningLabel,
-      });
-      // Own read after the write: the outstanding one plus the joiner's.
-      expect(gate.sessionsReads()).toBe(before + 2);
-    } finally {
-      await gate.close();
+  const wire = {
+    sessions: [{ session: record.session, label: "working" }],
+  } satisfies CursorRunnerSessionsResult;
+  let reads = 0;
+  const server = createServer((request, response) => {
+    if (request.method !== "GET" || request.url !== "/sessions") {
+      response.writeHead(404).end();
+      return;
     }
+    reads += 1;
+    void held.then(() => {
+      response.end(JSON.stringify(wire));
+    });
   });
+  onTestFinished(async () => {
+    release();
+    const closed = new Promise<void>((resolve) =>
+      server.close(() => {
+        resolve();
+      }),
+    );
+    server.closeAllConnections();
+    await closed;
+    vi.useRealTimers();
+    vi.unstubAllEnvs();
+    rmSync(home, { recursive: true, force: true });
+  });
+  await once(server.listen(0, "127.0.0.1"), "listening");
+  const address = server.address();
+  if (address === null || typeof address === "string") {
+    throw new Error("The held Cursor runner has no listening port.");
+  }
+  writeCursorRunnerAddress(home, { port: address.port, pid: process.pid });
+  return { record, sessionsReads: () => reads, release };
+}
+
+// Use the settled real revision reads as an arrival signal while the runner
+// reply is held, so the asks exercise a running read before settled reuse.
+function watchViewers() {
+  const revisions = vi.spyOn(machineDocuments, "machineDocumentsRevision");
+  onTestFinished(() => {
+    revisions.mockRestore();
+  });
+  return async (count: number) => {
+    await expect
+      .poll(
+        () =>
+          revisions.mock.settledResults.filter(
+            ({ type }) => type === "fulfilled",
+          ).length,
+      )
+      .toBe(count);
+  };
+}
+
+test("a Cursor record written during a held read gets its own observation", async () => {
+  const runner = await heldRunner();
+  const viewers = watchViewers();
+  const outstanding = heldCursorSessions();
+  const asks: Promise<unknown>[] = [outstanding];
+  try {
+    await expect.poll(runner.sessionsReads).toBe(1);
+    const { record } = runner;
+    await machineRecordStore.replaceRecords(() => ({
+      [record.request.source]: [record],
+    }));
+    const observation = withStates(machineFolder(), [record], "recurring");
+    asks.push(observation);
+    await viewers(2);
+    runner.release();
+
+    const [seen] = await observation;
+    expect(seen?.session.sessionId).toBe(record.session.sessionId);
+    expect(seen?.sessionState).toEqual({
+      kind: "available",
+      availability: "loaded",
+      activity: "working",
+    });
+    expect(seen?.sessionState).not.toMatchObject({
+      kind: "unknown",
+      label: agentNotRunningLabel,
+    });
+    expect(runner.sessionsReads()).toBe(2);
+  } finally {
+    runner.release();
+    await Promise.allSettled(asks);
+  }
 });
 
-test("overlapping asks under unchanged documents still share one runner read", async () => {
-  const cursor = installFakeCursor({ screen: "working" });
-  await withCursorLaunch(
-    { mode: "boundary" },
-    cursor,
-    async (dashboard) => {
-      const gate = await holdRunnerSessionsReads(dashboard);
-      try {
-        const launched = await launch(
-          dashboard,
-          instructedCursorRequest(instruction),
-        );
-        expect(launched.status).toBe(200);
-        await expect.poll(() => cursor.attaches()).toHaveLength(1);
+test("overlapping Cursor lists and evidence share a read and reuse it until expiry", async () => {
+  const runner = await heldRunner();
+  const { record } = runner;
+  await machineRecordStore.replaceRecords(() => ({
+    [record.request.source]: [record],
+  }));
+  const viewers = watchViewers();
+  const lists = Promise.all([
+    heldCursorSessions(),
+    heldCursorSessions(),
+    heldCursorSessions(),
+  ]);
+  const evidence = heldCursorSessionEvidence();
+  const asks = Promise.all([lists, evidence]);
+  try {
+    await expect.poll(runner.sessionsReads).toBe(1);
+    await viewers(4);
+    expect(runner.sessionsReads()).toBe(1);
+    runner.release();
 
-        // Past the launch's settled observation, so overlapping asks start a
-        // new runner read instead of being answered from it.
-        await delay(reuseMs + 200);
-        const before = gate.sessionsReads();
-        gate.hold();
-        let lists: ReturnType<typeof askList>[] = [];
-        let observation!: ReturnType<typeof askSessions>;
-        try {
-          lists = [askList(dashboard)];
-          await expect.poll(() => gate.sessionsReads()).toBe(before + 1);
-          lists.push(askList(dashboard), askList(dashboard));
-          observation = askSessions(dashboard);
-          await delay(300);
-          expect(gate.sessionsReads()).toBe(before + 1);
-        } finally {
-          gate.release();
-        }
-        const answers = await Promise.all(lists);
-        expect(answers.map(({ status }) => status)).toEqual([200, 200, 200]);
-        expect(new Set(answers.map(({ body }) => body)).size).toBe(1);
-        const sessions = await observation;
-        expect(sessions.status).toBe(200);
-        expect(sessions.body).toContain(cursor.sessionId);
-        expect(gate.sessionsReads()).toBe(before + 1);
+    const [[first, ...others], observed] = await asks;
+    expect(first).toEqual({
+      runner: "running",
+      sessions: [{ record, label: "working" }],
+    });
+    expect(others).toEqual([first, first]);
+    expect(observed.runner).toBe("running");
+    expect(
+      observed.sessions.map(({ record: held }) => held.session.sessionId),
+    ).toEqual([record.session.sessionId]);
+    expect(runner.sessionsReads()).toBe(1);
 
-        const settledAt = Date.now();
-        const settled = gate.sessionsReads();
-        const reused = await askList(dashboard);
-        expect(reused.body).toBe(answers[0]?.body);
-        expect(gate.sessionsReads()).toBe(settled);
+    const settledAt = Date.now();
+    vi.setSystemTime(settledAt + reuseMs - 1);
+    expect(await heldCursorSessions()).toEqual(first);
+    expect(runner.sessionsReads()).toBe(1);
 
-        await delay(reuseMs + 200 - (Date.now() - settledAt));
-        const next = await askList(dashboard);
-        expect(next.body).toBe(answers[0]?.body);
-        expect(gate.sessionsReads()).toBeGreaterThan(settled);
-      } finally {
-        await gate.close();
-      }
-    },
-    { sessionsReuseMs: reuseMs },
-  );
+    vi.setSystemTime(settledAt + reuseMs);
+    expect(await heldCursorSessions()).toEqual(first);
+    expect(runner.sessionsReads()).toBe(2);
+  } finally {
+    runner.release();
+    await Promise.allSettled([asks]);
+  }
 });

@@ -8,6 +8,12 @@
       "blob": "d2af98ad5285190cf5e554f7fdc6268c4eafba36"
     },
     {
+      "fileName": "SEED-413_prove-native-session-observation-on-vitest.json",
+      "identity": "SEED-413#prove-native-session-observation-on-vitest",
+      "completedAt": "2026-11-27T01:19:49.140Z",
+      "blob": "86d2991c65cb53faf2730096f95af291ebe17fc8"
+    },
+    {
       "fileName": "SEED-413_prove-follow-up-context-on-vitest.json",
       "identity": "SEED-413#prove-follow-up-context-on-vitest",
       "completedAt": "2026-11-27T01:14:59.248Z",

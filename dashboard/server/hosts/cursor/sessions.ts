@@ -37,12 +37,13 @@ import { hasUnfinishedBelongingSubagent } from "./unfinishedSubagents.ts";
 
 export async function observeCursorSessions(
   records: readonly LaunchRecord[],
+  readHeld = heldCursorSessionEvidence,
 ): Promise<readonly SessionObservation[]> {
   const home = homedir();
   const cursorRecords = records.filter(
     (record) => record.session.host === "cursor",
   );
-  const held = await heldCursorSessionEvidence(home);
+  const held = await readHeld(home);
   if (held.runner !== "running") {
     const label = cursorRunnerSentence(held.runner);
     return cursorRecords.map((record) => labeledUnknown(record, label));

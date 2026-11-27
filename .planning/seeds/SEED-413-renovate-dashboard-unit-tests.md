@@ -352,93 +352,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Plan.** [Prove session completion reporting in Node Vitest](../slice-plans/870-prove-session-completion-reporting-on-vitest/PLAN.md)
 
-<a id="prove-native-session-observation-on-vitest"></a>
-
-### Prove native session observation and alerts in Node Vitest
-
-**Identity:** SEED-413#prove-native-session-observation-on-vitest
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/869-prove-native-session-observation-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"0324881420b040e4cb29e5d0687151416bd5a24ed181971535c509886072cdf9","plan":"2b18d841d63dfc19a4107c306e378f5cfabf5a5e99babc5005c68eeb3900ffab"}}
-```
-
-- **Goal.** Developers changing how the Dashboard reads Codex and Cursor
-  sessions, shares bounded observations, and raises session alerts get fast,
-  typed Node Vitest feedback on native reads, shared bounds, failures,
-  revision invalidation, and alerts.
-- **Scope.** Move the nine legacy specs (19 regular cases plus the opt-in
-  `DOUGH_SESSIONS_REPLAY=1` measurement) off backend Playwright and account
-  for each observation:
-  `sessions/agent-launch-codex-observation-{alerts,concurrency,sharing,status,wait}.spec.ts`
-  (12 cases), `sessions/cursor-held-sessions-revision.spec.ts` (2 cases),
-  `sessions/cursor-runner-sessions-sharing.spec.ts` (1 case),
-  `sessions/cursor-session-alerts.spec.ts` (4 cases), and
-  `sessions/sessions-replay.spec.ts` (1 opt-in case).
-  - Prove Codex protocol translation, shared read concurrency, abort
-    cancellation, and silent-endpoint bounds through `codexSessions` and
-    `withStates` over `installFakeCodex`, and deletion during a pending
-    passive read through `deleteRecord` and `MachineSessionObservation`
-    without starting a Dashboard server.
-  - Prove shared machine-session observation, settled reuse, catalog
-    invalidation, departing waiters, and read-wait refusal through
-    `MachineSessionObservation` directly in Node Vitest.
-  - Prove Codex and Cursor alert baselines, gap continuity, re-arming,
-    unrecognized vs incomplete readings, unconfirmed first input, vanishing
-    or stopped runners, and finished records through `SessionAlerts` over
-    `codexSessions` and `observeCursorSessions` with a typed
-    `SessionAlertNotifier`.
-  - Prove Cursor held-session read sharing, settled reuse, and
-    machine-document revision invalidation through `heldCursorSessions` and
-    `heldCursorSessionEvidence` over a local runner HTTP stand-in that counts
-    and holds `GET /sessions` reads, consolidating duplicate sharing cases
-    only when every distinct observation is preserved.
-  - Keep `sessions/sessions-replay.spec.ts` as an opt-in Node Vitest
-    measurement gated by `DOUGH_SESSIONS_REPLAY=1` so its real-server
-    event-loop and scale table remain runnable without Playwright.
-  - Product behavior stays unchanged. Add zero new server, request, or
-    boundary wrappers to `dashboard/test-support/`, compose typed state with
-    MakeMe where applicable, and remove any test-support helper or export
-    left with no remaining caller.
-  - Browser page journeys stay in `e2e/sessions/`
-    (`agent-launch-codex-observation.spec.ts`, `agent-session-cursor.spec.ts`,
-    `cursor-runner-sessions.spec.ts`, `session-alerts.spec.ts`). Done,
-    completion reporting, terminal attach, Cursor runner lifecycle, and
-    retention belong to their sibling stories.
-- **Key examples.**
-  - Given 24 held Codex sessions split across two overlapping reads, at most
-    four `thread/read` calls run at once and all 24 finish as available
-    review; aborting a held batch cancels queued reads without losing
-    results for a concurrent recovery batch.
-  - Given Codex status variants and failures, native provenance is preserved,
-    only the exact `-32600` missing-thread error reads unavailable, endpoint
-    and read failures preserve healthy Claude and Codex hosts and saved
-    identity, deleting an unreadable record while a passive read is pending
-    never recreates it, and a silent endpoint reaches its deadline and closes
-    its socket without erasing a healthy endpoint.
-  - Given overlapping viewers and the alert observer on one held
-    observation, all share one native read and one serialized body; a
-    departing waiter ends only its own wait; waiters past the read-wait bound
-    receive a retryable 503 without starting a second observation; settled
-    observations reuse within the window and observe afresh after the window
-    or a project catalog change.
-  - Given Codex native transitions, `Needs input`, `State not recognized`,
-    and `Ready for review` each alert once per entry and re-arm after
-    working, while incomplete, failed, omitted, or baselined readings stay
-    quiet until confirmed activity changes.
-  - Given Cursor held-session observations, an unconfirmed follow-up prompt
-    reads awaiting instruction and alerts nothing; held waiting and review
-    screens alert once per entry, re-arm after working, and stay quiet when
-    the agent vanishes, the runner stops, or a finished record is unheld;
-    cancelled/failed history settling to the follow-up prompt reads review
-    with no failure alert.
-  - Given Cursor `GET /sessions` reads, overlapping list and sessions asks
-    under unchanged machine documents share one runner read and reuse it
-    within the window before reading again past the window, while a launch
-    record written while a held read is outstanding gets its own read under
-    the new revision and is labeled working.
-- **Replacement trace.** Split from [native session and terminal lifecycle](https://github.com/terryyin/open-dough/blob/23c09d6e4d18b5113b45f3aed28f09e986083072/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-and-terminal-lifecycle-on-vitest).
-
-**Plan.** [Prove native session observation and alerts in Node Vitest](../slice-plans/869-prove-native-session-observation-on-vitest/PLAN.md)
-
 <a id="prove-terminal-attach-and-cursor-turns-on-vitest"></a>
 
 ### Prove terminal attach in Node Vitest
@@ -972,7 +885,7 @@ or removed once its behavior or duplicate is accounted for.
 | Four `start-origin-{default,demand,isolation,private}` specs | [Runner cutover](#retire-legacy-dashboard-backend-runner), preserving private installed fixture behavior wherever it remains in use |
 | 14 Done, stop, delete and reopen specs | [Marking sessions done, stopping, deleting and reopening](#prove-native-session-and-terminal-lifecycle-on-vitest) |
 | 11 completion reporting specs | [Session completion reporting](#prove-session-completion-reporting-on-vitest) |
-| Nine observation, alert and replay specs | [Native session observation and alerts](#prove-native-session-observation-on-vitest) |
+| Nine observation, alert and replay specs | [Native session observation and alerts](https://github.com/terryyin/open-dough/blob/0e82130ff6693e0f9a7b936aa8871aacb6ebbfee/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-observation-on-vitest) |
 | Five Claude and Codex terminal attach specs | [Terminal attach](#prove-terminal-attach-and-cursor-turns-on-vitest) |
 | Six Cursor turn specs | [Cursor turns](#prove-cursor-turns-on-vitest) |
 | Seven Cursor runner specs | [Cursor runner lifecycle](#prove-cursor-runner-lifecycle-on-vitest) |

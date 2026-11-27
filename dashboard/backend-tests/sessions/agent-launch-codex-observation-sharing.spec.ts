@@ -1,151 +1,207 @@
-// Every viewer's sessions answer and the notification observer share one
-// machine-session observation (../../server/machineSessionObservation.ts),
-// counted by the Codex native fixture's calls: one native connection
-// (`initialized`) and one `thread/read` per session per observation.
-import { setTimeout as delay } from "node:timers/promises";
-import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
-import type { FakeCodex } from "../../test-support/support/fakeCodex.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import { test, expect } from "../../test-support/support/codexLaunch.ts";
+// Viewers and alerts share the same typed machine-session reader and native calls.
+import { expect, onTestFinished, test, vi } from "vitest";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import type { SharedAnswer } from "../../server/agentLaunchResponse.ts";
+import { withStates } from "../../server/launchStates.ts";
+import { machineFolder } from "../../server/localFolder.ts";
 import {
-  observationRecord as record,
-  saveObservations as save,
-  askSessions,
-  sessionStatesIn,
-  observed,
-  passive,
-} from "../../test-support/support/codexObservation.ts";
+  MachineSessionObservation,
+  machineSessionInputs,
+  observedMachineRecords,
+} from "../../server/machineSessionObservation.ts";
+import {
+  mountProjectConfiguration,
+  removeConfiguredProject,
+} from "../../server/projectConfiguration.ts";
+import {
+  SessionAlerts,
+  type SessionAlertNotifier,
+} from "../../server/sessionAlerts.ts";
+import { machineSessionsReadSchema } from "../../src/machineSessionsRevision.ts";
+import { expectPassiveCodexReads } from "../../test-support/support/codexPassiveProtocol.ts";
+import {
+  codexEndpoint,
+  type FakeCodex,
+} from "../../test-support/support/fakeCodex.ts";
+import {
+  codexObservationCounts,
+  codexRecord,
+  privateHome,
+  source,
+  startNativeCodexEndpoint,
+} from "../support/codexObservationFixture.ts";
 
-test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
+const reuseMs = 1_000;
+const waitMs = 10_000;
+const overview = {
+  audience: "overview",
+  held: undefined,
+  fresh: false,
+} as const;
+const review = {
+  kind: "available",
+  availability: "loaded",
+  activity: "review",
+};
 
-const isolatedStartupObservation = test.extend({
-  liveServer: "the mounted startup observation races the native test setup",
+function fullOverview({ serialized }: SharedAnswer) {
+  const answer = machineSessionsReadSchema.parse(JSON.parse(serialized));
+  if ("unchanged" in answer)
+    throw new Error("Expected a full sessions overview");
+  return answer;
+}
+
+function observeCodex(native: FakeCodex, sessionId: string, reuse: number) {
+  const kept = codexRecord(sessionId, codexEndpoint(native));
+  const inputs = vi.fn(() => Promise.resolve([source]));
+  const observation = new MachineSessionObservation(
+    async () =>
+      makeMe.aMachineAnswer
+        .observing(...(await withStates(machineFolder(), [kept], "recurring")))
+        .please(),
+    inputs,
+    { waitMs, reuseMs: reuse },
+  );
+  return { observation, inputs };
+}
+
+test("eight viewers and the alert observer share one held observation", async () => {
+  const native = await startNativeCodexEndpoint(privateHome());
+  native.observations.set("shared", {
+    status: { type: "idle" },
+    turns: [{ id: "shared-turn", status: "completed" }],
+    holdRead: true,
+  });
+  const { observation, inputs } = observeCodex(native, "shared", 60_000);
+  vi.stubEnv("DOUGH_ALERT_CHECK_MS", "20");
+  const signal = new AbortController();
+  let alertPollsAnswered = 0;
+  const send = vi
+    .fn<SessionAlertNotifier["send"]>()
+    .mockResolvedValue(undefined);
+  const notifier: SessionAlertNotifier = {
+    probe: () => Promise.resolve(undefined),
+    send,
+  };
+  const alerts = new SessionAlerts(
+    {
+      async machineSessions(alertSignal) {
+        const records = await observation.machineSessions(alertSignal);
+        alertPollsAnswered += 1;
+        return records;
+      },
+    },
+    () => "http://127.0.0.1:4173",
+    notifier,
+  );
+  const viewers: Promise<SharedAnswer>[] = [];
+  try {
+    await expect
+      .poll(() => codexObservationCounts(native), { interval: 1 })
+      .toEqual([1, 1]);
+    viewers.push(
+      ...Array.from({ length: 8 }, () =>
+        observation.answerFor(overview, signal.signal),
+      ),
+    );
+    await expect.poll(() => inputs.mock.calls.length, { interval: 1 }).toBe(9);
+    expect(codexObservationCounts(native)).toEqual([1, 1]);
+    native.releaseReads();
+
+    const [first, ...others] = await Promise.all(viewers);
+    if (first === undefined) throw new Error("Expected an overview");
+    expect(others.map(({ serialized }) => serialized)).toEqual(
+      Array.from({ length: 7 }, () => first.serialized),
+    );
+    const { records, attempts } = fullOverview(first);
+    expect(records.map(({ sessionState }) => sessionState)).toEqual([review]);
+    expect(attempts).toEqual([]);
+    await expect
+      .poll(() => alertPollsAnswered, { interval: 5 })
+      .toBeGreaterThanOrEqual(3);
+    expect(codexObservationCounts(native)).toEqual([1, 1]);
+    expect(send).not.toHaveBeenCalled();
+    expectPassiveCodexReads(native.calls, expect);
+  } finally {
+    alerts.close();
+    signal.abort();
+    native.releaseReads();
+    await Promise.allSettled(viewers);
+  }
 });
 
-const observations = (native: FakeCodex) =>
-  native.calls.filter((call) => call.method === "initialized").length;
-const reads = (native: FakeCodex) =>
-  native.calls.filter((call) => call.method === "thread/read").length;
-
-// A server whose settled observation serves later asks for the production
-// second, with this spec's records and native fixture.
-const reusingServer = (
-  machine: string | undefined,
-  native: FakeCodex,
-  alertCheckMs?: number,
-) =>
-  startDashboardServer({
-    mode: "boundary",
-    liveServer: "separate process",
-    machine,
-    projectFolders: ["open-dough"],
-    codexProtocol: native,
-    sessionsReuseMs: 1_000,
-    ...(alertCheckMs === undefined ? {} : { alertCheckMs }),
+test("a settled observation is reused within its window and refreshed at expiry", async () => {
+  const native = await startNativeCodexEndpoint(privateHome());
+  native.observations.set("settled", {
+    status: { type: "idle" },
+    turns: [{ id: "settled-turn", status: "completed" }],
+  });
+  const { observation } = observeCodex(native, "settled", reuseMs);
+  const { signal } = new AbortController();
+  vi.useFakeTimers({ toFake: ["Date"] });
+  onTestFinished(() => {
+    vi.useRealTimers();
   });
 
-isolatedStartupObservation(
-  "eight viewers and the notification observer share one held observation",
-  async ({ machine, codexProtocol: native, dashboard }) => {
-    if (native === undefined) throw new Error("Missing native fixture");
-    native.observations.set("shared", {
-      status: { type: "idle" },
-      turns: [{ id: "shared-turn", status: "completed" }],
-      holdRead: true,
-    });
-    save(dashboard, [record(dashboard, native, "shared")]);
-    await dashboard.close();
-    // The observer polls every 50 ms; a settled observation serves a second.
-    const server = await reusingServer(machine, native, 50);
-    try {
-      // The observer's own poll starts the observation and waits on it.
-      await expect.poll(() => reads(native)).toBe(1);
-      const viewers = Array.from({ length: 8 }, () => askSessions(server));
-      await delay(300);
-      expect([observations(native), reads(native)]).toEqual([1, 1]);
-      native.releaseReads();
-      const answers = await Promise.all(viewers);
-      expect(answers.map(({ status }) => status)).toEqual(Array(8).fill(200));
-      // One serialization answers every viewer, records and attempts alike.
-      expect(new Set(answers.map(({ body }) => body)).size).toBe(1);
-      const body = answers[0]?.body ?? "";
-      expect(sessionStatesIn(body)).toEqual([
-        { kind: "available", availability: "loaded", activity: "review" },
-      ]);
-      expect((JSON.parse(body) as { attempts: unknown[] }).attempts).toEqual(
-        [],
-      );
-      // The observer's further polls within the window are served by it too.
-      await delay(500);
-      expect([observations(native), reads(native)]).toEqual([1, 1]);
-      passive(native.calls);
-    } finally {
-      await server.close();
-    }
-  },
-);
+  const first = await observation.answerFor(overview, signal);
+  expect(
+    fullOverview(first).records.map(({ sessionState }) => sessionState),
+  ).toEqual([review]);
+  expect(codexObservationCounts(native)).toEqual([1, 1]);
+  native.observations.set("settled", {
+    status: { type: "active", activeFlags: [] },
+    turns: [],
+  });
 
-isolatedStartupObservation(
-  "a settled observation serves asks within a second, and a later ask observes afresh",
-  async ({ machine, codexProtocol: native, dashboard: closed }) => {
-    if (native === undefined) throw new Error("Missing native fixture");
-    observed(native, "settled", { type: "idle" }, "completed");
-    save(closed, [record(closed, native, "settled")]);
-    await closed.close();
-    const dashboard = await reusingServer(machine, native);
-    try {
-      const first = await askSessions(dashboard);
-      const settledAt = Date.now();
-      expect(first.status).toBe(200);
-      const once = [observations(native), reads(native)];
-      expect(once[1]).toBe(1);
-      await delay(400 - (Date.now() - settledAt));
-      const reused = await askSessions(dashboard);
-      expect(reused.body).toBe(first.body);
-      expect([observations(native), reads(native)]).toEqual(once);
-      await delay(1_500 - (Date.now() - settledAt));
-      observed(native, "settled", { type: "active", activeFlags: [] });
-      const fresh = await askSessions(dashboard);
-      expect([observations(native), reads(native)]).toEqual(
-        once.map((count) => count * 2),
-      );
-      expect(sessionStatesIn(fresh.body)).toEqual([
-        { kind: "available", availability: "loaded", activity: "working" },
-      ]);
-      passive(native.calls);
-    } finally {
-      await dashboard.close();
-    }
-  },
-);
+  const settledAt = Date.now();
+  vi.setSystemTime(settledAt + reuseMs - 1);
+  expect((await observation.answerFor(overview, signal)).serialized).toBe(
+    first.serialized,
+  );
+  expect(codexObservationCounts(native)).toEqual([1, 1]);
 
-test("a project catalog change is observed afresh within the reuse window", async ({
-  machine,
-  codexProtocol: native,
-  dashboard: closed,
-}) => {
-  if (native === undefined) throw new Error("Missing native fixture");
-  observed(native, "catalog", { type: "idle" }, "completed");
-  save(closed, [record(closed, native, "catalog")]);
-  await closed.close();
-  const dashboard = await reusingServer(machine, native);
-  try {
-    const before = await askSessions(dashboard);
-    expect(
-      (JSON.parse(before.body) as { records: unknown[] }).records,
-    ).toHaveLength(1);
-    const removed = await rawRequest({
-      url: `${dashboard.baseURL}/__project-configuration/remove`,
-      method: "POST",
-      headers: { Origin: dashboard.origin, "Content-Type": "application/json" },
-      body: JSON.stringify({ id: "open-dough" }),
-    });
-    expect(removed.status).toBe(200);
-    const after = await askSessions(dashboard);
-    expect((JSON.parse(after.body) as { records: unknown[] }).records).toEqual(
-      [],
-    );
-  } finally {
-    await dashboard.close();
-  }
+  vi.setSystemTime(settledAt + reuseMs);
+  const fresh = fullOverview(await observation.answerFor(overview, signal));
+  expect(fresh.records.map(({ sessionState }) => sessionState)).toEqual([
+    { kind: "available", availability: "loaded", activity: "working" },
+  ]);
+  expect(codexObservationCounts(native)).toEqual([2, 2]);
+  expectPassiveCodexReads(native.calls, expect);
+});
+
+test("removing a project invalidates the settled observation within the reuse window", async () => {
+  const native = await startNativeCodexEndpoint(privateHome());
+  onTestFinished(mountProjectConfiguration("production"));
+  native.observations.set("catalog", {
+    status: { type: "idle" },
+    turns: [{ id: "catalog-turn", status: "completed" }],
+  });
+  const kept = new Map([
+    [source, [codexRecord("catalog", codexEndpoint(native))]],
+  ]);
+  const observation = new MachineSessionObservation(
+    async () =>
+      makeMe.aMachineAnswer
+        .observing(...(await observedMachineRecords(kept)).records)
+        .please(),
+    machineSessionInputs,
+    { waitMs, reuseMs },
+  );
+  const { signal } = new AbortController();
+  vi.useFakeTimers({ toFake: ["Date"] });
+  onTestFinished(() => {
+    vi.useRealTimers();
+  });
+
+  const first = fullOverview(await observation.answerFor(overview, signal));
+  expect(first.records.map(({ session }) => session.sessionId)).toEqual([
+    "catalog",
+  ]);
+  expect(codexObservationCounts(native)).toEqual([1, 1]);
+
+  removeConfiguredProject(source);
+
+  const after = fullOverview(await observation.answerFor(overview, signal));
+  expect(after.records).toEqual([]);
+  expect(codexObservationCounts(native)).toEqual([1, 1]);
 });
