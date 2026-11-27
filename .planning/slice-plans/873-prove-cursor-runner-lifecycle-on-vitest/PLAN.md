@@ -186,13 +186,16 @@ moved to `cursor-runner-process-ownership` with a 60-second timeout
 ### 5. Start Cursor with the developer shell environment
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 7 active minutes.
 
 Proof: Convert `cursor-runner-environment`. Start the real runner with
 the deployment additions and use `execOnRunner` and `keepCursorClient`.
 Observe the successful exec and kept outcomes, and the fake agent's
 actual command and PTY environments with `developerShellViolations`.
+
+Delivered: the environment case converted in place, Vitest 1/1 three
+times at load 27–31 (1.7–3.2 s).
 
 ### 6. Rejoin the same held client after a Dashboard restart
 
