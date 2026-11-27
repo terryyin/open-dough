@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Anri-chan",
+  "email": "anri-chan@example.org",
+  "identity": "SEED-418#prove-or-retire-held-read-race-step",
+  "mode": "story-branch",
+  "branch": "claude/retire-the-held-read-race-step-that-cannot-fail",
+  "host": "claude"
+}
