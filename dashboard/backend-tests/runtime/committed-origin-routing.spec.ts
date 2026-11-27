@@ -1,7 +1,6 @@
 // A HOME's routes are a list Git reads in order: among equally long matching
 // URLs it takes the first. Git's own longest match is exercised by the
 // journeys that read a committed origin through `expectServedHomesReach`.
-import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -70,7 +69,7 @@ test("an origin routes one URL and keeps its place", () => {
   ).toEqual([{ origin: first.origin, url: otherUrl }, other]);
 });
 
-test("a HOME's routes are written once as Git config Git reads back in order, keeping other settings", () => {
+test("a HOME's routes round-trip through config text in order, keeping other settings", () => {
   const home = mkdtempSync(path.join(tmpdir(), "dough-home-routes-"));
   try {
     writeFileSync(
@@ -88,25 +87,6 @@ test("a HOME's routes are written once as Git config Git reads back in order, ke
     expect(homeRoutes(home)).toEqual(routes);
     expect(readFileSync(path.join(home, ".gitconfig"), "utf8")).toContain(
       "name = Fixture",
-    );
-  } finally {
-    rmSync(home, { recursive: true, force: true });
-  }
-});
-
-test("an unrouted repository fails locally under the HOME's unrouted route", () => {
-  const home = mkdtempSync(path.join(tmpdir(), "dough-home-routes-"));
-  try {
-    writeHomeRoutes(home, [unroutedAway(home)]);
-
-    const read = spawnSync("git", ["ls-remote", otherUrl], {
-      env: { ...process.env, HOME: home, GIT_ALLOW_PROTOCOL: "file" },
-      encoding: "utf8",
-    });
-
-    expect(read.status).toBe(128);
-    expect(read.stderr).toContain(
-      path.join(home, "unrouted-github", "fixture/other.git"),
     );
   } finally {
     rmSync(home, { recursive: true, force: true });

@@ -134,10 +134,13 @@ read/no-snapshot/no-retry checks after removal of the Board wait. The
 project-switch case exercised ordinary membership. The exact command
 passed quietly, and a second run recorded attempts using the runner's
 proof-record option.
+Published on the execution branch at `6a94187c24e39f4e524c61f8c55afdc690138e0a`.
+Its queued run superseded slice 1's run, which GitHub cancelled with
+zero failed jobs.
 
 ### 3. Round-trip a HOME's routes through its config text
 Type: Structure
-Status: planned
+Status: done
 
 Change: `homeRoutes` parses the config text `writeHomeRoutes` writes,
 including a quoted origin, and no longer spawns Git. Drop the `git ls-remote`
@@ -153,6 +156,12 @@ passes, and neither that spec nor `homeRoutes` spawns `git`.
 `npx vitest run --config dashboard/backend.vitest.config.mts dashboard/backend-tests/runtime/committed-origin-routing.spec.ts`
 Do not run the `expectServedHomesReach` journeys locally: the writer is
 unchanged, and those journeys remain Git's own check in hosted CI.
+
+Accepted proof: 5 Node cases passed. The round-trip observes the routes in
+order, including the quoted origin, and the retained user config setting.
+The reader and runnable route cases no longer invoke Git. Real Git's
+published-revision checks remain in the hosted journeys, and the plan's
+retired unrouted-path assertion was removed.
 
 ### 4. Remove restated cases and unused exports
 Type: Structure
