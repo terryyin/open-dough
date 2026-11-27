@@ -197,7 +197,7 @@ Records: `slice-1-lifetime.log.run.json` and
 ### 2. End a read at its own bound
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: The work's own timeout releases a stalled pinned read and a
 stalled revision check. A late waiter keeps its own bound and cannot
@@ -213,7 +213,21 @@ because `startInProcessAuthenticatedRead` does not.
 
 Legacy: the bounded-timeout cases in
 `authenticated-read-subprocess-lifecycle.spec.ts`, and the late-join cases
-in `authenticated-read-shared-failures.spec.ts`.
+in `authenticated-read-shared-failures.spec.ts`. Those files still hold
+other slices' cases, so they stay.
+
+Accepted at `b9d068ed` with this spec uncommitted. Refactor pass skipped:
+the only new file is this slice's spec, and it uses the production read
+boundary rather than a new wrapper.
+`dashboard/backend-tests/observation/authenticated-read-owned-bound.spec.ts`
+(226 lines) passed 4/4. Each stalled pinned read and revision check saw
+its CLI child alive inside a 3 s bound, then HTTP 502 and `SIGTERM`. Each
+late join kept one upstream call, answered both waiters before the
+joiner's own deadline, and a later read asked again and returned 200.
+The short bound was set before `ghRead.ts` loaded. Command:
+`caffeinate -s -i npm run test:dashboard:backend -- dashboard/backend-tests/observation/authenticated-read-owned-bound.spec.ts --workers=1`
+(exit 0). `npm run typecheck:dashboard` exited 0. Records:
+`slice-2-bound.log.run.json` and `slice-2-bound-typecheck.log.run.json`.
 
 ### 3. Release owned work when the boundary closes
 
@@ -385,8 +399,8 @@ its delivered slices share only test patterns with these slices.
   Trunk: `origin/main`.
 - Published claim: `735c60a52ea2cd88e8746df5e06edfcb1d9f81b2` on that story
   branch. `pendingCi: unobserved` — the claim published before this observer
-  was armed. Accepted plan revision after the overrun split:
-  `6935d63e8577bd27942b2ed248355a9c5a9c618a` on the same branch. That SHA is
+  was armed. Slice 1 is published at
+  `b9d068eda11119a4a37510e9f09d91d724d9c788` on the same branch. That SHA is
   the previously published base for the next increment. Unpublished
   candidate: none.
 - CI: GitHub Actions, workflow `ci.yml` (display name `CI`, id `351271804`),
