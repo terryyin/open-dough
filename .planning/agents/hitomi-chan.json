@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Hitomi-chan",
+  "email": "hitomi-chan@example.org",
+  "identity": "SEED-413#intent-story-cases-at-component-speed",
+  "mode": "trunk",
+  "branch": "origin/main",
+  "host": "claude",
+  "model": "claude-opus-5-5"
+}

@@ -415,6 +415,36 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 - **Provenance.** Named by the post-change refactor pass of
   [session retention, one-shot starts and input](https://github.com/terryyin/open-dough/blob/162a60bd6b5378db843deadc972fbac8728c6352/.planning/slice-plans/874-prove-session-retention-and-input-on-vitest/PLAN.md#3-refuse-a-session-policy-that-cannot-be-established).
 
+<a id="intent-story-cases-at-component-speed"></a>
+
+### Speed Intent story frontend cases toward 100 ms
+
+**Identity:** SEED-413#intent-story-cases-at-component-speed
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planless"}
+```
+
+**Goal:** Developers adding Intent story frontend cases get feedback in
+a fraction of the second each case took. The cases in
+`intent-story-intent-only.spec.ts`, from
+[filtering the file browser](https://github.com/terryyin/open-dough/commit/c51f8636a795269fa1210eb5402c77121ff4f490),
+took 629–2084 ms each. The time went into selecting the story through the
+Board, choosing controls through Playwright, and Vitest's 50 ms poll
+interval, not into the behavior under test.
+
+- **Scope.** The Intent page mount and its story fixtures, the Intent story
+  files and Recent stories page objects, and the frontend group's poll
+  interval. Keep the configured frame where a case crosses Whole project,
+  Development or the page-kept reading place. The pointer and Board proofs
+  stay with Recent stories and story-card selection. The remaining render
+  cost against 100 ms a case is the
+  [frame render candidate](../TEST-OPTIMIZATION-CANDIDATES.md#intent-story-frame-render).
+- **Key examples.** The Intent page mount opens with a declared selected
+  story, and later selections reach the page's selection without paging the
+  Board. Filters, folders and scope choices respond to in-page activation,
+  and page waits poll every 5 ms. The same assertions pass, and the spec's
+  cases run several times faster under comparable load.
+
 <a id="retire-legacy-dashboard-backend-runner"></a>
 
 ### Run the entire Dashboard backend unit suite on Node Vitest
