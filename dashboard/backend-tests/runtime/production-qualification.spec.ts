@@ -95,7 +95,7 @@ test("qualification spans the whole published range, including deletions and bot
   } finally {
     await fixture.cleanup();
   }
-});
+}, 15_000);
 
 test("qualification removes its inspection without racing Git's background maintenance", async () => {
   const { fixture, workflow, inspectionsRoot } = await qualificationFixture();

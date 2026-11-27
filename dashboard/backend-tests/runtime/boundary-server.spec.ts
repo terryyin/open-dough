@@ -5,7 +5,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { test, expect } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 import {
   otherProjectEnvironment,

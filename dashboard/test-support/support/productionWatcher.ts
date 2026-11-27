@@ -76,8 +76,6 @@ export function startProductionWatcher(
   };
 }
 
-export { productionDeployments };
-
 // The deployment checkout a commit is staged in: named by its commit prefix.
 export function deploymentCheckout(commit: string) {
   return expect.stringMatching(new RegExp(`^${commit.slice(0, 12)}-`));

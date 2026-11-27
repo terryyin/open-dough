@@ -23,7 +23,7 @@ async function expectProductMarkImage(mark: Locator) {
     };
   });
   expect(new URL(shown.source).pathname).toMatch(/^\/icon-\d+\.png$/);
-  await expectSuppliedIcon(await mark.page().request.get(shown.source));
+  await expectSuppliedIcon(shown.source);
   expect(shown.complete).toBe(true);
   expect(shown.naturalWidth).toBe(shown.naturalHeight);
   expect(shown.width).toBeCloseTo(shown.height, 1);

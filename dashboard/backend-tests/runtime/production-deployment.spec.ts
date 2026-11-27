@@ -13,8 +13,9 @@ import {
 import { publishedMainFixture } from "../../test-support/support/publishedMainFixture.ts";
 import { processRunning } from "../../test-support/support/processGroup.ts";
 import { stagePinnedDeployment } from "../../test-support/support/pinnedDeployment.ts";
-import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 import { incidentEntries } from "../../test-support/support/readDiagnostics.ts";
+import { expectSuppliedIcons } from "../../test-support/support/brandIcons.ts";
+import { expectOwnOriginReadsOnly } from "../../test-support/support/localOriginReads.ts";
 
 test("deployment selects origin main's commit, never local commits or edits", async () => {
   const fixture = await publishedMainFixture();
@@ -113,36 +114,11 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
         ),
       ),
     ).toEqual(["stanly.webp"]);
-    // The pinned checkout's build serves Open Dough's supplied icon exports
-    // (../../../assets/brand/favicon/), each as its canonical file's bytes.
-    for (const name of [
-      "favicon.ico",
-      "icon-32.png",
-      "icon-16.png",
-      "icon-180.png",
-    ]) {
-      const icon = await fetch(`${preview.url}/${name}`);
-      expect({
-        status: icon.status,
-        contentType: icon.headers.get("content-type"),
-        body: Buffer.from(await icon.arrayBuffer()),
-      }).toEqual({
-        status: 200,
-        contentType: name.endsWith(".ico") ? "image/x-icon" : "image/png",
-        body: await readFile(path.join(repoRoot, "assets/brand/favicon", name)),
-      });
-    }
-    // Its authenticated read boundary (../../server/localOrigin.ts) is
-    // reached only from the preview's own origin.
-    const read = `${preview.url}/__authenticated-read?source=unknown`;
-    const sameOrigin = await fetch(read, { headers: { Origin: preview.url } });
-    expect(sameOrigin.status).toBe(404);
-    expect(await sameOrigin.text()).toContain("Unknown catalog source");
-    expect((await fetch(read)).status).toBe(403);
-    expect(
-      (await fetch(read, { headers: { Origin: "https://example.invalid" } }))
-        .status,
-    ).toBe(403);
+    // The pinned checkout's build serves Open Dough's supplied icon exports,
+    // and its authenticated read boundary is reached only from the preview's
+    // own origin.
+    await expectSuppliedIcons(preview.url);
+    await expectOwnOriginReadsOnly(preview.url);
     const pid = preview.pid;
     const url = preview.url;
     await preview.stop();
@@ -204,10 +180,12 @@ test("deployment cancellation ends an installing commit's children and removes i
     void staging.catch(() => undefined);
     const pidFile = path.join(fixture.home, "install.pid");
     await expect
-      .poll(async () =>
-        readFile(pidFile, "utf8")
-          .then(Number)
-          .catch(() => undefined),
+      .poll(
+        async () =>
+          readFile(pidFile, "utf8")
+            .then(Number)
+            .catch(() => undefined),
+        { timeout: 5_000 },
       )
       .toBeGreaterThan(0);
     const pid = Number(await readFile(pidFile, "utf8"));

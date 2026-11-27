@@ -196,7 +196,7 @@ describe.runIf(macOS)("on macOS", () => {
       `-f ${current.app}`,
       `-f ${current.app}`,
     ]);
-  });
+  }, 15_000);
 
   test("a refused permission names the sender's own settings entry", () => {
     current = machine({ helper: true });
@@ -213,5 +213,5 @@ describe.runIf(macOS)("on macOS", () => {
       `macOS did not accept the Open Dough test notification. ${turnOn}`,
     );
     expect(tested.status).toBe(1);
-  });
+  }, 15_000);
 });

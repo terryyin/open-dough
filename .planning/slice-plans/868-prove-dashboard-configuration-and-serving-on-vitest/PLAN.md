@@ -290,7 +290,7 @@ registry cleans a late resource with the next case rather than refusing it.
 ### 7. Prove boundary server, dev cache ownership, and serving modes in Node Vitest and remove dead support
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 20–25 active minutes.
 
 Behavior: given real bundled `boundaryServer`, `dev`, and `preview` servers,
@@ -311,6 +311,22 @@ under `caffeinate -s -i`:
 - `caffeinate -s -i npm run test:e2e -- 'runtime/production-watcher-setup-lifetime.spec.ts' --workers=1 --reporter=list`
   (1 Chromium case)
 - `npm run typecheck:dashboard`
+
+Accepted after the refactor pass: the integrated gate passed 68 Node cases,
+0 Chromium, in 44.5 s at load 11–17 and 81.2 s at load 14–22 (baseline
+84.7 s for the two Playwright selections); the E2E setup-lifetime case and
+the typecheck passed. `brandIcons.ts`, `localOriginReads.ts`,
+`cursorRunnerJourney.ts` and `sharedReads.ts` now check with `node:assert`
+and `fetch`, so both runners share them and the slice 6 copy is gone.
+`serving-modes.spec.ts` starts its servers once inside the first test that
+needs them, bounded by each test's own timeout. Cases a loaded machine pushes
+past 5 s carry individual timeouts. Learnings: Vitest's `expect.poll` waits
+1 s by default, not 5 s, and a hook timeout cannot be overridden here. No
+helper this story touched is left without callers. Of the E2E consumers,
+four Cursor-session cases (`agent-session-cursor-unavailable`,
+`cursor-session-recovery-stops`) failed at load ~20. A clean `53a1e7ab6`
+failed the same way, so the cause predates this slice; the repair is owed
+under [diagnosis-cursor-taken-session-entry.md](diagnosis-cursor-taken-session-entry.md).
 
 ## Concern evidence
 

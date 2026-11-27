@@ -2,15 +2,16 @@
 // many runners a home has, the environment it was started with, and a
 // stand-in that occupies the runner's address.
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import assert from "node:assert/strict";
 import net from "node:net";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
-import { expect } from "@playwright/test";
 import {
   cursorRunnerAddressFile,
   readCursorRunnerAddress,
 } from "../../server/hosts/cursor/runnerPaths.ts";
 import { processRunning } from "./processGroup.ts";
+import { waitUntil } from "./waitUntil.ts";
 
 export const instruction = "continue this session";
 
@@ -50,8 +51,8 @@ export function runnersFor(home: string): number {
 // Harness `cursorRunner: "stand-in"`: accepting address owned by this worker,
 // with no real runnerMain process for the home.
 export function expectCursorRunnerStandIn(home: string): void {
-  expect(runnersFor(home)).toBe(0);
-  expect(readCursorRunnerAddress(home)?.pid).toBe(process.pid);
+  assert.equal(runnersFor(home), 0);
+  assert.equal(readCursorRunnerAddress(home)?.pid, process.pid);
 }
 
 export function runnerCommand(pid: number): string {
@@ -89,13 +90,14 @@ export async function liveRunner(
   home: string,
 ): Promise<{ port: number; pid: number }> {
   let found: { port: number; pid: number } | undefined;
-  await expect
-    .poll(() => {
+  const live = await waitUntil(
+    () => {
       found = readCursorRunnerAddress(home);
       return found !== undefined && processRunning(found.pid);
-    })
-    .toBe(true);
-  if (found === undefined) {
+    },
+    { timeoutMs: 5_000 },
+  );
+  if (!live || found === undefined) {
     throw new Error("The Cursor runner did not start.");
   }
   return found;
