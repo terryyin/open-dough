@@ -64,6 +64,9 @@ test.describe("authenticated read boundary: closeServer/closePreviewServer hook 
         timeoutMs: 5_000,
       });
       expect(died).toBe(true);
+      // The killed `gh` can still deliver its question after the process is
+      // gone. Let that delivery land, then the closing answer must not ask.
+      await waitUntil(() => github.calls.length > 0, { timeoutMs: 1_000 });
       const calls = github.calls.length;
       const later = await rawRequest({
         url: readUrl(boundary.origin, pinnedRead),
