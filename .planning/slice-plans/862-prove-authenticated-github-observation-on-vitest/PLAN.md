@@ -166,6 +166,11 @@ per-test 30 s timeout. Final selector:
 0 Chromium cases remain. The retired cap case's incident-history record
 moves to slice 6 (G1).
 
+CI repair (run 46002005685): the two-page case in
+`e2e/observation/transient-recovery-lifecycle.spec.ts` advanced the clock
+before the second page asked, so its read wait never ended. It now waits
+for both pages' first read.
+
 ### 2. Hold queued reads and resume one read at a time
 
 Type: Behavior
