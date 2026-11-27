@@ -18,7 +18,6 @@ import { expect, test } from "vitest";
 import { computeRunnerBuildId } from "../../server/hosts/cursor/runnerBuild.ts";
 import { readCursorRunnerAddress } from "../../server/hosts/cursor/runnerPaths.ts";
 import {
-  bridgedProofTerminal,
   createChatOnRunner,
   keepWorkingClient,
   startRunnerProofFixture,
@@ -164,42 +163,5 @@ test("build identity moves with a reached sibling in source mode and with the bu
     ).toBe(computeRunnerBuildId());
   } finally {
     rmSync(root, { recursive: true, force: true });
-  }
-});
-
-test("terminal bridge joins a held client on a stale runner but resumes a not-held session on a current runner", async () => {
-  const fixture = startRunnerProofFixture();
-  let heldBridge: Awaited<ReturnType<typeof bridgedProofTerminal>> | undefined;
-  let resumedBridge:
-    Awaited<ReturnType<typeof bridgedProofTerminal>> | undefined;
-  try {
-    await keepWorkingClient(fixture);
-    const stalePid = readCursorRunnerAddress(fixture.home)?.pid;
-    tamperRecordedProof(fixture);
-    heldBridge = await bridgedProofTerminal(fixture, fixture.cursor.sessionId);
-    await expect
-      .poll(() => heldBridge?.output(), { timeout: 5_000 })
-      .toContain("ctrl+c to stop");
-    expect(readCursorRunnerAddress(fixture.home)?.pid).toBe(stalePid);
-    expect(fixture.cursor.attaches()).toHaveLength(1);
-    await heldBridge.close();
-    heldBridge = undefined;
-
-    const otherId = "7f1e8c2a-9b34-4d5e-8f70-1a2b3c4d5e6f";
-    resumedBridge = await bridgedProofTerminal(fixture, otherId);
-    await expect
-      .poll(() => readCursorRunnerAddress(fixture.home)?.buildId, {
-        timeout: 5_000,
-      })
-      .toBe(computeRunnerBuildId());
-    expect(readCursorRunnerAddress(fixture.home)?.pid).not.toBe(stalePid);
-    await expect
-      .poll(() => fixture.cursor.attaches().length, { timeout: 5_000 })
-      .toBe(2);
-    expect(fixture.cursor.attaches().at(-1)?.sessionId).toBe(otherId);
-  } finally {
-    await heldBridge?.close().catch(() => undefined);
-    await resumedBridge?.close().catch(() => undefined);
-    await fixture.restore();
   }
 });

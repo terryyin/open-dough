@@ -200,7 +200,7 @@ times at load 27–31 (1.7–3.2 s).
 ### 6. Rejoin the same held client after a Dashboard restart
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 15 active minutes.
 
 Proof: Move the three restart cases and the held versus resumed bridge
@@ -210,6 +210,11 @@ and when awaiting an answer. A held trust prompt stays unconfirmed
 through restart until the same client is ready. Directly bridge a held
 client on an accepting stale runner, then bridge a different session
 and observe its fresh resume on the current runner.
+
+Delivered: three restart cases and the bridge case moved to
+`cursor-runner-rejoin` with one shared Dashboard arrangement and
+`afterEach` cleanup; `cursorRunnerRestart.ts` is deleted. Restart cases
+took 7.7–17.3 s at load 13–28, the bridge case under 3.4 s.
 
 ### 7. Close Dashboard attachments according to their owner
 

@@ -1,7 +1,7 @@
 // The Cursor client lives in the machine-local runner. Killing the dashboard
-// server's process group leaves that client running; a new server on the same
-// machine joins it. Claude Code and Codex stay in the dashboard server, so
-// that same close still hangs them up.
+// server's process group leaves that client running; how a restarted server
+// rejoins it is ./cursor-runner-rejoin.spec.ts. Claude Code and Codex stay in
+// the dashboard server, so that same close still hangs them up.
 //
 // These tests each start a boundary server. One serial suite keeps them from
 // running together, which makes the runner's address look missing and crowds
@@ -12,25 +12,8 @@ import {
   detachedPromptStaysWhileDashboardIsDown,
   stoppingRunnerResumesOnNextOpen,
 } from "../../test-support/support/cursorRunnerLifetime.ts";
-import {
-  restartedDashboardTypesSameClient,
-  trustScreenSurvivesRestart,
-  waitingAnswerSurvivesRestart,
-} from "../../test-support/support/cursorRunnerRestart.ts";
 
 test.describe.configure({ mode: "serial" });
-
-test("a restarted dashboard server types into the same Cursor client", async () => {
-  await restartedDashboardTypesSameClient();
-});
-
-test("a waiting Cursor client still takes the answer after the server is killed", async () => {
-  await waitingAnswerSurvivesRestart();
-});
-
-test("a trust screen stays unconfirmed across a restart until that client is ready", async () => {
-  await trustScreenSurvivesRestart();
-});
 
 test("the runner keeps a detached follow-up prompt while the dashboard is down", async () => {
   await detachedPromptStaysWhileDashboardIsDown();
