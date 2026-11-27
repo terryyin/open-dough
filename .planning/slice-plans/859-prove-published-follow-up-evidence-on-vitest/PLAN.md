@@ -155,13 +155,24 @@ framing. The gate ran 16 cases (11 Node) in 43.4 s; the moved cases sum
 ### 5. Resume only the same line attempt
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 8–12 active minutes.
 
 Move the remaining `agent-launch-follow-up-file` case. Start two different
 line anchors over one private attempt store, then repeat one refused start.
 Observe two kept attempts and the resumed attempt's existing identity and
 input. Use the real acceptance matching and recorded attempts.
+
+Delivered: the line-resume spec runs one Node case through
+`acceptLaunchRequest` and the real continuation; the host refuses line 11
+with its session start kept, then line 12 and line 11 again keep two
+attempts and resume the first with the same input. Disabling the resume
+branch failed the case. Start now answers `accepted` and the refusal shows on
+the kept attempt's outcome. The gate ran 16 cases (12 Node) in 26.4 s.
+Follow-up for slice 6: `doneStoryStart.ts`, the notes spec and the
+uncertain-continuation spec each recompose `AgentLaunches.continueRequest`;
+export one continuation operation from `agentLaunchAccept.ts` that
+`AgentLaunches` delegates to, and use it in those three places.
 
 ### 6. Send and retain the selected session evidence
 

@@ -1,66 +1,38 @@
-// File follow-ups of a Done story's Published completion over raw HTTP, with
-// a real bare origin (../../test-support/support/startOrigin.ts) and the
-// synthetic `claude`: different line anchors are separate launches; the same
-// anchor and text resume the kept start. First-input content:
+// Start matches a file follow-up of a Done story's Published completion to
+// its kept attempts: different line anchors are separate attempts; the same
+// anchor and text continue the kept start. First-input content:
 // agent-launch-follow-up-file.spec.ts.
-
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { attempts, launch } from "../../test-support/agentLaunchBoundary.ts";
-import {
-  fileFactsOf,
-  publishedReviewOf,
-  renamedNewPath,
-  serveDoneAtTrunk,
-} from "../../test-support/support/followUpCompletedFile.ts";
+import { expect, test } from "vitest";
+import { keptAttempts } from "../../server/launchAttemptStore.ts";
+import { renamedNewPath } from "../../test-support/support/followUpCompletedFile.ts";
 import { renamedFileCompletedHistory } from "../../test-support/support/completedFollowUpHistory.ts";
-import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
-import { answerOf, request } from "./followUpBoundaryCases.ts";
+import { aDoneStoryStart, storyA } from "../support/doneStoryStart.ts";
 
-test.use({ serverMode: "boundary" });
+test("follow-ups of two lines are two launches, and repeating one resumes its kept start", async () => {
+  const { publishedFileAt, received, refuseNext, startAt } =
+    await aDoneStoryStart(renamedFileCompletedHistory());
+  const lineAt = async (line: number) =>
+    (await publishedFileAt(renamedNewPath, { line, side: "new" })).file;
+  const line11 = await lineAt(11);
+  const line12 = await lineAt(12);
+  refuseNext();
+  await startAt(line11, storyA, "  ");
+  const [failed] = (await keptAttempts()) ?? [];
+  expect(failed?.outcome).toMatchObject({ kind: "failed", reason: "refused" });
 
-test.describe("renamed file", () => {
-  test.use({ originRepository: renamedFileCompletedHistory() });
+  const other = await startAt(line12, storyA, "  ");
+  const resumed = await startAt(line11, storyA, "  ");
 
-  test("follow-ups of two lines are two launches, and repeating one resumes its kept start", async ({
-    dashboard,
-    origin,
-  }) => {
-    const completion = origin.revision("completion");
-    const { revision } = await serveDoneAtTrunk(dashboard, origin);
-    const review = await publishedReviewOf(dashboard, completion);
-    const renamed = review.files.find((file) => file.path === renamedNewPath);
-    if (renamed?.kind !== "renamed") throw new Error("expected rename");
-    const lineOf = (line: number) =>
-      makeMe.aFollowUp
-        .ofStory(queuedIdentity, revision)
-        .anchoredAt(fileFactsOf(review, renamed, { line, side: "new" }))
-        .please();
-    const start = (line: number) => ({
-      ...request,
-      instruction: "  ",
-      policy: { workspace: "isolated", landing: "review" },
-      followUp: lineOf(line),
-    });
-    dashboard.claudeScenario("refused");
-    const refused = await answerOf(launch(dashboard, start(11)));
-    expect(refused).toMatchObject({ kind: "failed", reason: "refused" });
-    const [failed] = await attempts(dashboard);
-
-    dashboard.claudeScenario("launched");
-    const other = await answerOf(launch(dashboard, start(12)));
-    const resumed = await answerOf(launch(dashboard, start(11)));
-
-    expect(other.kind, JSON.stringify(other)).toBe("launched");
-    expect(resumed.kind, JSON.stringify(resumed)).toBe("launched");
-    const kept = await attempts(dashboard);
-    expect(kept).toHaveLength(2);
-    expect(kept).toContainEqual(
-      expect.objectContaining({
-        id: failed?.id,
-        acceptedAt: failed?.acceptedAt,
-      }),
-    );
-    expect(dashboard.claudeLaunchCalls()).toHaveLength(3);
-  });
+  expect(other.kind, JSON.stringify(other)).toBe("accepted");
+  expect(resumed.kind, JSON.stringify(resumed)).toBe("accepted");
+  const kept = (await keptAttempts()) ?? [];
+  expect(kept).toHaveLength(2);
+  const again = kept.find((attempt) => attempt.id === failed?.id);
+  expect(again?.acceptedAt).toBe(failed?.acceptedAt);
+  expect(again?.outcome?.kind).toBe("launched");
+  expect(received).toHaveLength(3);
+  expect(received[1]?.id).not.toBe(failed?.id);
+  expect(received[2]?.id).toBe(failed?.id);
+  expect(received[2]?.input).toBe(received[0]?.input);
+  expect(received[1]?.input).not.toBe(received[0]?.input);
 });

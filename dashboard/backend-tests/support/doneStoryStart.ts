@@ -10,11 +10,13 @@ import { acceptLaunchRequest } from "../../server/agentLaunchAccept.ts";
 import { admittedLaunchRequest } from "../../server/agentLaunchAdmission.ts";
 import { LaunchAttemptOwner } from "../../server/launchAttemptOwner.ts";
 import { keptAttempts } from "../../server/launchAttemptStore.ts";
+import { preContinuationAnswer } from "../../server/launchPreAcceptance.ts";
 import { pendingInputOf } from "../../server/launchRecordStore.ts";
 import { syncedReviewRepository } from "../../server/reviewRepository.ts";
 import { publishedSessionReview } from "../../server/publishedSessionReview.ts";
 import { lastSyncedPublishedSessionSource } from "../../server/publishedSessionSource.ts";
 import { knownSource } from "../../server/sessionAdmission.ts";
+import { StartProgress } from "../../server/startProgress.ts";
 import { requirePublishedCompletion } from "../../server/storyReviewPublishedAdmission.ts";
 import type { RepositoryDescription } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import type { DoneStory } from "../../src/doneRecord.ts";
@@ -60,7 +62,16 @@ export async function aDoneStoryStart(
     owner.close();
     await owner.drain();
   });
-  const { run, received } = receivingHost(project.id);
+  const { run, received, refuseNext } = receivingHost(project.id);
+  // A matching kept attempt continues through the production checks and run.
+  const continueAttempt = (id: string) =>
+    owner.continueAttempt(
+      project.id,
+      id,
+      (request) =>
+        preContinuationAnswer(source, id, request, new StartProgress()),
+      run,
+    );
   const synced = () =>
     syncedReviewRepository(source, new AbortController().signal);
   const launch = async (
@@ -82,7 +93,7 @@ export async function aDoneStoryStart(
           .please(),
       ),
       run,
-      () => Promise.reject(new Error("No attempt is retained to continue.")),
+      continueAttempt,
       {
         notesFile: path.join(home, "story-notes.json"),
         publishedDoneStory: () => Promise.resolve(story),
@@ -208,6 +219,7 @@ export async function aDoneStoryStart(
     baseline,
     tree,
     received,
+    refuseNext,
     start,
     startAt,
     refusal,
