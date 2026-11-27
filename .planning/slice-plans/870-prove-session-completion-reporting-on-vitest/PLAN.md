@@ -271,7 +271,7 @@ falls outside the 30-day real-clock retention.
 ### 6. Hold an early report until its Claude Code session binds
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 14–15 active minutes.
 
 Proof: With a held native dispatch for an accepted queued Claude Code
@@ -288,6 +288,18 @@ session. If the early record is deleted before settlement, a late
 report is refused. Convert `agent-completion-binding.spec.ts` and
 `agent-completion-early-recovery.spec.ts`. The Mark as done step uses the
 Claude Code Done composition of plan 867's slice 1.
+
+Delivered: both specs are Node Vitest in place. The binding spec has
+6 cases at 0.4–3.4 s: one for the first input and the unknown session,
+then one each for the quiet and attention binding paths and the legacy
+receipt. The early-recovery spec has 1 case at 2.2 s. The real Claude Code
+`launchHost` over an in-process `installFakeClaude` held by
+`claudeScenario("held")` serves as the held native dispatch. Wrapping the
+run passed to `settleAttempt` holds settlement, replacing the fs hook. Plan
+867's slice 1 is not on this branch, so Mark as done uses `NativeDoneMarks`
+with a host that stops without renaming, as `launch-records-across-processes`
+does. The rename-then-stop order belongs to plan 867 and stays covered by
+`agent-launch-done-stop` until that plan lands.
 
 ### 7. Give each host its reporting instruction, and refuse a false binding when attempt evidence is lost
 
