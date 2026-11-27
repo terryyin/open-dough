@@ -46,7 +46,10 @@ const backlogStoryTitle = "Story A";
 test.use({ projectFolders: ["open-dough"], cursorScreen: "working" });
 
 const minute = 60_000;
-const opened = Date.parse("2026-10-28T10:00:00.000Z");
+// The server lists a Done session only for launchRetentionDays after its
+// mark. This instant keeps every planted mark inside that window; the page
+// clock pauses here so the shown ages match the marks.
+const opened = Date.now();
 const retainedStory = (index: number) => ({
   identity: `SEED-900#retained-${String(index)}`,
   title: `Retained story ${String(index + 1)}`,
