@@ -5,8 +5,9 @@
 // A foreign Host on an upgrade reaches localOrigin.ts, which no Vite host check
 // precedes here; the dev server's own HMR socket beside this guard is
 // ../runtime/serving-modes.spec.ts. Other origin variations:
-// agent-launch-refusal.spec.ts and authenticated-read-refusal.spec.ts; this
-// suite proves their shared upgrade guard. What an admitted socket passes is
+// ../launches/agent-launch-refusal.spec.ts and
+// ../observation/authenticated-read-http.spec.ts. This suite exercises the
+// local origin guard on upgrades. What an admitted socket passes is
 // agent-terminal-boundary.spec.ts.
 
 import { afterAll, beforeAll, describe, expect, test } from "vitest";

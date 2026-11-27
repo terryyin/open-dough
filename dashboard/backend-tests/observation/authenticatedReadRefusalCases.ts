@@ -1,22 +1,5 @@
-// Parameter refusal cases for ./authenticated-read-refusal.spec.ts
-// and ./authenticated-read-branch-request.spec.ts.
-import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-
+// Parameter refusal cases for ./authenticated-read-branch-request.spec.ts.
 const revision = "ab".repeat(20);
-
-export const listedReadRefusals = [
-  {
-    listed: "an agent profile read",
-    named: "agents=profiles",
-    onlyPinned: "An agent profile read names only a pinned revision.",
-    path: `.planning/${agentIdentity("Yui").path}`,
-    combined: {
-      read: "combined with a revision check",
-      query: `revision=${revision}&since=${revision}`,
-    },
-    unpinnedRevision: "The pinned revision is not a commit sha.",
-  },
-] as const;
 
 export const branchReadRefusals = [
   {

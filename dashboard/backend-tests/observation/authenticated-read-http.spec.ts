@@ -1,6 +1,5 @@
-// The installed read middleware owns this loopback request and its wire answer.
 import { once } from "node:events";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { tmpdir } from "node:os";
@@ -16,17 +15,31 @@ import {
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
 import { headsAnswer, notLoggedIn } from "../../test-support/originAnswers.ts";
 import {
+  doneRecords,
+  fileOf,
+  identityOf,
+  pathOf,
+  publishedDone,
+} from "../../test-support/support/doneCatalogReads.ts";
+import {
   endFakeGh,
   fakeGhEnv,
   installFakeGh,
 } from "../../test-support/support/fakeGh.ts";
 import {
   failsWith,
+  publishes,
   startFakeGitHub,
   type FakeGitHub,
 } from "../../test-support/support/fakeGitHub.ts";
+import { holdingAnswer } from "../../test-support/support/heldGitHubAnswer.ts";
+import {
+  processAlive,
+  readPid,
+} from "../../test-support/support/processGroup.ts";
 import { routeDashboardHome } from "../../test-support/support/fixtureOriginRoute.ts";
 import {
+  abandonedRequest,
   rawRequest,
   type RawRequestOptions,
 } from "../../test-support/support/rawHttp.ts";
@@ -38,18 +51,18 @@ const diagnosticMarker = "gho_should-never-reach-a-browser-1234567890";
 
 let origin: string;
 let github: FakeGitHub;
+let pidPath: string;
 
 beforeEach(async () => {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-read-http-"));
   onTestFinished(() => {
+    vi.unstubAllEnvs();
     rmSync(machine, { recursive: true, force: true });
   });
   const upstream = await startFakeGitHub();
   onTestFinished(() => upstream.close());
   const gh = installFakeGh(machine);
-  onTestFinished(() => {
-    vi.unstubAllEnvs();
-  });
+  pidPath = gh.pidPath;
   onTestFinished(() => endFakeGh(gh));
   for (const [key, value] of Object.entries({
     ...fakeGhEnv(gh, upstream.url),
@@ -73,15 +86,15 @@ beforeEach(async () => {
   const server = createServer((req, res) => {
     middlewares.handle(req, res);
   });
-  onTestFinished(async () => {
-    const closed = new Promise<void>((resolve) =>
-      server.close(() => {
-        resolve();
+  onTestFinished(
+    () =>
+      new Promise<void>((resolve) => {
+        server.close(() => {
+          resolve();
+        });
+        server.closeAllConnections();
       }),
-    );
-    server.closeAllConnections();
-    await closed;
-  });
+  );
   onTestFinished(installAuthenticatedReadMiddleware(middlewares));
   const listening = once(server, "listening");
   server.listen(0, "127.0.0.1");
@@ -100,36 +113,34 @@ function checkRevision(
   return rawRequest({ ...options, url: url.href });
 }
 
-test.each<{ name: string; headers: Readonly<Record<string, string>> }>([
-  { name: "a foreign Origin", headers: { Origin: "http://outside.example" } },
-  { name: "no Origin or Fetch Metadata", headers: {} },
-  {
-    name: "cross-site Fetch Metadata without Origin",
-    headers: { "Sec-Fetch-Site": "cross-site" },
+test.each<
+  [
+    name: string,
+    status: number,
+    options: Omit<RawRequestOptions, "url">,
+    source?: string,
+  ]
+>([
+  ["a foreign Origin", 403, { headers: { Origin: "http://outside.example" } }],
+  ["no Origin or Fetch Metadata", 403, { headers: {} }],
+  [
+    "cross-site Fetch Metadata without Origin",
+    403,
+    { headers: { "Sec-Fetch-Site": "cross-site" } },
+  ],
+  ["an unknown source", 404, {}, "unknown-project"],
+  ["a non-GET method", 405, { method: "POST" }],
+])(
+  "refuses %s before asking GitHub",
+  async (...[, status, options, source]) => {
+    const response = await checkRevision(
+      { ...options, headers: options.headers ?? { Origin: origin } },
+      source,
+    );
+    expect(response.status).toBe(status);
+    expect(github.calls).toHaveLength(0);
   },
-])("refuses $name before asking GitHub", async ({ headers }) => {
-  const response = await checkRevision({ headers });
-  expect(response.status).toBe(403);
-  expect(github.calls).toHaveLength(0);
-});
-
-test("refuses an unknown source before asking GitHub", async () => {
-  const response = await checkRevision(
-    { headers: { Origin: origin } },
-    "unknown-project",
-  );
-  expect(response.status).toBe(404);
-  expect(github.calls).toHaveLength(0);
-});
-
-test("refuses a non-GET method before asking GitHub", async () => {
-  const response = await checkRevision({
-    method: "POST",
-    headers: { Origin: origin },
-  });
-  expect(response.status).toBe(405);
-  expect(github.calls).toHaveLength(0);
-});
+);
 
 test("admits same-origin Fetch Metadata without an Origin header", async () => {
   const revision = "cd".repeat(20);
@@ -190,4 +201,50 @@ test("reports a failed revision check without forwarding raw stderr or reading b
       ".sha",
     ],
   ]);
+});
+
+test("a departed Done reader ends its child and a later request reads the body", async () => {
+  // Observe the native gh child rather than the in-process substitute.
+  vi.stubEnv("FAKE_GH_TRANSPORT", "cli");
+  const identity = identityOf("leaving", 1);
+  const path = pathOf(identity);
+  const files = publishedDone({ doneRecords: doneRecords("leaving", 2) });
+  const revision = shownRevision;
+  const held = holdingAnswer(
+    publishes({ revision, files }),
+    (request) => request.kind === "content" && request.path === path,
+  );
+  github.serve(openDough.repository, held.answer);
+  onTestFinished(held.release);
+  const url = new URL(authenticatedReadEndpoint, origin);
+  url.search = new URLSearchParams({
+    source: openDough.id,
+    revision,
+    done: "bodies",
+    file: fileOf(identity),
+  }).toString();
+  const options = { url: url.href, headers: { Origin: origin } };
+  const bodyCalls = () =>
+    github.calls.filter(
+      ({ request }) =>
+        request.kind === "content" &&
+        request.path === path &&
+        request.revision === revision,
+    );
+  const leaving = abandonedRequest(options);
+  await expect.poll(() => bodyCalls().length).toBe(1);
+  const pid = readPid(pidPath);
+  expect(processAlive(pid)).toBe(true);
+  leaving.cutAfter(0);
+  await expect.poll(() => processAlive(pid)).toBe(false);
+  expect(readFileSync(`${pidPath}.exited`, "utf8").trim()).toBe("SIGTERM");
+
+  held.release();
+  const response = await rawRequest(options);
+  expect(response.status).toBe(200);
+  expect(JSON.parse(response.body)).toEqual({
+    revision,
+    records: [{ path, text: files[path] }],
+  });
+  expect(bodyCalls()).toHaveLength(2);
 });

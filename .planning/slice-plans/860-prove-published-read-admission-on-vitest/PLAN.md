@@ -38,6 +38,7 @@ keypress during protected startup and the held-read before and after
 checks. Slice 5's six paths were restored after repair publication.
 The repair changes only a separate browser journey, so the focused
 catalog, Board and Review evidence still applies.
+The failed attempt's terminal inventory listed only that Codex failure.
 
 ## Goal and scope
 
@@ -410,7 +411,7 @@ subject specs and their shared scenario rows introduce no refactor candidate.
 ### 6. Read listed bodies once and release a departed reader
 
 Type: Behavior
-Status: planned
+Status: done
 
 An accepted body read returns the named Done or profile records at the pin,
 with independent blobs read together, unchanged blobs reused and reads
@@ -428,6 +429,48 @@ request. Prove the profile request shape at the parser. Account for
 `authenticated-read-done-catalog.spec.ts`, the remaining two cases in
 `authenticated-read-done-catalog-refusal.spec.ts`, and the profile rows in
 `authenticated-read-refusal.spec.ts`.
+
+Accepted proof. [authenticated-read-done-catalog.spec.ts](../../../dashboard/backend-tests/observation/authenticated-read-done-catalog.spec.ts)
+drives the real Done handler and memo against published listing and blob
+facts. It checks the exact catalog and only named bodies, then one new
+read for an overlap. At a new pin, only the catalog and changed or new
+bodies are fetched. A removed name refuses, and the earlier pin still
+returns its original bytes from the memo. The unreadable body's exact
+published bytes round trip. Six held reads peak at four outstanding and
+return exact bodies. Failed siblings name the failing path and pin in
+both request orders. Slice 5's parser retains the 101-name batch refusal.
+[authenticated-read-listed-records.spec.ts](../../../dashboard/backend-tests/observation/authenticated-read-listed-records.spec.ts)
+checks two pins naming unchanged profiles and only a new listing and
+settings fetch, and the three exact malformed profile refusals.
+
+The single [Node HTTP witness](../../../dashboard/backend-tests/observation/authenticated-read-http.spec.ts)
+holds one body request in an actual CLI child. The client closes after
+that live PID is observed. The test sees its exit and SIGTERM, then a
+retry returns HTTP 200, exact body bytes and one fresh upstream request.
+The 19-case replacement run passed before retiring the final two mixed
+Chromium refusal specs. The linked catalog path now selects Node.
+
+```sh
+caffeinate -s -i npm run test:dashboard:backend -- \
+  'observation/authenticated-read-(listed-records|done-catalog(-[a-z]+)?|http|branch-request)\.spec\.ts$' \
+  'review/published-session-listing\.spec\.ts$' --workers=1
+caffeinate -s -i npm run typecheck:dashboard
+caffeinate -s -i npm run test:e2e -- stories/taken-agent-profile.spec.ts --workers=1
+caffeinate -s -i npm run test:dashboard:backend -- 'observation/authenticated-read-http\.spec\.ts$' --workers=1
+```
+
+All 56 focused cases passed in Node in 6.62 s, including the seven
+published-session checks. The ten typed body and profile cases summed to
+95.26 ms. Dashboard typecheck passed and the profile Board journey passed
+in 13.41 s wall. After grouping equivalent HTTP refusals, all nine wire
+cases passed in 5.46 s, with native departure at 434 ms. The Board/Review
+proof from slice 5 still applies. See `s6-return.md`, the final consumer
+trace and the runner records. The Done and HTTP specs project to 250
+formatted lines, so the avatar wire changes will also need to make room
+within the single HTTP spec.
+The independent pass updated three proof-owner comments and confirmed no
+executable caller of the retired HTTP wrapper or refusal specs. The accepted
+observations still apply. See `s6-refactor-consumer-trace.md`.
 
 ### 7. Attribute the currently allocated profile
 

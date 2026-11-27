@@ -13,14 +13,13 @@
 // that own shutdown cleanup are isolated in
 // ./authenticated-read-plugin-hooks.spec.ts.
 //
-// This spec covers the boundary's subprocess lifecycle. Its HTTP contract is
-// covered separately in ./authenticated-read-refusal.spec.ts and
-// ./authenticated-read-boundary.spec.ts, which share this suite's harness
-// (../../test-support/support/dashboardServer.ts). Pinned reads and
-// revision checks differ by URL shape and, for disconnect, by whether the
-// held work is the request itself or a shared listing. Every catalog source
-// reaches that ownership through the same code, so each read kind is
-// exercised for one source; which source is asked is covered in
+// This spec covers the boundary's subprocess lifecycle. See
+// ./authenticated-read-http.spec.ts for HTTP admission and
+// ./authenticated-read-boundary.spec.ts for typed pinned file reads. Pinned
+// reads and revision checks differ by URL shape and, for disconnect, by
+// whether the held work is the request itself or a shared listing. Every
+// catalog source reaches that ownership through the same code, so each read kind
+// is exercised for one source; which source is asked is covered in
 // ../../../e2e/observation/authenticated-project-observation.spec.ts. A page that abandons a check
 // -- on hiding, a new read, or a project switch -- disconnects the same way.
 //
