@@ -60,19 +60,20 @@ Reconciliation with related work:
   `commitsBetween.ts` (120), `revisionChecks.ts` (191),
   `performedRevisionCheck.ts` (69), `revisionStreamObservation.ts` (102),
   `ghRevision.ts` (134), `authenticatedRead.ts` (243), and `performedRead.ts`
-  (228) are within 250 lines; `sourceRevisionStream.ts` is 255 lines. If
-  slice 6 edits `sourceRevisionStream.ts`, separate per-subscriber delivery
+  (228) are within 250 lines; `sourceRevisionStream.ts` is 255 lines.
+  `pinnedMemo.ts` has almost no room: a later slice that injects an upstream
+  there extracts that read first so the edited file stays within 250 lines.
+  If slice 8 edits `sourceRevisionStream.ts`, separate per-subscriber delivery
   and teardown cleanly so every edited file stays within 250 lines.
-- Test-support cleanup: once their last callers migrate in slices 1, 3, 5,
-  and 6, delete `dashboard/test-support/retainedAnswersJourney.ts`,
-  `dashboard/test-support/revisionReuseOrigin.ts`,
-  `dashboard/test-support/revisionReuseAnswers.ts`,
-  `dashboard/test-support/revisionReuseCalls.ts`,
-  `dashboard/backend-tests/observation/revisionReuseBoundary.ts`,
-  `dashboard/backend-tests/observation/listingTimeoutBoundary.ts`,
-  `dashboard/backend-tests/observation/revisionStreamBoundary.ts`, and
-  `dashboard/backend-tests/observation/controlledRevisionStream.ts`. Keep
-  `dashboard/backend-tests/observation/revisionCheckBoundary.ts` because
+- Test-support cleanup: `retainedAnswersJourney.ts`, `revisionReuseOrigin.ts`,
+  `revisionReuseAnswers.ts`, and `revisionReuseCalls.ts` also serve
+  `e2e/observation/authenticated-read-retained-answers-reload.spec.ts`, which
+  this story keeps as the preview-reload E2E owner. Leave those four modules.
+  After slices 4 and 5 retire their backend callers, delete
+  `dashboard/backend-tests/observation/revisionReuseBoundary.ts` only when it
+  has no remaining caller. Delete `listingTimeoutBoundary.ts` in slice 7 and
+  `revisionStreamBoundary.ts` plus `controlledRevisionStream.ts` in slice 8
+  once their last callers migrate. Keep `revisionCheckBoundary.ts` because
   `authenticated-read-turns.spec.ts` and `authenticated-read-output-bound.spec.ts`
   (owned by plan 862) still import it.
 
@@ -99,9 +100,9 @@ caffeinate -s -i npm run test:dashboard:backend -- \
 | Legacy 15-spec Playwright baseline (command above) | 60 Chromium cases passed: retained-answers (9 cases, 32.2 s), revision-backlog & revision-check (10 cases, 9.9 s), revision-reuse (24 cases, 20.7 s), shared-listing (6 cases, 7.0 s), revision-stream (11 cases, 7.5 s). | Exact migration inventory: 60 cases across 15 specs, all currently active and green. |
 | Production call-graph reconciliation with plans 856, 853, 823 | `performedRefRead.ts` owns cold open (`case "ref"`) via `SharedVerifiedOriginTrunk` and calls `pinned.answeredBacklog`. `authenticatedRead.ts`, `performedRead.ts`, `RevisionChecks`, `PinnedTexts`, `RetainedAnswers`, `RevisionStreamObservation`, and `SourceRevisionStream` remain the live paths for revision checks, streams, reuse, and retained answers until plan 823 moves them to local Git. | Preserve all 60 cases' product behavior directly on the current production seams; do not prematurely remove active revision-check or reuse behavior. |
 | Node Vitest backend runner (`observation/shared-observation.spec.ts`, `review/shared-verified-origin-trunk.spec.ts`) | `backend.vitest.config.mts` selects every `.spec.ts` in `dashboard/backend-tests/` that imports `vitest` and runs it in Node alongside retained Playwright specs. Passed 10/10 cases in 8.13 s. | New/migrated Node Vitest specs in `dashboard/backend-tests/observation/` run automatically under the maintained `npm run test:dashboard:backend` selector with zero runner-config changes. |
-| Support-module consumer check across `dashboard/` | `retainedAnswersJourney.ts`, `revisionReuseBoundary.ts`, `revisionReuseOrigin.ts`, `revisionReuseAnswers.ts`, `revisionReuseCalls.ts`, `listingTimeoutBoundary.ts`, `revisionStreamBoundary.ts`, and `controlledRevisionStream.ts` are imported only by this story's 15 specs; `revisionCheckBoundary.ts` also serves 2 specs in plan 862. | Delete the 8 single-family support modules as their last callers retire; leave `revisionCheckBoundary.ts` intact for plan 862. |
+| Support-module consumer check across `dashboard/` and `e2e/` at execution start `29e840285` | The four retained-answer helpers also serve `e2e/observation/authenticated-read-retained-answers-reload.spec.ts`. `revisionReuseBoundary.ts`, `listingTimeoutBoundary.ts`, `revisionStreamBoundary.ts`, and `controlledRevisionStream.ts` are imported only by this story's backend specs. `revisionCheckBoundary.ts` also serves 2 specs in plan 862. | Leave the four helpers the preview-reload E2E still imports. Delete the four backend-only modules as their last callers retire; leave `revisionCheckBoundary.ts` intact for plan 862. |
 
-## Ordered slices and outside-in proof
+## Ordered slices
 
 Legacy paths are in `dashboard/backend-tests/observation/`. Parenthetical
 counts are the observed baseline cases (total 60). Each slice budgets 15 active
@@ -109,34 +110,81 @@ minutes or less and owns one proof loop. Keep legacy specs running until their
 Node Vitest replacements are green, then retire the replaced specs in the same
 slice.
 
-### 1. Retain pinned answers across processes within a byte budget
+### 1. Retain answer files within a byte budget
+
+Type: Behavior
+Status: done
+
+Behavior: `RetainedAnswers` accepts optional `{ directory, budgetBytes }`,
+defaulting to the production home directory and byte budget, and existing
+`new RetainedAnswers()` callers keep working. A kept answer is an owner-only
+file (`0o700` directory, `0o600` file) that a second instance on the same
+directory reads back, while an instance on another directory does not.
+`RevisionMemo.recalled` keeps only a read that resolves, so a rejected read
+leaves nothing in the store. `held` misses a removed store, a file whose key
+does not match, and torn JSON. An unwritable directory is warned once and
+later keeps are skipped. A write past the budget evicts least-recently-used
+files down to seven eighths of the budget, and a file touched by `held`
+outlasts files written later but not used since.
+
+Proof: Direct Node Vitest over `RetainedAnswers` and `RevisionMemo` with real
+temp directories. No `PinnedTexts`, no GitHub collaborator, and no HTTP server.
+Do not write the real `~/.open-dough` store. Replaces the two budget cases in
+`authenticated-read-retained-answers-bounded.spec.ts` and the store-miss half
+of `authenticated-read-retained-answers.spec.ts`. Delete only the bounded spec
+in this slice. Leave the other two retained-answer specs and
+`retainedAnswersJourney.ts`.
+
+Accepted proof at `29e840285` with the constructor and spec uncommitted.
+Promise: owner-only files, a second directory reads them back, another
+directory does not, rejected reads are not stored, removed/foreign/torn
+entries miss, an unwritable directory warns once, and a past-budget write
+evicts least-recently-used files to at most 7/8 while a just-held entry
+survives. Boundary: `RetainedAnswers` and `RevisionMemo.recalled` in temp
+directories. Setup and observations:
+`dashboard/backend-tests/observation/retained-answers-store.spec.ts` (6 tests).
+Command: `caffeinate -s -i npm run test:dashboard:backend -- 'observation/retained-answers-store.spec.ts$' --workers=1`
+(renewed after the lint repair as `slice1-store-lint.log.run.json`, exit 0, 6 tests).
+Typecheck renewed as `slice1-typecheck-lint.log.run.json`, exit 0.
+`new RetainedAnswers()` in `review/shared-verified-origin-trunk.spec.ts`
+passed (`slice1-callers.log.run.json`).
+Refactor pass skipped: the optional constructor is the planned seam, the
+class stays at 115 lines, and no second store representation was found.
+
+### 2. Answer a later process from pins it has heard
 
 Type: Behavior
 Status: planned
 
-Behavior: Answers kept at a resolved commit outlive their Dashboard process in
-an owner-only (`0o700` dir, `0o600` files) store so a second instance on the
-same machine home answers pinned reads from the retained store (asking only
-for the recorded branch head beside membership), while another home reads
-afresh. Missing, failed, and rate-limited answers are never retained; a read
-pinned at a revision the process never heard named asks upstream even when
-retained on disk; a removed store, foreign key, torn JSON, or unwritable
-directory (warned once) falls back to upstream. Across a moved revision, a
-later instance reuses untouched retained records via comparison while still
-asking upstream for an unheard pin or an unbounded/failed comparison. Writes
-over the byte budget evict least-recently-used entries while preserving
-recently used answers.
+Behavior: A second `PinnedTexts` on the same retained directory, once this
+process has heard the revision, answers a pinned read from the store and does
+not ask the file upstream again. Another directory reads afresh. A read at a
+revision this process never heard asks upstream even when those bytes are on
+disk, and a logged-out or otherwise rejected upstream answers no retained text
+for that unheard pin. Branch-head resolution stays where it already lives.
 
-Proof: Direct Node Vitest cases over `RetainedAnswers` (accepting optional
-`{ directory, budgetBytes }` defaulting to production values), `RevisionMemo`,
-and `PinnedTexts` with a typed upstream collaborator and real temp directories
-(no HTTP server or Vite boot). Replaces
-`authenticated-read-retained-answers.spec.ts` (4),
-`authenticated-read-retained-answers-moved.spec.ts` (3), and
-`authenticated-read-retained-answers-bounded.spec.ts` (2) — 9 cases total.
-Delete `dashboard/test-support/retainedAnswersJourney.ts`.
+Proof: Direct Node Vitest over `PinnedTexts` with a typed file-read
+collaborator injected where `pinnedTexts.ts` (150 lines) has room. Do not grow
+`pinnedMemo.ts` (247 lines); extract first if the injection cannot land without
+passing 250. No HTTP server. Replaces the later-process, rejected-answer, and
+unheard-revision cases in `authenticated-read-retained-answers.spec.ts` (4).
+Delete that spec once these cases and slice 1's store cases cover it. Leave
+`retainedAnswersJourney.ts`.
 
-### 2. Reuse unchanged records across a moved revision within bounds
+### 3. Reuse retained records across a moved revision
+
+Type: Behavior
+Status: planned
+
+Behavior: Across a moved revision, a later instance reuses untouched retained
+records via comparison while still asking upstream for an unheard pin or an
+unbounded or failed comparison.
+
+Proof: Direct Node Vitest on the slice 2 seam. Replaces
+`authenticated-read-retained-answers-moved.spec.ts` (3). Delete that spec in
+this slice. Leave `retainedAnswersJourney.ts`.
+
+### 4. Reuse unchanged records across a moved revision within bounds
 
 Type: Behavior
 Status: planned
@@ -153,11 +201,11 @@ blob reuse for listed records) and ask the comparison/commits at most once.
 
 Proof: Direct Node Vitest cases over `PinnedTexts`, `PinnedMemo`,
 `RevisionMemo`, and `touchedBetweenViaGh` using the typed upstream seam from
-slice 1 and MakeMe `aProjectRevision` fixtures. Replaces
+slice 2 and MakeMe `aProjectRevision` fixtures. Replaces
 `authenticated-read-revision-reuse.spec.ts` (6) and
 `authenticated-read-revision-reuse-bounds.spec.ts` (7) — 13 cases total.
 
-### 3. Handle merge and rename diffs, comparison failures, and history reuse
+### 5. Handle merge and rename diffs, comparison failures, and history reuse
 
 Type: Behavior
 Status: planned
@@ -179,11 +227,11 @@ with controlled deferred promises for concurrency and failure injection.
 Replaces `authenticated-read-revision-reuse-compared.spec.ts` (4),
 `authenticated-read-revision-reuse-failures.spec.ts` (4), and
 `authenticated-read-revision-reuse-history.spec.ts` (3) — 11 cases total.
-Delete `revisionReuseBoundary.ts`, `revisionReuseOrigin.ts`,
-`revisionReuseAnswers.ts`, and `revisionReuseCalls.ts` after verifying zero
-remaining callers.
+Delete `revisionReuseBoundary.ts` after verifying zero remaining callers.
+Leave `revisionReuseOrigin.ts`, `revisionReuseAnswers.ts`, and
+`revisionReuseCalls.ts`; the preview-reload E2E still reaches them.
 
-### 4. Check published revisions with conditional ETags, fallback, and rate-limit waits
+### 6. Check published revisions with conditional ETags, fallback, and rate-limit waits
 
 Type: Behavior
 Status: planned
@@ -208,7 +256,7 @@ Replaces `authenticated-read-revision-backlog.spec.ts` (2),
 `authenticated-read-revision-check.spec.ts` (4), and
 `authenticated-read-revision-check-failures.spec.ts` (4) — 10 cases total.
 
-### 5. Share settled listings across checks and clear them on failure or close
+### 7. Share settled listings across checks and clear them on failure or close
 
 Type: Behavior
 Status: planned
@@ -233,7 +281,7 @@ process exit, cooldown holdback/resumption, and abort-on-close. Replaces
 `authenticated-read-shared-listing-failures.spec.ts` (3) — 6 cases total.
 Delete `dashboard/backend-tests/observation/listingTimeoutBoundary.ts`.
 
-### 6. Stream revision updates over SSE and clean up on departure or close
+### 8. Stream revision updates over SSE and clean up on departure or close
 
 Type: Behavior
 Status: planned
@@ -284,6 +332,35 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
   campaign's ~100 ms target, summed case time, elapsed time, host load, and
   retained E2E owners. Require zero legacy Chromium cases for this family and
   account for every retired case before removing its witness.
+
+## Learnings
+
+- At `29e840285`, `e2e/observation/authenticated-read-retained-answers-reload.spec.ts`
+  imports `retainedAnswersJourney.ts`, `revisionReuseOrigin.ts`, and
+  `revisionReuseCalls.ts`, and the journey helper reaches `revisionReuseAnswers.ts`.
+  The preparation premise that those modules served only this story's 15 backend
+  specs was false. The preview-reload journey stays an E2E owner, so those four
+  modules stay for the rest of this plan.
+- Slice 1 overran at 16.7 active minutes with no owned code and no proof
+  (`storyOverruns` 1). The failed sizing assumption was that one slice could
+  open the store seam and also port heard-revision reads and moved-revision
+  comparison. Those are separate proof loops. Nothing was reverted. The store
+  loop is slice 1; heard pins are slice 2; moved retained records are slice 3.
+
+## Execution identity
+
+- Mode: story-branch. Identity: SEED-413#published-refresh-lifecycle-via-vitest.
+  Publisher ID: dashboard-territory.local-open-dough. Agent: Nao-chan.
+- Owned workspace, reused from the established start (this session did not
+  create it): `/Users/terryyin/git/open-dough/.worktrees/prove-published-refresh-lifecycle-in-node-vitest`,
+  branch `cursor/prove-published-refresh-lifecycle-in-node-vitest`, starting
+  revision `9379098d55410b514abf36b8fb8e42b0c0931181`.
+- Originating checkout: that same workspace. Integration checkout: none.
+- Target selection: remote `origin`, branch `main`.
+- Published revision `29e8402851ac887b9d4cdd7838b8a20db7bb08f9` accepted on
+  `origin/cursor/prove-published-refresh-lifecycle-in-node-vitest`. That SHA is
+  the current candidate; there is no unpublished rewrite. The Story Branch
+  claim is `pendingCi: unobserved`.
 
 ## Plan review
 

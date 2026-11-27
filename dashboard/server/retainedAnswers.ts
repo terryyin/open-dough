@@ -2,7 +2,9 @@
 // kept at resolved commits, retained on this machine for every dashboard
 // process of this user: `~/.open-dough/dashboard/retained-answers/`, resolved
 // through `HOME`, owner-only, one file per entry named by a digest of its key
-// and holding that key and its text. Each file is replaced whole
+// and holding that key and its text. `new RetainedAnswers()` uses that
+// directory and the byte budget `DOUGH_RETAINED_ANSWERS_BYTES` (64 MiB);
+// `{ directory, budgetBytes }` overrides either. Each file is replaced whole
 // (`./fileReplacement.ts`), so concurrent processes never see a torn one; a
 // file that is absent, unreadable, or holds another key is a miss. Deleting
 // the directory loses nothing but requests. A directory that cannot be
@@ -41,14 +43,27 @@ const sizeOf = (entries: readonly { readonly size: number }[]) =>
   entries.reduce((sum, { size }) => sum + size, 0);
 
 export class RetainedAnswers {
-  private readonly directory = machineDashboardPath("retained-answers");
-  private readonly budget = retainedAnswersBytes();
+  private readonly directory: string;
+  private readonly budget: number;
   private prepared = false;
   private unwritable = false;
   // The store's size as this process last counted it plus what it wrote
   // since; other processes' writes are counted at its next count. Counted
   // once by the first write and again only when this goes over the budget.
   private stored: number | undefined;
+
+  // `directory` and `budgetBytes` override this machine's retained-answers
+  // directory and `DOUGH_RETAINED_ANSWERS_BYTES` for this store alone.
+  constructor(
+    options: {
+      readonly directory?: string;
+      readonly budgetBytes?: number;
+    } = {},
+  ) {
+    this.directory =
+      options.directory ?? machineDashboardPath("retained-answers");
+    this.budget = options.budgetBytes ?? retainedAnswersBytes();
+  }
 
   private file(key: string): string {
     const digest = createHash("sha256").update(key).digest("hex");
