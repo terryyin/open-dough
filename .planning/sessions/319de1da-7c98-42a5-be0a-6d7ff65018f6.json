@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "sessionId": "319de1da-7c98-42a5-be0a-6d7ff65018f6",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-27T05:26:42.206Z",
+  "story": "SEED-413#prove-cursor-runner-lifecycle-on-vitest",
+  "ranges": [
+    {
+      "base": "ce49ecf76f3db7004afe265095d526d876785b7e",
+      "candidate": "51bfa01ce7f2a8026ba07bced7c72e7ec5347bd3"
+    },
+    {
+      "base": "51bfa01ce7f2a8026ba07bced7c72e7ec5347bd3",
+      "candidate": "d7183d8f5631a9bd6691bc0facdf775285760c64"
+    },
+    {
+      "base": "d7183d8f5631a9bd6691bc0facdf775285760c64",
+      "candidate": "efa43504c2584e5fdd6728fa747c8ba278621c37"
+    },
+    {
+      "base": "efa43504c2584e5fdd6728fa747c8ba278621c37",
+      "candidate": "d3ebee4f5ba7484ea36fbd486e119279b2822e63"
+    },
+    {
+      "base": "d3ebee4f5ba7484ea36fbd486e119279b2822e63",
+      "candidate": "e6cb459085099e2f1663d55559bd17b803515ee9"
+    },
+    {
+      "base": "e6cb459085099e2f1663d55559bd17b803515ee9",
+      "candidate": "c9bcd8f4bfd27edf935cb46d140a36c1a61ae7d6"
+    },
+    {
+      "base": "c9bcd8f4bfd27edf935cb46d140a36c1a61ae7d6",
+      "candidate": "62c76f2c09aacf0c7d7739e6aa40c6bf7b7c6de6"
+    },
+    {
+      "base": "62c76f2c09aacf0c7d7739e6aa40c6bf7b7c6de6",
+      "candidate": "8e167e12d43abd9342ccf03bdd0b974e7dd8e29a"
+    },
+    {
+      "base": "8e167e12d43abd9342ccf03bdd0b974e7dd8e29a",
+      "candidate": "588537c5a9e6e608eb5f9229e6dd17771d9edb6d"
+    },
+    {
+      "base": "588537c5a9e6e608eb5f9229e6dd17771d9edb6d",
+      "candidate": "1006e78889c9a7c41d5ae96de33439e022a5f839"
+    },
+    {
+      "base": "1006e78889c9a7c41d5ae96de33439e022a5f839",
+      "candidate": "2cbce0d9589544f04b600d306a3fcb9c77ebb20f"
+    },
+    {
+      "base": "2cbce0d9589544f04b600d306a3fcb9c77ebb20f",
+      "candidate": "07e4746cc0a82f7f9e86ae373197be480377e6b8"
+    },
+    {
+      "base": "07e4746cc0a82f7f9e86ae373197be480377e6b8",
+      "candidate": "acd7addf075dadf9e923688801cfeca5709bd4e9"
+    },
+    {
+      "base": "bae6287ee4bf5c78f7511c6ddccd91cbb531cb27",
+      "candidate": "78f06c79128d773ca020ed2856ba9089cea0fb2e"
+    }
+  ]
+}
