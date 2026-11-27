@@ -51,21 +51,21 @@ test("a session that recorded two ranges offers both and shows the chosen one", 
   const { opened } = openWithExecution();
   await opened;
   const story = intentStoryCompare();
-  await activateComparisonControl(story.choice(executionName));
+  await story.chooseScope(executionName);
   await expect.poll(story.treeText).toContain("range-1.txt");
   await expect.element(story.choice("Published range 1 of 2")).toBeChecked();
 
   await activateComparisonControl(story.choice("Published range 2 of 2"));
   await expect.poll(story.treeText).toContain("range-2.txt");
   expect(story.treeText()).not.toContain("range-1.txt");
-  await expect.element(story.choice(executionName)).toBeChecked();
+  await expect.element(story.scope).toHaveTextContent(executionName);
 });
 
 test("a range that shared its checkout warns in the comparison details", async () => {
   const { opened } = openWithExecution();
   await opened;
   const story = intentStoryCompare();
-  await activateComparisonControl(story.choice(executionName));
+  await story.chooseScope(executionName);
   await expect.poll(story.treeText).toContain("range-1.txt");
   await story.openDetails();
   await expect.poll(story.detailsText).toContain("Published changes");
@@ -97,12 +97,12 @@ test("a session known only from a launch here stays chosen and published no comp
   const story = intentStoryCompare();
   await expect.poll(story.summaryText).toContain("Published completion");
 
-  await activateComparisonControl(story.choice(launchedName));
+  await story.chooseScope(launchedName);
   await story.openDetails();
   await expect
     .poll(story.detailsText)
     .toContain("This session published no comparison.");
-  await expect.element(story.choice(launchedName)).toBeChecked();
+  await expect.element(story.scope).toHaveTextContent(launchedName);
   expect(story.summaryText()).not.toContain("Published completion");
   expect(reads).toEqual([]);
 });

@@ -1,4 +1,5 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import "./compact-select.css";
 
 // One choice offered by a compact select: `id` is its stable identity and
 // `label` the text it shows.
@@ -11,8 +12,9 @@ export type CompactSelectOption = {
 // Home and End move a highlight without changing the choice; Enter, Space or
 // a click commits; Escape or a pointer outside dismisses and keeps the
 // choice. Either way focus returns to the button. Touch and keyboard share
-// this one accessible pattern. The owner supplies the options, styling
-// classes and what committing an option means.
+// this one accessible pattern. Its shared appearance is ./compact-select.css;
+// the owner supplies the options, its own styling classes and what committing
+// an option means.
 export function CompactSelect<Option extends CompactSelectOption>({
   name,
   options,
@@ -121,11 +123,11 @@ export function CompactSelect<Option extends CompactSelectOption>({
   };
 
   return (
-    <div className={rootClassName} ref={root}>
+    <div className={`compact-select ${rootClassName}`} ref={root}>
       <button
         type="button"
         ref={button}
-        className={buttonClassName}
+        className={`compact-select-button ${buttonClassName}`}
         {...buttonData}
         aria-label={name}
         aria-haspopup="listbox"
@@ -153,7 +155,7 @@ export function CompactSelect<Option extends CompactSelectOption>({
         <ul
           id={listId}
           ref={list}
-          className={listClassName}
+          className={`compact-select-list ${listClassName}`}
           role="listbox"
           aria-label={name}
           tabIndex={-1}

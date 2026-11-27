@@ -1,0 +1,39 @@
+// Intent's review scope, the whole story or one of its sessions, chosen
+// from a compact dropdown (./CompactSelect.tsx) whose closed button names the
+// chosen scope. A choice commits the session's existing key, so options that
+// read alike still choose their own session.
+import { CompactSelect } from "./CompactSelect.tsx";
+import type { SessionScope } from "./followUpSessions.ts";
+import "./intent-scope-select.css";
+
+const wholeStory = { id: "whole-story", label: "Whole story" };
+
+export function IntentScopeSelect({
+  sessions,
+  session,
+  onSession,
+}: {
+  readonly sessions: readonly SessionScope[];
+  readonly session: string | undefined;
+  readonly onSession: (session: string | undefined) => void;
+}) {
+  const options = [
+    wholeStory,
+    ...sessions.map(({ key, label }) => ({ id: key, label })),
+  ];
+  const chosen = options.find(({ id }) => id === session) ?? wholeStory;
+  return (
+    <CompactSelect
+      name="Review scope"
+      options={options}
+      value={chosen.id}
+      current={chosen.label}
+      onCommit={({ id }) => {
+        onSession(id === wholeStory.id ? undefined : id);
+      }}
+      rootClassName="intent-scope-select"
+      buttonClassName="intent-scope-select-button"
+      listClassName="intent-scope-select-list"
+    />
+  );
+}

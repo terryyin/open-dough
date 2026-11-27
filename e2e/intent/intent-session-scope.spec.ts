@@ -85,7 +85,7 @@ test("Intent reviews one published session of a Done story without its launch he
         storyCard(parts(page).recentlyDone, storyTitle),
       );
     });
-  await test.step("Then Sessions lists Whole story and each session once, oldest first", () =>
+  await test.step("Then Review scope offers Whole story and each session once, oldest first", () =>
     review.comparison.expectSessions([
       "Whole story",
       "Refinement",

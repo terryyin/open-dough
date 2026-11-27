@@ -1,0 +1,67 @@
+/* A compact select's shared appearance (./CompactSelect.tsx): a chevron
+   button that ends a long name in an ellipsis, and an open list framed below
+   it whose highlighted option is shaded and committed one strong. Each owner
+   adds its own sizing, type and list width. */
+.compact-select {
+  position: relative;
+}
+
+.compact-select-button {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--control-size);
+  margin: 0;
+  padding: 0 calc(var(--space-4) + 0.35em) 0 var(--space-2);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background-color: var(--surface);
+  background-image: linear-gradient(45deg, transparent 50%, var(--text) 50%),
+    linear-gradient(135deg, var(--text) 50%, transparent 50%);
+  background-position:
+    calc(100% - 0.85em) 55%,
+    calc(100% - 0.55em) 55%;
+  background-size: 0.3em 0.3em;
+  background-repeat: no-repeat;
+  font: inherit;
+  text-align: start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.compact-select-list {
+  position: absolute;
+  z-index: 6;
+  top: calc(100% + var(--space-1));
+  left: 0;
+  margin: 0;
+  padding: var(--space-1);
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--raised-surface);
+  box-shadow: var(--shadow-1);
+}
+
+.compact-select-list [role="option"] {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.compact-select-list [role="option"][aria-selected="true"] {
+  font-weight: var(--weight-strong);
+}
+
+.compact-select-list [role="option"][data-active="true"] {
+  background: var(--hover);
+}
+
+@media (any-pointer: coarse) {
+  .compact-select-list [role="option"] {
+    min-height: var(--control-size);
+  }
+}

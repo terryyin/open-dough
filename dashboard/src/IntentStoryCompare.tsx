@@ -10,6 +10,7 @@ import { launchKindName } from "./launchWorkflow.ts";
 import { PublishedRangeSwitch } from "./StoryReviewSessionRuns.tsx";
 import type { ReviewRunChoice } from "./storyReviewLandedRun.ts";
 import type { SessionScope } from "./followUpSessions.ts";
+import { IntentScopeSelect } from "./IntentScopeSelect.tsx";
 
 export type StoryCompare = {
   readonly shown: ComparisonChoice | undefined;
@@ -32,8 +33,6 @@ export type StoryCompare = {
   readonly ranges?: number;
   readonly runKey?: string | undefined;
 };
-
-const wholeStory = "whole-story";
 
 // A landed run's name: its launch kind and, when known, when it launched.
 export function landedRunName(run: ReviewRunChoice) {
@@ -64,19 +63,15 @@ export function IntentStoryCompare({
   ];
   return (
     <div className="intent-story-compare" aria-label="Compare" role="group">
-      {(compare.sessions?.length ?? 0) > 0 && (
-        <ComparisonChoices
-          label="Sessions"
-          choices={[
-            { key: wholeStory, label: "Whole story" },
-            ...(compare.sessions ?? []),
-          ]}
-          shown={compare.session ?? wholeStory}
-          onChoose={(key) => {
-            compare.onSession?.(key === wholeStory ? undefined : key);
-          }}
-        />
-      )}
+      {compare.sessions !== undefined &&
+        compare.sessions.length > 0 &&
+        compare.onSession !== undefined && (
+          <IntentScopeSelect
+            sessions={compare.sessions}
+            session={compare.session}
+            onSession={compare.onSession}
+          />
+        )}
       {compare.ranges !== undefined && (
         <PublishedRangeSwitch
           ranges={compare.ranges}

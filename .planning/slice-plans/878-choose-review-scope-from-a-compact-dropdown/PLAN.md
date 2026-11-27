@@ -107,7 +107,7 @@ follow the shown review (raced in CI run 45980462617).
 ### 2. Choose the story or session from the compact Intent picker
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 12–15 active minutes.
 
 When a story opens at **Whole story**, or a session card opens Intent with
@@ -129,6 +129,16 @@ label together. At phone width verify the picker and opened list fit the
 available space and a touch selection visibly applies the chosen
 comparison. Update the supplier's actual scope page object and replay its
 E2E journey through the dropdown.
+
+Delivered: `IntentScopeSelect.tsx` ("Review scope") replaces the Sessions
+radio group. The shared dropdown look moved to `compact-select.css`, and
+`banner.css` keeps Project's own rules. The mounted board frame has no Files
+tree, so mounted cases tell comparisons apart by summary name and file count.
+The E2E journey observes file names. Proof: the whole `intent/` mounted group
+plus the navigation gate (365 passed); E2E intent-session-scope,
+intent-published-range-source, recently-done-published-sessions and the
+side-panel content journeys; the Project banner, sidebar and project-hide
+E2E readers; typecheck.
 
 ### 3. Identify an ad hoc session by its own title
 
