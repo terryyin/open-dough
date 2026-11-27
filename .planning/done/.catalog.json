@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-418_review-scope-dropdown.json",
+      "identity": "SEED-418#review-scope-dropdown",
+      "completedAt": "2026-11-27T11:12:13.018Z",
+      "blob": "ec48012df4d70f4e6f98827689c7224625d6ac77"
+    },
+    {
       "fileName": "SEED-418_select-a-story-session-for-review.json",
       "identity": "SEED-418#select-a-story-session-for-review",
       "completedAt": "2026-11-27T09:28:52.087Z",
@@ -3492,18 +3498,6 @@
       "identity": "SEED-162#keep-long-running-dashboard-sessions-responsive",
       "completedAt": "2026-10-28T14:31:57.357Z",
       "blob": "3fed9eb28222bb9436371c2f9ef2ebd987bb0802"
-    },
-    {
-      "fileName": "SEED-160_choose-cursor-session-effort.json",
-      "identity": "SEED-160#choose-cursor-session-effort",
-      "completedAt": "2026-10-28T10:15:30.309Z",
-      "blob": "fb420b319f894b2917eebdff68045a8916ddfe1e"
-    },
-    {
-      "fileName": "SEED-161_cursor-runner-keeps-its-terminal-helper.json",
-      "identity": "SEED-161#cursor-runner-keeps-its-terminal-helper",
-      "completedAt": "2026-10-28T09:33:20.860Z",
-      "blob": "c41fcfcde760dfdc42e49c6c87a362d798a255d9"
     }
   ],
   "unreadable": []

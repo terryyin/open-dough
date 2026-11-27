@@ -34,7 +34,6 @@ intent introduced or affected by a newly developed story.
 - [Keep full Dashboard frontend runs connected to their browser](seeds/SEED-413-renovate-dashboard-unit-tests.md#keep-full-frontend-runs-connected) — SEED-413#keep-full-frontend-runs-connected ([plan](slice-plans/881-keep-full-frontend-runs-connected/PLAN.md))
 - [Track review status for each session](seeds/SEED-418-review-published-session-changes.md#track-review-state-per-session) — SEED-418#track-review-state-per-session ([plan](slice-plans/882-track-review-status-for-each-session/PLAN.md))
 - [Prove published read admission in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-read-admission-via-vitest) — SEED-413#published-read-admission-via-vitest ([plan](slice-plans/860-prove-published-read-admission-on-vitest/PLAN.md))
-- [Choose review scope from a compact dropdown](seeds/SEED-418-review-published-session-changes.md#review-scope-dropdown) — SEED-418#review-scope-dropdown ([plan](slice-plans/878-choose-review-scope-from-a-compact-dropdown/PLAN.md))
 
 ## Backlog list
 
