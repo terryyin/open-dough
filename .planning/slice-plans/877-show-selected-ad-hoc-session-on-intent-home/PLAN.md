@@ -129,6 +129,18 @@ Keep the existing Home scroll target and file-return behavior observable.
 Check changed file sizes against the installed refactor guidance at the
 supplier revision; the Home owner is 71 lines at `bae6287ee`.
 
+## Execution complete
+
+Product advice: no change to the queue. Two follow-ups for wrap-up to dispose:
+- Check the session list's retained-only summary (G4). In the Board mount, a
+  retained ad hoc launch whose reporting reference has no published record
+  showed "Published changes of this session … 1 changed file" and a CI read
+  failure, where the other mount says "This session published no comparison".
+  It is unverified and may be a supplier defect or only the mount.
+- Eleven dashboard and E2E test files spell out the same
+  `reportingThrough({ origin, reference, command })` block. A MakeMe step
+  taking only the reference would remove it; low impact, test support only.
+
 ## Plan review
 
 Slice-plan refinement was unnecessary. The details, their unavailable state,
