@@ -1,12 +1,13 @@
 // A chosen session's CI comparison measures its chosen recorded range as the
-// selected range, or, without a published record, measures nothing and says
-// so; Whole story restores the story's own comparison and its chosen run. The
-// case's review answers, keyed by `published` and `run`, own the recorded
-// pairs.
+// selected range; while that range is read, or without a published record,
+// it measures nothing and says so; Whole story restores the story's own
+// comparison and its chosen run. The case's review answers, keyed by
+// `published` and `run`, own the recorded pairs.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { CiComparisonRange } from "../../src/selectedCiComparison.ts";
+import { heldReply } from "./intent-ci-evidence-page.tsx";
 import {
   activateComparisonControl,
   comparisonRead,
@@ -92,6 +93,34 @@ test("a chosen session's CI comparison measures its chosen range and Whole story
   await story.chooseScope("Whole story");
   await comparisonRead(story.landedEndpoint).toBe(measured);
   expect(asked).toEqual([first, second]);
+});
+
+test("a chosen session's held read measures nothing until its range arrives", async () => {
+  const asked: CiComparisonRange[] = [];
+  const held = heldReply<ReturnType<typeof range>>();
+  await openDoneStoryComparison({
+    publishedSessions: [execution],
+    review: (query) =>
+      query.published === undefined
+        ? Promise.resolve(publishedCompletion())
+        : held.promise,
+    ci: measuring(asked),
+  });
+  const story = intentStoryCompare();
+  await story.chooseTab("CI comparison");
+  await comparisonRead(story.landedEndpoint).not.toBe("");
+
+  await story.chooseScope(executionName);
+  await comparisonRead(() => story.viewText("CI comparison")).toContain(
+    "Reading the story's changes…",
+  );
+  expect(story.landedEndpoint()).toBe("");
+  expect(story.noteIn("CI comparison")).toBeNull();
+  expect(asked).toEqual([]);
+
+  held.resolve(range(1, first));
+  await expect.poll(() => asked.at(-1)).toEqual(first);
+  expect(story.noteIn("CI comparison")).toBeNull();
 });
 
 test("a session without a published record measures nothing and says so; Whole story measures the story again", async () => {

@@ -3,8 +3,9 @@
 // session published from another machine and one this machine retained.
 // The Review scope dropdown names that session, keeps it through a dismissal
 // and switches label and comparison together on a choice, also by touch on a
-// phone. The session applies to that opening only: the story selected again
-// starts at Whole story.
+// phone. While the session's review is still read, Proof measures nothing
+// rather than the story. The session applies to that opening only: the story
+// selected again starts at Whole story.
 // The session's review is read by its UUID; the review answers, keyed by
 // `published`, own the Git judgment.
 import { expect, test } from "vitest";
@@ -32,7 +33,10 @@ import {
   retainedRecord,
   reviewSessionChanges,
 } from "./intent-session-review-mount.ts";
-import { openDoughSource } from "./intent-ci-status-fixtures.ts";
+import type { CiComparisonRange } from "../../src/selectedCiComparison.ts";
+import { unanswered } from "../../test-support/support/waitUntil.ts";
+import { heldReply } from "./intent-ci-evidence-page.tsx";
+import { inertCiReads, openDoughSource } from "./intent-ci-status-fixtures.ts";
 import { intentRecentStories } from "./intent-recent-stories-page.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
 
@@ -52,6 +56,38 @@ test("Review session changes on a session retained here opens Intent at its key"
   await expectIntentAt(retainedName);
   expect(reads).toContain(retainedRecord.sessionId);
   expect(reads).not.toContain(published.sessionId);
+});
+
+test("Review session changes at a session still being read measures nothing until its range arrives", async () => {
+  const sessionsHeld = heldReply<undefined>();
+  const asked: CiComparisonRange[] = [];
+  await mountDoneStory({
+    sessionsHeld: sessionsHeld.promise,
+    ci: inertCiReads({
+      readSelectedComparison: (...[, , range]) => {
+        asked.push(range);
+        return unanswered();
+      },
+    }),
+  });
+  await reviewSessionChanges(publishedEntry()).click();
+  const story = intentStoryCompare();
+  await story.chooseTab("CI comparison");
+  await expect
+    .poll(() => story.viewText("CI comparison"))
+    .toContain("Reading the story's changes…");
+  expect(story.viewText("CI comparison")).not.toContain(
+    "no published completion record",
+  );
+  expect(asked).toEqual([]);
+
+  sessionsHeld.resolve(undefined);
+  await expect
+    .poll(() => asked.at(-1))
+    .toEqual({ start: "3".repeat(40), end: "4".repeat(40) });
+  expect(story.viewText("CI comparison")).not.toContain(
+    "no published completion record",
+  );
 });
 
 test("a story selected again after Review session changes starts at Whole story", async () => {

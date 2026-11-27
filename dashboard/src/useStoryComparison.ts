@@ -38,6 +38,8 @@ export function useStoryComparison({
   // The default review read, which owns the story's completed result.
   readonly defaultReview: StoryReview | undefined;
   readonly reading: boolean;
+  // Whether a session is the reviewed scope, even before its read answers.
+  readonly sessionChosen: boolean;
   readonly initialSync?: ReviewInitialSyncFeedback | undefined;
   readonly problem: string | undefined;
   readonly shown: ShownStoryComparison | undefined;
@@ -134,6 +136,7 @@ export function useStoryComparison({
       review: undefined,
       defaultReview: undefined,
       reading: false,
+      sessionChosen: false,
       problem: undefined,
       shown: undefined,
       compare: undefined,
@@ -180,6 +183,7 @@ export function useStoryComparison({
     published !== undefined ||
     (completed && defaultReview?.kind === "unavailable");
   return {
+    sessionChosen: session !== undefined,
     review: reviewKept,
     defaultReview: carry ? defaultReview : undefined,
     reading: readingNow,

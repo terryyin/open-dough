@@ -125,7 +125,7 @@ The scope control is now a dropdown: **Whole story** is read from
 
 ### 2. A chosen session's pending read measures nothing
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A session is chosen and its review is still being read → Proof and
 the CI comparison show no story measurement and no whole-story note until the
@@ -134,6 +134,18 @@ session's range arrives.
 Proof: A held session read in `intent-story-compare-session-evidence.spec.ts`
 observes no story measurement while held, then the session's range after
 release.
+
+Accepted on `767b1bd76`: the lens reports `sessionChosen` from the session
+scope. Proof uses it instead of the shown comparison's session, so a session
+opened through **Review session changes** also measures nothing on its first
+read. While reading, the CI comparison shows `storyChangesGapWords.reading`.
+New cases in `intent-story-compare-session-evidence.spec.ts` (dropdown) and
+`intent-session-review-opening.spec.ts` (opening) fail without the product
+change. The Intent and Follow up frontend specs and
+`e2e/intent/intent-session-scope.spec.ts` pass.
+
+Learning: finding 2 named only `sessionEvidenceOf`. Proof also asked
+`compareOf(...)?.session`, which is undefined until a comparison is shown.
 
 ### 3. Prove Intent's diff context expansion again
 Type: Structure

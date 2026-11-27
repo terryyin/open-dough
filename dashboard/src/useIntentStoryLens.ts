@@ -103,6 +103,8 @@ export function useIntentStoryLens({
 }): {
   readonly story: LensStory | undefined;
   readonly comparison: LensComparison;
+  // Whether a session is the reviewed scope, even before its read answers.
+  readonly sessionChosen: boolean;
   // The story with its comparison, once compared.
   readonly compared: ComparedStory | undefined;
   readonly retry: () => void;
@@ -136,6 +138,7 @@ export function useIntentStoryLens({
     unreadable,
     refreshed,
     onRefresh,
+    sessionChosen,
   } = useStoryComparison({
     source: source.id,
     identity: story?.identity ?? "",
@@ -179,6 +182,7 @@ export function useIntentStoryLens({
   return {
     story,
     comparison,
+    sessionChosen,
     compared:
       story !== undefined && comparison.state === "compared"
         ? {
