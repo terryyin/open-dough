@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Two Dashboard Backend Test runs started together from one checkout each build and
-# serve their own assets: both pass and print nothing, neither touches the
+# serve their own assets: both pass the sampled case, as their own proof records
+# show, and write nothing to standard error, neither touches the
 # production build in `dashboard/dist` (present or absent), and neither leaves
 # its private build behind. The runs are local ones, as on a developer
 # machine, so CI's own settings are not passed on.
@@ -37,14 +38,15 @@ run_suite() {
     # npm test job, which has no installed browser.
     exec env -u CI -u NODE_ENV -u npm_config_local_prefix \
       -u OPEN_DOUGH_DASHBOARD_BACKEND_SPLIT -u OPEN_DOUGH_DASHBOARD_BACKEND_DEADLINE_MS \
-      -u OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD -u OPEN_DOUGH_DASHBOARD_BACKEND_TIMES \
+      -u OPEN_DOUGH_DASHBOARD_BACKEND_TIMES \
       -u FORCE_COLOR -u NO_COLOR \
       TMPDIR="${builds}" \
+      OPEN_DOUGH_DASHBOARD_BACKEND_PROOF_RECORD="${temporary_dir}/$1.proof.json" \
       OPEN_DOUGH_DASHBOARD_ARTIFACT_TRACE="${temporary_dir}/$1.artifacts" \
       npm run --silent test:dashboard:backend -- \
       'dashboard/backend-tests/runtime/serving-modes[.]spec[.]ts$' \
       --grep "both serve Open Dough's declared icon exports"
-  ) > "${temporary_dir}/$1.out" 2>&1
+  ) > "${temporary_dir}/$1.out" 2> "${temporary_dir}/$1.err"
 }
 
 dist_before=$(dist_state)
@@ -57,17 +59,34 @@ wait "${first}" || first_status=$?
 wait "${second}" || second_status=$?
 
 for run in first second; do
-  if [[ -s ${temporary_dir}/${run}.out ]]; then
-    printf 'FAIL: the %s concurrent dashboard run printed:\n' "${run}" >&2
-    cat -- "${temporary_dir}/${run}.out" >&2
+  if [[ -s ${temporary_dir}/${run}.err ]]; then
+    printf 'FAIL: the %s concurrent dashboard run wrote to standard error:\n' "${run}" >&2
+    cat -- "${temporary_dir}/${run}.err" "${temporary_dir}/${run}.out" >&2
     exit 1
   fi
 done
 if ((first_status != 0 || second_status != 0)); then
   printf 'FAIL: concurrent dashboard runs exited %s and %s.\n' \
     "${first_status}" "${second_status}" >&2
+  cat -- "${temporary_dir}/first.out" "${temporary_dir}/second.out" >&2
   exit 1
 fi
+node --input-type=module - "${temporary_dir}/first.proof.json" "${temporary_dir}/second.proof.json" << 'JS'
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+
+for (const file of process.argv.slice(2)) {
+  const record = JSON.parse(readFileSync(file, "utf8"));
+  assert.equal(record.terminal.strictStatus, "passed", `${file} did not pass`);
+  const ran = record.tests.filter(({ executions }) =>
+    executions.some(({ outcome }) => outcome === "expected"));
+  assert.deepEqual(
+    ran.map(({ titlePath }) => titlePath.at(-1)),
+    ["both serve Open Dough's declared icon exports"],
+    `${file} must pass the sampled case alone`,
+  );
+}
+JS
 node --input-type=module - "${temporary_dir}/first.artifacts" "${temporary_dir}/second.artifacts" << 'JS'
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";

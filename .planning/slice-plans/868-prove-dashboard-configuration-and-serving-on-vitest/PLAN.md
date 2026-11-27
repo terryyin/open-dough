@@ -331,6 +331,12 @@ Repaired: `openTakenCursorSession` now waits through the existing
 `startedSession` step for local startup to clear, bounded by the shared
 launch wait, before counting the Taken entry. At load 17–20 the two failing
 files passed 4/4 and all 28 Cursor session cases passed.
+CI repair (run 45933156384, Distribution Tests 3/3):
+`dashboard-concurrent-runs.sh` required a passing run to print nothing, which
+held only for Playwright's silent reporter. It now requires empty standard
+error, zero exits, and each run's proof record passing the sampled case
+alone, keeping its build-isolation, `dist` and cleanup checks. It failed
+locally before the change and passed after.
 
 ## Concern evidence
 
