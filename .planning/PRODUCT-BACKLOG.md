@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Open session changes in Intent and retire the Side panel review](seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review) — SEED-418#select-a-story-session-for-review ([plan](slice-plans/876-open-session-changes-in-intent/PLAN.md))
 - [Remove leftover unbound recovery and overlapping story-linked session tests](seeds/SEED-447-clean-up-story-linked-session-tests.md#clean-up-story-linked-session-tests) — SEED-447#clean-up-story-linked-session-tests ([plan](slice-plans/878-clean-up-story-linked-session-tests/PLAN.md))
 - [Prove Dashboard runtime behavior in fast unit cases](seeds/SEED-413-renovate-dashboard-unit-tests.md#fast-runtime-unit-cases) — SEED-413#fast-runtime-unit-cases ([plan](slice-plans/879-prove-runtime-in-fast-unit-cases/PLAN.md))
-- [Complete a planning-only closure once trunk repairs its failed basis](seeds/SEED-449-complete-closure-on-repaired-basis.md#complete-closure-on-repaired-basis) — SEED-449#complete-closure-on-repaired-basis
 - [Refresh the published Board in place](seeds/SEED-430-read-published-project-data-from-local-git.md#refresh-published-board-in-place) — SEED-430#refresh-published-board-in-place ([plan](slice-plans/853-refresh-published-board-in-place/PLAN.md))
 - [Keep full Dashboard frontend runs connected to their browser](seeds/SEED-413-renovate-dashboard-unit-tests.md#keep-full-frontend-runs-connected) — SEED-413#keep-full-frontend-runs-connected ([plan](slice-plans/881-keep-full-frontend-runs-connected/PLAN.md))
 
