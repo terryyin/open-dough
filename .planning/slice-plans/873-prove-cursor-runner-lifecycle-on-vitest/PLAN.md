@@ -123,6 +123,8 @@ place; restart-shapes unrelated-listener and stale-after-ensure moved to
 `cursor-runner-start-admission` (6.35 s). Focused Vitest 12/12, remaining
 legacy Playwright 9/9, affected E2E 4/4. A mixed backend selection prints
 only Vitest output; read Playwright counts from the proof record.
+CI repair after slice 1 (run 45929593535): the Codex alerts spec now
+applies a new reading at the next poll, so one poll never mixes two.
 
 ### 2. Restore the terminal helper on the same runner
 
