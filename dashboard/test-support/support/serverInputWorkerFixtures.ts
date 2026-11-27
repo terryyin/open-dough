@@ -1,8 +1,8 @@
 // The worker fixtures that request what a worker's servers and installed
 // origins start from, declared with the suite's other worker fixtures in
-// ./pageTest.ts. Each takes the bounded worker lifetime of cold shared
-// preparation (coldInputPreparation), so the first case waits for none of it
-// in its own default 30 seconds. Preparation stays in the run's elapsed time
+// ./workerPreparationFixtures.ts. Each takes the bounded worker lifetime of
+// cold shared preparation (coldInputPreparation), so the first case waits for
+// none of it in its own default 30 seconds. Preparation stays in the run's elapsed time
 // and is deduplicated by the run owner (./runArtifacts.ts).
 import type { Fixtures } from "@playwright/test";
 import { servedArtifacts } from "./dashboardServerOptions.ts";

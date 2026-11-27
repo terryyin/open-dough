@@ -376,7 +376,7 @@ the runner's support files into a scratch worktree; the new
 
 ### 8. Prove page waiting helpers once and leave the folder fast
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 20–25 active minutes.
 Proof:
 - Rerun the baseline command over the whole folder. It selects only
@@ -399,6 +399,26 @@ Prove each waiting rule as a unit over typed read states where the helper
 can take them. A rule that needs a real page moves to one named E2E case.
 This slice removes the folder's last Playwright use and records the folder
 result against the baseline.
+
+Result: the four page-wait specs (8 Playwright cases, 26.1 s) became
+`page-read-waits.spec.ts` (5 Node cases). The first-open and settled-page
+waits take `Pick<Page,"evaluate">` and run their in-page scripts on a
+stubbed window; `finishRouteHandlers` and `heldPathsReached` are typed
+helpers the page fixture and `expectHeldGroups` call. The membership
+check failing at once with both titles is asserted in
+`e2e/observation/transient-read-exclusions.spec.ts` "a malformed backlog
+stays a reload problem and is not asked again". Accepted limits: the
+card wait is Playwright's own `toBeVisible`, and teardown proves the
+`unrouteAll` call rather than Playwright's behavior.
+
+Folder result (load 26.4, whole folder, run alone): 102 cases, all on
+Node Vitest, 812 ms summed, slowest 83 ms, 18 s wall — against 133 cases,
+289.7 s summed and 3 min 23 s wall at baseline (load 14). At landing,
+resolve `first-open-waits-for-read.spec.ts` by its deletion (trunk's open,
+missing-trunk and no-membership rules stay with trunk's
+`verified-origin-trunk`, `shared-verified-origin-trunk` and
+`transient-read-exclusions` journeys) and keep trunk's lines in
+`transient-read-exclusions.spec.ts` with this slice's appended block.
 
 ## Concern evidence
 

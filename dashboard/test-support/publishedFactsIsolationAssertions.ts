@@ -23,6 +23,7 @@ import {
   passTimeUntilChecked,
 } from "./autoRefreshJourney.ts";
 import { repository } from "./sliceClockRecords.ts";
+import { heldPathsReached } from "./heldReadsReached.ts";
 import {
   canonicalPath,
   factGroupOfPath,
@@ -43,29 +44,16 @@ export async function expectHeldGroups(
   groups: readonly FactGroup[],
 ) {
   // Every held file must have reached its raw handler before the switch's
-  // request counter starts. One profile does not establish that its sibling's
-  // already-started gh process has reached the fake GitHub yet.
+  // request counter starts (./heldReadsReached.ts).
   const paths = Object.keys(facts.files)
     .filter((path) => {
       const group = factGroupOfPath(path);
       return group !== undefined && groups.includes(group);
     })
     .sort();
+  const held = { repository, revision: facts.revision, paths };
   await expect
-    .poll(() =>
-      [
-        ...new Set(
-          githubFor(page).calls.flatMap(({ request }) =>
-            request.kind === "content" &&
-            request.repository === repository &&
-            request.revision === facts.revision &&
-            paths.includes(request.path)
-              ? [request.path]
-              : [],
-          ),
-        ),
-      ].sort(),
-    )
+    .poll(() => heldPathsReached(githubFor(page).calls, held))
     .toEqual(paths);
 }
 

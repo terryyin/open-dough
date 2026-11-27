@@ -1,8 +1,8 @@
 // The published-main worker fixtures (./publishedMainFixture.ts), declared
-// with the suite's other worker fixtures in ./pageTest.ts. The worker that
-// takes one prepares it before that case starts, so no case pays its cold
-// preparation in its own default 30 seconds. Each is loaded only by a worker
-// that takes it.
+// with the suite's other worker fixtures in ./workerPreparationFixtures.ts.
+// The worker that takes one prepares it before that case starts, so no case
+// pays its cold preparation in its own default 30 seconds. Each is loaded
+// only by a worker that takes it.
 import type { Fixtures } from "@playwright/test";
 import type { PublishedMainSourceProfile } from "./publishedMainSource.ts";
 

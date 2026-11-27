@@ -1,4 +1,5 @@
-// The worker preparation plan (../../test-support/support/pageTest.ts): every
+// The worker preparation plan
+// (../../test-support/support/workerPreparationFixtures.ts): every
 // worker input, kept histories included, is one registration of the pool
 // every page spec takes, so kept and ordinary cases share a worker, and each
 // takes cold preparation's worker allowance. A case opts into a kept history
@@ -14,7 +15,7 @@ import {
 import {
   keptStoryWorkerFixtures,
   workerPreparationFixtures,
-} from "../../test-support/support/pageTest.ts";
+} from "../../test-support/support/workerPreparationFixtures.ts";
 import {
   coldInputPreparation,
   pinnedWatcherCodexPreparation,
