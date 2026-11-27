@@ -30,6 +30,7 @@ intent introduced or affected by a newly developed story.
 
 - [Open the Board from the verified Git trunk](seeds/SEED-430-read-published-project-data-from-local-git.md#open-the-board-from-the-verified-git-trunk) — SEED-430#open-the-board-from-the-verified-git-trunk ([plan](slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md))
 - [Open session changes in Intent and retire the Side panel review](seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review) — SEED-418#select-a-story-session-for-review ([plan](slice-plans/876-open-session-changes-in-intent/PLAN.md))
+- [Reach Intent frontend cases without frame-bound input waits](seeds/SEED-448-ad-hoc-work.md#ad-hoc-work) — SEED-448#ad-hoc-work
 
 ## Backlog list
 
