@@ -109,7 +109,7 @@ for the restart observation.
 ### 2. Remove a session only when its history can be kept
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 9 active minutes.
 
 Proof: Replace both `launch-history-removed` cases through
@@ -124,6 +124,8 @@ record and its scope, and preserves existing history. Keep the adapter
 observation for the refusal response. The
 [recently Done deletion journey](../../../e2e/sessions/agent-launch-recent-delete.spec.ts)
 owns the browser's deletion and visible result.
+
+- Proof recorded (2026-11-27, Node Vitest, 1 worker): both `launch-history-removed` cases run on Node Vitest through `admittedDelete` and `deleted` with a real `AgentLaunches`, substituting only `stateOf`; 0 Playwright selections remain. Focused selection passed 2/2, typecheck exited 0. The refusal case passes the thrown `RefusedRequest` through production `launchResponse` for the 500 JSON answer. Summed case time 1.038 s → 0.130 s. Learning: an earlier history entry in the current month lets the append succeed in a read-only directory, so the refusal case dates it in a past month. No support code changed. Refactor pass skipped: subject spec only; its Cursor scope setup mirrors slice 1 in two files without a shared owner, under the zero-wrapper decision.
 
 ### 3. Refuse a session policy that cannot be established
 
