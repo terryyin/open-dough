@@ -114,19 +114,46 @@ and shows the selected scope after it closes.
 ### Show the selected ad hoc session on Intent Home
 
 **Identity:** SEED-418#show-selected-session-in-review-home
+```json dough-story-dependencies
+{"schemaVersion":1,"identity":"SEED-418#show-selected-session-in-review-home","dependencies":[{"supplier":{"identity":"SEED-418#select-a-story-session-for-review","href":"seeds/SEED-418-review-published-session-changes.md#select-a-story-session-for-review"},"implementation":"Single-session review scope in Intent","rationale":"Intent currently selects a story only. This story adds information about a session already selected in Intent. It needs the supplier's session selection, including the Whole story reset and a selection that survives returning Home.","condition":"Intent can select an individually identifiable retained or published story session, keep that scope on Home, and return to Whole story.","state":"waiting"}]}
+```
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/877-show-selected-ad-hoc-session-on-intent-home/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ef0513b03d3fde6a1ed55d2c94b7413091a5102dc9ccb1c3b4c16588226f5e8f","plan":"413260afe0c544ccea7d402abd6a56de5cac0d7967bf88f37b8c85bd598d824b"}}
 ```
 
-A developer reviewing a selected ad hoc session can see what it was asked to
-do before interpreting the evidence. At the top of the story's Intent Home,
-above the CI comparison, show the selected session's title, ad hoc identity,
-and original instruction when available. Keep the CI comparison accessible
-on the same page and state when the instruction is unavailable.
+**Goal.** A developer reviewing an ad hoc contribution can identify the
+selected session and read what it was asked to do before interpreting its
+evidence in Intent.
 
-Given two follow-ups with different instructions, switching the review scope
-updates the details to the selected follow-up. Returning to whole-story scope
-restores the story Home view.
+**Scope.**
+
+- At the top of the story's Intent Home, above the CI comparison, show the
+  selected session's title, its **Ad hoc** workflow and session identifier,
+  and the original instruction from its retained launch, when available.
+  Keep the CI comparison accessible on the same page.
+- Resolve the details from the current review scope. If the selection is a
+  published ad hoc session without a retained launch, identify it by its
+  published session ID and indicate that its title and instruction are
+  unavailable. If a retained launch has no instruction text, show its
+  available title and identity and say the instruction is unavailable.
+- Whole story and other workflows use the usual story Home. Returning to
+  Home from a file shows the details for the scope still selected.
+
+**Scope limits.** Use the existing single-session review scope and existing
+launch and published session records. The compact picker, publication of
+launch metadata, review status and comparison changes are outside this story.
+
+**Key examples.**
+
+- Two follow-ups have different titles and instructions. Choose the first
+  and open Home. Its title, Ad hoc workflow, session identifier and
+  instruction appear above CI. Switch to the second and only its details
+  appear. Choose **Whole story** and the usual story Home returns.
+- Choose a published ad hoc session on a machine with no retained launch.
+  Its published ID identifies it, the title and instruction are shown as
+  unavailable, and the CI comparison is still accessible.
+- Choose a retained ad hoc session with no instruction text. Home shows its
+  title and identity and explains that the instruction is unavailable.
 
 <a id="track-review-state-per-session"></a>
 
