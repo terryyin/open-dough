@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Shunka-chan",
+  "email": "shunka-chan@example.org",
+  "identity": "SEED-413#diagnose-dashboard-ci-probe-flakes",
+  "mode": "story-branch",
+  "branch": "claude/diagnose-dashboard-ci-probe-flakes",
+  "host": "claude"
+}
