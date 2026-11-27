@@ -93,19 +93,22 @@ export async function readGitTransport(
   const result = await running.exited;
   signal?.throwIfAborted();
   if (result.code !== 0 || bytes > maxBuffer) {
-    throw new Error("Git could not read the remote.", {
-      cause: running.output(),
-    });
+    throw transportFailure(
+      "Git could not read the remote.",
+      "git ls-remote",
+      result.code,
+      running.output(),
+    );
   }
   return Buffer.concat(chunks).toString("utf8");
 }
 
-// A long fetch drains progress continuously and retains only bounded
-// diagnostics. Cancellation ends Git and its transport before returning.
-export async function runGitWithProgressUntilClosed(
+// A remote fetch owns Git and its transport helpers through cancellation:
+// it drains any progress continuously and retains only bounded diagnostics.
+export async function fetchGitTransport(
   args: readonly string[],
   { cwd, env, signal }: Pick<GitCall, "cwd" | "env" | "signal">,
-  report: (chunk: string) => void,
+  report?: (chunk: string) => void,
 ): Promise<void> {
   const directory = cwd ?? process.cwd();
   const callEnv = { ...process.env, ...env, LC_ALL: "C" };
@@ -115,7 +118,9 @@ export async function runGitWithProgressUntilClosed(
     env: callEnv,
     ...(signal === undefined ? {} : { signal }),
   });
-  running.child.stderr.setEncoding("utf8").on("data", report);
+  if (report !== undefined) {
+    running.child.stderr.setEncoding("utf8").on("data", report);
+  }
   const result = await running.exited;
   signal?.throwIfAborted();
   if (result.code !== 0) {
@@ -123,13 +128,29 @@ export async function runGitWithProgressUntilClosed(
     const errorLine = diagnostics
       .split("\n")
       .findLast((line) => /^(fatal|error): /.test(line));
-    throw new GitFailure(
-      Object.assign(new Error("Git could not fetch the published history."), {
-        cmd: "git fetch",
-      }),
-      { stdout: "", stderr: errorLine ?? diagnostics },
+    throw transportFailure(
+      "Git could not fetch the published history.",
+      "git fetch",
+      result.code,
+      errorLine ?? diagnostics,
     );
   }
+}
+
+// An owned transport's failed exit, shaped as `execFile` reports one.
+function transportFailure(
+  message: string,
+  cmd: string,
+  code: number | null,
+  stderr: string,
+) {
+  return new GitFailure(
+    Object.assign(new Error(message), {
+      cmd,
+      ...(code === null ? {} : { code }),
+    }),
+    { stdout: "", stderr },
+  );
 }
 
 async function gitOutput(

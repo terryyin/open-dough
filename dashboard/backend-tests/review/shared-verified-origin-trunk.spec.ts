@@ -2,46 +2,22 @@ import { readFileSync } from "node:fs";
 import { expect, onTestFinished, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
-import { PinnedTexts } from "../../server/pinnedTexts.ts";
-import { RetainedAnswers } from "../../server/retainedAnswers.ts";
 import { reviewRepositoryPath } from "../../server/reviewRepository.ts";
-import { RevisionMemo } from "../../server/revisionMemo.ts";
 import { SharedVerifiedOriginTrunk } from "../../server/sharedVerifiedOriginTrunk.ts";
 import {
-  backlogPath,
   bareReview,
+  freshPin,
+  git,
   heldUploadPack,
+  observedTrunk,
   opened,
+  published,
   readUntilClosed,
+  releaseWhenFinished,
   signalFifo,
 } from "./verifiedOriginTrunkCase.ts";
 
 const sharedChecks = () => new SharedVerifiedOriginTrunk({ reuseMs: () => 0 });
-
-const freshPin = () => new PinnedTexts(new RevisionMemo(new RetainedAnswers()));
-
-const published = (backlog: string) =>
-  makeMe.aRepository
-    .withRevision("published", { files: { [backlogPath]: backlog } })
-    .please();
-
-const observedTrunk = (revision: string, backlog: string) => ({
-  kind: "observed",
-  value: {
-    askedAt: expect.any(String) as unknown,
-    trunk: { kind: "verified", revision, backlog },
-  },
-});
-
-function releaseWhenFinished(
-  releaseFifo: string,
-  pending: readonly Promise<unknown>[],
-) {
-  onTestFinished(async () => {
-    await signalFifo(releaseFifo, false);
-    await Promise.all(pending.map((demand) => demand.catch(() => undefined)));
-  });
-}
 
 test("two opens of one project share one fetch and the same verified backlog", async () => {
   const backlog = "Published membership.\n";
@@ -145,7 +121,9 @@ test("a joined open past a short bound is unanswered and the opener still observ
   releaseWhenFinished(releaseFifo, [opener]);
   await expect(held).resolves.toBe("held\n");
   await expect(
-    checks.demand(source, freshPin(), new AbortController().signal, 50),
+    checks.demand(source, freshPin(), new AbortController().signal, {
+      waitMs: 50,
+    }),
   ).resolves.toEqual({ kind: "unanswered" });
   await signalFifo(releaseFifo, true);
   await expect(opener).resolves.toEqual(
@@ -154,4 +132,38 @@ test("a joined open past a short bound is unanswered and the opener still observ
   await expect(
     pinned.reader(source, repository.trunkSha, signal)(source.backlogPath),
   ).resolves.toBe(backlog);
+});
+
+test("within production reuse a fresh demand starts a new check while a staggered tab shares the settled one", async () => {
+  const backlog = "Published membership.\n";
+  const { repository, source, pinned } = await opened(published(backlog));
+  bareReview(reviewRepositoryPath(source), repository.origin);
+  const checks = new SharedVerifiedOriginTrunk();
+  await expect(
+    checks.demand(source, pinned, new AbortController().signal),
+  ).resolves.toEqual(observedTrunk(repository.trunkSha, backlog));
+  git(
+    repository.integration,
+    "commit",
+    "--allow-empty",
+    "--quiet",
+    "-m",
+    "Moved",
+  );
+  git(
+    repository.integration,
+    "push",
+    "--quiet",
+    "origin",
+    `HEAD:${source.ref}`,
+  );
+  const moved = git(repository.integration, "rev-parse", "HEAD");
+  await expect(
+    checks.demand(source, freshPin(), new AbortController().signal),
+  ).resolves.toEqual(observedTrunk(repository.trunkSha, backlog));
+  await expect(
+    checks.demand(source, freshPin(), new AbortController().signal, {
+      fresh: true,
+    }),
+  ).resolves.toEqual(observedTrunk(moved, backlog));
 });

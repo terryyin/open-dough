@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-430_refresh-published-board-in-place.json",
+      "identity": "SEED-430#refresh-published-board-in-place",
+      "completedAt": "2026-11-27T12:45:06.596Z",
+      "blob": "1c5c404053e196a380de8d903651a647fb5c15b9"
+    },
+    {
       "fileName": "SEED-413_published-read-admission-via-vitest.json",
       "identity": "SEED-413#published-read-admission-via-vitest",
       "completedAt": "2026-11-27T12:24:59.993Z",
