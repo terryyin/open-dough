@@ -19,7 +19,7 @@ export const cursorHost: LaunchHost = {
   launch: launchCursor,
   recover: recoverUnconfirmedCursor,
   options: cursorOptions,
-  sessions: observeCursorSessions,
+  sessions: (records) => observeCursorSessions(records),
   attach: attachCursor,
   stop: (...[session, , signal]) => stopCursor(session, signal),
   localDone: true,

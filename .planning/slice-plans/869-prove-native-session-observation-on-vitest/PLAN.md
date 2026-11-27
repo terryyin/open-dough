@@ -53,7 +53,8 @@ retention belong to their sibling stories in the
   an optional `readHeld = heldCursorSessionEvidence` parameter so alert cases
   compose `observeCursorSessions`, `withStates`, and `SessionAlerts` over typed
   `HeldCursorSessions` values while existing callers keep the production
-  default.
+  default. The `cursorHost.sessions` adapter forwards records alone because
+  the host interface also passes a folder and signal.
 - Consolidate [`cursor-runner-sessions-sharing.spec.ts`](../../../dashboard/backend-tests/sessions/cursor-runner-sessions-sharing.spec.ts)
   (1 case) into [`cursor-held-sessions-revision.spec.ts`](../../../dashboard/backend-tests/sessions/cursor-held-sessions-revision.spec.ts)
   (2 cases) in slice 5: its single case tests the exact same overlapping-ask
@@ -209,7 +210,7 @@ six ordered alerts and the silent baseline and gap transitions.
 ### 4. Prove Cursor session observation and alerts on Node Vitest
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–12 active minutes.
 
 Proof: Add an optional `readHeld = heldCursorSessionEvidence` parameter to
@@ -232,6 +233,12 @@ driving `SessionAlerts` over `observeCursorSessions` + `withStates` with typed
 - A finished Cursor record (`completion` set) not held by the runner reads
   `{ kind: "unknown" }` with no `agentNotRunningLabel` claim and alerts
   nothing.
+
+Accepted proof: four migrated Node alert cases and eleven classifier controls
+passed with zero retries (`slice4-backend.json` in Git evidence). Dashboard
+typecheck passed. The retained Chromium journey for a held Cursor session
+with confirmed first input passed through the production reader and showed
+review before and after reload (`slice4-cursor-default.json`).
 
 ### 5. Prove Cursor held-session sharing, reuse, and revision invalidation on Node Vitest
 
