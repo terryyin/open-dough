@@ -198,9 +198,7 @@ jobs:
       command: test:dashboard:frontend
       settings: OPEN_DOUGH_DASHBOARD_FRONTEND
       root: dashboard/frontend-tests
-      shards: "[1, 2]"
-      specs: |
-        1: dashboard/frontend-tests/intent/** dashboard/frontend-tests/review/**
+      shards: "[1]"
   dashboard-backend:
     uses: ./.github/workflows/browser-test-group.yml
     with:
@@ -236,5 +234,5 @@ jobs:
       - name: Summarize CI proof
         uses: ./.github/actions/ci-proof-summary
         with:
-          expect: e2e=6:case dashboard/frontend-tests=2:case dashboard/backend-tests=3:case Distribution=3:case Distribution=3:file
+          expect: e2e=6:case dashboard/frontend-tests=1:case dashboard/backend-tests=3:case Distribution=3:case Distribution=3:file
           frontend-entry: dashboard/frontend-tests
