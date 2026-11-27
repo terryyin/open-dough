@@ -271,94 +271,13 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Plan.** [Prove marking sessions done, stopping, deleting and reopening in Node Vitest](../slice-plans/867-prove-marking-sessions-done-on-vitest/PLAN.md)
 
-<a id="prove-session-completion-reporting-on-vitest"></a>
-
-### Prove session completion reporting in Node Vitest
-
-**Identity:** SEED-413#prove-session-completion-reporting-on-vitest
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/870-prove-session-completion-reporting-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"ce2926336e7c138dd95af86d88a9a34cb0fd0a2fcafbb6ad8852fa8d206bb8a2","plan":"7fe6c4dec7198d8775aaafc8cf7cf21a8c4eeeda7a5acbd81ce8bd3197209e73"}}
-```
-
-- **Goal.** Developers changing how an agent reports its completion get fast,
-  typed Node Vitest feedback on which session a report binds to and closes,
-  what the Dashboard keeps when a report is early, quiet, late, superseded or
-  refused, and what a final report request answers.
-- **Scope.** Move the 11 legacy specs off backend Playwright and account for
-  each observation: `sessions/agent-completion-{attempt-loss,binding,early-recovery,identity,input,quiet-closure,returned-closure,superseded}.spec.ts`,
-  `sessions/admitted-session-{no-change,shared-checkout}-completion.spec.ts`
-  and `sessions/final-report-admission.spec.ts`. Cover the reporting
-  instruction each host receives; an early report held until the native
-  session binds, through a normal launch or Recheck, and kept against late
-  native writers; a deleted early binding; attempt evidence lost mid-launch;
-  delivery identity, duplicates and refusals; a superseded submission;
-  quiet closure, which needs landing and readable closure evidence, and its
-  reporting-only recovery; closure of a story returned to the queue; the
-  completion of an admitted session; and final report admission. Prove them
-  through typed production operations and kept records: delivery, binding
-  and final report admission take the report, record and host collaborators
-  they use as typed values, and add no server, request or boundary wrapper
-  to test support. A case keeps the installed reporting command, a real
-  receiver process or real Git only where that boundary supplies the
-  observation, and keeps only that boundary. Remove support with its last
-  consumer. Product behavior stays unchanged. Mark as done and its quiet
-  rename, observation, terminal attach, the Cursor runner and retention
-  have their own sibling stories.
-- **Key examples.**
-  - Given a Codex or Cursor launch, its first input ends with the reporting
-    instruction in that host's grammar. A blank ad hoc launch gets no
-    instruction and, on Claude Code, no first input, while its kept claim
-    still holds the reporting context.
-  - Given a Claude Code launch whose report arrives before its session is
-    known, a report naming an unknown session is refused and the real one
-    answers `pending-native-session`. The session binds with that receipt,
-    stays open, and later native record writes keep it. If the record is
-    deleted before settlement, binding refuses it and a later report is
-    refused.
-  - Given attempt evidence removed or made unreadable after the native start,
-    the launch answers uncertain with the native resume identity, submits no
-    first input, keeps no record and keeps the unreadable file aside.
-  - Given two launches, the older launch's report closes only its own
-    session. Repeating a delivery answers the same receipt without writing
-    either store, and a new delivery competing with the developer's reopen
-    leaves it open. After Mark as done, a retry keeps the developer's Done
-    time. Unknown project, host, reference or session, an empty or invalid
-    message or outcome, an extra field and a cross-site origin are each
-    refused and keep the earlier message.
-  - Given a quiet report whose record write failed and a newer attention
-    report that also failed, retrying the older answers its original receipt
-    and closes nothing, and the newer retry keeps its message and stays open.
-  - Given a tracked execution, a quiet report without landing records the
-    receipt and stays open. An unacknowledged quiet report keeps its pending
-    submission and a reporting-only retry, and recovers without repeating
-    work; an unfinished report never closes; after deletion, its retry and
-    binding are refused.
-  - Given a claimed execution whose story returned to the queue, a quiet
-    report closes it and keeps the returned outcome with its receipt, at
-    delivery or later binding. Taken, unfinished or attention reports stay
-    open, a developer's earlier Done keeps its time, and a newer report
-    replaces the outcome. Only a story that left the backlog reports product
-    closure evidence.
-  - Given an admitted session, a no-change wrap-up closes its claim, keeps the
-    borrowed checkout and publishes its session record. Two launches landing
-    from one checkout each keep their own accepted range, and a landing retry
-    answers its receipt without Git. Lost accepted evidence holds the claim.
-  - Given a final report request, an unknown project, unrecorded or
-    wrong-host session, arbitrary endpoint, wrong method or cross-site origin
-    is refused before any native read. Claude Code answers that it cannot
-    read one. Cursor answers its kept message, or explains a quiet or missing
-    one, with closure evidence when kept. Codex reads its native report.
-- **Replacement trace.** Split from [native session and terminal lifecycle](https://github.com/terryyin/open-dough/blob/23c09d6e4d18b5113b45f3aed28f09e986083072/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-and-terminal-lifecycle-on-vitest).
-
-**Plan.** [Prove session completion reporting in Node Vitest](../slice-plans/870-prove-session-completion-reporting-on-vitest/PLAN.md)
-
 <a id="share-completion-reporting-arrangement"></a>
 
 ### Share the completion reporting arrangement in Node Vitest
 
 **Identity:** SEED-413#share-completion-reporting-arrangement
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/874-share-completion-reporting-arrangement/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"367a4db4a4a78fdd8a9f253c4b1c4d06e9f360443682297c14b851e2f98741af","plan":"7cf6a68c747ca618be1d68af81a612ad02dea6f9aa7f26183e1e5825228ad8b7"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/874-share-completion-reporting-arrangement/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"517dd860ce35433093593422746956c23e2f5c175ad66e1334a24c22f27a6507","plan":"7cf6a68c747ca618be1d68af81a612ad02dea6f9aa7f26183e1e5825228ad8b7"}}
 ```
 
 - **Goal.** Developers changing completion reporting read and extend the
@@ -366,7 +285,7 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   Codex reporting launch arrangement, and the HTTP completion path checks the
   origin headers once.
 - **Scope.** A bounded Structure correction from the completed
-  [session completion reporting](#prove-session-completion-reporting-on-vitest)
+  [session completion reporting](https://github.com/terryyin/open-dough/blob/1308a09321731e3b91077cd93968609cecf3c803/.planning/slice-plans/870-prove-session-completion-reporting-on-vitest/PLAN.md)
   story. Compose the arrangement repeated in
   `sessions/agent-completion-{identity,refusals,quiet-recovery,later-reports}.spec.ts`
   once, from production operations only, as a domain-named export of the
@@ -915,7 +834,7 @@ or removed once its behavior or duplicate is accounted for.
 | 7 retained launch record specs | [Retained launch records](https://github.com/terryyin/open-dough/blob/29e3287e862e5d5415d32653b3e71c91287b90a8/.planning/slice-plans/851-prove-kept-launch-records-on-vitest/PLAN.md), completed on Node Vitest; the shared-machine spec's catalog fixture checks moved to [runner cutover](#retire-legacy-dashboard-backend-runner) |
 | Four `start-origin-{default,demand,isolation,private}` specs | [Runner cutover](#retire-legacy-dashboard-backend-runner), preserving private installed fixture behavior wherever it remains in use |
 | 14 Done, stop, delete and reopen specs | [Marking sessions done, stopping, deleting and reopening](#prove-native-session-and-terminal-lifecycle-on-vitest) |
-| 11 completion reporting specs | [Session completion reporting](#prove-session-completion-reporting-on-vitest) |
+| 11 completion reporting specs | [Session completion reporting](https://github.com/terryyin/open-dough/blob/1308a09321731e3b91077cd93968609cecf3c803/.planning/slice-plans/870-prove-session-completion-reporting-on-vitest/PLAN.md), completed on Node Vitest with the HTTP report, real hosts and receivers in E2E |
 | Nine observation, alert and replay specs | [Native session observation and alerts](https://github.com/terryyin/open-dough/blob/0e82130ff6693e0f9a7b936aa8871aacb6ebbfee/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-native-session-observation-on-vitest) |
 | Five Claude and Codex terminal attach specs | [Terminal attach](#prove-terminal-attach-and-cursor-turns-on-vitest) |
 | Six Cursor turn specs | [Cursor turns](#prove-cursor-turns-on-vitest) |
