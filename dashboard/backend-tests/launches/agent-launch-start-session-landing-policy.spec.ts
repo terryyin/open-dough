@@ -42,36 +42,6 @@ function readHandoff(
   );
 }
 
-test("a blank Start hands Automatically land to its native conversation alone", async ({
-  dashboard,
-  codexProtocol,
-}) => {
-  if (!codexProtocol) throw new Error("No native fixture");
-  await launch(dashboard, {
-    ...makeMe.aLaunchRequest.adHoc().please(),
-    host: "codex",
-    policy: { workspace: "default-checkout", landing: "auto-land" },
-  });
-  const record = stored(dashboard.home)[0];
-  if (!record) throw new Error("No bound launch");
-  const { session, file, reporting } = landingHandoff(record);
-  expect(
-    codexProtocol.calls.some(({ method }) => method === "turn/start"),
-  ).toBe(false);
-  const handoff = (id?: string, ...args: string[]) =>
-    readHandoff(dashboard.home, session.workspace, id, ...args);
-  const bound = handoff(codexProtocol.threadId);
-  expect(bound).toContain("- landing: auto-land");
-  expect(bound).toContain(`Taken story: ${launchStoryIdentity(record)}`);
-  expect(bound).toContain(`Landing context: ${file}`);
-  expect(bound).toContain(
-    `Dashboard reporting context:\n- project: ${record.request.source}\n- host: codex\n- launch reference: ${reporting.reference}\n- reporting command: ${reporting.command}`,
-  );
-  expect(handoff("other-conversation")).toBe("");
-  expect(handoff()).toBe("");
-  expect(handoff("other-conversation", codexProtocol.threadId)).toBe("");
-});
-
 const childPublication = test.extend({
   liveServer: "synchronous delivery child blocks the mounted receiver",
 });

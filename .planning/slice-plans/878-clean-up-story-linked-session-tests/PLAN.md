@@ -217,7 +217,7 @@ Evidence (2026-11-27):
 
 ### 2. Prove landing refusals in one typed table
 Type: Structure
-Status: planned
+Status: done
 Proof: `retainedLandingDecision.spec.ts` covers every refusal dimension and
 runs each case in about 100 ms. `declared-worktree-publication.spec.ts` and
 `agent-launch-start-session-landing-policy.spec.ts` keep one wiring refusal
@@ -228,6 +228,29 @@ files drops against the baseline.
 Move the refusal dimensions into the `decideLanding` table. Pass the kept
 record and declaration as typed inputs instead of mounting `HOME`. Drop the
 auto-land capture that the E2E `landing-context` spec already proves.
+
+Evidence (2026-11-27):
+- The `decideLanding` table now has 15 cases, each taking 0–5 ms. Each
+  authority dimension is a typed record change.
+- A positive control showed that the old base record lacked `defaultStart`,
+  so every older case failed for that reason and not its own. The record is
+  fixed.
+- A break check that removed the identity check failed only the identity
+  case.
+- `declared-worktree-publication.spec.ts` keeps:
+  - one wrong-tip wiring refusal;
+  - the trunk-revision mismatch, which is Git-backed;
+  - the foreign-reference refusal and the publish/retry flow.
+- `landing-policy` drops the auto-land capture, which the E2E
+  `landing-context` spec proves, and keeps managed delivery with the foreign
+  `.git` refusal and the unfinished report.
+- Local times, at load 14 then 7–18:
+  - `landing-policy`: 12.8 s → 2.9 s;
+  - `declared-worktree-publication`: 0.9 s → 0.7 s.
+- Baseline CI (run 45961498530): 11.3 s and 1.1 s.
+- The scratch `HOME` stays only in the shared wiring support
+  (`doneCaptureCase.ts`). There, the installed publication script and the
+  machine attempt store run for real. See G1.
 
 ### 3. Prove each admitted-session fact once
 Type: Structure
@@ -298,3 +321,10 @@ concern remains.
 
 Interim behavior: none. Each slice keeps every preserved behavior when it
 lands.
+
+## Story obligations
+
+### G1. Wiring specs keep a scratch HOME for installed publication
+Reported: slice 2 — "Three other things still use the stubbed `HOME`"
+Story clause: "move landing-refusal and follow-up decision matrices into typed unit tables, keeping one wiring case per integration spec"
+Disposition: no user cost "keep each story-linked session behavior proven once, at the cheapest level that observes it": the refusal matrix now runs in the typed `decideLanding` table without any environment mount. The remaining scratch `HOME` isolates the real installed publication script and the machine attempt store in the kept wiring cases. Dropping it would write to the developer's real home, and removing it would change production signatures outside this correction's scope.
