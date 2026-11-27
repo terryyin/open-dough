@@ -1,11 +1,11 @@
 // Retention expiry is a record removal too (plan 329 slice 4): a scoped
 // Cursor record a write drops past its 30-day retention retires exactly
-// its configuration scope through the same host dispatch as an explicit
-// deletion, while retained records keep their scopes and the shared
-// Cursor configuration and saved conversation stay untouched. Over raw
-// HTTP at the local launch boundary, on a fresh machine directory the
-// test owns; marking a Claude session Done triggers the write that drops
-// the expired Cursor record, so retention dispatch remains host-neutral.
+// its configuration scope through the production default retirement
+// listener, the same host dispatch an explicit deletion uses, while
+// retained records keep their scopes and the shared Cursor configuration
+// and saved conversation stay untouched. Marking a Claude session Done is
+// the write that drops the expired Cursor record, so retention dispatch
+// remains host-neutral. The test owns a private machine home.
 import {
   existsSync,
   mkdirSync,
@@ -17,140 +17,113 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { beforeEach, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
-  identity,
-  markDone,
-  title,
-} from "../../test-support/agentLaunchBoundary.ts";
-import {
-  daysAgo,
-  machineHome,
-} from "../../test-support/machineLaunchRecords.ts";
-import {
-  keepLaunchStore,
-  keptLaunchRecords,
-} from "../../test-support/support/launchStore.ts";
-import { composeSession } from "../../test-support/agentTerminalBoundary.ts";
-import {
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
+  readStoredRecords,
+  replaceRecords,
+} from "../../server/launchRecordDocument.ts";
+import { installRecordRemovalDispatch } from "../../server/launchRecordRemoval.ts";
+import { setRecordDoneAt } from "../../server/launchRecordStore.ts";
+import { machineDashboardPath } from "../../server/machineHome.ts";
+import { daysAgo } from "../../test-support/machineLaunchRecords.ts";
 
-test.describe("a scoped record dropped by retention expiry", () => {
-  test.describe.configure({ mode: "serial" });
-  let machine: string;
-  let server: DashboardServer;
+const project = "open-dough";
+const story = { identity: "SEED-001#first", title: "First story" };
 
-  test.beforeAll(async () => {
-    machine = mkdtempSync(path.join(tmpdir(), "dough-retention-scope-"));
-    server = await startDashboardServer({
-      mode: "boundary",
-      liveServer: "separate process",
-      machine,
-      projectFolders: ["open-dough"],
-    });
-  });
+let machine: string;
 
-  test.afterAll(async () => {
-    await server.close();
+beforeEach(() => {
+  machine = mkdtempSync(path.join(tmpdir(), "dough-retention-scope-"));
+  vi.stubEnv("HOME", path.join(machine, "home"));
+  return () => {
+    vi.unstubAllEnvs();
     rmSync(machine, { recursive: true, force: true });
-  });
+  };
+});
 
-  test("removes only the expired record's scope, leaving retained scopes, the shared configuration, and the saved conversation untouched", async () => {
-    const home = path.join(machine, "home");
-    // The shared Cursor configuration every scope was cloned from, with
-    // its saved conversation under `chats`.
-    const sharedConfigDir = path.join(machine, "shared-cursor-config");
-    mkdirSync(path.join(sharedConfigDir, "chats"), { recursive: true });
-    const sharedConfig = `${JSON.stringify(makeMe.aCursorCliConfig.please())}\n`;
-    writeFileSync(path.join(sharedConfigDir, "cli-config.json"), sharedConfig);
-    const savedConversation = path.join(
-      sharedConfigDir,
-      "chats",
-      "saved-conversation.txt",
+test("removes only the expired record's scope, leaving retained scopes, the shared configuration, and the saved conversation untouched", async () => {
+  // The shared Cursor configuration every scope was cloned from, with its
+  // saved conversation under `chats`.
+  const sharedConfigDir = path.join(machine, "shared-cursor-config");
+  mkdirSync(path.join(sharedConfigDir, "chats"), { recursive: true });
+  const sharedConfig = `${JSON.stringify(makeMe.aCursorCliConfig.please())}\n`;
+  writeFileSync(path.join(sharedConfigDir, "cli-config.json"), sharedConfig);
+  const savedConversation = path.join(
+    sharedConfigDir,
+    "chats",
+    "saved-conversation.txt",
+  );
+  writeFileSync(savedConversation, "saved conversation\n");
+
+  // One scope per seeded record, cloned from the shared config with its
+  // `chats` linked to the shared chats, as a launch leaves it.
+  const makeScope = (name: string, model: string): string => {
+    const scope = machineDashboardPath("cursor-session-scopes", name);
+    mkdirSync(scope, { recursive: true });
+    writeFileSync(
+      path.join(scope, "cli-config.json"),
+      `${JSON.stringify(makeMe.aCursorCliConfig.withModel(model).please())}\n`,
     );
-    writeFileSync(savedConversation, "saved conversation\n");
-
-    const scopesHome = path.join(
-      home,
-      ".open-dough",
-      "dashboard",
-      "cursor-session-scopes",
+    symlinkSync(
+      path.join(sharedConfigDir, "chats"),
+      path.join(scope, "chats"),
+      "dir",
     );
-    // One scope per seeded record, each cloned from the shared config
-    // with its `chats` linked to the shared chats, as a launch leaves it.
-    const makeScope = (name: string, model: string): string => {
-      const scope = path.join(scopesHome, name);
-      mkdirSync(scope, { recursive: true });
-      writeFileSync(
-        path.join(scope, "cli-config.json"),
-        `${JSON.stringify(makeMe.aCursorCliConfig.withModel(model).please())}\n`,
-      );
-      symlinkSync(
-        path.join(sharedConfigDir, "chats"),
-        path.join(scope, "chats"),
-        "dir",
-      );
-      return scope;
-    };
-    const expiredScope = makeScope("expired-scope", "gpt-5.2");
-    const recentlyDoneScope = makeScope("recently-done-scope", "composer-2.5");
-    const unclosedScope = makeScope("unclosed-scope", "auto");
+    return scope;
+  };
+  const expiredScope = makeScope("expired-scope", "gpt-5.2");
+  const recentlyDoneScope = makeScope("recently-done-scope", "composer-2.5");
+  const unclosedScope = makeScope("unclosed-scope", "auto");
 
-    // A Cursor execution launched 60 days ago in a session with this
-    // configuration scope.
-    const scopedRecord = (sessionId: string, configScope: string) =>
-      makeMe.aLaunchRecord
-        .executing({ identity, title })
-        .inCursorSession({
-          sessionId,
-          continuation: { workspace: "/tmp", configScope },
-        })
-        .launchedAt(daysAgo(60));
-    const expiredId = "a0000000-0000-4000-8000-000000000031";
-    const recentlyDoneId = "a0000000-0000-4000-8000-000000000029";
-    const unclosedId = "a0000000-0000-4000-8000-000000000040";
-    keepLaunchStore(machineHome(machine), {
-      "open-dough": [
-        scopedRecord(expiredId, expiredScope)
-          .markedDoneAt(daysAgo(31))
-          .please(),
-        scopedRecord(recentlyDoneId, recentlyDoneScope)
-          .markedDoneAt(daysAgo(29))
-          .please(),
-        scopedRecord(unclosedId, unclosedScope).please(),
-      ],
-    });
-    expect(existsSync(expiredScope)).toBe(true);
+  // A Cursor execution launched 60 days ago with this configuration scope.
+  const scopedRecord = (sessionId: string, configScope: string) =>
+    makeMe.aLaunchRecord
+      .executing(story)
+      .inCursorSession({
+        sessionId,
+        continuation: { workspace: "/tmp", configScope },
+      })
+      .launchedAt(daysAgo(60));
+  const expiredId = "a0000000-0000-4000-8000-000000000031";
+  const recentlyDoneId = "a0000000-0000-4000-8000-000000000029";
+  const unclosedId = "a0000000-0000-4000-8000-000000000040";
+  const marked = makeMe.aLaunchRecord
+    .executing(story)
+    .inClaudeSession({ sessionId: "a0000000-0000-4000-8000-000000000001" })
+    .please();
+  await replaceRecords(() => ({
+    [project]: [
+      scopedRecord(expiredId, expiredScope).markedDoneAt(daysAgo(31)).please(),
+      scopedRecord(recentlyDoneId, recentlyDoneScope)
+        .markedDoneAt(daysAgo(29))
+        .please(),
+      scopedRecord(unclosedId, unclosedScope).please(),
+      marked,
+    ],
+  }));
 
-    const { sessionId } = await composeSession(server);
-    const done = await markDone(server, {
-      source: "open-dough",
-      session: sessionId,
-    });
-    expect(done.status, done.body).toBe(200);
+  // The production default listener the launch boundary installs.
+  installRecordRemovalDispatch();
 
-    const storedIds = keptLaunchRecords(machineHome(machine)).map((entry) => {
-      if (!("session" in entry)) throw new Error("Expected a kept session");
-      return entry.session.sessionId;
-    });
-    expect(storedIds).not.toContain(expiredId);
-    expect(storedIds).toContain(recentlyDoneId);
-    expect(storedIds).toContain(unclosedId);
-    // Exactly the expired record's scope was retired, and not before its
-    // record was gone; every retained record's scope stays.
-    expect(existsSync(expiredScope)).toBe(false);
-    expect(existsSync(recentlyDoneScope)).toBe(true);
-    expect(existsSync(unclosedScope)).toBe(true);
-    // Scope removal did not follow the `chats` symlink: the shared
-    // configuration and saved conversation evidence are intact.
-    expect(
-      readFileSync(path.join(sharedConfigDir, "cli-config.json"), "utf8"),
-    ).toBe(sharedConfig);
-    expect(readFileSync(savedConversation, "utf8")).toBe(
-      "saved conversation\n",
-    );
-  });
+  await setRecordDoneAt(project, marked.session, new Date().toISOString());
+
+  const read = await readStoredRecords();
+  if (read.kind === "unreadable") throw new Error("Unreadable records");
+  expect(
+    (read.document[project] ?? []).flatMap((entry) =>
+      "session" in entry ? [entry.session.sessionId] : [],
+    ),
+  ).toEqual([recentlyDoneId, unclosedId, marked.session.sessionId]);
+  // Exactly the expired record's scope was retired; every retained
+  // record's scope stays.
+  expect(existsSync(expiredScope)).toBe(false);
+  expect(existsSync(recentlyDoneScope)).toBe(true);
+  expect(existsSync(unclosedScope)).toBe(true);
+  // Scope removal did not follow the `chats` symlink: the shared
+  // configuration and saved conversation are intact.
+  expect(
+    readFileSync(path.join(sharedConfigDir, "cli-config.json"), "utf8"),
+  ).toBe(sharedConfig);
+  expect(readFileSync(savedConversation, "utf8")).toBe("saved conversation\n");
 });

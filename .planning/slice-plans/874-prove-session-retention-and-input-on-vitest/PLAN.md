@@ -84,7 +84,7 @@ Retire each legacy selection when its receiving proof passes.
 ### 1. Expire a Done session into history before retiring its scope
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 13 active minutes.
 
 Proof: Replace both `launch-history-aged-out` cases and the
@@ -103,6 +103,8 @@ after the record, while retained scopes, shared config and saved chat
 bytes survive. Use the narrow new-process pattern already in
 [launch records across processes](../../../dashboard/backend-tests/launches/launch-records-across-processes.spec.ts)
 for the restart observation.
+
+- Proof recorded (2026-11-27, Node Vitest, 1 worker): `launch-history-aged-out.spec.ts` (2 cases) and `agent-launch-retention-scope.spec.ts` (1 case) now run on Node Vitest; 0 Playwright selections remain for both paths. Focused selection passed 3/3 twice and `npm run typecheck:dashboard` exited 0. Summed case time fell from 23.873 s (plan baseline) to 0.219–0.404 s; the forked fresh-process restart case carries most of it, the other two are under 30 ms. No support code added or removed; every legacy helper keeps other callers. Retirement order (scope after record) is observed as end state; `replaceRecords` calls the listener only after the replacement lands. Refactor pass skipped: the change edits only this slice's subject specs and reuses `daysAgo`, MakeMe and the plan-named fork pattern.
 
 ### 2. Remove a session only when its history can be kept
 
