@@ -431,6 +431,23 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   average of about 17, three of them missed their 3 s wait for the native
   launch, while each spec passed alone, both before and after the
   published Follow up story's continuation change.
+- **Cause (plan 853 diagnosis, 2026-11-27).** Each of these cases runs the
+  real start pipeline (`execution-start.mjs draft` and `start`: two Node
+  processes and about 50 Git processes per launch, including three
+  `git fetch origin` calls and two throwaway worktree add/remove pairs)
+  inside the 5 s default test timeout; at load 15 one launch took 2.2–3.1 s,
+  and 19 of 22 local failures were that timeout rather than the 3 s poll.
+  The same signature also failed `agent-launch-{,codex-}model-boundary`,
+  `agent-launch-follow-up-file-admission`,
+  `agent-launch-incomplete-reporting-settlement`,
+  `agent-launch-codex-lifetime`, `admitted-session-start`,
+  `ad-hoc-existing-changes-start`, `execution-checkout-start-stops`,
+  `isolated-start-{after,before}-establishment` and
+  `agent-launch-preparation-continuation-refusal`, equally on base and
+  branch. Repair options found: give cases whose subject is not the start
+  a held or instant start stand-in at the server's `execution-start.mjs`
+  call and wait for its arrival; make the start cheaper (fewer fetches and
+  throwaway worktrees) for cases that test the start itself.
 - **Boundary.** Extend the typed decision and persistence split used for
   session and landing state to launch attempts. Keep focused production
   adapter proof for persistence and configuration, and preserve the real
