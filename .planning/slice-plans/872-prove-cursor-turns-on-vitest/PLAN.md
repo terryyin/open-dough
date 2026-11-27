@@ -145,7 +145,7 @@ Each case passes `60_000` as its own timeout.
 ### 4. Prove a detached screen leaves the client running
 
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 10–12 active minutes.
 
 Proof: Move `agent-terminal-cursor-idle.spec.ts` (4 cases) to Node Vitest.
@@ -155,6 +155,7 @@ Each case passes `60_000` as its own timeout.
   and accepts typing.
 - A question, an unrecognized screen, or a working screen keeps the
   detached client after the socket closes.
+- Proof recorded (2026-11-27, Node Vitest, 1 worker): `npm run test:dashboard:backend -- 'terminals/agent-terminal-cursor-idle\.spec\.ts$' --workers=1` passed 4/4 on Vitest (14.62s summed case time, 15.23s elapsed; 0 on Playwright). Passed `{ timeout: 5_000 }` on all 9 `expect.poll` calls to keep Playwright's legacy 5s poll default. Refactor pass skipped (subject spec only, 152 lines, no refactor candidate).
 
 ### 5. Prove a working client survives detach and server close
 
