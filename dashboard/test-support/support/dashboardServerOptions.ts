@@ -73,3 +73,14 @@ export type DashboardServerOptions = FakeClaudeOptions & {
   // default. Caller-owned restart machines stay on the real route.
   readonly cursorRunner?: DashboardCursorRunner;
 };
+
+// What a server start serves from the run's shared artifacts
+// (./runArtifacts.ts): a preview serves the app build, and a start that
+// serves from source or mounts the boundary in this worker needs no server
+// bundle.
+export function servedArtifacts(
+  mode: DashboardServerMode,
+  mounted: boolean,
+): { app: boolean; bundle: boolean } {
+  return { app: mode === "preview", bundle: !mounted && mode !== "dev" };
+}

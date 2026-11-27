@@ -1,63 +1,48 @@
-import { observeQueuedOrigins } from "../support/queuedOriginsProof.ts";
-import { expect, test as base } from "../../test-support/support/pageTest.ts";
-import { coldInputPreparation } from "../../test-support/support/publishedMainWorkerFixtures.ts";
+// A preparation-page case's private origin
+// (../../test-support/support/preparationPage.ts) waits for its worker's
+// queued origins: both hosts' bases are requested together, so a first case
+// of either host, or one overriding its revision, copies a prepared base.
+// Each copy's own installation and revisions are proven by
+// ../launches/start-origin-isolation.spec.ts and
+// ../launches/start-origin-private.spec.ts.
+import { expect, test } from "vitest";
+import { serverInputKeys } from "../../test-support/support/serverInputWorkerFixtures.ts";
+import { preparationOrigin } from "../../test-support/support/preparationOrigin.ts";
+import type { StartOrigin } from "../../test-support/support/startOrigin.ts";
+import {
+  startOriginArtifactKey,
+  type StartRepository,
+} from "../../test-support/support/startOriginPreparation.ts";
 
-const test = base.extend<
-  object,
-  { queuedOrigins: Awaited<ReturnType<typeof observeQueuedOrigins>> }
->({
-  queuedOrigins: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => use(await observeQueuedOrigins()),
-    coldInputPreparation,
-  ],
-});
-
-test("both queued origins are prepared before the first private copy", async ({
-  queuedOrigins: { heldLayouts, casesWhileHeld, timing },
-}) => {
-  const { releasedAt, completed, firstCopyStartedAt } = timing;
-  expect(heldLayouts).toEqual(["claude", "codex"]);
-  expect(casesWhileHeld).toEqual([]);
-  expect(completed.claude).toBeGreaterThanOrEqual(releasedAt);
-  expect(completed.codex).toBeGreaterThanOrEqual(releasedAt);
-  expect(firstCopyStartedAt).toBeGreaterThanOrEqual(
-    Math.max(completed.claude ?? Infinity, completed.codex ?? Infinity),
-  );
-  await test.info().attach("preparation-and-case-intervals", {
-    body: JSON.stringify(timing),
-    contentType: "application/json",
-  });
-});
-
-test("each host's copy contains its own installation", ({ queuedOrigins }) => {
-  const [claude, codex, override] = queuedOrigins.cases;
-  expect(claude).toMatchObject({
-    host: "claude",
-    tree: expect.arrayContaining([".claude"]),
-  });
-  expect(codex).toMatchObject({
-    host: "codex",
-    tree: expect.arrayContaining([".agents"]),
-  });
-  expect(claude?.tree).not.toEqual(codex?.tree);
-  expect(override?.tree).toEqual(claude?.tree);
-});
-
-test("each case starts with a private copy", ({ queuedOrigins: { cases } }) => {
-  const [claude, codex, override] = cases;
-  expect(new Set(cases.map(({ origin }) => origin)).size).toBe(3);
-  expect(claude?.branches).not.toContain("private-proof");
-  expect(codex?.branches).not.toContain("private-proof");
-  expect(override?.branches).not.toContain("private-proof");
-});
-
-test("a later revision becomes main in its own copy", ({ queuedOrigins }) => {
-  const [claude, , override] = queuedOrigins.cases;
-  expect(override?.host).toBe("claude");
-  expect(override?.revisions).toEqual([
-    ...(claude?.revisions ?? []),
-    "changed review",
+test("both hosts' queued origins are requested before the first private copy, with no served inputs", async () => {
+  expect(await serverInputKeys(["claude", "codex"], undefined)).toEqual([
+    startOriginArtifactKey("claude", "queued"),
+    startOriginArtifactKey("codex", "queued"),
   ]);
-  expect(override?.mainIsLast).toBe(true);
+});
+
+test("a preparation case's private origin waits until the queued origins are ready", async () => {
+  let ready!: () => void;
+  const queuedOriginsReady = new Promise<void>((resolve) => {
+    ready = resolve;
+  });
+  const started: string[] = [];
+  // The description passes through untouched.
+  const description = {} as StartRepository;
+  const origin = preparationOrigin((given, { host }) => {
+    if (given === description) started.push(host);
+    return Promise.resolve({ cleanup: () => undefined } as StartOrigin);
+  })(
+    {
+      queuedOriginsReady,
+      originRepository: description,
+      preparationHost: "codex",
+    },
+    () => Promise.resolve(),
+  );
+  await Promise.resolve();
+  expect(started).toEqual([]);
+  ready();
+  await origin;
+  expect(started).toEqual(["codex"]);
 });

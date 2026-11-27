@@ -12,27 +12,17 @@ type Artifact = {
   prepare(directory: string, signal: AbortSignal): Promise<void>;
 };
 
-export async function startRunArtifacts(
+// The run's demand for its registered artifacts: the first request for a key
+// prepares it once and every waiter for that key receives the same directory
+// or the same failure; a failed or interrupted preparation leaves no
+// directory. `close` interrupts preparations in flight.
+export function artifactDemand(
   artifacts: ReadonlyMap<string, Artifact>,
+  trace: (event: string, key: string, directory?: string) => void = () => {},
 ) {
   const controller = new AbortController();
   const pending = new Map<string, Promise<string>>();
   const paths = new Set<string>();
-  const route = `/${randomUUID()}/`;
-  const tracePath = process.env[artifactTraceVariable];
-  function trace(event: string, key: string, directory?: string) {
-    if (tracePath === undefined) return;
-    appendFileSync(
-      tracePath,
-      `${JSON.stringify({
-        event,
-        key,
-        directory,
-        pid: process.pid,
-        at: Date.now(),
-      })}\n`,
-    );
-  }
 
   async function prepare(key: string, artifact: Artifact) {
     const directory = artifact.create();
@@ -50,15 +40,54 @@ export async function startRunArtifacts(
     }
   }
 
-  async function getArtifact(key: string, artifact: Artifact) {
-    trace("request", key);
-    let result = pending.get(key);
-    if (result === undefined) {
-      result = prepare(key, artifact);
-      pending.set(key, result);
-    }
-    return result;
-  }
+  return {
+    closing: () => controller.signal.aborted,
+    // Undefined for a key this run does not register.
+    request(key: string): Promise<string> | undefined {
+      const artifact = artifacts.get(key);
+      if (artifact === undefined) return undefined;
+      trace("request", key);
+      let result = pending.get(key);
+      if (result === undefined) {
+        result = prepare(key, artifact);
+        pending.set(key, result);
+      }
+      return result;
+    },
+    // Interrupts preparations in flight and settles once they have ended.
+    async close() {
+      controller.abort();
+      await Promise.allSettled(pending.values());
+    },
+    abort: () => {
+      controller.abort();
+    },
+    remove() {
+      for (const directory of paths) {
+        rmSync(directory, { recursive: true, force: true });
+      }
+    },
+  };
+}
+
+export async function startRunArtifacts(
+  artifacts: ReadonlyMap<string, Artifact>,
+) {
+  const route = `/${randomUUID()}/`;
+  const tracePath = process.env[artifactTraceVariable];
+  const demand = artifactDemand(artifacts, (event, key, directory) => {
+    if (tracePath === undefined) return;
+    appendFileSync(
+      tracePath,
+      `${JSON.stringify({
+        event,
+        key,
+        directory,
+        pid: process.pid,
+        at: Date.now(),
+      })}\n`,
+    );
+  });
 
   const server = createServer((request, response) => {
     // One connection per request. A kept-alive connection's idle timer can
@@ -68,21 +97,20 @@ export async function startRunArtifacts(
     response.setHeader("Connection", "close");
     const url = request.url ?? "";
     const key = url.slice(route.length);
-    const artifact = artifacts.get(key);
     if (request.method !== "POST" || !url.startsWith(route)) {
       response.writeHead(404).end();
       return;
     }
     // A runner registers only what its own group's specs request.
-    if (!artifact) {
+    if (!artifacts.has(key)) {
       response.writeHead(404).end("this run's setup does not register it.");
       return;
     }
-    if (controller.signal.aborted) {
+    if (demand.closing()) {
       response.writeHead(503).end("Dashboard artifact preparation is closing.");
       return;
     }
-    void getArtifact(key, artifact).then(
+    void demand.request(key)?.then(
       (directory) => response.end(directory),
       (error: unknown) =>
         response
@@ -102,30 +130,21 @@ export async function startRunArtifacts(
   process.env["OPEN_DOUGH_DASHBOARD_ARTIFACT_OWNER"] =
     `http://127.0.0.1:${String(port)}${route}`;
 
-  function remove() {
-    for (const directory of paths) {
-      rmSync(directory, { recursive: true, force: true });
-    }
-  }
   function onExit() {
-    controller.abort();
-    remove();
+    demand.abort();
+    demand.remove();
   }
   process.once("exit", onExit);
   return async () => {
-    controller.abort();
     const closed = new Promise<void>((resolve, reject) => {
       server.close((error) => {
         if (error) reject(error);
         else resolve();
       });
     });
-    const [serverClose] = await Promise.allSettled([
-      closed,
-      ...pending.values(),
-    ]);
+    const [serverClose] = await Promise.allSettled([closed, demand.close()]);
     try {
-      remove();
+      demand.remove();
       process.off("exit", onExit);
     } finally {
       if (inheritedOwner === undefined)

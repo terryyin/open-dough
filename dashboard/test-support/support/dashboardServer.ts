@@ -34,7 +34,10 @@ import {
   configureDevelopmentProjects,
   projectEnvironmentOf,
 } from "./projectConfiguration.ts";
-import type { DashboardServerOptions } from "./dashboardServerOptions.ts";
+import {
+  servedArtifacts,
+  type DashboardServerOptions,
+} from "./dashboardServerOptions.ts";
 import { sharedServerBundle } from "./serverBundle.ts";
 import {
   installServerTimeControls,
@@ -80,12 +83,11 @@ async function start(
   options: DashboardServerOptions,
   mounted: boolean,
 ): Promise<DashboardServer> {
-  const previewBuild =
-    options.mode === "preview" ? options.prebuilt : undefined;
+  const served = servedArtifacts(options.mode, mounted);
+  const previewBuild = served.app ? options.prebuilt : undefined;
   const prebuilt =
     typeof previewBuild === "function" ? await previewBuild() : previewBuild;
-  const serverBundle =
-    mounted || options.mode === "dev" ? undefined : await sharedServerBundle();
+  const serverBundle = served.bundle ? await sharedServerBundle() : undefined;
   const ownsMachine = options.machine === undefined;
   const cursorRunner = options.cursorRunner ?? "real";
   if (!mounted && cursorRunner === "stand-in" && !ownsMachine) {

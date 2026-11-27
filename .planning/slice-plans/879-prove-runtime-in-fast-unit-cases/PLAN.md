@@ -262,7 +262,7 @@ section.
 
 ### 5. Decide test preparation and shared artifact demand from typed requests
 Type: Behavior
-Status: planned
+Status: done
 Estimate: 20–25 active minutes.
 Proof: Every case in the ten slice-5 specs runs in about 100 ms or less.
 No case builds the app or a server bundle, or starts a nested proof run.
@@ -281,6 +281,20 @@ Behavior:
 
 The real build under concurrent runs stays with
 `dashboard-concurrent-runs.sh`.
+
+Result: 24 cases (61.9 s summed, load 8) became 17 cases at 65.6 ms
+summed (load 13) in eight specs; `test-preparation-dev-notifications` and
+`production-build-gate` are gone. Typed seams: `artifactDemand` in
+`runArtifacts.ts` (one complete/fail/interrupt table over a controlled
+build), `dashboardTestProjects` takes `ci`, `servedArtifacts(mode,
+mounted)`, exported `serverInputKeys` and `matchingPrefix`, and
+`preparationOrigin` waits for the queued origins. Added runner script:
+`Distribution/tests/test-runner/production-build-gate.sh` (arrival and
+immediate release of the native gate, whose source now lives in
+`fixtures/production-build-gate.mjs`). Nested-run budget cases moved to
+the per-host preparation journeys and `start-origin-*` specs. Accepted
+limit: that the native Codex origin is prepared only for the case that
+takes it rests on Playwright's lazy worker fixtures.
 
 ### 6. Prove published fixture sources and development runtime from typed inputs
 Type: Behavior

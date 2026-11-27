@@ -69,6 +69,7 @@ export function runnerVariables(prefix) {
  *   `test-results/` run directories and CI `playwright-report/` directories
  * @returns {Promise<{
  *   split: string | undefined,
+ *   ci: boolean,
  *   options: import("@playwright/test").PlaywrightTestConfig,
  * }>}
  */
@@ -156,6 +157,7 @@ async function prepareGroupRun(variables, outputs) {
   const ci = Boolean(process.env["CI"]);
   return {
     split: process.env[variables.split],
+    ci,
     options: {
       outputDir: path.join(results, runStamp),
       fullyParallel: true,
@@ -221,6 +223,6 @@ export async function prepareFocusedRun(group, include) {
   return {
     options: run.options,
     testMatch: dashboardTestMatch(directory, run.split, selection),
-    projects: dashboardTestProjects(directory, run.split, selection),
+    projects: dashboardTestProjects(directory, run.split, selection, run.ci),
   };
 }

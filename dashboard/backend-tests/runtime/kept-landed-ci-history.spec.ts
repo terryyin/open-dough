@@ -7,6 +7,7 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { expect, test } from "vitest";
 import { z } from "zod";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { replaceMachineJson } from "../../server/machineJsonStore.ts";
@@ -15,7 +16,6 @@ import {
   keepLandedCiHistory,
   keptLandedCiHistory,
 } from "../../test-support/support/landedCiHistory.ts";
-import { expect, test } from "../../test-support/support/pageTest.ts";
 
 // One landing whose own build took `seconds`.
 function historyMeasuring(seconds: number) {

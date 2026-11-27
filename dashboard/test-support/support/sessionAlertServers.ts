@@ -2,7 +2,7 @@
 // each delivery mode. Each mode waits only for the shared inputs it serves
 // from: source serving prepares none; a preview needs the worker's app and
 // bundle. The development mode's demand is proved by
-// ../../backend-tests/runtime/test-preparation-dev-notifications.spec.ts.
+// ../../backend-tests/runtime/test-preparation-boundary.spec.ts.
 import {
   sharedDashboardBuild,
   startDashboardServer,

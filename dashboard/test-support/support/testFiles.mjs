@@ -154,15 +154,19 @@ function filePatterns(testDir, files) {
 // worker for ordinary checks; CI keeps its concurrency. No dependency makes ordinary checks wait for those chains. Complementary
 // matches retain exactly one execution of every selected file. `selection`
 // names a runner's own `roots` and `splitVariable`, and its `workflow` and
-// `job` (selectedFiles).
-export function dashboardTestProjects(testDir, split, selection) {
+// `job` (selectedFiles); `ci` says whether the run is CI's.
+/**
+ * @param {boolean} ci
+ * @returns {{ name: string, workers?: number, testMatch: RegExp[] }[]}
+ */
+export function dashboardTestProjects(testDir, split, selection, ci) {
   const files = selectedFiles(testDir, split, selection);
   const isProductionChain = (file) =>
     /^production-watcher(?:-.*)?\.spec\.ts$/.test(basename(file));
   return [
     {
       name: "chromium-deployments",
-      ...(process.env["CI"] ? {} : { workers: 1 }),
+      ...(ci ? {} : { workers: 1 }),
       testMatch: filePatterns(testDir, files.filter(isProductionChain)),
     },
     {
