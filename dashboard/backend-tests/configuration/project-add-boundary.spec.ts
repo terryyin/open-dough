@@ -1,11 +1,37 @@
+// Which Add requests the project configuration boundary
+// (../../server/projectConfigurationBoundary.ts) admits, in-process over raw
+// HTTP with a synthetic `gh` answering from the fake GitHub and Git routed
+// through the private HOME: only same-origin POST, answered with published
+// facts and no checkout path; a pending Git transport ends on disconnect,
+// deadline, shutdown or an unfinished body without writing configuration.
 import http from "node:http";
 import { once } from "node:events";
 import { readFileSync } from "node:fs";
 import type { AddressInfo } from "node:net";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { machineHome } from "../../test-support/machineLaunchRecords.ts";
-import { routeOriginThroughHome } from "../../test-support/support/fixtureOriginRoute.ts";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { installProjectConfigurationMiddleware } from "../../server/projectConfigurationBoundary.ts";
+import { projectConfigurationFile } from "../../server/projectConfiguration.ts";
+import { projectAddEndpoint } from "../../src/projectConfiguration.ts";
+import {
+  privateSettingsMachine,
+  type PrivateSettingsMachine,
+} from "../support/privateSettingsMachine.ts";
+import {
+  endFakeGh,
+  fakeGhEnv,
+  installFakeGh,
+} from "../../test-support/support/fakeGh.ts";
+import {
+  everyRepository,
+  publishes,
+  startFakeGitHub,
+  type FakeGitHub,
+} from "../../test-support/support/fakeGitHub.ts";
+import {
+  routeDashboardHome,
+  routeOriginThroughHome,
+} from "../../test-support/support/fixtureOriginRoute.ts";
 import { git } from "../../test-support/support/launchLanding.ts";
 import {
   projectAddMachine,
@@ -13,24 +39,84 @@ import {
   addedLocalPath,
 } from "../../test-support/support/projectAddMachine.ts";
 import {
+  startInProcessBoundaryHttp,
+  type InProcessBoundaryHttp,
+} from "../../test-support/support/inProcessBoundaryHttp.ts";
+import {
   rawRequest,
   abandonedRequest,
 } from "../../test-support/support/rawHttp.ts";
+import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
 
 let fixture: ReturnType<typeof projectAddMachine>;
-test.beforeEach(() => {
+let machine: PrivateSettingsMachine;
+let github: FakeGitHub;
+let home: string;
+let cleanups: (() => void | Promise<void>)[];
+beforeEach(async () => {
+  cleanups = [];
+  machine = privateSettingsMachine();
+  cleanups.push(machine.close);
   fixture = projectAddMachine();
+  cleanups.push(() => fixture.close());
+  github = await startFakeGitHub();
+  cleanups.push(() => github.close());
+  github.serve(everyRepository, publishes({}));
+  home = path.join(fixture.machine, "home");
+  routeDashboardHome(home, github);
 });
-test.afterEach(async () => fixture.close());
+afterEach(async () => {
+  for (const cleanup of cleanups.reverse()) await cleanup();
+});
+
+// The production boundary in this worker, its `gh` answering from the fake
+// GitHub and Git reads taking at most `readTimeoutMs`.
+async function startAdd(readTimeoutMs = 30_000) {
+  await fixture.serveOn(github);
+  const gh = installFakeGh(fixture.machine);
+  cleanups.push(() => endFakeGh(gh));
+  cleanups.push(
+    withRestoredEnv({
+      ...fakeGhEnv(gh, github.url),
+      HOME: home,
+      DOUGH_READ_TIMEOUT_MS: String(readTimeoutMs),
+    }),
+  );
+  const server: InProcessBoundaryHttp = await startInProcessBoundaryHttp(
+    {
+      name: "dough-project-configuration",
+      install: installProjectConfigurationMiddleware,
+    },
+    "production",
+  );
+  let boundaryOpen = true;
+  const closeBoundary = async () => {
+    if (!boundaryOpen) return;
+    boundaryOpen = false;
+    await server.closeBoundary();
+  };
+  cleanups.push(async () => {
+    await closeBoundary();
+    await server.closeHttp();
+  });
+  const configuration = projectConfigurationFile("production");
+  return {
+    url: `${server.origin}${projectAddEndpoint}`,
+    origin: server.origin,
+    configuration,
+    before: readFileSync(configuration, "utf8"),
+    closeBoundary,
+  };
+}
+
 const body = JSON.stringify({
   githubUrl: `https://github.com/${addedRepository}`,
   localPath: addedLocalPath,
 });
 
 test("Add admits only same-origin POST and returns published facts without checkout paths", async () => {
-  const server = await fixture.start("boundary");
-  const url = `${server.baseURL}/__project-configuration/add`;
-  const before = readFileSync(fixture.configurationFile("boundary"), "utf8");
+  const server = await startAdd();
+  const { url, configuration, before } = server;
   for (const headers of [
     {},
     { Origin: "http://other.example" },
@@ -47,10 +133,8 @@ test("Add admits only same-origin POST and returns published facts without check
   expect(
     (await rawRequest({ url, headers: { Origin: server.origin } })).status,
   ).toBe(405);
-  expect(server.ghCalls()).toEqual([]);
-  expect(readFileSync(fixture.configurationFile("boundary"), "utf8")).toBe(
-    before,
-  );
+  expect(github.calls).toEqual([]);
+  expect(readFileSync(configuration, "utf8")).toBe(before);
   const response = await rawRequest({
     url,
     method: "POST",
@@ -72,7 +156,7 @@ test("Add admits only same-origin POST and returns published facts without check
   ]);
   expect(answer.projects.at(-1)).toEqual(answer.project);
   expect(response.body).not.toContain(addedLocalPath);
-  expect(server.claudeCalls()).toEqual([]);
+  expect(machine.commandCalls()).toBe("");
 });
 
 test("Add reports a rejected advertised branch name at the GitHub URL field", async () => {
@@ -80,13 +164,11 @@ test("Add reports a rejected advertised branch name at the GitHub URL field", as
   git(fixture.machine, "clone", "--bare", "--quiet", fixture.checkout, origin);
   git(origin, "update-ref", "refs/heads/HEAD", "refs/heads/local-checkout");
   git(origin, "symbolic-ref", "HEAD", "refs/heads/HEAD");
-  routeOriginThroughHome(machineHome(fixture.machine), origin, addedRepository);
-  const server = await fixture.start("boundary");
-  const file = fixture.configurationFile("boundary");
-  const before = readFileSync(file, "utf8");
+  routeOriginThroughHome(home, origin, addedRepository);
+  const server = await startAdd();
 
   const response = await rawRequest({
-    url: `${server.baseURL}/__project-configuration/add`,
+    url: server.url,
     method: "POST",
     headers: { Origin: server.origin, "Content-Type": "application/json" },
     body,
@@ -96,15 +178,15 @@ test("Add reports a rejected advertised branch name at the GitHub URL field", as
     field: "githubUrl",
     error: `Git could not resolve a usable default branch for ${addedRepository}. Try again when the repository has a valid default branch.`,
   });
-  expect(readFileSync(file, "utf8")).toBe(before);
+  expect(readFileSync(server.configuration, "utf8")).toBe(server.before);
 });
 
-test.describe("Add validation with a pending Git request", () => {
+describe("Add validation with a pending Git request", () => {
   let origin: http.Server | undefined;
   let requested: (string | undefined)[];
   let closed: number;
 
-  test.beforeEach(async () => {
+  beforeEach(async () => {
     requested = [];
     closed = 0;
     origin = http.createServer((req, res) => {
@@ -116,13 +198,13 @@ test.describe("Add validation with a pending Git request", () => {
     await once(origin.listen(0, "127.0.0.1"), "listening");
     const { port } = origin.address() as AddressInfo;
     routeOriginThroughHome(
-      machineHome(fixture.machine),
+      home,
       `http://127.0.0.1:${String(port)}/sample-app.git`,
       addedRepository,
     );
   });
 
-  test.afterEach(async () => {
+  afterEach(async () => {
     const pendingOrigin = origin;
     origin = undefined;
     if (pendingOrigin === undefined) return;
@@ -134,15 +216,15 @@ test.describe("Add validation with a pending Git request", () => {
     });
   });
 
-  async function prepareAdd(readTimeoutMs = 30_000) {
-    const server = await fixture.start("boundary", readTimeoutMs);
-    const configuration = fixture.configurationFile("boundary");
+  // Git reaches, and leaves, the pending origin in its own time under load.
+  const waitLimit = { timeout: 5_000, interval: 50 };
+
+  async function prepareAdd(readTimeoutMs?: number) {
+    const server = await startAdd(readTimeoutMs);
     return {
-      server,
-      configuration,
-      before: readFileSync(configuration, "utf8"),
+      ...server,
       options: {
-        url: `${server.baseURL}/__project-configuration/add`,
+        url: server.url,
         method: "POST",
         headers: { Origin: server.origin, "Content-Type": "application/json" },
         body,
@@ -151,13 +233,17 @@ test.describe("Add validation with a pending Git request", () => {
   }
 
   async function expectTransportReached() {
-    await expect
-      .poll(() => requested)
-      .toEqual(["/sample-app.git/info/refs?service=git-upload-pack"]);
+    await vi.waitFor(() => {
+      expect(requested).toEqual([
+        "/sample-app.git/info/refs?service=git-upload-pack",
+      ]);
+    }, waitLimit);
   }
 
   async function expectAddEnded(configuration: string, before: string) {
-    await expect.poll(() => closed).toBe(1);
+    await vi.waitFor(() => {
+      expect(closed).toBe(1);
+    }, waitLimit);
     expect(readFileSync(configuration, "utf8")).toBe(before);
   }
 
@@ -178,21 +264,21 @@ test.describe("Add validation with a pending Git request", () => {
   });
 
   test("shutdown ends the transport without writing configuration", async () => {
-    const { server, configuration, before, options } = await prepareAdd();
+    const { closeBoundary, configuration, before, options } =
+      await prepareAdd();
     abandonedRequest(options);
     await expectTransportReached();
-    await fixture.stop(server);
+    await closeBoundary();
     await expectAddEnded(configuration, before);
   });
 });
 
 test("an unfinished Add request body ends at the boundary deadline without validation or writes", async () => {
-  const server = await fixture.start("boundary", 100);
-  const before = readFileSync(fixture.configurationFile("boundary"), "utf8");
+  const server = await startAdd(100);
   let request: http.ClientRequest | undefined;
   const status = await new Promise<number>((resolve, reject) => {
     request = http.request(
-      `${server.baseURL}/__project-configuration/add`,
+      server.url,
       {
         method: "POST",
         headers: { Origin: server.origin, "Content-Type": "application/json" },
@@ -209,8 +295,6 @@ test("an unfinished Add request body ends at the boundary deadline without valid
   });
   request?.destroy();
   expect(status).toBe(503);
-  expect(server.ghCalls()).toEqual([]);
-  expect(readFileSync(fixture.configurationFile("boundary"), "utf8")).toBe(
-    before,
-  );
+  expect(github.calls).toEqual([]);
+  expect(readFileSync(server.configuration, "utf8")).toBe(server.before);
 });

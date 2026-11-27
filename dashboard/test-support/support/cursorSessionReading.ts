@@ -4,8 +4,8 @@
 import { readFileSync } from "node:fs";
 import { expect, type Locator, type Page } from "@playwright/test";
 import { publishCommittedOrigin } from "../committedOrigin.ts";
-import { parts, sessionStateOf, sessionEntriesIn } from "../dashboardPage.ts";
-import { startSessionField } from "../launchStoryCardPage.ts";
+import { sessionStateOf } from "../dashboardPage.ts";
+import { startSessionField, startedSession } from "../launchStoryCardPage.ts";
 import { cursorHeldLabels } from "../../src/cursorHeldLabel.ts";
 import { hostDescriptions } from "../../src/hostDescription.ts";
 import { agentLaunchEndpoint } from "../../src/launchRequest.ts";
@@ -92,8 +92,7 @@ export async function openTakenCursorSession(
     await dialog.getByRole("combobox", { name: "Model" }).selectOption(model);
   await startSessionField(dialog).fill(instruction);
   await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  const recent = sessionEntriesIn(parts(page).taken);
-  await expect(recent).toHaveCount(1);
+  const recent = await startedSession(page);
   // The session's terminal joins the held client once it shows the screen. A
   // join arriving after a later hangup or runner stop would attach a new
   // client instead.

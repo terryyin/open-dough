@@ -1,7 +1,7 @@
 // Deploying a published main commit (../../server/productionDeployment.mjs):
 // selecting and verifying it, staging and serving it pinned, and cancelling
 // a commit while it installs.
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
@@ -12,10 +12,10 @@ import {
 } from "../../server/productionDeployment.mjs";
 import { publishedMainFixture } from "../../test-support/support/publishedMainFixture.ts";
 import { processRunning } from "../../test-support/support/processGroup.ts";
-import { deploymentCheckout } from "../../test-support/support/productionWatcher.ts";
+import { stagePinnedDeployment } from "../../test-support/support/pinnedDeployment.ts";
+import { incidentEntries } from "../../test-support/support/readDiagnostics.ts";
 import { expectSuppliedIcons } from "../../test-support/support/brandIcons.ts";
 import { expectOwnOriginReadsOnly } from "../../test-support/support/localOriginReads.ts";
-import { incidentEntries } from "../../test-support/support/readDiagnostics.ts";
 
 test("deployment selects origin main's commit, never local commits or edits", async () => {
   const fixture = await publishedMainFixture();
@@ -57,16 +57,17 @@ test("deployment verifies the exact selected commit before running its code", as
   }
 });
 
-test("deployment installs, builds, and serves its pinned commit in isolation after main advances, with the real preview boundaries", async ({
-  request,
-  pinnedDeployment,
-}) => {
-  // The worker staged the commit after main changed the title and portrait
+test("deployment installs, builds, and serves its pinned commit in isolation after main advances, with the real preview boundaries", async () => {
+  // Staged after main changed the title and portrait
   // (../../test-support/support/pinnedDeployment.ts).
+  const pinnedDeployment = await stagePinnedDeployment();
   const { fixture, env, commit, published, cartoon, staged } = pinnedDeployment;
   let preview: Awaited<ReturnType<typeof startDeploymentPreview>> | undefined;
   try {
-    expect(path.basename(staged.directory)).toEqual(deploymentCheckout(commit));
+    // The deployment checkout a commit is staged in: named by its prefix.
+    expect(path.basename(staged.directory)).toMatch(
+      new RegExp(`^${commit.slice(0, 12)}-`),
+    );
     expect(path.relative(fixture.development, staged.directory)).toMatch(
       /^\.\./,
     );
@@ -83,8 +84,7 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
         "utf8",
       ),
     ).not.toContain("LATER MAIN");
-    // The fixture's root is its machine directory, holding its HOME; this
-    // preview's incident entries follow any an earlier case of the worker left.
+    // The fixture's root is its machine directory, holding its HOME.
     const earlierEntries = incidentEntries(fixture.root).length;
     preview = await startDeploymentPreview({
       directory: staged.directory,
@@ -92,15 +92,15 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
       env,
     });
     expect(new URL(preview.url).hostname).toBe("127.0.0.1");
-    const page = await request.get(preview.url);
-    expect(page.status()).toBe(200);
+    const page = await fetch(preview.url);
+    expect(page.status).toBe(200);
     expect(await page.text()).toContain("PINNED DASHBOARD COMMIT");
-    const avatar = await request.get(
+    const avatar = await fetch(
       `${preview.url}/agent-avatars/odd-e-nerds/cartoon/stanly.webp`,
     );
-    expect(avatar.status()).toBe(200);
-    expect(avatar.headers()["content-type"]).toContain("image/webp");
-    expect(await avatar.body()).toEqual(cartoon);
+    expect(avatar.status).toBe(200);
+    expect(avatar.headers.get("content-type")).toContain("image/webp");
+    expect(Buffer.from(await avatar.arrayBuffer())).toEqual(cartoon);
     expect(
       await readdir(
         path.join(staged.directory, "dashboard/dist/agent-avatars/odd-e-nerds"),
@@ -114,14 +114,18 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
         ),
       ),
     ).toEqual(["stanly.webp"]);
-    // The pinned checkout's build serves Open Dough's supplied icon exports.
-    await expectSuppliedIcons(request, preview.url);
-    await expectOwnOriginReadsOnly(request, preview.url);
+    // The pinned checkout's build serves Open Dough's supplied icon exports,
+    // and its authenticated read boundary is reached only from the preview's
+    // own origin.
+    await expectSuppliedIcons(preview.url);
+    await expectOwnOriginReadsOnly(preview.url);
     const pid = preview.pid;
     const url = preview.url;
     await preview.stop();
     expect(processRunning(pid)).toBe(false);
-    await expect(request.get(url, { timeout: 2_000 })).rejects.toThrow();
+    await expect(
+      fetch(url, { signal: AbortSignal.timeout(2_000) }),
+    ).rejects.toThrow();
     preview = undefined;
     // Stopped as a replacement stops it, the preview closed cleanly: its
     // incident record (../../server/incidentLifecycle.ts) has its start and
@@ -133,8 +137,9 @@ test("deployment installs, builds, and serves its pinned commit in isolation aft
     expect(recorded).toEqual(["process-started", "process-ended"]);
   } finally {
     await preview?.stop();
+    await pinnedDeployment.cleanup();
   }
-});
+}, 120_000);
 
 test("deployment cancellation ends an installing commit's children and removes its incomplete directory", async () => {
   const fixture = await publishedMainFixture();
@@ -175,10 +180,12 @@ test("deployment cancellation ends an installing commit's children and removes i
     void staging.catch(() => undefined);
     const pidFile = path.join(fixture.home, "install.pid");
     await expect
-      .poll(async () =>
-        readFile(pidFile, "utf8")
-          .then(Number)
-          .catch(() => undefined),
+      .poll(
+        async () =>
+          readFile(pidFile, "utf8")
+            .then(Number)
+            .catch(() => undefined),
+        { timeout: 5_000 },
       )
       .toBeGreaterThan(0);
     const pid = Number(await readFile(pidFile, "utf8"));

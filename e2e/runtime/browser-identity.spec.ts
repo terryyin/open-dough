@@ -24,6 +24,6 @@ test("the dashboard's tab, bookmark and touch icons are Open Dough's supplied ex
   // Browser identity only: the dashboard is not offered as an installable app.
   await expect(page.locator("head link[rel='manifest']")).toHaveCount(0);
   for (const { href } of declared) {
-    await expectSuppliedIcon(await page.request.get(href));
+    await expectSuppliedIcon(href);
   }
 });

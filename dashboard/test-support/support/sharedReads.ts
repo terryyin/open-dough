@@ -7,7 +7,7 @@
 // boundary reads a test sends, and how a test sends reads that coincide on
 // one held GitHub answer and observes the questions that reached GitHub.
 
-import { expect } from "@playwright/test";
+import assert from "node:assert/strict";
 import {
   developmentBoundary,
   startDashboardServer,
@@ -21,6 +21,7 @@ import {
 import type { GhRequest } from "./ghRequest.ts";
 import { answeringFirst, holdingAnswer } from "./heldGitHubAnswer.ts";
 import { rawRequest, type RawResponse } from "./rawHttp.ts";
+import { waitUntil } from "./waitUntil.ts";
 import { headsAnswer, type OriginAnswer } from "../originAnswers.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
@@ -115,7 +116,7 @@ export async function servedHolding(
   const published = sharedReadsPublished(revision);
   server.github.serve(everyRepository, published);
   for (const query of warm) {
-    expect((await readAt(server, query)).status).toBe(200);
+    assert.equal((await readAt(server, query)).status, 200, query);
   }
   const held = holdingAnswer(
     firstHeld === undefined
@@ -181,7 +182,7 @@ export function pinnedAt(
 // A request the boundary refuses before asking GitHub. Once it is answered,
 // every request sent before it waits on its `gh` call.
 export async function refusedMarker(server: DashboardServer): Promise<void> {
-  expect((await readAt(server, "&revision=main")).status).toBe(400);
+  assert.equal((await readAt(server, "&revision=main")).status, 400);
 }
 
 function described(request: GhRequest): string {
@@ -226,9 +227,11 @@ export async function answeredTogether(
 }> {
   const answers = reads.map((read) => readAt(server, read));
   await refusedMarker(server);
-  await expect
-    .poll(() => askedSince(server, before).length, { timeout: 5_000 })
-    .toBeGreaterThanOrEqual(heldCount);
+  const held = await waitUntil(
+    () => askedSince(server, before).length >= heldCount,
+    { timeoutMs: 5_000 },
+  );
+  assert.ok(held, `Fewer than ${heldCount} questions reached GitHub`);
   const whileHeld = askedSince(server, before);
   release();
   return { answers: await Promise.all(answers), whileHeld };

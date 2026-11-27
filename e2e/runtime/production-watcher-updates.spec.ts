@@ -13,11 +13,11 @@ import {
   deploymentCheckout,
   expectProductionEnded,
   expectStillServing,
-  productionDeployments,
   productionInspections,
   realDeploymentTimeout,
   settledSkip,
 } from "../../dashboard/test-support/support/productionWatcher.ts";
+import { productionDeployments } from "../../dashboard/test-support/support/machineRecordNames.ts";
 import {
   builtCommitPrefixes,
   holdBuildPath,

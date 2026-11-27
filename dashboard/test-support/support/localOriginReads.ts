@@ -2,23 +2,20 @@
 // authenticated read boundary answers it: a read from the dashboard's own
 // origin reaches the boundary, which refuses an unknown source, while a read
 // without an Origin or from a foreign origin is refused before any read.
-import type { APIRequestContext } from "@playwright/test";
-import { expect } from "./pageTest.ts";
+// Fetched with Node's own fetch() and checked with node:assert, so both the
+// Vitest and the Playwright runner use it.
 
-export async function expectOwnOriginReadsOnly(
-  request: APIRequestContext,
-  url: string,
-) {
+import assert from "node:assert/strict";
+
+export async function expectOwnOriginReadsOnly(url: string): Promise<void> {
   const read = `${url}/__authenticated-read?source=unknown`;
-  const sameOrigin = await request.get(read, { headers: { Origin: url } });
-  expect(sameOrigin.status()).toBe(404);
-  expect(await sameOrigin.text()).toContain("Unknown catalog source");
-  expect((await request.get(read)).status()).toBe(403);
-  expect(
-    (
-      await request.get(read, {
-        headers: { Origin: "https://example.invalid" },
-      })
-    ).status(),
-  ).toBe(403);
+  const sameOrigin = await fetch(read, { headers: { Origin: url } });
+  assert.equal(sameOrigin.status, 404);
+  assert.match(await sameOrigin.text(), /Unknown catalog source/);
+  assert.equal((await fetch(read)).status, 403);
+  assert.equal(
+    (await fetch(read, { headers: { Origin: "https://example.invalid" } }))
+      .status,
+    403,
+  );
 }

@@ -1,6 +1,5 @@
 // Owned real-Git setup for production qualification; no build or decision is
 // supplied by the fixture.
-import { expect } from "./pageTest.ts";
 import { execFileSync } from "node:child_process";
 import {
   chmod,
@@ -32,7 +31,11 @@ export const publishedPolicy = (workflow: string) =>
 export async function qualificationFixture() {
   const fixture = await localPublishedMainFixture();
   const workflow = await readFile(path.join(repoRoot, ciWorkflowPath), "utf8");
-  expect(workflow).toContain(`  push:\n${pushExclusions}`);
+  if (!workflow.includes(`  push:\n${pushExclusions}`)) {
+    throw new Error(
+      `${ciWorkflowPath} no longer has the expected push exclusions.`,
+    );
+  }
   const inspectionsRoot = path.join(fixture.root, "inspections");
   const qualify = async (from: string, to: string) => {
     const result = await qualifyPublishedRange({
@@ -42,7 +45,12 @@ export async function qualificationFixture() {
       inspectionsRoot,
       env: fixture.env,
     });
-    expect(await readdir(inspectionsRoot)).toEqual([]);
+    const remaining = await readdir(inspectionsRoot);
+    if (remaining.length > 0) {
+      throw new Error(
+        `Qualification left inspections: ${remaining.join(", ")}`,
+      );
+    }
     return result;
   };
   return { fixture, workflow, inspectionsRoot, qualify };

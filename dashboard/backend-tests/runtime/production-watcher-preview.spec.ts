@@ -2,7 +2,7 @@
 // watcher's owner of same-port replacement and restoration.
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { productionFailureFixture } from "../../test-support/support/productionWatcherFixture.ts";
 import {
   faultCause,
@@ -16,9 +16,7 @@ import {
 } from "../../server/productionDeployment.mjs";
 import { startProductionPreview } from "../../server/productionPreviewLifecycle.mjs";
 
-test("failed candidate and restoration leave neither preview running and report both causes", async ({
-  request,
-}) => {
+test("failed candidate and restoration leave neither preview running and report both causes", async () => {
   const fixture = await productionFailureFixture();
   try {
     await fixture.publish(
@@ -63,7 +61,7 @@ test("failed candidate and restoration leave neither preview running and report 
       const running = owner.current;
       if (running?.pid === undefined)
         throw new Error("Working preview never started");
-      expect(await (await request.get(running.url)).text()).toContain(
+      expect(await (await fetch(running.url)).text()).toContain(
         "<title>WORKING</title>",
       );
       expect(
@@ -93,7 +91,7 @@ test("failed candidate and restoration leave neither preview running and report 
       await expect(replacement).rejects.toThrow("TRANSIENT preview FAILURE");
       expect(owner.current).toBeUndefined();
       expect(processRunning(running.pid)).toBe(false);
-      await expect(request.get(running.url)).rejects.toThrow();
+      await expect(fetch(running.url)).rejects.toThrow();
     } finally {
       await owner.stop();
       await first.remove();
@@ -103,4 +101,4 @@ test("failed candidate and restoration leave neither preview running and report 
   } finally {
     await fixture.cleanup();
   }
-});
+}, 120_000);

@@ -18,12 +18,12 @@ import {
   deploymentCheckout,
   expectProductionEnded,
   productionActivation,
-  productionDeployments,
   productionReplacement,
   realDeploymentTimeout,
   startProductionWatcher,
   type ProductionActivation,
 } from "../../dashboard/test-support/support/productionWatcher.ts";
+import { productionDeployments } from "../../dashboard/test-support/support/machineRecordNames.ts";
 import {
   sourceMarker,
   ProductionWatcherMachine,
@@ -101,7 +101,7 @@ test("npm watcher serves published main beside hot-reloaded uncommitted developm
   await expect(fresh).toHaveTitle("PINNED MAIN");
   await expect(sourceMarker(fresh)).toHaveText("PINNED SOURCE");
   await fresh.close();
-  await expectOwnOriginReadsOnly(request, served.url);
+  await expectOwnOriginReadsOnly(served.url);
   expect(
     (
       await request.post(`${served.url}/__agent-launch/accept`, {

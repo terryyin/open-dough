@@ -1,6 +1,6 @@
 // Real published Git trees exercise the selection state used by the watcher.
 // Only observed successful activation advances the serving baseline.
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { publishedUpdates } from "../../server/productionUpdates.mjs";

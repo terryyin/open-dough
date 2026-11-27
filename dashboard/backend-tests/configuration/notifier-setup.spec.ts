@@ -13,7 +13,7 @@ import {
   statSync,
 } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { afterEach, describe, expect, test } from "vitest";
 import {
   machine,
   type Machine,
@@ -47,7 +47,7 @@ function plistValue(app: string, key: string): string {
 }
 
 let current: Machine | undefined;
-test.afterEach(() => {
+afterEach(() => {
   if (current !== undefined)
     rmSync(current.root, { recursive: true, force: true });
   current = undefined;
@@ -75,9 +75,7 @@ test("setup refuses an unsupported helper before copying it", () => {
   expect(current.calls().map(({ argv }) => argv)).toEqual([["-version"]]);
 });
 
-test.describe("on macOS", () => {
-  test.skip(!macOS, "The branded app is built with macOS's own tools");
-
+describe.runIf(macOS)("on macOS", () => {
   test("setup prepares the branded sender from the installed helper and only diagnoses it", () => {
     current = machine({ helper: true });
     const installedBefore = tree(current.installed);
@@ -198,7 +196,7 @@ test.describe("on macOS", () => {
       `-f ${current.app}`,
       `-f ${current.app}`,
     ]);
-  });
+  }, 15_000);
 
   test("a refused permission names the sender's own settings entry", () => {
     current = machine({ helper: true });
@@ -215,5 +213,5 @@ test.describe("on macOS", () => {
       `macOS did not accept the Open Dough test notification. ${turnOn}`,
     );
     expect(tested.status).toBe(1);
-  });
+  }, 15_000);
 });

@@ -24,13 +24,13 @@ import {
   keptForRetry,
   preparations,
   productionActivation,
-  productionDeployments,
   productionReplacement,
   shownActivation,
   startProductionWatcher,
   type ProductionActivation,
   type ProductionWatcher,
 } from "../../dashboard/test-support/support/productionWatcher.ts";
+import { productionDeployments } from "../../dashboard/test-support/support/machineRecordNames.ts";
 
 test.describe.configure({ mode: "serial" });
 

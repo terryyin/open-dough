@@ -1,17 +1,40 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { systemSettingsMachine } from "../../test-support/support/systemSettingsMachine.ts";
+import { afterEach, beforeEach, expect, test } from "vitest";
+import { installOpenAIConfigurationMiddleware } from "../../server/openAIConfigurationBoundary.ts";
+import { openAICredentialFile } from "../../server/openAICredential.ts";
+import {
+  privateSettingsMachine,
+  type PrivateSettingsMachine,
+} from "../support/privateSettingsMachine.ts";
+import {
+  startInProcessBoundaryHttp,
+  type InProcessBoundaryHttp,
+} from "../../test-support/support/inProcessBoundaryHttp.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
-let fixture: ReturnType<typeof systemSettingsMachine>;
-test.beforeEach(() => {
-  fixture = systemSettingsMachine();
+let machine: PrivateSettingsMachine;
+let server: InProcessBoundaryHttp;
+beforeEach(async () => {
+  machine = privateSettingsMachine();
+  server = await startInProcessBoundaryHttp(
+    {
+      name: "dough-openai-configuration",
+      install: installOpenAIConfigurationMiddleware,
+    },
+    "production",
+  );
 });
-test.afterEach(async () => fixture.close());
+afterEach(async () => {
+  try {
+    await server.closeBoundary();
+    await server.closeHttp();
+  } finally {
+    machine.close();
+  }
+});
 
 test("an exactly admitted ASCII or UTF-8 credential remains readable and replaceable", async () => {
-  const server = await fixture.start("boundary");
-  const endpoint = `${server.baseURL}/__openai-configuration`;
+  const endpoint = `${server.origin}/__openai-configuration`;
   const headers = {
     Origin: server.origin,
     "Content-Type": "application/json",
@@ -31,11 +54,11 @@ test("an exactly admitted ASCII or UTF-8 credential remains readable and replace
     });
     expect(saved.status).toBe(200);
     expect(JSON.parse(saved.body)).toEqual({ configured: true });
-    expect(statSync(fixture.credentialFile).size).toBe(32 * 1024 + 1);
+    expect(statSync(openAICredentialFile()).size).toBe(32 * 1024 + 1);
     const status = await rawRequest({ url: endpoint, headers });
     expect(status.status).toBe(200);
     expect(JSON.parse(status.body)).toEqual({ configured: true });
-    expect(JSON.parse(readFileSync(fixture.credentialFile, "utf8"))).toEqual({
+    expect(JSON.parse(readFileSync(openAICredentialFile(), "utf8"))).toEqual({
       apiKey,
     });
   }
@@ -47,7 +70,7 @@ test("an exactly admitted ASCII or UTF-8 credential remains readable and replace
     body: JSON.stringify({ apiKey: replacement }),
   });
   expect(replaced.status).toBe(200);
-  expect(JSON.parse(readFileSync(fixture.credentialFile, "utf8"))).toEqual({
+  expect(JSON.parse(readFileSync(openAICredentialFile(), "utf8"))).toEqual({
     apiKey: replacement,
   });
   expect((await rawRequest({ url: endpoint, headers })).status).toBe(200);
@@ -59,10 +82,10 @@ test("an exactly admitted ASCII or UTF-8 credential remains readable and replace
   });
   expect(removed.status).toBe(200);
   expect(JSON.parse(removed.body)).toEqual({ configured: false });
-  expect(existsSync(fixture.credentialFile)).toBe(false);
+  expect(existsSync(openAICredentialFile())).toBe(false);
   const empty = await rawRequest({ url: endpoint, headers });
   expect(empty.status).toBe(200);
   expect(JSON.parse(empty.body)).toEqual({ configured: false });
-  expect(fixture.egress()).toBe("");
-  expect(server.output()).not.toContain(replacement);
+  expect(machine.egress).toEqual([]);
+  expect(machine.logged.join("\n")).not.toContain(replacement);
 });

@@ -10,25 +10,43 @@
 // so the authorization this spec saves never arms its GitHub read and every
 // `gh` call left would be the endpoints' own.
 import { existsSync, readFileSync } from "node:fs";
-import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { developmentBoundary } from "../../test-support/support/dashboardServer.ts";
-import { systemSettingsMachine } from "../../test-support/support/systemSettingsMachine.ts";
+import { afterEach, beforeEach, expect, test } from "vitest";
+import { installFeedbackMaintenanceMiddleware } from "../../server/feedbackMaintenanceBoundary.ts";
+import { feedbackMaintenanceFile } from "../../server/feedbackMaintenance.ts";
+import {
+  privateSettingsMachine,
+  type PrivateSettingsMachine,
+} from "../support/privateSettingsMachine.ts";
+import {
+  startInProcessBoundaryHttp,
+  type InProcessBoundaryHttp,
+} from "../../test-support/support/inProcessBoundaryHttp.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 
-let fixture: ReturnType<typeof systemSettingsMachine>;
-test.beforeEach(() => {
-  fixture = systemSettingsMachine();
+let machine: PrivateSettingsMachine;
+let server: InProcessBoundaryHttp;
+beforeEach(async () => {
+  machine = privateSettingsMachine();
+  server = await startInProcessBoundaryHttp(
+    {
+      name: "dough-feedback-maintenance",
+      install: installFeedbackMaintenanceMiddleware,
+    },
+    "development",
+  );
 });
-test.afterEach(async () => fixture.close());
+afterEach(async () => {
+  try {
+    await server.closeBoundary();
+    await server.closeHttp();
+  } finally {
+    machine.close();
+  }
+});
 
 test("feedback maintenance endpoints refuse foreign, malformed and unknown requests without changing the saved setting", async () => {
-  const server = await fixture.start(developmentBoundary);
-  const endpoint = `${server.baseURL}/__feedback-maintenance`;
-  const file = path.join(
-    fixture.home,
-    ".open-dough/dashboard/feedback-maintenance.json",
-  );
+  const endpoint = `${server.origin}/__feedback-maintenance`;
+  const file = feedbackMaintenanceFile();
   const headers = { Origin: server.origin, "Content-Type": "application/json" };
   const post = (
     url: string,
@@ -149,6 +167,5 @@ test("feedback maintenance endpoints refuse foreign, malformed and unknown reque
   expect(removed.status).toBe(200);
   expect(JSON.parse(removed.body)).toEqual({ enabled: false });
   expect(existsSync(file)).toBe(false);
-  expect(server.claudeCalls()).toEqual([]);
-  expect(server.ghCalls()).toEqual([]);
+  expect(machine.commandCalls()).toBe("");
 });

@@ -2,12 +2,10 @@
 // another server is still serving to its page.
 import { readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
 
-test("one dev server's optimized module survives another server's cache write", async ({
-  request,
-}) => {
+test("one dev server's optimized module survives another server's cache write", async () => {
   const servers = await Promise.all([
     startDashboardServer({ mode: "dev" }),
     startDashboardServer({ mode: "dev" }),
@@ -16,25 +14,23 @@ test("one dev server's optimized module survives another server's cache write", 
   try {
     const dependencies = await Promise.all(
       servers.map(async (server) => {
-        const source = await request.get(
-          `${server.baseURL}/src/sourceHighlight.ts`,
-        );
-        expect(source.status()).toBe(200);
+        const source = await fetch(`${server.baseURL}/src/sourceHighlight.ts`);
+        expect(source.status).toBe(200);
         const importPath = /"([^"]*shiki_core\.js\?v=[^"]+)"/.exec(
           await source.text(),
         )?.[1];
         if (importPath === undefined)
           throw new Error("No optimized Shiki import");
         const url = new URL(importPath, server.baseURL);
-        const module = await request.get(url.href);
-        expect(module.status()).toBe(200);
+        const module = await fetch(url.href);
+        expect(module.status).toBe(200);
         if (!url.pathname.startsWith("/@fs/"))
           throw new Error(`No cache file path: ${url.pathname}`);
         return {
           url: url.href,
           file: decodeURIComponent(url.pathname.slice(4)),
           hash: createHash("sha256")
-            .update(await module.body())
+            .update(Buffer.from(await module.arrayBuffer()))
             .digest("hex"),
         };
       }),
@@ -49,15 +45,15 @@ test("one dev server's optimized module survives another server's cache write", 
     );
     // A fresh module request observes the backing file rather than a transform
     // Vite already holds in memory. The extra query changes no module bytes.
-    const retained = await request.get(`${first.url}&isolation-probe`);
-    expect(retained.status()).toBe(200);
+    const retained = await fetch(`${first.url}&isolation-probe`);
+    expect(retained.status).toBe(200);
     expect(
       createHash("sha256")
-        .update(await retained.body())
+        .update(Buffer.from(await retained.arrayBuffer()))
         .digest("hex"),
     ).toBe(first.hash);
   } finally {
     if (restore !== undefined) writeFileSync(restore.file, restore.bytes);
     await Promise.all(servers.map((server) => server.close()));
   }
-});
+}, 30_000);

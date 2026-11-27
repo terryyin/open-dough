@@ -2,16 +2,12 @@
 // authenticated read boundary (../../server/authenticatedRead.ts) answers it
 // beside the agent profiles: read at the pinned revision only as part of the
 // profile read, its text returned as published, and null when the revision has
-// none. No client-supplied path reaches it. Tested directly against real HTTP
+// none. No client-supplied path reaches it. Tested in-process against real HTTP
 // and a synthetic `gh` answering from the fake GitHub. What the roster shows
 // from it is ../../frontend-tests/stories/agent-roster-collection.spec.ts.
 
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import {
-  developmentBoundary,
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { startInProcessAuthenticatedRead } from "../../test-support/support/inProcessAuthenticatedRead.ts";
 import {
   everyRepository,
   type RepositoryAnswerer,
@@ -25,8 +21,6 @@ import { directoryListingAnswer } from "../../test-support/listingAnswers.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { describedBacklog } from "../../test-support/describedRevisions.ts";
-
-test.describe.configure({ mode: "serial" });
 
 const knownSourceId = "open-dough";
 // Each test publishes its own revision: the boundary remembers what it read
@@ -66,20 +60,20 @@ function publishedRevision(
   };
 }
 
-test.describe("authenticated agent settings read (development environment)", () => {
-  let server: DashboardServer;
+describe("authenticated agent settings read (development environment)", () => {
+  let server: Awaited<ReturnType<typeof startInProcessAuthenticatedRead>>;
 
-  test.beforeAll(async () => {
-    server = await startDashboardServer(developmentBoundary);
+  beforeAll(async () => {
+    server = await startInProcessAuthenticatedRead();
   });
 
-  test.afterAll(async () => {
+  afterAll(async () => {
     await server.close();
   });
 
   const profilesAt = async (revision: string) =>
     rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${revision}&agents=profiles`,
+      url: `${server.origin}/__authenticated-read?source=${knownSourceId}&revision=${revision}&agents=profiles`,
       headers: { Origin: server.origin },
     });
 
@@ -129,7 +123,7 @@ test.describe("authenticated agent settings read (development environment)", () 
       publishedRevision(revision, '{"nerds":true}'),
     );
     const refused = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}&revision=${revision}&path=${encodeURIComponent(settingsPath)}`,
+      url: `${server.origin}/__authenticated-read?source=${knownSourceId}&revision=${revision}&path=${encodeURIComponent(settingsPath)}`,
       headers: { Origin: server.origin },
     });
     expect(refused.status).toBe(404);

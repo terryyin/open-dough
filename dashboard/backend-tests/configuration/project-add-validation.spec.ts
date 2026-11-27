@@ -9,7 +9,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { afterEach, beforeEach, expect, test } from "vitest";
 import { addProject } from "../../server/projectAddition.ts";
 import {
   appendConfiguredProject,
@@ -26,7 +26,6 @@ import { commitPublishedOrigin } from "../../test-support/support/publishedOrigi
 import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 
-test.describe.configure({ mode: "serial" });
 const validationRepository = "example/sample-app";
 const defaultBranch = "release+stable";
 let home: string;
@@ -36,7 +35,7 @@ let gitTrace: string;
 let input: ProjectInput;
 let restoreEnv: (() => void) | undefined;
 let releaseConfiguration: (() => void) | undefined;
-test.beforeEach(() => {
+beforeEach(() => {
   home = mkdtempSync(path.join(tmpdir(), "dough-project-validation-"));
   checkout = path.join(home, "checkout");
   gitTrace = path.join(home, "git-trace");
@@ -72,7 +71,7 @@ function expectNoRemoteValidation() {
     existsSync(gitTrace) ? readFileSync(gitTrace, "utf8") : "",
   ).not.toContain("ls-remote");
 }
-test.afterEach(() => {
+afterEach(() => {
   releaseConfiguration?.();
   releaseConfiguration = undefined;
   restoreEnv?.();

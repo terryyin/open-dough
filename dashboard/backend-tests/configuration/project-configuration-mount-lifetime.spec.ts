@@ -1,3 +1,4 @@
+import { expect, test } from "vitest";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -5,7 +6,6 @@ import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
 import { installProjectConfigurationMiddleware } from "../../server/projectConfigurationBoundary.ts";
 import { projectListEndpoint } from "../../src/projectConfiguration.ts";
 import { startInProcessBoundaryHttp } from "../../test-support/support/inProcessBoundaryHttp.ts";
-import { expect, test } from "../../test-support/support/pageTest.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
 

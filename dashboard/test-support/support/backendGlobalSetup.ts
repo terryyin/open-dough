@@ -1,4 +1,5 @@
-// The Dashboard Backend Test run's setup (../../backend.playwright.config.ts).
+// The Dashboard Backend Test run's setup, shared by both of its engines
+// (../../backend.playwright.config.ts, ../../backend.vitest.config.mts).
 // Its workers start dashboard servers, real Git origins and synthetic hosts,
 // prepared as for any such run (./serviceRunSetup.ts), and may request only
 // what backend specs serve from: the server bundle, the app build a preview
