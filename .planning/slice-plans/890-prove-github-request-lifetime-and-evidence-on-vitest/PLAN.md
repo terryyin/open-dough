@@ -161,7 +161,7 @@ minutes.
 ### 1. Leave a shared read alive for its remaining waiter
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: One departing waiter leaves a shared pinned read alive for its
 peer, and the last departure releases that read. A revision check's shared
@@ -180,6 +180,19 @@ ends a pinned read when its only request is abandoned and the case that
 leaves a revision-check listing running after its requester disconnects.
 Those files also hold cases for slices 2 and 3; retire a file only when
 its last replacement is green.
+
+Accepted at `6935d63e` with this spec uncommitted. Refactor pass skipped:
+the only product diff is this slice's new spec, and the predecessor cases
+stay until slices 2 and 3 replace them.
+`dashboard/backend-tests/observation/authenticated-read-owned-lifetime.spec.ts`
+(174 lines) passed 3/3 through the real CLI child:
+one waiter leaving left pid alive and the peer received the shared seed;
+the last departure exited `SIGTERM` and a later read made a second content
+call; the revision-check listing was still `processRunning` after its
+requester left. Command: `caffeinate -s -i npm run test:dashboard:backend -- dashboard/backend-tests/observation/authenticated-read-owned-lifetime.spec.ts --workers=1`
+(exit 0; 150 ms, 147 ms, 110 ms). `npm run typecheck:dashboard` exited 0.
+Records: `slice-1-lifetime.log.run.json` and
+`slice-1-lifetime-typecheck.log.run.json`.
 
 ### 2. End a read at its own bound
 
@@ -372,7 +385,10 @@ its delivered slices share only test patterns with these slices.
   Trunk: `origin/main`.
 - Published claim: `735c60a52ea2cd88e8746df5e06edfcb1d9f81b2` on that story
   branch. `pendingCi: unobserved` — the claim published before this observer
-  was armed. Unpublished candidate: none.
+  was armed. Accepted plan revision after the overrun split:
+  `6935d63e8577bd27942b2ed248355a9c5a9c618a` on the same branch. That SHA is
+  the previously published base for the next increment. Unpublished
+  candidate: none.
 - CI: GitHub Actions, workflow `ci.yml` (display name `CI`, id `351271804`),
   repo `terryyin/open-dough`, branch
   `cursor/prove-github-request-lifetime-and-failure-eviden`.
