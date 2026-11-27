@@ -208,14 +208,33 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Identity:** SEED-413#published-read-admission-via-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/860-prove-published-read-admission-on-vitest/PLAN.md"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/860-prove-published-read-admission-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"2a50a44e3e779136b4f0b005209a78aecbced4dae12a09ded5c37bf4b41113e8","plan":"cb4110e5774e547b2a3225be334518f0698c01c1495aa9ee99f842485dd9a788"}}
 ```
 
-- **For / why.** Give Board and Review maintainers fast proof that an admitted project can read its published records and that invalid source, revision, or path admission is refused.
-- **Evaluation.** Given a pinned project, a listed file at its requested revision is readable. A sibling project or unlisted path is refused. An absent Done record and an unavailable catalog retain their distinct answers.
-- **Boundary.** Reconcile cold ref triggers with plans 856 and 858 and pinned record reads with plan 823. Keep the wire admission proof and real Git for reachability.
-- **Effort hypothesis.** M, low confidence. Recount surviving proof and size the observed cases during refinement.
-- **Safe stopping point.** Every case for this outcome has a maintained owner or a recorded replacement.
+- **Goal.** Give Board and Review maintainers fast Node Vitest feedback on whether
+  a configured project can read its published records at the selected revision
+  and preserve the refusal and failure outcomes that callers rely on.
+- **Scope.** Account for all twelve named observation specs in plan 860.
+  Preserve local request and source admission, pinned text and commit time,
+  branch reachability, publication containment, listed records and Done catalog
+  semantics, and the scoped profile addition and avatar reads. Keep an HTTP
+  witness for behavior that depends on the wire and use real Git fixtures where
+  reachability or ancestry supplies the evidence. Measure the same maintained
+  selection before and after and account for each migrated, consolidated or
+  retained case. Plans 856 and 858 own the Board's cold open and its earlier
+  proof retargeting. Plan 823 owns moving the remaining Board readers to local
+  Git. Refresh lifecycle, Review comparison, and other GitHub observation proof
+  belong to their own stories.
+- **Key examples.** An admitted source and pin return the exact listed file and
+  its committed time. The same path absent from another configured source's
+  pinned records is refused there. A Taken story's recorded branch can supply
+  the plan at a resolved head. An unresolved head or an unrelated path is
+  refused. A shown revision ahead of an accepted publication contains it, while
+  an unavailable comparison remains a read failure. A revision without Done
+  records returns an empty catalog. A revision with records and a missing or
+  disagreeing catalog returns a gap and reads no body. A listed profile gets
+  attribution from the addition of its current allocation and an avatar only
+  from the matched account's usable source.
 - **Replacement trace.** [Published Dashboard reads and evidence before the split](https://github.com/terryyin/open-dough/blob/fb8983cb8eb62b38c79fbc293b491128f411bdb2/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest).
 
 **Plan.** [Prove published read admission in Node Vitest](../slice-plans/860-prove-published-read-admission-on-vitest/PLAN.md)

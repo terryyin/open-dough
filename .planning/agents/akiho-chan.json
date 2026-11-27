@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Akiho-chan",
-  "email": "akiho-chan@example.org",
-  "activity": "preparation",
-  "identity": "SEED-413#published-read-admission-via-vitest",
-  "host": "codex",
-  "model": "gpt-6.2-sol"
-}
