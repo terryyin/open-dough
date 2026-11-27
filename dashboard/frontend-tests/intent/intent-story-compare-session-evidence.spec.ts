@@ -82,14 +82,14 @@ test("a chosen session's CI comparison measures its chosen range and Whole story
   const measured = story.landedEndpoint();
   expect(asked).toEqual([]);
 
-  await activateComparisonControl(story.choice(executionName));
+  await story.chooseScope(executionName);
   await expect.poll(() => asked.at(-1)).toEqual(first);
 
   await activateComparisonControl(story.choice("Published range 2 of 2"));
   await expect.poll(() => asked.at(-1)).toEqual(second);
   expect(story.noteIn("CI comparison")).toBeNull();
 
-  await activateComparisonControl(story.choice("Whole story"));
+  await story.chooseScope("Whole story");
   await comparisonRead(story.landedEndpoint).toBe(measured);
   expect(asked).toEqual([first, second]);
 });
@@ -118,7 +118,7 @@ test("a session without a published record measures nothing and says so; Whole s
   await comparisonRead(story.landedEndpoint).not.toBe("");
   const measured = story.landedEndpoint();
 
-  await activateComparisonControl(story.choice(launchedName));
+  await story.chooseScope(launchedName);
   await comparisonRead(() => story.viewText("CI comparison")).toContain(
     "This session published no comparison.",
   );
@@ -127,7 +127,7 @@ test("a session without a published record measures nothing and says so; Whole s
   expect(story.viewText("CI comparison")).not.toContain("Check again");
   expect(asked).toEqual([]);
 
-  await activateComparisonControl(story.choice("Whole story"));
+  await story.chooseScope("Whole story");
   await comparisonRead(story.landedEndpoint).toBe(measured);
 });
 
@@ -167,10 +167,10 @@ test("Whole story keeps the story's chosen landed run after a session visit", as
   const runRange = { start: "1".repeat(40), end: "2".repeat(40) };
   await expect.poll(() => asked.at(-1)).toEqual(runRange);
 
-  await activateComparisonControl(story.choice(executionName));
+  await story.chooseScope(executionName);
   await expect.poll(() => asked.at(-1)).toEqual(first);
 
-  await activateComparisonControl(story.choice("Whole story"));
+  await story.chooseScope("Whole story");
   await expect.element(story.runChoice(run.key)).toBeChecked();
   await expect.poll(() => asked.at(-1)).toEqual(runRange);
 });

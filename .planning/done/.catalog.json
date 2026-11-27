@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-418_review-scope-dropdown.json",
+      "identity": "SEED-418#review-scope-dropdown",
+      "completedAt": "2026-11-27T11:12:13.018Z",
+      "blob": "ec48012df4d70f4e6f98827689c7224625d6ac77"
+    },
+    {
       "fileName": "SEED-418_track-review-state-per-session.json",
       "identity": "SEED-418#track-review-state-per-session",
       "completedAt": "2026-11-27T10:39:35.773Z",

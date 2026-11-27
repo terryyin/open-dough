@@ -33,12 +33,12 @@ intent introduced or affected by a newly developed story.
 - [Refresh the published Board in place](seeds/SEED-430-read-published-project-data-from-local-git.md#refresh-published-board-in-place) — SEED-430#refresh-published-board-in-place ([plan](slice-plans/853-refresh-published-board-in-place/PLAN.md))
 - [Keep full Dashboard frontend runs connected to their browser](seeds/SEED-413-renovate-dashboard-unit-tests.md#keep-full-frontend-runs-connected) — SEED-413#keep-full-frontend-runs-connected ([plan](slice-plans/881-keep-full-frontend-runs-connected/PLAN.md))
 - [Prove published read admission in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-read-admission-via-vitest) — SEED-413#published-read-admission-via-vitest ([plan](slice-plans/860-prove-published-read-admission-on-vitest/PLAN.md))
-- [Choose review scope from a compact dropdown](seeds/SEED-418-review-published-session-changes.md#review-scope-dropdown) — SEED-418#review-scope-dropdown ([plan](slice-plans/878-choose-review-scope-from-a-compact-dropdown/PLAN.md))
 - [Keep Intent's session review and its proof whole after the retirement](seeds/SEED-418-review-published-session-changes.md#keep-session-review-proof-after-retirement) — SEED-418#keep-session-review-proof-after-retirement ([plan](slice-plans/883-keep-session-review-proof-after-retirement/PLAN.md))
 - [Prove published refresh lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-refresh-lifecycle-via-vitest) — SEED-413#published-refresh-lifecycle-via-vitest ([plan](slice-plans/861-prove-published-refresh-lifecycle-on-vitest/PLAN.md))
 
 ## Backlog list
 
+- [Announce the chosen value of a compact dropdown](seeds/SEED-418-review-published-session-changes.md#announce-compact-dropdown-choice) — SEED-418#announce-compact-dropdown-choice
 - [Show the selected ad hoc session on Intent Home](seeds/SEED-418-review-published-session-changes.md#show-selected-session-in-review-home) — SEED-418#show-selected-session-in-review-home
 - [Follow published progress and read Board records from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git
