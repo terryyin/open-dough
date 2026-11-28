@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_landing-capture-evidence-via-vitest.json",
+      "identity": "SEED-413#landing-capture-evidence-via-vitest",
+      "completedAt": "2026-11-28T10:47:26.463Z",
+      "blob": "cc96cfccefeb2c3e8c034b31bda6b59c76bc340f"
+    },
+    {
       "fileName": "SEED-413_fast-runtime-unit-case-cleanup.json",
       "identity": "SEED-413#fast-runtime-unit-case-cleanup",
       "completedAt": "2026-11-27T16:00:17.326Z",
@@ -3498,72 +3504,6 @@
       "identity": "SEED-174#optimize-dashboard-test-feedback",
       "completedAt": "2026-10-29T11:29:08.882Z",
       "blob": "b87dd7cf990bfb30893fbcdf67dcc4b50211ac0e"
-    },
-    {
-      "fileName": "SEED-173_dashboard-ci-balance.json",
-      "identity": "SEED-173#dashboard-ci-balance",
-      "completedAt": "2026-10-29T09:28:46.068Z",
-      "blob": "51c09717acd35407260433bf950923327abc7a07"
-    },
-    {
-      "fileName": "SEED-172_trial-compact-consumer-handoff.json",
-      "identity": "SEED-172#trial-compact-consumer-handoff",
-      "completedAt": "2026-10-29T09:08:11.970Z",
-      "blob": "787aa164ae36df0319e81127fd005329569b60eb"
-    },
-    {
-      "fileName": "SEED-171_production-policy-ci-time.json",
-      "identity": "SEED-171#production-policy-ci-time",
-      "completedAt": "2026-10-29T07:15:50.761Z",
-      "blob": "28fb8c846e2ea198e01708b79df20649563d2022"
-    },
-    {
-      "fileName": "SEED-010_expose-codex-observer-identity.json",
-      "identity": "SEED-010#expose-codex-observer-identity",
-      "completedAt": "2026-10-29T05:37:53.157Z",
-      "blob": "35533cb50f2488273270c589e15e71ca5ea4e1ae"
-    },
-    {
-      "fileName": "SEED-170_evaluate-consumer-tracing.json",
-      "identity": "SEED-170#evaluate-consumer-tracing",
-      "completedAt": "2026-10-29T05:30:52.298Z",
-      "blob": "cb35754d2fc5f50fd538b667309f809898e9db1f"
-    },
-    {
-      "fileName": "SEED-169_compact-session-entry.json",
-      "identity": "SEED-169#compact-session-entry",
-      "completedAt": "2026-10-29T05:14:18.632Z",
-      "blob": "257e83aa2225410d3f1cf9f573f82de00d2b6f66"
-    },
-    {
-      "fileName": "SEED-167_cheap-isolated-fixtures.json",
-      "identity": "SEED-167#cheap-isolated-fixtures",
-      "completedAt": "2026-10-29T04:15:39.562Z",
-      "blob": "81cc81afd2af2d8893a70f4cb003c32afdfe9eeb"
-    },
-    {
-      "fileName": "SEED-168_story-branch-publication-with-first-landing.json",
-      "identity": "SEED-168#story-branch-publication-with-first-landing",
-      "completedAt": "2026-10-29T03:31:09.315Z",
-      "blob": "1a38d35916416c94bbce064a84e875a2018e9476"
-    },
-    {
-      "fileName": "SEED-166_handle-stale-worktree-bundles.json",
-      "identity": "SEED-166#handle-stale-worktree-bundles",
-      "completedAt": "2026-10-29T01:38:15.722Z",
-      "blob": "0a823253e9755914625a3daea0ad156d2d79ee36"
-    },
-    {
-      "fileName": "SEED-164_dashboard-ci-time.json",
-      "identity": "SEED-164#dashboard-ci-time",
-      "completedAt": "2026-10-29T01:16:35.248Z",
-      "blob": "5b23653f243910c7e3c22cfe29b63764919201da"
-    },
-    {
-      "fileName": "SEED-165_keep-cursor-effort-visible.json",
-      "identity": "SEED-165#keep-cursor-effort-visible",
-      "completedAt": "2026-10-28T23:56:59.362Z",
-      "blob": "6c7d9d997b0c430bea0846636ff963def149799e"
     }
   ],
   "unreadable": []

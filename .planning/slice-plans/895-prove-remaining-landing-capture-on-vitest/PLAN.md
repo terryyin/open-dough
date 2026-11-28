@@ -9,7 +9,7 @@
 ## Goal and scope
 
 Give Dashboard developers an owner for the three installed landing retries that
-[plan 864](../864-prove-landing-capture-evidence-on-vitest/PLAN.md) left on the
+[plan 864](https://github.com/terryyin/open-dough/blob/079e46bf6b7d47136c435480541b9b8decd2cc29/.planning/slice-plans/864-prove-landing-capture-evidence-on-vitest/PLAN.md) left on the
 legacy runner, then delete the two specs that still hold them. Keep the
 existing publication, capture, and retention rules. This plan is provisional.
 Refinement owns the examples, the receiving boundary, and the slice boundaries.

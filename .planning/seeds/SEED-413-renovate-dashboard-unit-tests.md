@@ -379,63 +379,6 @@ have their own stories.
 
 **Plan.** [Prove published Review comparisons in Node Vitest](../slice-plans/863-prove-published-review-comparisons-on-vitest/PLAN.md)
 
-<a id="landing-capture-evidence-via-vitest"></a>
-
-### Prove retained landing capture in Node Vitest
-
-**Identity:** SEED-413#landing-capture-evidence-via-vitest
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/864-prove-landing-capture-evidence-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"68efd1ac921b19403fe57ce1331a841c5a814680985deb78e274745e113a1f09","plan":"7dee15cf53398731c8c933ace984e3ce3ee42dd67e2d1a9430db02defe6877f6"}}
-```
-
-- **Goal.** Give Dashboard developers fast, discriminating feedback that the
-  comparison used for a launch comes from the work origin accepted for that
-  launch. Dispose of the ten legacy backend specs whose observations the
-  delivered slices own, so the runner cutover can remove that part of the
-  legacy execution path. The two remaining specs,
-  `one-shot-landing-capture-admission.spec.ts` and
-  `one-shot-landing-recovery-retention.spec.ts`, belong to
-  [Prove the remaining landing capture cases in Node Vitest](#remaining-landing-capture-via-vitest).
-- **Scope.** Cover landing-context handoff, preparation and capture, one-shot
-  and Story Branch publication, native binding, recovery, and pin lifetime.
-  Keep real Git and persisted launch records wherever they supply the
-  observation. Use Node Vitest for Dashboard unit cases and keep installed
-  command, receiver, Git transport, and native interaction in maintained
-  workflow checks where their interaction supplies the proof. Account for
-  every prior case the delivered slices own, by its observed outcome. The
-  successor owns the installed retry before any prepare, the installed retry
-  that reports deletion while the attempt is kept, and the installed retry
-  after real attempt expiry, including after the workspace is gone. Published
-  Review reads, UI selection, completion reporting, and runner cutover have
-  separate owners. This work preserves the existing publication, capture, and
-  retention rules.
-- **Key examples.**
-  - An installed publisher prepares the workspace candidate before push. When
-    the authorized trunk accepts it, the launch keeps that base and revision
-    pinned after retirement. A Story Branch merge compares the fetched trunk
-    tip with the accepted merge, and a fast-forward uses the accepted story
-    tip. Acceptance and capture are independent of completion and Done.
-  - A wrong launch, story, workspace candidate, remote, or target cannot claim
-    that comparison. A prepared candidate that trunk has yet to accept cannot
-    become a landing. A later trunk publication leaves the first accepted pair
-    intact.
-  - A lost record or receipt can be retried with the original input after
-    retirement. A pending receipt binds to the same launch when native
-    identity arrives. The retained launch can capture its prepared pair after
-    normal attempt expiry. Premature store loss, record expiry, and deletion
-    retain their refusal semantics. Failed pin cleanup keeps the deletion
-    intent so retry removes only that launch’s pins.
-  - A conflicted or rejected Story Branch integration can resume with its
-    resolved pair. After a retained unfinished landing, the claim, local
-    branch, and native session still support the next slice. Manual Done
-    acknowledges the session and preserves the execution record.
-- **Replacement trace.** [Published Dashboard reads and evidence before the split](https://github.com/terryyin/open-dough/blob/fb8983cb8eb62b38c79fbc293b491128f411bdb2/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest).
-- **Split.** After slice 10 the developer split the two remaining legacy specs
-  into [Prove the remaining landing capture cases in Node Vitest](#remaining-landing-capture-via-vitest).
-  This identity stays the delivered outcome.
-
-**Plan.** [Prove retained landing capture in Node Vitest](../slice-plans/864-prove-landing-capture-evidence-on-vitest/PLAN.md)
-
 <a id="remaining-landing-capture-via-vitest"></a>
 
 ### Prove the remaining landing capture cases in Node Vitest
@@ -457,7 +400,7 @@ have their own stories.
   `one-shot-landing-capture-admission.spec.ts` and
   `one-shot-landing-recovery-retention.spec.ts` are gone. A one-worker backend
   selection of this family finds zero legacy cases.
-- **Prerequisite.** [Prove retained landing capture in Node Vitest](#landing-capture-evidence-via-vitest)
+- **Prerequisite.** [Prove retained landing capture in Node Vitest](https://github.com/terryyin/open-dough/blob/079e46bf6b7d47136c435480541b9b8decd2cc29/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#landing-capture-evidence-via-vitest)
   (`SEED-413#landing-capture-evidence-via-vitest`) is integrated. This story
   starts from that disposition, where the other ten specs are gone and the
   Node owners of expiry, deletion, and refusal exist. Trunk before that
@@ -710,7 +653,7 @@ or removed once its behavior or duplicate is accounted for.
 | 15 observation Playwright paths | [Prove published refresh lifecycle in Node Vitest](#published-refresh-lifecycle-via-vitest) |
 | 23 observation Playwright paths | [Authenticated GitHub observation in Node Vitest](https://github.com/terryyin/open-dough/blob/71cc76188db2356fd0f4cd2f064cfd27be95c037/.planning/slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md#local-gate-and-delivery) for ten paths and the delivered cases of two shared paths; [Prove GitHub request lifetime and failure evidence in Node Vitest](#github-request-lifetime-and-evidence-via-vitest) for the other 13 |
 | 21 review Playwright paths | [Prove published Review comparisons in Node Vitest](#published-review-comparisons-via-vitest) |
-| 10 review Playwright paths | [Prove retained landing capture in Node Vitest](#landing-capture-evidence-via-vitest) |
+| 10 review Playwright paths | [Prove retained landing capture in Node Vitest](https://github.com/terryyin/open-dough/blob/079e46bf6b7d47136c435480541b9b8decd2cc29/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#landing-capture-evidence-via-vitest) |
 | 2 review Playwright paths, `one-shot-landing-capture-admission` and `one-shot-landing-recovery-retention` | [Prove the remaining landing capture cases in Node Vitest](#remaining-landing-capture-via-vitest) |
 | 6 intent Playwright paths | [Prove published Intent evidence in Node Vitest](#published-intent-evidence-via-vitest) |
 | 2 observation Playwright paths | [Prove Dashboard machine observations in Node Vitest](#machine-observation-via-vitest) |
