@@ -73,7 +73,27 @@ caffeinate -s -i npx playwright test -c dashboard/backend.playwright.config.ts \
 | Maintained owners of the host status refusals (`rg` for `hostStatusEndpoint` and `host-status` under `dashboard` and `e2e`) | No other spec asserts the host status method or origin refusal; the frontend specs mock the read, and the sidebar journey stays in `e2e/sessions/`. | The wire witness is the refusals' only owner; keep all three refusals. |
 | Retiring `host-status.spec.ts` (`rg startDashboardServer dashboard e2e`, `rg rawRequest dashboard`) | `startDashboardServer` has 79 consuming files and `rawRequest` 48; the spec's scripted-readers helper is local to it. | Retiring the spec leaves no support module without a caller. |
 
-## Ordered slices and outside-in proof
+## Execution context
+
+- Ai-chan, publisher `dashboard-territory.local-open-dough`, Story Branch
+  Mode, branch `codex/prove-dashboard-machine-observations-in-node-vit`.
+  Owned worktree `/Users/terryyin/git/open-dough/.worktrees/prove-dashboard-machine-observations-in-node-vit`,
+  integration checkout `/Users/terryyin/git/open-dough`, target `origin/main`.
+- Starting revision `dfc699737c5df187855e7941ef4d2e44e8021115`. The accepted
+  Take and branch base is `4609e081cfabab8a95e2a7f3fa9b4bc722484762`.
+  The two revisions differ only in the backlog and agent assignment.
+- Locked `npm ci`, native Chromium check, and Dashboard typecheck passed in
+  the execution checkout. GitHub Actions workflow `ci.yml` monitors the
+  execution branch with coordinator `ai-chan-14af1101`, mailbox
+  `/tmp/dough-ci-501/watch-66ZnwK`, PID 13343, Codex cell `g775:12`,
+  shell session `11438`.
+- Recount at the accepted Take, on AC power using the legacy command above
+  and one worker: 7 Chromium passes, 0 Vitest cases. The case times were
+  7.4 s, 1.1 s, 0 ms, 1 ms, 1 ms, 305 ms, and 274 ms (about 9.1 s
+  summed, 11.7 s reported by Playwright). One worker and focused local
+  proof keep the comparison on the same host and avoid competing with CI.
+
+## Ordered slices
 
 Legacy paths are in `dashboard/backend-tests/observation/`. Each slice budgets
 15 active minutes or less and owns one proof loop. Keep a legacy spec running
@@ -82,7 +102,7 @@ until its Node Vitest replacement is green, then retire it in the same slice.
 ### 1. Detect checkout identity changes through real Git operations
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A checkout's Git files keep their identity while nothing changes and
 for Git run in the main checkout (a plain `git status` that rewrites its index,
@@ -99,6 +119,24 @@ withheld case and the missing or plain folder case. The case that controls the
 trust window passes the clock as the defaulted `now` parameter:
 the real time, or a time two seconds ahead, for a settled identity. Replaces
 `git-files-identity.spec.ts` (3 cases). Retire that spec.
+
+Observed in the execution checkout at the Take with the slice edits applied.
+The spec converted in place. Its 11 Node Vitest cases cover the seven real
+Git changes, unchanged identity, recent-file withholding, main-checkout
+index refresh and new file, and missing and plain folders. The seven change
+cases compare defined identities from separate Git checkouts. Trunk and
+worktree HEAD use prepared refs so only the named transition follows the
+held read. All passed at 1–68 ms per case (589 ms summed, 1.82 s Vitest).
+The maintained group passed with 11 Node cases and four retained Chromium
+host status cases, and the Dashboard typecheck passed. The live Sessions
+replay with `DOUGH_SESSIONS_REPLAY=1` passed and reported eight found
+workspaces with unchanged response revisions on quiet reads. This exercises
+the two-argument production call through `localWorkspaces.ts` while the
+focused spec owns the clock and Git transitions.
+Independent refactoring isolated the age rule in a real fresh Git checkout
+with only `.git/config` contributing file metadata. The same config is
+withheld at 500 ms and trusted at two seconds. All 11 cases passed after
+that edit (7–161 ms, 1.0 s summed, 2.04 s Vitest), with the age case at 10 ms.
 
 ### 2. Share host sampling and disclose partial availability
 
