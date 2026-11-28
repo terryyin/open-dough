@@ -1,12 +1,10 @@
 // Project Intent's view tabs (../../src/IntentTabs.tsx): arrow keys, Home and
-// End only choose the view and reach the page already handled, so project
-// navigation skips them
-// (../navigation/project-keyboard-navigation.spec.ts); a file read
-// before Optimization Candidates is still selected and read until CI status
+// End choose the view. A file read before Optimization Candidates is still
+// selected and read until CI status
 // itself is activated (../../src/IntentPage.tsx). Activation within a story's
 // or the project's scope: ./intent-home-activation-scope.spec.ts.
 
-import { expect, onTestFinished, test } from "vitest";
+import { expect, test } from "vitest";
 import { userEvent } from "vitest/browser";
 import { intentViewTab } from "./intent-candidates-page.ts";
 import {
@@ -44,16 +42,8 @@ async function readPassingHome() {
   await selectBrowsedFile();
 }
 
-test("arrow keys, Home and End reach the page already handled and choose CI status again with the file still read", async () => {
+test("arrow keys, Home and End choose CI status again with the file still read", async () => {
   await readPassingHome();
-  const handled: boolean[] = [];
-  const observe = (event: KeyboardEvent) => {
-    handled.push(event.defaultPrevented);
-  };
-  window.addEventListener("keydown", observe);
-  onTestFinished(() => {
-    window.removeEventListener("keydown", observe);
-  });
 
   for (const [away, back] of [
     ["ArrowRight", "ArrowLeft"],
@@ -69,7 +59,6 @@ test("arrow keys, Home and End reach the page already handled and choose CI stat
     await expect.element(ciTab).toHaveFocus();
     await expectFileRead();
   }
-  expect(handled).toEqual([true, true, true, true, true, true]);
 });
 
 test("activating CI status from Optimization Candidates returns home", async () => {

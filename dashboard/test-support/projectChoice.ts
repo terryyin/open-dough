@@ -5,7 +5,7 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 import { parts } from "./dashboardParts.ts";
 
-// Whichever project control the banner is showing: the compact title button
+// Whichever project control the banner is showing: the compact select
 // when the tabs do not fit on the banner's one row, otherwise the selected
 // tab-shaped radio.
 export function shownProjectControl(page: Page): Locator {
@@ -13,13 +13,8 @@ export function shownProjectControl(page: Page): Locator {
   return projectCompact.or(project.getByRole("radio", { checked: true }));
 }
 
-// Selected project id from the shown control (radio value, or the compact
-// title button's data-project-id).
 export async function selectedProjectId(page: Page): Promise<string> {
-  return shownProjectControl(page).evaluate((element) => {
-    if (element instanceof HTMLInputElement) return element.value;
-    return element.getAttribute("data-project-id") ?? "";
-  });
+  return shownProjectControl(page).inputValue();
 }
 
 // The wide banner's tab-shaped radio for one project.
@@ -28,15 +23,12 @@ export function projectTab(page: Page, label: string): Locator {
 }
 
 export async function chooseProject(page: Page, label: string): Promise<void> {
-  const { projectCompact, projectCompactList } = parts(page);
+  const { projectCompact } = parts(page);
   // A sidebar or panel opening or closing can swap the shown control while
   // the choice is made; choose again through whichever one then shows.
   await expect(async () => {
     if (await projectCompact.isVisible()) {
-      await projectCompact.click({ timeout: 2_000 });
-      await projectCompactList
-        .getByRole("option", { name: label, exact: true })
-        .click({ timeout: 2_000 });
+      await projectCompact.selectOption({ label }, { timeout: 2_000 });
     } else {
       await projectTab(page, label).check({ timeout: 2_000 });
     }
@@ -54,7 +46,11 @@ export async function expectProjectChoice(
   // control, so wait for either one naming the project.
   await expect(
     projectCompact
-      .filter({ hasText: new RegExp(`^${label}$`) })
+      .filter({
+        has: page
+          .locator("option:checked")
+          .and(page.getByText(label, { exact: true })),
+      })
       .or(
         project.getByRole("radio", { name: label, exact: true, checked: true }),
       ),
@@ -68,15 +64,10 @@ export async function expectVisibleProjectLabels(
   page: Page,
   labels: readonly string[],
 ): Promise<void> {
-  const { project, projectCompact, projectCompactList } = parts(page);
+  const { project, projectCompact } = parts(page);
   await expect(async () => {
     if (await projectCompact.isVisible()) {
-      await projectCompact.click({ timeout: 2_000 });
-      await expect(projectCompactList.getByRole("option")).toHaveText([
-        ...labels,
-      ]);
-      await page.keyboard.press("Escape");
-      await expect(projectCompactList).toHaveCount(0);
+      await expect(projectCompact.locator("option")).toHaveText(labels);
     } else {
       await expect(project.locator("label")).toHaveText([...labels]);
     }
@@ -90,43 +81,14 @@ const defaultVisibleProjectLabels = [
   "Terry Talks",
 ] as const;
 
-// Compact title select when the tabs do not fit: tabs are gone, the title control
-// names the project, and Escape leaves the list without a choice while
-// keeping focus on the control.
 export async function expectCompactProjectSelect(
   page: Page,
   label: string,
   options: readonly string[] = defaultVisibleProjectLabels,
 ): Promise<void> {
-  const { project, projectCompact, projectCompactList } = parts(page);
+  const { project, projectCompact } = parts(page);
   await expect(project).toHaveCount(0);
   await expect(projectCompact).toBeVisible();
-  await expect(projectCompact).toHaveText(label);
-  await projectCompact.click();
-  await expect(projectCompactList).toBeVisible();
-  await expect(projectCompactList.getByRole("option")).toHaveText(options);
-  await expect(
-    projectCompactList.getByRole("option", { selected: true }),
-  ).toHaveText(label);
-  await page.keyboard.press("Escape");
-  await expect(projectCompactList).toHaveCount(0);
-  await expect(projectCompact).toBeFocused();
-  await expect(projectCompact).toHaveText(label);
-}
-
-// The compact title control's keys, pressed in the given order from the
-// control: the first opens its project list, and after the last the list is
-// gone and the keyboard is back on the control.
-export async function pressProjectListKeys(
-  page: Page,
-  [opening, ...rest]: readonly [string, ...string[]],
-): Promise<void> {
-  const { projectCompact, projectCompactList } = parts(page);
-  await projectCompact.focus();
-  await expect(projectCompact).toBeFocused();
-  await page.keyboard.press(opening);
-  await expect(projectCompactList).toBeVisible();
-  for (const key of rest) await page.keyboard.press(key);
-  await expect(projectCompactList).toHaveCount(0);
-  await expect(projectCompact).toBeFocused();
+  await expect(projectCompact.locator("option")).toHaveText(options);
+  await expect(projectCompact.locator("option:checked")).toHaveText(label);
 }

@@ -33,7 +33,6 @@ export function CompactSelect<Option extends CompactSelectOption>({
   rootClassName,
   buttonClassName,
   listClassName,
-  buttonData,
 }: {
   readonly name: string;
   readonly options: readonly Option[];
@@ -43,7 +42,6 @@ export function CompactSelect<Option extends CompactSelectOption>({
   readonly rootClassName: string;
   readonly buttonClassName: string;
   readonly listClassName: string;
-  readonly buttonData?: Readonly<Record<`data-${string}`, string>>;
 }) {
   const listId = useId();
   const root = useRef<HTMLDivElement>(null);
@@ -138,7 +136,6 @@ export function CompactSelect<Option extends CompactSelectOption>({
         ref={button}
         role="combobox"
         className={`compact-select-button ${buttonClassName}`}
-        {...buttonData}
         aria-label={name}
         aria-haspopup="listbox"
         aria-expanded={open}

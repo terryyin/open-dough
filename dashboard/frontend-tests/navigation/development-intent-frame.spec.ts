@@ -68,13 +68,11 @@ test("Development and Intent keep their names, marks and selected project's publ
 test("at a phone width the perspective stays reachable under the compact title, and choosing a project there keeps Intent", async () => {
   const height = 844;
   await mountPerspectiveFrame({ width: 390, height });
-  await expect.element(compactProject).toHaveTextContent("Open Dough");
+  await expect.element(compactProject).toHaveValue("open-dough");
   await intentChoice.click();
   await showsUnconfiguredIntent("Open Dough");
-  await compactProject.click();
-  await page.getByRole("option", { name: "Doughnut", exact: true }).click();
-  await expect.element(compactProject).toHaveTextContent("Doughnut");
-  await expect.element(compactProject).toHaveFocus();
+  await compactProject.selectOptions("doughnut");
+  await expect.element(compactProject).toHaveValue("doughnut");
   const explanation = await showsUnconfiguredIntent("Doughnut");
   expect(params().get("project")).toBe("doughnut");
   expect(params().get("perspective")).toBe("intent");

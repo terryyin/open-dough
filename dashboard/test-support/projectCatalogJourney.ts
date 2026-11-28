@@ -1,5 +1,4 @@
-// Shared catalog setup and selection observations for page-wide project
-// keyboard navigation journeys.
+// Shared catalog and Board observations for project selection journeys.
 
 import type { Page } from "@playwright/test";
 import { expectMembership } from "./dashboardPage.ts";
@@ -8,12 +7,8 @@ import {
   type CatalogExpectation,
 } from "./catalogProjectExpectations.ts";
 
-export const {
-  openDough: openDoughProject,
-  doughnut: doughnutProject,
-  pygardon: pygardonProject,
-  terryTalks: terryTalksProject,
-} = catalogExpectations;
+export const { openDough: openDoughProject, doughnut: doughnutProject } =
+  catalogExpectations;
 
 // The Board shows this catalog project's one Taken and one Backlog story.
 export async function expectCatalogStories(

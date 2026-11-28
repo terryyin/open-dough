@@ -6,8 +6,5 @@
   "developer": "Terry Yin",
   "agent": "Maria-chan",
   "host": "cursor",
-  "model": "auto",
-  "intentCoverage": {
-    "report": "Checked revision: 4a523c5f27fad2f21efba37925dfd1af65837654\nVerdict: Caught\nNext proof action: none — maintained keyboard/announcements proof already catches a System-settings-unreachable banner-order regression after the Recent stories rewrite. No follow-up.\n"
-  }
+  "model": "auto"
 }

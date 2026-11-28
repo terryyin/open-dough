@@ -68,24 +68,23 @@
   display: none;
   flex: 1;
   min-width: 0;
+  min-height: var(--control-size);
   align-self: center;
+  padding-inline: var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background-color: var(--surface);
+  color: inherit;
+  font: inherit;
+  font-size: var(--text-md);
+  font-weight: var(--weight-strong);
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  cursor: pointer;
 }
 
 .banner .project-slot[data-compact] .project-title-select {
   display: block;
-}
-
-/* The compact project button reads as the banner's project name on the
-   compact select's appearance (./compact-select.css). */
-.banner .project-title-select-button {
-  font-size: var(--text-md);
-  font-weight: var(--weight-strong);
-  letter-spacing: -0.01em;
-  color: inherit;
-}
-
-.banner .project-title-select-list {
-  right: 0;
 }
 
 .banner .perspective-select {

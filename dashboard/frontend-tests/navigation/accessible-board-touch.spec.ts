@@ -69,14 +69,6 @@ function textFitsInCard(part: Element, card: Element) {
   );
 }
 
-async function chooseProject(label: string) {
-  await expect.element(compactProject).toBeVisible();
-  await tapWhereShown(compactProject.element());
-  const option = page.getByRole("option", { name: label, exact: true });
-  await expect.element(option).toBeVisible();
-  await tapWhereShown(option.element());
-}
-
 test.beforeEach(async () => {
   await useTouchScreen();
   await reducedBoardMotion();
@@ -107,7 +99,7 @@ test("project and column navigation keep a long story readable and its detail op
     },
   );
   await board.shows(["Backlog"], ["Taken 2 entries"]);
-  await chooseProject("Doughnut");
+  await compactProject.selectOptions("doughnut");
   await expect
     .element(
       board
@@ -115,7 +107,7 @@ test("project and column navigation keep a long story readable and its detail op
         .getByText("No Backlog entries are recorded.", { exact: true }),
     )
     .toBeVisible();
-  await chooseProject("Open Dough");
+  await compactProject.selectOptions("open-dough");
   await expect
     .poll(() => board.column("Backlog").getByRole("article").elements().length)
     .toBe(3);
@@ -190,9 +182,7 @@ test("project and column navigation keep a long story readable and its detail op
     ["Taken"],
     ["Backlog 3 entries", "Recently done 2 entries"],
   );
-  await expect
-    .poll(() => compactProject.element().textContent.trim())
-    .toBe("Open Dough");
+  await expect.element(compactProject).toHaveValue("open-dough");
 });
 
 test("an open session's disabled Start reason is readable without hover and does not start another session", async () => {
