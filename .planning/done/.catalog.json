@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_landing-capture-evidence-via-vitest.json",
+      "identity": "SEED-413#landing-capture-evidence-via-vitest",
+      "completedAt": "2026-11-28T10:47:26.463Z",
+      "blob": "cc96cfccefeb2c3e8c034b31bda6b59c76bc340f"
+    },
+    {
       "fileName": "SEED-450_keep-runner-across-unrelated-dashboard-deploys.json",
       "identity": "SEED-450#keep-runner-across-unrelated-dashboard-deploys",
       "completedAt": "2026-11-28T10:41:11.179Z",

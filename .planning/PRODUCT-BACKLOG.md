@@ -30,7 +30,6 @@ intent introduced or affected by a newly developed story.
 
 - [Prove published refresh lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-refresh-lifecycle-via-vitest) — SEED-413#published-refresh-lifecycle-via-vitest ([plan](slice-plans/861-prove-published-refresh-lifecycle-on-vitest/PLAN.md))
 - [Prove GitHub request lifetime and failure evidence in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#github-request-lifetime-and-evidence-via-vitest) — SEED-413#github-request-lifetime-and-evidence-via-vitest ([plan](slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md))
-- [Prove retained landing capture in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#landing-capture-evidence-via-vitest) — SEED-413#landing-capture-evidence-via-vitest ([plan](slice-plans/864-prove-landing-capture-evidence-on-vitest/PLAN.md))
 - [Submit a wrapped revived Cursor continuation](seeds/SEED-450-keep-cursor-sessions-through-runner-restart.md#submit-wrapped-revived-cursor-continuation) — SEED-450#submit-wrapped-revived-cursor-continuation
 
 ## Backlog list
@@ -50,6 +49,7 @@ intent introduced or affected by a newly developed story.
 - [Prove published Intent evidence in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-intent-evidence-via-vitest) — SEED-413#published-intent-evidence-via-vitest
 - [Prove Dashboard launch attempts with typed machine state](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-attempts-with-typed-state) — SEED-413#prove-launch-attempts-with-typed-state
 - [Admit Dashboard launch requests as typed values](seeds/SEED-413-renovate-dashboard-unit-tests.md#admit-launch-requests-as-typed-values) — SEED-413#admit-launch-requests-as-typed-values
+- [Prove the remaining landing capture cases in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#remaining-landing-capture-via-vitest) — SEED-413#remaining-landing-capture-via-vitest
 - [Run the entire Dashboard backend unit suite on Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-backend-runner) — SEED-413#retire-legacy-dashboard-backend-runner
 - [Start Cursor slices from complete Task briefs](seeds/SEED-345-session-token-efficiency.md#start-cursor-slices-from-complete-task-briefs) — SEED-345#start-cursor-slices-from-complete-task-briefs
 - [Retire Cursor exit-file proof wait](seeds/SEED-441-retire-cursor-exit-file-proof-wait.md#retire-cursor-exit-file-proof-wait) — SEED-441#retire-cursor-exit-file-proof-wait

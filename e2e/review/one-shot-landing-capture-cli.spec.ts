@@ -2,16 +2,20 @@
 import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { test, expect, stored } from "../../test-support/support/codexStart.ts";
-import { launch } from "../../test-support/agentLaunchBoundary.ts";
-import { oneShot } from "../../test-support/support/oneShotLaunch.ts";
-import { requestFor } from "../../test-support/support/launchDashboard.ts";
+import {
+  test,
+  expect,
+  stored,
+} from "../../dashboard/test-support/support/codexStart.ts";
+import { launch } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { oneShot } from "../../dashboard/test-support/support/oneShotLaunch.ts";
+import { requestFor } from "../../dashboard/test-support/support/launchDashboard.ts";
 import {
   scripts,
   commit,
   capturedPublicationSchema,
-} from "../../test-support/support/launchLanding.ts";
-import { context } from "../../test-support/support/oneShotLanding.ts";
+} from "../../dashboard/test-support/support/launchLanding.ts";
+import { context } from "../../dashboard/test-support/support/oneShotLanding.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({

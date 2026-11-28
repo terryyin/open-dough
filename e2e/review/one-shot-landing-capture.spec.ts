@@ -2,28 +2,32 @@
 import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { test, expect, stored } from "../../test-support/support/codexStart.ts";
-import { launch } from "../../test-support/agentLaunchBoundary.ts";
-import { oneShot } from "../../test-support/support/oneShotLaunch.ts";
-import { requestFor } from "../../test-support/support/launchDashboard.ts";
+import {
+  test,
+  expect,
+  stored,
+} from "../../dashboard/test-support/support/codexStart.ts";
+import { launch } from "../../dashboard/test-support/agentLaunchBoundary.ts";
+import { oneShot } from "../../dashboard/test-support/support/oneShotLaunch.ts";
+import { requestFor } from "../../dashboard/test-support/support/launchDashboard.ts";
 import {
   git,
   scripts,
   commit,
   refs,
-} from "../../test-support/support/launchLanding.ts";
-import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
+} from "../../dashboard/test-support/support/launchLanding.ts";
+import { keptAttempts } from "../../dashboard/test-support/acceptedAttempts.ts";
 import {
   reportingChild,
   quote,
   recordOperation,
-} from "../../test-support/support/completionRecovery.ts";
-import { landingReceiptSchema } from "../../src/launchLanding.ts";
+} from "../../dashboard/test-support/support/completionRecovery.ts";
+import { landingReceiptSchema } from "../../dashboard/src/launchLanding.ts";
 import {
   checkout,
   context,
   publish,
-} from "../../test-support/support/oneShotLanding.ts";
+} from "../../dashboard/test-support/support/oneShotLanding.ts";
 
 // No page: the local boundaries alone answer these requests.
 test.use({

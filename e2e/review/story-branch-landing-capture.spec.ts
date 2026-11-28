@@ -1,42 +1,42 @@
 // A claimed Story Branch Mode launch's trunk integration records its delivered
-// pair (../../server/launchLandingGit.ts): the installed
+// pair (../../dashboard/server/launchLandingGit.ts): the installed
 // `history-preserving-publication.mjs integrate` merges the published story
 // tip onto fetched trunk in the launch's own worktree, and the real receiver
 // keeps the fetched trunk tip and the accepted revision on the launch record.
 // Raw HTTP against the real installed start and a real bare origin
-// (../../test-support/support/startOrigin.ts) with the synthetic `claude`.
+// (../../dashboard/test-support/support/startOrigin.ts) with the synthetic `claude`.
 
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../Distribution/tests/support/queued-repository.mjs";
 import path from "node:path";
 import { z } from "zod";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
-import { landingReceiptSchema } from "../../src/launchLanding.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
+import { keptAttempts } from "../../dashboard/test-support/acceptedAttempts.ts";
+import { landingReceiptSchema } from "../../dashboard/src/launchLanding.ts";
 import {
   quote,
   reportingChild,
-} from "../../test-support/support/completionRecovery.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+} from "../../dashboard/test-support/support/completionRecovery.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   capturedPublicationSchema,
   commonGitDir,
   git,
   refs,
-} from "../../test-support/support/launchLanding.ts";
-import { landingGitFault } from "../../test-support/support/launchLandingFault.ts";
+} from "../../dashboard/test-support/support/launchLanding.ts";
+import { landingGitFault } from "../../dashboard/test-support/support/launchLandingFault.ts";
 import {
   restartBoundary,
   startBoundary,
-} from "../../test-support/support/launchDashboard.ts";
+} from "../../dashboard/test-support/support/launchDashboard.ts";
 import {
   startOrigin,
   type StartOrigin,
-} from "../../test-support/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   claimedLaunchWithStoryCommit,
   claimedRecord,
-} from "../../test-support/support/storyBranchIntegration.ts";
-import { openFirstLandingExpectation } from "../../../Distribution/src/skills/dough-execute-plan/scripts/first-landing-expectation.mjs";
+} from "../../dashboard/test-support/support/storyBranchIntegration.ts";
+import { openFirstLandingExpectation } from "../../Distribution/src/skills/dough-execute-plan/scripts/first-landing-expectation.mjs";
 
 test.describe("a claimed Story Branch Mode launch's trunk integration", () => {
   let origin: StartOrigin;
