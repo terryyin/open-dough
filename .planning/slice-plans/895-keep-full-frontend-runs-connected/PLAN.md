@@ -162,6 +162,10 @@ Progress:
   plan updates launch no probe round, and switches the capture with its
   workflow-level `PROBE_CAPTURE`. Eight local tests that read workflow files
   pass with it present; none lists the workflows directory.
+- Since slice 3, a probe round runs only for a push whose head commit
+  message contains `[probe]`, so code pushes launch no unplanned round. A
+  round launched by slice 3's first code push (run `46113713441`) was
+  cancelled at once.
 
 Captured closures (2026-11-28, `b9a8173d4`, capture on):
 
@@ -230,7 +234,8 @@ Proof:
   what began the unload: a navigation request with its reason, a page-script
   `close()` with its stack, or a detach or crash. Record the run, the
   revision, the decisive excerpt and the named cause in this plan.
-- Only if the local runs give no closure, push once with the probe on.
+- Only if the local runs give no closure, push once with `[probe]` in the
+  head commit message.
   Cancel the round at the first named cause.
 - Stop rule: if a captured closure shows no page-side event before the
   unload, or eight local runs and one hosted round give no closure, stop.
@@ -276,6 +281,41 @@ Remaining proof:
 - Stop rule: if a closure shows neither a remote end nor a local call, or
   the runs give no closure, stop. Record what was captured, and return the
   plan for replanning.
+
+Server-side finding (2026-11-28, uncommitted capture on `5bf4f3bbd`, local
+run `s3b-local-1`: load 4.1, 126 s, closed at 207 of 332 files):
+
+- The orchestrator's Vitest API socket first received a WebSocket close
+  frame from the browser with code 1001 (Going Away). Within about 1 ms the
+  same page's two HMR sockets and its new tester socket received 1001 as
+  well. Before that frame the server called no `destroy()` or `end()`, saw
+  no error and got no bare remote end. `ws` then answered with its own close
+  frame and `end()`, the browser reset the connection (`ECONNRESET`), and
+  Vitest reported the disconnect.
+- Chromium therefore drops every socket of one orchestrator page at once,
+  while that page's script keeps running (it logs the failures and Vite
+  polls afterwards). The cause sits inside Chromium, below page script. The
+  specs' own `cdp()` calls (device metrics, emulated media, one URL block in
+  `agent-roster-collection.spec.ts`) explain no whole-page drop by reading.
+
+Refined again 2026-11-28 with the developer's approval: the slice's
+remaining work reads Chromium's own record of why it closed the sockets.
+
+Remaining proof (NetLog):
+
+- With the capture variable set, launch Chromium with `--log-net-log` to a
+  per-browser file in the evidence location (default capture mode, no
+  bytes), and log each spec `cdp()` command's method and the page it
+  targets. Without the variable the launch arguments are unchanged.
+- Run one spec with one worker. The NetLog file is written and parses.
+- Run up to six more full local runs at two workers under the local gate.
+  Stop at the first closure. Read the NetLog for the orchestrator's sockets
+  at the closure time: the close source and reason, and any network-service,
+  socket-pool or proxy event that precedes it. Record the decisive excerpt
+  and the named cause.
+- Stop rule: if NetLog shows no event before the close, or the runs give no
+  closure, stop. Record what was captured and return the plan for
+  replanning.
 
 ### 4. A deep spec read stays unread after Development and back
 
@@ -326,7 +366,8 @@ Proof:
   `dashboard/frontend-tests/test-harness/history-traversal-guard.spec.ts`.
   Otherwise record why none can, and the repeated runs below are the proof.
 - Delete the capture and set the probe workflow's capture variable off.
-  Push once. The probe's thirty jobs each report every file, and the
+  Push once with `[probe]` in the head commit message. The probe's thirty
+  jobs each report every file, and the
   ordinary `dashboard-frontend` job passes. Their durations stay within the
   spread of slice 2's hosted baseline.
 - Run eight consecutive full local runs at two workers. Each reports every

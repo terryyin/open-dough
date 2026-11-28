@@ -1,17 +1,14 @@
 import type { ChildProcess } from "node:child_process";
-import type { IncomingMessage } from "node:http";
-import type { Duplex } from "node:stream";
 import type { Browser, Page } from "@playwright/test";
 import { playwright } from "@vitest/browser-playwright";
-import type { Plugin } from "vitest/config";
 import type { BrowserProvider } from "vitest/node";
 import {
   captureLog,
   captureVitestBrowserDebug,
   type CaptureLog,
-  urlPath,
 } from "./frontendCaptureLog.ts";
 import { observeOrchestratorPage } from "./orchestratorPageCapture.ts";
+import { upgradeSocketCapture } from "./upgradeSocketCapture.ts";
 import { viteServerCapture } from "./viteServerCapture.ts";
 
 // Set to a log file path to record what happens around the orchestrator socket
@@ -40,27 +37,6 @@ function localBrowserProcess(browser: Browser) {
   } catch {
     return undefined;
   }
-}
-
-function apiSocketCapture(record: CaptureLog): Plugin {
-  const servers = new WeakSet<object>();
-  return {
-    name: "frontend-api-socket-capture",
-    configureServer({ httpServer }) {
-      if (!httpServer || servers.has(httpServer)) return;
-      servers.add(httpServer);
-      httpServer.on("upgrade", (request: IncomingMessage, socket: Duplex) => {
-        const { url = "" } = request;
-        if (urlPath(url) !== "/__vitest_browser_api__") return;
-        const params = new URL(url, "http://localhost").searchParams;
-        const type = params.get("type") ?? undefined;
-        record("api-connect", { type });
-        socket.prependOnceListener("close", (hadError: boolean) => {
-          record("api-disconnect", { type, hadError });
-        });
-      });
-    },
-  };
 }
 
 function observeBrowser(record: CaptureLog, browser: Browser, id: number) {
@@ -115,7 +91,7 @@ export function frontendDisconnectCapture(file: string | undefined) {
   captureVitestBrowserDebug(record);
   record("capture-start");
   return {
-    plugins: [apiSocketCapture(record), viteServerCapture(record)],
+    plugins: [upgradeSocketCapture(record), viteServerCapture(record)],
     provider: observedProvider(record),
   };
 }
