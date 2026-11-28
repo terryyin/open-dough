@@ -237,6 +237,46 @@ Proof:
   Slice 5 does not start. Record what was captured and return the plan for
   replanning.
 
+Page-side finding (2026-11-28, uncommitted capture on `9248fad65`, local
+run 1 of the series: load 3.7, 145 s, `206 passed (332)`, closed during
+`intent-ci-status-homepage.spec.ts`):
+
+- The server saw the orchestrator API socket close cleanly
+  (`api-disconnect orchestrator hadError false`, 144484 ms) first. 3 ms
+  later the page reported all four of its sockets failed at once: HMR and
+  Vitest API, in both the top frame and the new tester frame. Its console
+  logged `WebSocket connection to '/' failed` and the same for
+  `/__vitest_browser_api__`, then Vite's client logged `server connection
+  lost. Polling for restart...` and requested a top-frame `reload`
+  (144496 ms). The renderer detached 57 ms after that.
+- In the 107 ms between the new tester's connect and the close, the page
+  shows no script `close()`, no navigation request, no `beforeunload` or
+  `pagehide`, and no detach or crash. The reload is Vite's reaction to the
+  dropped connections, not their cause. The drop starts in Node's socket
+  handling or in Chromium's network layer.
+- The capture also showed three orchestrator pages for two workers. The
+  third, opened at 8.6 s, is the one that closed.
+
+Refined 2026-11-28 with the developer's approval: the slice's remaining work
+names the side that drops the sockets.
+
+Remaining proof:
+
+- On each Vite upgrade socket (HMR and Vitest API), record whether the peer
+  ended it (`end` before `close`, a remote FIN) or local code called
+  `destroy()` or `end()`, and the caller's stack for a local call. Also
+  record socket `error` events with their codes. Log paths without query
+  strings and no payloads.
+- Run one spec with one worker and the capture on. The teardown order now
+  shows which side closes each socket.
+- Run up to seven more full local runs at two workers under the local gate.
+  Stop at the first closure whose server-side events name the closing side,
+  with the local caller's stack when it is the server. Record the decisive
+  excerpt and the named cause.
+- Stop rule: if a closure shows neither a remote end nor a local call, or
+  the runs give no closure, stop. Record what was captured, and return the
+  plan for replanning.
+
 ### 4. A deep spec read stays unread after Development and back
 
 Type: Behavior

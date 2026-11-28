@@ -11,6 +11,7 @@ import {
   type CaptureLog,
   urlPath,
 } from "./frontendCaptureLog.ts";
+import { observeOrchestratorPage } from "./orchestratorPageCapture.ts";
 import { viteServerCapture } from "./viteServerCapture.ts";
 
 // Set to a log file path to record what happens around the orchestrator socket
@@ -73,22 +74,6 @@ function observeBrowser(record: CaptureLog, browser: Browser, id: number) {
   });
 }
 
-function observeOrchestrator(record: CaptureLog, page: Page, session: number) {
-  const recordPage = (event: string) => {
-    record(event, { session, path: urlPath(page.url()) });
-  };
-  recordPage("page-open");
-  page.on("framenavigated", (frame) => {
-    if (frame === page.mainFrame()) recordPage("main-frame-navigated");
-  });
-  page.on("close", () => {
-    recordPage("page-close");
-  });
-  page.on("crash", () => {
-    recordPage("page-crash");
-  });
-}
-
 function observedProvider(record: CaptureLog) {
   const browsers = new WeakSet<Browser>();
   let nextBrowser = 0;
@@ -110,7 +95,7 @@ function observedProvider(record: CaptureLog) {
             browsers.add(browser);
             observeBrowser(record, browser, ++nextBrowser);
           }
-          observeOrchestrator(record, page, ++nextSession);
+          await observeOrchestratorPage(record, page, ++nextSession);
           return page;
         };
         instance.close = async (closeOptions) => {
