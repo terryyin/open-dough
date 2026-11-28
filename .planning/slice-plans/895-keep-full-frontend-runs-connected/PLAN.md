@@ -485,6 +485,14 @@ Proof:
 - Delete the probe workflow. `git diff origin/main --stat` then shows
   neither the workflow nor the capture.
 
+Progress (2026-11-28): the guard, its spec and its `setupFiles` entry are
+deleted, and the SEED-430 decision is in its seed section (a `git merge-file`
+pre-test against its branch merges cleanly). A whole-product search found no
+other closure workaround: every remaining config setting predates the
+closure work or serves another purpose, and the three specs that call
+`history.back()` predate the guard. One full local run then reported all
+331 files (953 tests) in 148 s at load 4.6.
+
 ## Local gate and delivery
 
 - Run full local frontend runs from a fully awake machine on AC power, per

@@ -88,6 +88,16 @@ accepted-publication containment belong to the sibling stories below.
   checkout absent. After the branch is deleted on origin, the Board shows it
   is no longer published.
 
+**Frontend closure handoff (2026-11-28).**
+SEED-413#keep-full-frontend-runs-connected named the cause of the frontend
+group's `VITEST_BROWSER_CONNECTION_CLOSED`: Chromium renderer growth from
+per-file module revalidation. It repaired that by upgrading Vitest to
+5.1.2. Vite's orchestrator reload only follows the socket drop. The
+`keepVitestOrchestratorOpen` plugin (`cfa5f8396`) and
+`diagnosis-frontend-browser-connection.md` on this story's branch therefore
+leave the branch before it lands, and `dashboard/frontend.vitest.config.mts`
+keeps trunk's form.
+
 <a id="read-board-records-at-published-pins"></a>
 
 ### Read Board records at their published pins
