@@ -180,9 +180,17 @@ The frontend Vitest config now suppresses Vite's HMR-disconnect reload
 on the orchestrator page. The two-spec probe passed all five cases
 after forcing HMR loss, and forcing Vitest API loss still failed with
 the expected signature. Dashboard typecheck and a normal full run of
-332 frontend files passed. The next hosted run checks normal frontend
-collection and completion with this guard. The natural trigger in the
-original failed job remains unattributed.
+332 frontend files passed. The
+[hosted frontend job](https://github.com/terryyin/open-dough/actions/runs/46085226701/job/140793121612)
+also passed with this guard. The natural trigger in the original failed
+job remains unattributed.
+
+A separate [hosted backend failure](https://github.com/terryyin/open-dough/actions/runs/46085226701/job/140793121599)
+found a file before the Codex daemon wrote its startup record. The
+startup spec now waits for the complete record with the expected working
+directory. The scratch open-before-write check, five startup cases, and
+Dashboard typecheck passed. Hosted CI will check the startup spec under
+the backend shard's ordinary concurrency.
 
 ### 4. Follow trunk through the verified revision stream
 
