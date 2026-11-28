@@ -160,6 +160,45 @@ Progress:
   workflow-level `PROBE_CAPTURE`. Eight local tests that read workflow files
   pass with it present; none lists the workflows directory.
 
+Captured closures (2026-11-28, `b9a8173d4`, capture on):
+
+- Hosted probe run `46103818435`: attempts 2 (job `140851982667`) and 10
+  (job `140851982749`) closed, after 179 and 279 files. Attempt 8
+  (job `140851982644`) ran every file and failed one ordinary case,
+  `intent-reading-place.spec.ts:141` (an unexpected story re-read after
+  Development and back), which attempt 2 also failed. Seven attempts passed in
+  187–280 s, the hosted timing baseline. Attempts 11–30 were cancelled once
+  the repeated captures settled the stop below. The ordinary `ci.yml` run
+  `46103818368` on the same revision also closed (`280 passed (332)`).
+- Local baseline at two workers: seven of eight runs closed. Walls and
+  results: 164 s (323 files), 168 s (183), 138 s (186), 220 s (329), 199 s
+  (294), 173 s (229), 192 s (all 332, the one clean run), 178 s (228). The
+  one-minute load ranged 4.7–7.3, with no other full suite running.
+- Every one of the nine captured closures has the same chronology. The next
+  file's tester connects (`api-connect tester`). 9–90 ms later the
+  orchestrator's Vitest API socket closes cleanly (`hadError: false`, unlike
+  the reset of a normal teardown). In the same 1–7 ms, one of the HMR sockets
+  opened at startup, apparently the orchestrator page's own, and the new
+  tester's HMR socket close with 1001 (going away). Decisive excerpt, hosted
+  attempt 2: `37.620 api-connect tester`, `37.702 api-disconnect
+  orchestrator hadError false`, `37.709 hmr-close 187 1001`,
+  `37.709 hmr-close 12 1001`.
+- No capture shows a Vite message sent (no `hmr-send` in any run), an earlier
+  close of the orchestrator's HMR socket, a page crash, a page close, or a
+  committed main-frame navigation before the closure. That rules out every
+  candidate the premise table named. The closing file differs each time
+  (`intent-project-scope-history-recovery`, `story-reference-done`,
+  `published-read-of-another-project`, `intent-scope-timing-history-gaps`,
+  `agent-roster-collection`, `intent-ci-history-chart-marks`,
+  `intent-code-browse-java`, `intent-story-outside-locations`,
+  `intent-story-result-browser`).
+
+Stop (2026-11-28): the stop rule applies. Closures were captured, but the
+event before each one is an ordinary tester start, and the capture cannot
+see what begins the orchestrator document's graceful unload. Slice 3 does
+not start. The plan returns for replanning. The capture and probe stay on
+the branch until replanning decides their next use.
+
 ### 3. Full frontend runs finish every file
 
 Type: Behavior
