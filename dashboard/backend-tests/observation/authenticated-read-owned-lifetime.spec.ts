@@ -1,9 +1,8 @@
 // A shared pinned read at the local authenticated read boundary
 // (../../server/authenticatedRead.ts, ../../server/ghRead.ts) stays for the
-// waiter that remains and ends when the last waiter leaves. A revision-check
-// listing (../../server/revisionChecks.ts) keeps its own CLI child after its
-// requester leaves. In process over Node HTTP with the real CLI `gh`: the
-// in-process transport does not create that child. Disconnect of one request,
+// waiter that remains and ends when the last waiter leaves. In process over
+// Node HTTP with the real CLI `gh`: the in-process transport does not create
+// that child. Disconnect of one request,
 // the read's own bound, and boundary close stay with their predecessor specs.
 
 import { readFileSync } from "node:fs";
@@ -13,7 +12,6 @@ import type { GhRequest } from "../../test-support/support/ghRequest.ts";
 import { startInProcessAuthenticatedRead } from "../../test-support/support/inProcessAuthenticatedRead.ts";
 import {
   processAlive,
-  processRunning,
   readPid,
 } from "../../test-support/support/processGroup.ts";
 import { abandonedRequest } from "../../test-support/support/rawHttp.ts";
@@ -148,39 +146,6 @@ test(
     } finally {
       holding.release();
     }
-  },
-  realCliCaseMs,
-);
-
-test(
-  "a revision check's shared listing stays alive after its requester leaves",
-  async () => {
-    const revision = revisionOf("8d");
-    const holding = await servedHolding(
-      server,
-      revision,
-      (request) => request.kind === "matching-refs",
-    );
-    let pid: number | undefined;
-    try {
-      const left = leaving(`&since=${revision}`);
-      await refusedMarker(server);
-      await expect
-        .poll(() => server.github.calls.length - holding.before, {
-          timeout: 5_000,
-        })
-        .toBeGreaterThanOrEqual(1);
-      pid = childPid();
-      expect(processAlive(pid)).toBe(true);
-      left.cutAfter(0);
-      await refusedMarker(server);
-      expect(processAlive(pid)).toBe(true);
-      expect(processRunning(pid)).toBe(true);
-      expect(askedSince(server, holding.before)).toEqual(["matching-refs"]);
-    } finally {
-      holding.release();
-    }
-    await expect.poll(() => processAlive(pid), { timeout: 5_000 }).toBe(false);
   },
   realCliCaseMs,
 );

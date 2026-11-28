@@ -62,11 +62,7 @@ test.describe("authenticated read reuse of what the comparison names (developmen
         held.release();
         answers = await Promise.all([seed, profiles]);
       }),
-    ).toEqual([
-      `content ${origin.paths.backlog}@${b}`,
-      `compare ${a}...${b}`,
-      `commit ${named("f2")}`,
-    ]);
+    ).toEqual([`compare ${a}...${b}`, `commit ${named("f2")}`]);
     expect(answers.map(({ status }) => status)).toEqual([200, 200]);
     expect(answers[1]?.body).toMatchObject({
       revision: b,
@@ -96,7 +92,6 @@ test.describe("authenticated read reuse of what the comparison names (developmen
         await readEverything(b);
       }),
     ).toEqual([
-      `content ${origin.paths.backlog}@${b}`,
       `compare ${a}...${b}`,
       `commit ${named("c0")}`,
       `content ${origin.paths.seed}@${b}`,
@@ -134,7 +129,6 @@ test.describe("authenticated read reuse of what the comparison names (developmen
         missing = await at(b).file(origin.paths.otherSeed);
       }),
     ).toEqual([
-      `content ${origin.paths.backlog}@${b}`,
       `compare ${a}...${b}`,
       `commit ${named("0c")}`,
       `content ${origin.paths.otherSeed}@${b}`,
@@ -186,7 +180,6 @@ test.describe("authenticated read reuse of what the comparison names (developmen
         moved = await at(b).file(origin.paths.newSeed);
       }),
     ).toEqual([
-      `content ${origin.paths.backlog}@${b}`,
       `compare ${a}...${b}`,
       `commit ${named("1c")}`,
       `content ${origin.paths.otherSeed}@${b}`,

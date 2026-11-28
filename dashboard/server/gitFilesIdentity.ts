@@ -27,8 +27,7 @@ const settledNs = 1_000_000_000n;
 
 class Unsettled extends Error {}
 
-function identityOf(stats: BigIntStats): string {
-  const nowNs = BigInt(Date.now()) * 1_000_000n;
+function identityOf(stats: BigIntStats, nowNs: bigint): string {
   if (nowNs - stats.mtimeNs < settledNs || nowNs - stats.ctimeNs < settledNs)
     throw new Unsettled();
   return `${String(stats.ino)}:${String(stats.mtimeNs)}:${String(stats.size)}`;
@@ -48,7 +47,8 @@ async function lookedAt(
   }
 }
 
-const fileIdentity = (file: string) => lookedAt(file, identityOf);
+const fileIdentity = (file: string, nowNs: bigint) =>
+  lookedAt(file, (stats) => identityOf(stats, nowNs));
 
 // A folder's identity is its inode alone.
 const folderIdentity = (folder: string) =>
@@ -86,17 +86,23 @@ async function gitFolders(
 
 // One linked worktree's administrative entry, its branch ref, and its
 // worktree's `.git` file.
-async function worktreeIdentity(common: string, name: string): Promise<string> {
+async function worktreeIdentity(
+  common: string,
+  name: string,
+  nowNs: bigint,
+): Promise<string> {
   const entry = path.join(common, "worktrees", name);
   const head = await text(path.join(entry, "HEAD"));
   const branch = head?.match(/^ref: (refs\/heads\/.+)$/)?.[1];
   const located = await text(path.join(entry, "gitdir"));
   const parts = await Promise.all([
-    fileIdentity(path.join(entry, "HEAD")),
-    fileIdentity(path.join(entry, "gitdir")),
-    fileIdentity(path.join(entry, "config.worktree")),
-    branch === undefined ? "detached" : fileIdentity(path.join(common, branch)),
-    located === undefined ? "unlocated" : fileIdentity(located),
+    fileIdentity(path.join(entry, "HEAD"), nowNs),
+    fileIdentity(path.join(entry, "gitdir"), nowNs),
+    fileIdentity(path.join(entry, "config.worktree"), nowNs),
+    branch === undefined
+      ? "detached"
+      : fileIdentity(path.join(common, branch), nowNs),
+    located === undefined ? "unlocated" : fileIdentity(located, nowNs),
   ]);
   return `${name}=${String(head)}>${String(located)}:${parts.join(",")}`;
 }
@@ -107,7 +113,9 @@ async function worktreeIdentity(common: string, name: string): Promise<string> {
 export async function gitFilesIdentity(
   checkout: string,
   trunk: string,
+  now: () => number = Date.now,
 ): Promise<string | undefined> {
+  const nowNs = BigInt(now()) * 1_000_000n;
   try {
     const folder = await folderIdentity(checkout);
     const folders = await gitFolders(checkout);
@@ -120,11 +128,11 @@ export async function gitFilesIdentity(
       names = [];
     }
     const parts = await Promise.all([
-      fileIdentity(path.join(common, "config")),
-      fileIdentity(path.join(common, "packed-refs")),
-      fileIdentity(path.join(common, "reftable", "tables.list")),
-      fileIdentity(path.join(common, "refs", "remotes", trunk)),
-      ...names.map((name) => worktreeIdentity(common, name)),
+      fileIdentity(path.join(common, "config"), nowNs),
+      fileIdentity(path.join(common, "packed-refs"), nowNs),
+      fileIdentity(path.join(common, "reftable", "tables.list"), nowNs),
+      fileIdentity(path.join(common, "refs", "remotes", trunk), nowNs),
+      ...names.map((name) => worktreeIdentity(common, name, nowNs)),
     ]);
     return [folder, own, common, ...parts].join("|");
   } catch (error) {

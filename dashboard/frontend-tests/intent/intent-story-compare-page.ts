@@ -240,6 +240,12 @@ export function intentStoryCompare() {
       ).trim(),
     diffCode: () =>
       textOf(purpose.element().querySelector(".story-review-code")),
+    // Whether the diff still reads the file's texts for its omitted context.
+    diffContextReading: () =>
+      purpose
+        .element()
+        .querySelector(".story-review-code")
+        ?.getAttribute("aria-busy"),
   };
 }
 

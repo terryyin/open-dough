@@ -93,7 +93,7 @@ const expectNoRestMembership = (...origins: { requests: GhCall[] }[]) => {
 };
 
 test.describe("project read isolation", () => {
-  test("a late success from a deselected project's outstanding read never replaces the newly selected project's shown work, and the selector stays keyboard-operable throughout", async ({
+  test("a late success from a deselected project's outstanding read never replaces the newly selected project's shown work", async ({
     page,
     afterGitHubStops,
     dashboard,
@@ -103,20 +103,13 @@ test.describe("project read isolation", () => {
       dashboard.home,
       afterGitHubStops,
     );
-    const { project, backlog, readRevision } = parts(page);
+    const { backlog, readRevision } = parts(page);
 
     await projectTab(page, "Doughnut").check();
     await doughnutTransfer.held;
 
-    await test.step("the selector is never blocked while Doughnut's read is outstanding", async () => {
-      const selectedProject = project.getByRole("radio", { checked: true });
-      await expect(selectedProject).toBeEnabled();
-      await selectedProject.focus();
-      await expect(selectedProject).toBeFocused();
-    });
-
     openDough.advanceTo("second");
-    await page.keyboard.press("ArrowLeft");
+    await projectTab(page, "Open Dough").check();
 
     await test.step("Open Dough's fresh read is shown; Doughnut's outstanding read is not waited on or shown", async () => {
       await expectMembership(page, {

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-450#keep-runner-across-unrelated-dashboard-deploys",
+  "title": "Keep the Cursor runner across unrelated dashboard deploys",
+  "completedAt": "2026-11-28T10:41:11.179Z",
+  "developer": "Terry Yin",
+  "agent": "Aino-chan",
+  "host": "cursor",
+  "model": "grok-4.7"
+}

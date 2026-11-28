@@ -151,7 +151,10 @@ and `npm run lint`.
 Structure: Replace `dashboard/tests/README.md`'s "one suite, run and sharded
 together" with the independent groups, and route a case needing the real
 server, Git or a synthetic host to an E2E workflow or a Dashboard Backend Test
-boundary check, as `e2e/README.md` already states. Keep the interim group's
+boundary check, as `e2e/README.md` already states. State that an
+E2E spec no shard pattern lists runs in the remainder shard (observed
+2026-11-28: `launches/released-installation-preparation.spec.ts` ran in shard
+6, not the planned shard 1). Keep the interim group's
 existing description, and end the README at 250 lines or fewer.
 
 ## Verification and delivery gates

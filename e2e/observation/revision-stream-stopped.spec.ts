@@ -26,9 +26,7 @@ import {
   expectStreamOpenGapsAtLeastPace,
   isRevisionStream,
   openStreamingAtA,
-  streamPaceMs,
   streamServerEnv,
-  untilMatchingRefsSince,
   untilStreamingAt,
 } from "../../dashboard/test-support/revisionStreamJourney.ts";
 import {
@@ -36,7 +34,11 @@ import {
   titlesOfB,
 } from "../../dashboard/test-support/refreshJourney.ts";
 import { openedSettled } from "../../dashboard/test-support/branchRefreshJourney.ts";
-import { onBranch } from "../../dashboard/test-support/branchProgressRecords.ts";
+import { disconnectOriginThroughServedHomes } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
+import {
+  onBranch,
+  repository,
+} from "../../dashboard/test-support/branchProgressRecords.ts";
 import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
 import { revisionStreamSilenceMs } from "../../dashboard/src/revisionStreamSchedule.ts";
 import {
@@ -220,16 +222,22 @@ stoppedStreamTest(
 );
 
 fastStreamTest(
-  "a 504 listing over the stream leaves the watched branch shown",
+  "a failed Git probe over the stream leaves the watched branch shown",
   async ({ page, afterGitHubStops }) => {
     const { origin, progress } = await openedSettled(page, afterGitHubStops, {
       whenOpening: (revision) => untilStreamingAt(page, revision),
     });
     await expect(progress).not.toContainText("no longer published");
-    const restore = origin.failListing();
+    const restore = disconnectOriginThroughServedHomes(
+      githubFor(page),
+      origin.repoDir,
+      repository,
+    );
     try {
-      await untilMatchingRefsSince(page, githubFor(page).calls.length, 1);
-      await page.waitForTimeout(streamPaceMs * 3);
+      await expect(parts(page).problem).toContainText(
+        "Published work could not be read",
+      );
+      await expect(progress).toContainText("6 of 8 slices recorded complete");
       await expect(progress).not.toContainText("no longer published");
       await expect(page.getByRole("article", { name: onBranch })).toBeVisible();
     } finally {

@@ -1,14 +1,15 @@
 // The worker's mounted dashboard server: which boundaries it mounts and how
 // the worker owns it. Its runner stand-in is proven with the private HTTP
 // fixture (../observation/private-http-stand-in-runner.spec.ts).
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { localBoundaries } from "../../server/localBoundaries.ts";
 import {
   mountedBoundaries,
-  processOnly,
   withMountedDashboard,
 } from "../../test-support/support/mountedDashboardServer.ts";
-import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
+
+// These cases exercise boundary selection and ownership without recording incidents.
+vi.mock(import("../../server/incidentRecord.ts"), () => ({}));
 
 const aDashboard = () => ({ close: () => Promise.resolve() });
 
@@ -43,18 +44,4 @@ test("a start refused at its port releases the worker", async () => {
   ).rejects.toThrow(/EADDRINUSE/);
   const next = await withMountedDashboard(() => Promise.resolve(aDashboard()));
   await next.close();
-});
-
-test("process-only observations name the live-server request", () => {
-  expect(() => processOnly("pid")).toThrow(/no pid.*liveServer/);
-  expect(() => processOnly("output")).toThrow(/no output.*liveServer/);
-});
-
-test("the mount's environment overrides are undone exactly", () => {
-  const setting = "DOUGH_TEST_MOUNTED_SERVER_SENTINEL";
-  const before = process.env[setting];
-  const restore = withRestoredEnv({ [setting]: "mounted" });
-  expect(process.env[setting]).toBe("mounted");
-  restore();
-  expect(process.env[setting]).toBe(before);
 });

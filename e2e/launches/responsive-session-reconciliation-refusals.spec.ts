@@ -20,7 +20,6 @@ import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAtte
 import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
 import { untilPageRequestsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { expect } from "../../dashboard/test-support/dashboardTest.ts";
-import { commitAnswer } from "../../dashboard/test-support/originAnswers.ts";
 import { removeQueuedStory } from "../../dashboard/test-support/responsiveRecovery.ts";
 import {
   expectProtected,
@@ -51,16 +50,13 @@ async function startAfter(
   origin: StartOrigin,
   change: () => Promise<unknown>,
 ) {
-  const before = (await origin.originGit("rev-parse", "main")).trim();
   const opened = await openStories(page, origin);
-  const restore = opened.published.answerWith("main", commitAnswer(before));
   await change();
   await opened.story.getByRole("button", { name: "Start execution" }).click();
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Start", exact: true })
     .click();
-  restore();
   return opened;
 }
 

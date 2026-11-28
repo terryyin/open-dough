@@ -10,38 +10,10 @@
 // later screen can still accept the instruction.
 import type { ScreenReadiness } from "./launchHosts.ts";
 import { KeptClientScreen } from "./keptClientScreen.ts";
-
-function showsPasteChip(screen: string): boolean {
-  return screen.includes("Pasted text");
-}
-
-// The composer is the last line that carries Cursor's prompt arrow. The
-// status footer repeats the worktree and branch, which also appear in a
-// launch prompt, so a match anywhere on the screen is not the draft.
-function composerLine(screen: string): string {
-  const lines = screen.split(/\r?\n/u);
-  for (let index = lines.length - 1; index >= 0; index -= 1) {
-    const line = lines[index];
-    if (line?.includes("→")) return line;
-  }
-  return "";
-}
-
-// Cursor sometimes leaves a multiline paste as composer text instead of a
-// chip. The arrow line then shows that text, including its wrapped tail.
-// Short fragments are ignored.
-function showsUnsentInstruction(screen: string, instruction: string): boolean {
-  const composer = composerLine(screen);
-  if (composer === "") return false;
-  for (const line of instruction.split("\n")) {
-    const text = line.trim();
-    if (text.length < 16) continue;
-    const head = text.slice(0, 48);
-    const tail = text.slice(-40);
-    if (composer.includes(head) || composer.includes(tail)) return true;
-  }
-  return false;
-}
+import {
+  showsPasteChip,
+  showsUnsentInstruction,
+} from "./launchInstructionDraft.ts";
 
 export type LaunchInstructionInput = {
   readonly instruction: string;
@@ -136,13 +108,16 @@ export class LaunchInstruction {
     const pastedChip = showsPasteChip(screen.text());
     if (!this.entered && this.pasted) {
       // A paste chip is not the empty composer and has no synchronized frame.
-      // The same is true of the instruction left as composer text. Submit
-      // either before the not-ready wait would return. The wait settles on
-      // the client's answer to that submit, a later finished frame or ready
-      // screen, so the screen read after the launch is not the unsent draft.
-      const draft =
-        !ready &&
-        showsUnsentInstruction(screen.text(), this.launch.instruction);
+      // The same is true of the instruction left as composer text, including
+      // a wrapped tail on the arrow line while the empty prompt is still on
+      // screen. Submit either before the empty-composer wait would return.
+      // The wait settles on the client's answer to that submit, a later
+      // finished frame or ready screen, so the screen read after the launch
+      // is not the unsent draft.
+      const draft = showsUnsentInstruction(
+        screen.text(),
+        this.launch.instruction,
+      );
       if (pastedChip || draft) {
         await this.submitPaste(screen);
         return;

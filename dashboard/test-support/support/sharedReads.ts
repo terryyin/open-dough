@@ -1,18 +1,12 @@
 // Shared support for ../../backend-tests/observation/authenticated-read-shared-requests.spec.ts,
 // ../../backend-tests/observation/authenticated-read-shared-waiters.spec.ts,
-// ../../backend-tests/observation/authenticated-read-shared-failures.spec.ts,
-// ../../backend-tests/observation/authenticated-read-shared-listing.spec.ts, and
-// ../../backend-tests/observation/authenticated-read-shared-listing-failures.spec.ts: a published
+// and ../../backend-tests/observation/authenticated-read-shared-failures.spec.ts: a published
 // revision whose backlog names two seeds and two story-branch profiles, the
 // boundary reads a test sends, and how a test sends reads that coincide on
 // one held GitHub answer and observes the questions that reached GitHub.
 
 import assert from "node:assert/strict";
-import {
-  developmentBoundary,
-  startDashboardServer,
-  type DashboardServer,
-} from "./dashboardServer.ts";
+import type { DashboardServer } from "./dashboardServer.ts";
 import {
   everyRepository,
   publishes,
@@ -28,23 +22,6 @@ import {
   describedRevision,
   withBacklogFallback,
 } from "../describedRevisions.ts";
-
-// How long a listing-reuse boundary case keeps a settled listing answerable.
-export const listingReuseWindowMs = 60_000;
-
-// A boundary server whose revision-check listings reuse for that window.
-export function listingReuseServer(
-  overrides: Pick<
-    Parameters<typeof startDashboardServer>[0],
-    "github" | "pathPrefix" | "requestOwnerRoot" | "ghTransport"
-  > = {},
-): Promise<DashboardServer> {
-  return startDashboardServer({
-    ...developmentBoundary,
-    revisionCheckReuseMs: listingReuseWindowMs,
-    ...overrides,
-  });
-}
 
 export const sharedSeedPath = ".planning/seeds/SEED-shared.md";
 export const otherSeedPath = ".planning/seeds/SEED-other.md";
@@ -68,28 +45,28 @@ const onBranch = (name: string, identity: string, branch: string) =>
     .executing({ name, identity, mode: "story-branch", branch })
     .please();
 
+export const sharedReadsFacts = () => ({
+  backlog: {
+    taken: [
+      story("One", "SEED-shared#one", "seeds/SEED-shared.md#one"),
+      story("Two", "SEED-other#two", "seeds/SEED-other.md#two"),
+    ],
+  },
+  files: {
+    [sharedSeedPath]: sharedSeedText,
+    [otherSeedPath]: otherSeedText,
+  },
+  agentProfiles: [
+    onBranch("Yui", "SEED-shared#one", "story/one"),
+    onBranch("Akiho", "SEED-other#two", "story/two"),
+  ],
+});
+
 // `revision` as every repository's ref and trunk head names it, with the
 // story branches' heads listed beside it.
 export function sharedReadsPublished(revision: string): RepositoryAnswerer {
   const at = describedRevision(
-    makeMe.aRepository
-      .withRevision("shared", {
-        backlog: {
-          taken: [
-            story("One", "SEED-shared#one", "seeds/SEED-shared.md#one"),
-            story("Two", "SEED-other#two", "seeds/SEED-other.md#two"),
-          ],
-        },
-        files: {
-          [sharedSeedPath]: sharedSeedText,
-          [otherSeedPath]: otherSeedText,
-        },
-        agentProfiles: [
-          onBranch("Yui", "SEED-shared#one", "story/one"),
-          onBranch("Akiho", "SEED-other#two", "story/two"),
-        ],
-      })
-      .please(),
+    makeMe.aRepository.withRevision("shared", sharedReadsFacts()).please(),
     revision,
   );
   const published = publishes({

@@ -25,6 +25,7 @@ import {
 import { commitDeclaredRevision } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { initializeStartOrigin } from "./startOriginInitialization.ts";
+import type { ReleasedInstallation } from "./taggedInstallation.ts";
 import {
   anotherAgentTakes,
   type DeclaredTake,
@@ -122,10 +123,13 @@ export async function startOrigin(
     repository = "terryyin/open-dough",
     projectId = "open-dough",
     host = "claude",
+    release,
   }: {
     readonly repository?: string;
     readonly projectId?: string;
     readonly host?: "claude" | "codex" | "cursor";
+    // A released installation instead of this run's working-tree skills.
+    readonly release?: ReleasedInstallation | undefined;
   } = {},
 ): Promise<StartOrigin> {
   const machine = mkdtempSync(path.join(tmpdir(), "dough-start-"));
@@ -141,6 +145,7 @@ export async function startOrigin(
       repository,
       host === "claude" ? "claude" : "codex",
       description,
+      release,
     );
   } catch (error) {
     rmSync(machine, { recursive: true, force: true });

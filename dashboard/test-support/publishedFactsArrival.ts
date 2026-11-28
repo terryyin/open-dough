@@ -1,5 +1,5 @@
-// Raw pinned records and independently held GitHub fact groups for arrival and
-// failure journeys. Membership and every held request precede release or failure.
+// Real trunk and story-branch publications with independently held GitHub fact
+// groups. Membership and every held request precede release or failure.
 
 import type { Page } from "@playwright/test";
 import { z } from "zod";
@@ -9,12 +9,11 @@ import {
 } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-story-dependencies.mjs";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
+import { integrationDeveloper } from "../../Distribution/tests/support/repository-revision-commit.mjs";
 import { expect, githubFor, pausePageClockAt } from "./dashboardTest.ts";
-import { serveCommitted } from "./committedFiles.ts";
+import { publishCommittedFileHistory } from "./committedFiles.ts";
 import { expectMembership, shortRevision, parts } from "./dashboardPage.ts";
-import { branchRefAnswer } from "./originAnswers.ts";
 import { addedAt } from "./pathHistoryAnswers.ts";
-import { describedRevisions } from "./describedRevisions.ts";
 import { doneDirectory, executed } from "./recentlyDoneRecords.ts";
 import {
   afterTake,
@@ -27,10 +26,9 @@ import {
   planPath,
   profilePath,
   repository,
-  revision,
   stories,
 } from "./sliceClockRecords.ts";
-import { publishes } from "./support/fakeGitHub.ts";
+import type { RepositoryAnswerer } from "./support/fakeGitHub.ts";
 import type { GhRequest } from "./support/ghRequest.ts";
 import {
   holdFactGroupAnswers,
@@ -47,10 +45,10 @@ export const purpose =
   "Make canonical preparation facts useful before profiles answer.";
 const plan = files[planPath("after-take")] ?? "";
 const branch = "story/available-facts";
-const branchHead = "b4".repeat(20);
 export const preparer = "Pat Preparer";
 const minutesBefore = (minutes: number) =>
   new Date(opened.getTime() - minutes * 60_000);
+const branchCommitTime = minutesBefore(7);
 
 const preparingStory = makeMe.aBacklogEntry
   .with({
@@ -84,63 +82,64 @@ const withAgreement = z.string().parse(
 
 // The slice clock records (./sliceClockRecords.ts) queuing one more story,
 // then that story prepared: planned and assessed Ready, an execution and a
-// preparation profile, and the done record every journey reads.
-const publishedTrunk = () =>
-  describedRevisions(
-    makeMe.aRepository
-      .withRevision(
-        "clock",
-        clockedFacts({
-          queued: [preparingStory],
-        }),
-      )
-      .withRevision("prepared", {
-        files: {
-          ".planning/open-dough.json": "{}\n",
-          [preparingPath]: withAgreement,
-          [planPath("preparing")]: plan,
-        },
-        storyStates: [
-          {
-            identity: preparingStory.identity,
-            href: preparingStory.href,
-            ...makeMe.aStoryPreparation
-              .plannedIn("../slice-plans/091-preparing/PLAN.md")
-              .please(),
-            assessment: "ready",
-          },
-        ],
-        agentProfiles: [
-          makeMe.anAgentProfile
-            .executing({
-              name: "Akiho",
-              identity: "SEED-091#after-take",
-              mode: "story-branch",
-              branch,
-              host: "claude",
-            })
-            .please(),
-          makeMe.anAgentProfile
-            .preparing({
-              name: "Kirara",
-              identity: preparingIdentity,
-              host: "codex",
-            })
-            .please(),
-        ],
-        doneRecords: [
-          makeMe.aDoneRecord
-            .with({
-              ...executed,
-              completedAt: minutesBefore(60).toISOString(),
-              developer: "Terry Yin",
-            })
-            .please(),
-        ],
-      })
-      .please(),
-    { clock: revision, prepared: revision },
-  ).prepared;
+// preparation profile, and the done record every journey reads. The branch
+// publishes its own plan, with both slices still planned.
+const description = makeMe.aRepository
+  .withRevision("clock", clockedFacts({ queued: [preparingStory] }))
+  .withRevision("prepared", {
+    files: {
+      ".planning/open-dough.json": "{}\n",
+      [preparingPath]: withAgreement,
+      [planPath("preparing")]: plan,
+    },
+    storyStates: [
+      {
+        identity: preparingStory.identity,
+        href: preparingStory.href,
+        ...makeMe.aStoryPreparation
+          .plannedIn("../slice-plans/091-preparing/PLAN.md")
+          .please(),
+        assessment: "ready",
+      },
+    ],
+    agentProfiles: [
+      makeMe.anAgentProfile
+        .executing({
+          name: "Akiho",
+          identity: "SEED-091#after-take",
+          mode: "story-branch",
+          branch,
+          host: "claude",
+        })
+        .please(),
+      makeMe.anAgentProfile
+        .preparing({
+          name: "Kirara",
+          identity: preparingIdentity,
+          host: "codex",
+        })
+        .please(),
+    ],
+    doneRecords: [
+      makeMe.aDoneRecord
+        .with({
+          ...executed,
+          completedAt: minutesBefore(60).toISOString(),
+          developer: "Terry Yin",
+        })
+        .please(),
+    ],
+  })
+  .withRevision("branchTip", {
+    files: {
+      [planPath("after-take")]: plan.replace("Status: done", "Status: planned"),
+    },
+    committer: {
+      ...integrationDeveloper,
+      date: branchCommitTime.toISOString(),
+    },
+  })
+  .please();
 
 const groupOf = (request: GhRequest): FactGroup | undefined => {
   if (request.kind !== "content") return undefined;
@@ -150,42 +149,42 @@ const groupOf = (request: GhRequest): FactGroup | undefined => {
   return undefined;
 };
 
-export async function heldFactGroups(page: Page) {
+export async function heldFactGroups(
+  page: Page,
+  afterGitHubStops: (cleanup: () => Promise<void>) => void,
+) {
   await pausePageClockAt(page, opened);
-  const trunk = publishes({
-    files: publishedTrunk().files,
-    // Bound-recovery journeys need every Taken clock answerable so an
-    // unrelated unread plan time does not keep scheduling detail recovery
-    // after the held preparation gap heals (./sliceClockRecords.ts omits it).
-    committed: {
-      ...committed,
-      [planPath("time-unread")]: minutesBefore(15),
+  let answer: RepositoryAnswerer;
+  const held = holdFactGroupAnswers((call) => answer(call), groupOf);
+  const published = await publishCommittedFileHistory(page, description, {
+    repository,
+    trunk: "prepared",
+    branches: { [branch]: "branchTip" },
+    afterGitHubStops,
+    wrapAnswer: (publishedAnswer) => {
+      answer = publishedAnswer;
+      return held.answer;
     },
-    history: {
-      ...history,
-      [profilePath("Kirara")]: [
-        { ...addedAt(0x22, minutesBefore(20)), committer: preparer },
-      ],
-    },
+    details: () => ({
+      prepared: {
+        // Keep every Taken clock answerable so unrelated times do not keep
+        // scheduling detail recovery once the preparation gap heals.
+        committed: {
+          ...committed,
+          [planPath("time-unread")]: minutesBefore(15),
+        },
+        history: {
+          ...history,
+          [profilePath("Kirara")]: [
+            { ...addedAt(0x22, minutesBefore(20)), committer: preparer },
+          ],
+        },
+      },
+      branchTip: { committed: { [planPath("after-take")]: branchCommitTime } },
+    }),
   });
-  const onBranch = publishes({
-    revision: branchHead,
-    files: {
-      [planPath("after-take")]: plan.replace("Status: done", "Status: planned"),
-    },
-    committed: { [planPath("after-take")]: minutesBefore(7) },
-  });
-  const held = holdFactGroupAnswers((call) => {
-    const { request } = call;
-    if (request.kind === "branch") {
-      return Promise.resolve(branchRefAnswer(branch, branchHead));
-    }
-    return "revision" in request && request.revision === branchHead
-      ? onBranch(call)
-      : trunk(call);
-  }, groupOf);
+  const revision = published.revisions.prepared;
   const github = githubFor(page);
-  const revision = serveCommitted(page, repository, trunk, held.answer);
   await page.goto("/");
   await expectMembership(page, {
     taken: stories.map(({ title }) => title),

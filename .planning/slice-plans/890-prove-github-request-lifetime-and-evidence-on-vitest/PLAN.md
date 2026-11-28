@@ -31,10 +31,10 @@ a real socket, subprocess, owner process, Git repository, or durable file.
 [Plan 858](https://github.com/terryyin/open-dough/blob/bca2def1a/.planning/slice-plans/858-move-authenticated-read-proofs-off-the-board-ref-read/PLAN.md)
 moved the general authenticated-read tests away from the Board's cold
 read. [Plan 856](https://github.com/terryyin/open-dough/blob/e4faafbdb/.planning/slice-plans/856-open-the-board-from-the-verified-git-trunk/PLAN.md)
-put that read on verified Git trunk. Keep the revision check for listing
-and its lifetime, and the pinned content read for one-attempt failure and
-attribution. Prepare the pinned revision and reachable path before
-recording upstream call counts.
+put that read on verified Git trunk. Trunk later removed the GitHub
+revision-check listing (`revisionChecks.ts`, `42afce853`). This plan keeps
+the pinned content read for one-attempt failure and attribution. Prepare
+the pinned revision and reachable path before recording upstream call counts.
 
 [Plan 861](../861-prove-published-refresh-lifecycle-on-vitest/PLAN.md) owns
 revision-listing reuse, revision streams, and retained answers.
@@ -208,15 +208,12 @@ Type: Behavior
 Status: done
 
 Behavior: One departing waiter leaves a shared pinned read alive for its
-peer, and the last departure releases that read. A revision check's shared
-listing stays alive after its requester leaves. Ending that listing at its
-bound or on close belongs to slices 2 and 3.
+peer, and the last departure releases that read.
 
 Proof: Mount the production read path over Node HTTP with the real CLI
 child. Observe the child PID still alive after one of two pinned waiters
 leaves and gone after the last one leaves, and the staying or later
-requester's answer. Observe the listing PID still alive after its
-requester leaves. Keep bounded drains and teardown.
+requester's answer. Keep bounded drains and teardown.
 
 Legacy: the two waiter cases in `authenticated-read-shared-waiters.spec.ts`,
 and in `authenticated-read-subprocess-lifecycle.spec.ts` the case that
@@ -232,8 +229,8 @@ stay until slices 2 and 3 replace them.
 (174 lines) passed 3/3 through the real CLI child:
 one waiter leaving left pid alive and the peer received the shared seed;
 the last departure exited `SIGTERM` and a later read made a second content
-call; the revision-check listing was still `processRunning` after its
-requester left. Command: `caffeinate -s -i npm run test:dashboard:backend -- dashboard/backend-tests/observation/authenticated-read-owned-lifetime.spec.ts --workers=1`
+call. The revision-check listing case was removed with trunk's deletion
+of that GitHub listing. Command: `caffeinate -s -i npm run test:dashboard:backend -- dashboard/backend-tests/observation/authenticated-read-owned-lifetime.spec.ts --workers=1`
 (exit 0; 150 ms, 147 ms, 110 ms). `npm run typecheck:dashboard` exited 0.
 Records: `slice-1-lifetime.log.run.json` and
 `slice-1-lifetime-typecheck.log.run.json`.
@@ -243,9 +240,8 @@ Records: `slice-1-lifetime.log.run.json` and
 Type: Behavior
 Status: done
 
-Behavior: The work's own timeout releases a stalled pinned read and a
-stalled revision check. A late waiter keeps its own bound and cannot
-extend the call's bound.
+Behavior: The work's own timeout releases a stalled pinned read. A late
+waiter keeps its own bound and cannot extend the call's bound.
 
 Proof: Use the real CLI child. `GitHubRequests` captures
 `DOUGH_READ_TIMEOUT_MS` when `dashboard/server/ghRead.ts` is evaluated, so
@@ -272,14 +268,16 @@ The short bound was set before `ghRead.ts` loaded. Command:
 `caffeinate -s -i npm run test:dashboard:backend -- dashboard/backend-tests/observation/authenticated-read-owned-bound.spec.ts --workers=1`
 (exit 0). `npm run typecheck:dashboard` exited 0. Records:
 `slice-2-bound.log.run.json` and `slice-2-bound-typecheck.log.run.json`.
+Trunk commit `42afce853` removed the GitHub revision-check listing, and
+the stalled revision-check cases left with it.
 
 ### 3. Release owned work when the boundary closes
 
 Type: Behavior
 Status: done
 
-Behavior: Boundary close releases a held pinned read and a held revision
-check, including one read that two requests still wait on. Closing ends
+Behavior: Boundary close releases a held pinned read, including one read
+that two requests still wait on. Closing ends
 outstanding and queued waits. The close hook acts with the socket still
 open, and a later read is refused before asking GitHub.
 
@@ -308,6 +306,8 @@ reads whose four queued paths never appear. A later read is HTTP 503
 `caffeinate -s -i npm run test:dashboard:backend -- dashboard/backend-tests/observation/authenticated-read-owned-close.spec.ts --workers=1`
 (exit 0). `npm run typecheck:dashboard` exited 0. Records:
 `slice-3-close.log.run.json` and `slice-3-close-typecheck.log.run.json`.
+Trunk commit `42afce853` removed the GitHub revision-check listing, and
+the held revision-check close case left with it.
 
 ### 4. Share one authenticated owner across two Dashboards and CI
 

@@ -27,11 +27,10 @@ import {
   backlogPath,
   defaultRepository,
 } from "../../test-support/publishedOriginBasics.ts";
-import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
 import {
-  checkedAt,
   pinnedAt,
   pinnedRead,
+  readAt,
   readUrl,
 } from "../../test-support/support/sharedReads.ts";
 import { keepingOrigin } from "../../test-support/support/publishedRepository.ts";
@@ -176,10 +175,9 @@ test("pinned content failures carry the admitted pin without changing the shared
     const published = publishes({ files, backlog: files[backlogPath] ?? "" });
     const { revision } = published;
     server.github.serve(defaultRepository, published);
-    expectServedHomesReach(server.github, defaultRepository, revision);
-    const checked = await checkedAt(server);
-    expect(checked.status).toBe(200);
-    expect(JSON.parse(checked.body)).toMatchObject({ revision });
+    const backlog = await readAt(server, `&revision=${revision}`);
+    expect(backlog.status).toBe(200);
+    expect(JSON.parse(backlog.body)).toMatchObject({ revision });
     server.github.serve(
       defaultRepository,
       keepingOrigin(

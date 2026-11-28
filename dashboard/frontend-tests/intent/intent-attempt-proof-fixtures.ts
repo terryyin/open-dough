@@ -26,6 +26,12 @@ const locations = makeMe.anIntentLocationsAnswer
       .ofKind("shell", ["*.sh"])
       .selecting()
       .please(),
+    makeMe.anIntentLocation
+      .at("e2e")
+      .ofKind("typescript", ["**/*.spec.ts"])
+      .labelled("E2E Test")
+      .selecting("e2e/install.spec.ts")
+      .please(),
   )
   .please();
 

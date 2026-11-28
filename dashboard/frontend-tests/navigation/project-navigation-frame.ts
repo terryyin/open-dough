@@ -69,8 +69,6 @@ export const projectRadio = (label: string) =>
       name: label,
       exact: true,
     });
-export const systemSettings = () =>
-  page.getByRole("button", { name: "System settings", exact: true });
 export const route = () => new URL(location.href).searchParams;
 
 export function focus(control: Locator) {

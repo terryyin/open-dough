@@ -1,31 +1,6 @@
-// The local authenticated read boundary (../../server/authenticatedRead.ts) is
-// tested here directly against real HTTP and a real, but controlled,
-// subprocess -- not through the browser. A synthetic `gh` on each isolated
-// server process's PATH can hold a call open on command, so these tests can
-// prove that a `gh` subprocess this boundary owns actually ends -- rather
-// than being merely discarded -- when the last waiter disconnects (pinned
-// reads), on its own read timeout, and on server shutdown. A
-// revision-check listing runs under its own tracked controller
-// (../../server/revisionChecks.ts), so a departed requester leaves `gh`
-// alive until the listing settles or the boundary closes; that disconnect
-// ownership is proved here, and close-while-running in
-// ./authenticated-read-shared-listing-failures.spec.ts. The Vite plugin hooks
-// that own shutdown cleanup are isolated in
-// ./authenticated-read-plugin-hooks.spec.ts.
-//
-// This spec covers the boundary's subprocess lifecycle. See
-// ./authenticated-read-http.spec.ts for HTTP admission and
-// ./authenticated-read-boundary.spec.ts for typed pinned file reads. Pinned
-// reads and revision checks differ by URL shape and, for disconnect, by
-// whether the held work is the request itself or a shared listing. Every
-// catalog source reaches that ownership through the same code, so each read kind
-// is exercised for one source; which source is asked is covered in
-// ../../../e2e/observation/authenticated-project-observation.spec.ts. A page that abandons a check
-// -- on hiding, a new read, or a project switch -- disconnects the same way.
-//
-// This spec's servers are separate processes, each with its own PATH and its
-// own fake `gh`, so nothing here can leak into -- or race with -- the page
-// journeys' own servers.
+// The authenticated read boundary owns pinned REST subprocesses. This proves
+// they end on disconnect, their own wait bound, and server shutdown. Shared
+// branch listing ownership is covered in the dedicated listing boundary specs.
 
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
@@ -36,11 +11,7 @@ import {
   everyRepository,
   hangs,
 } from "../../test-support/support/fakeGitHub.ts";
-import {
-  pinnedRead,
-  readUrl,
-  revisionCheck,
-} from "../../test-support/support/sharedReads.ts";
+import { pinnedRead, readUrl } from "../../test-support/support/sharedReads.ts";
 import {
   developmentBoundary,
   startDashboardServer,
@@ -55,10 +26,7 @@ import {
 test.describe.configure({ mode: "serial" });
 
 // Each read kind whose `gh` subprocess the boundary owns.
-const readKinds = [
-  { label: "pinned read", query: pinnedRead },
-  { label: "revision check", query: revisionCheck },
-] as const;
+const readKinds = [{ label: "pinned read", query: pinnedRead }] as const;
 
 test.describe("authenticated read boundary: last-waiter disconnect ends pinned-read subprocesses (development environment)", () => {
   let server: DashboardServer;
@@ -90,45 +58,6 @@ test.describe("authenticated read boundary: last-waiter disconnect ends pinned-r
     });
     expect(died).toBe(true);
     expect(server.ghExitedBy()).toBe("SIGTERM");
-  });
-});
-
-test.describe("authenticated read boundary: revision-check listing survives requester disconnect (development environment)", () => {
-  let server: DashboardServer;
-
-  test.beforeAll(async () => {
-    server = await startDashboardServer({
-      ...developmentBoundary,
-      ghTransport: "cli",
-    });
-  });
-
-  test.afterAll(async () => {
-    await server.close();
-  });
-
-  test("leaves a held revision check running when the request is abandoned (client disconnect)", async () => {
-    server.github.serve(everyRepository, hangs);
-    const abandoned = abandonedRequest({
-      url: readUrl(server.baseURL, revisionCheck),
-      headers: { Origin: server.origin },
-    });
-    const becameAlive = await waitUntil(() => processAlive(server.ghPid()), {
-      timeoutMs: 5_000,
-    });
-    expect(becameAlive).toBe(true);
-    const ghPid = server.ghPid();
-    abandoned.cutAfter(0);
-    // The listing keeps its own tracked controller; only boundary close (or
-    // settlement) ends it. Give a last-waiter SIGTERM time to have arrived,
-    // then require the process still live. Close-while-running is covered in
-    // ./authenticated-read-shared-listing-failures.spec.ts and in the
-    // shutdown describe below.
-    await new Promise<void>((resolve) => {
-      setTimeout(resolve, 1_000);
-    });
-    expect(processAlive(ghPid)).toBe(true);
-    expect(processRunning(ghPid)).toBe(true);
   });
 });
 

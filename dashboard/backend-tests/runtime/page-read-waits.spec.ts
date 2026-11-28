@@ -1,9 +1,8 @@
 // The waits a journey's first card checks rest on, over the read states a
 // page notes (../../test-support/pageRequestNotes.ts and
 // ../../test-support/pageRequestNoting.ts): the page scripts run in this
-// process, on a window whose reads the case answers itself. How a published
-// read that fails for good then fails a membership check at once is observed
-// on a real page in e2e/observation/transient-read-exclusions.spec.ts.
+// process, on a window whose reads the case answers itself. The comparison
+// after a terminal read failure runs synchronously over the shown titles.
 
 import { afterEach, expect, test, vi } from "vitest";
 import { authenticatedReadEndpoint } from "../../src/authenticatedReadRules.ts";
@@ -14,10 +13,10 @@ import {
   untilPublishedWorkRead,
 } from "../../test-support/pageRequestNotes.ts";
 import {
+  expectMembershipAfterReadFailure,
   noteRequestsInOpenPage,
   type PageScripts,
 } from "../../test-support/pageRequestNoting.ts";
-import { finishRouteHandlers } from "../../test-support/support/routeHandlerTeardown.ts";
 import { parseRequest } from "../../test-support/support/ghRequest.ts";
 
 // A page whose scripts run here, on a window that has shown its first
@@ -99,6 +98,15 @@ test.each([
   },
 );
 
+test("a membership check after a terminal read failure throws immediately and names both missing titles", () => {
+  const shown = { taken: [], backlog: [] };
+  const expected = { taken: ["A taken story"], backlog: ["A queued story"] };
+
+  expect(() => {
+    expectMembershipAfterReadFailure(shown, expected);
+  }).toThrow(/(?=.*A taken story)(?=.*A queued story)/s);
+});
+
 test("a held detail read holds the settled page's read wait but not the first-open wait", async () => {
   const { page, read } = openedPage();
   await noteRequestsInOpenPage(page);
@@ -111,21 +119,6 @@ test("a held detail read holds the settled page's read wait but not the first-op
 
   detail.answer();
   await settled.done;
-});
-
-test("a page still open finishes its route handlers before teardown; a closed one has none", async () => {
-  const finished = (closed: boolean) => {
-    const asked: unknown[] = [];
-    return finishRouteHandlers({
-      isClosed: () => closed,
-      unrouteAll: (options) => {
-        asked.push(options);
-        return Promise.resolve();
-      },
-    }).then(() => asked);
-  };
-  expect(await finished(false)).toEqual([{ behavior: "wait" }]);
-  expect(await finished(true)).toEqual([]);
 });
 
 test("a held group has reached its raw handlers only after every listed profile arrives", () => {

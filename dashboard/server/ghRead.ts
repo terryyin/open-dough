@@ -72,7 +72,7 @@ export function disconnectGh(): void {
 
 // How a request names the API host and login this process asks under now,
 // without a secret; undefined while their endpoint cannot be established.
-// Revision checks key their shared listing by this (`./revisionChecks.ts`).
+// Revision streams group subscribers by this scope.
 export function scope(): Promise<string | undefined> {
   return github.scope();
 }
@@ -95,6 +95,15 @@ export function execGh(
 // (`github-requests.mjs`); undefined while that endpoint is not established.
 export function requestOwnerScope(): Promise<string | undefined> {
   return github.scope();
+}
+
+// Learn a standing owner cooldown without dispatching a REST request.
+export async function requireCoreReadsAllowed(
+  signal: AbortSignal,
+): Promise<void> {
+  const cooldown = await github.coreCooldown(signal);
+  if (cooldown.kind === "held-back") throw new GhFailure(cooldown);
+  if (cooldown.kind === "unavailable") throw new GhFailure(cooldown.failure);
 }
 
 // One `gh` answer's body.

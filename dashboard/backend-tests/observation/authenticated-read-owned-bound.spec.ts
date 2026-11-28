@@ -1,6 +1,5 @@
-// A stalled pinned read and a stalled revision check at the local
-// authenticated read boundary (../../server/authenticatedRead.ts,
-// ../../server/ghRead.ts, ../../server/revisionChecks.ts) end when that
+// A stalled pinned read at the local authenticated read boundary
+// (../../server/authenticatedRead.ts, ../../server/ghRead.ts) ends when that
 // work's own bound ends. A waiter that joins late keeps its own bound and
 // does not extend the call or start a second one. In process over Node HTTP
 // with the real CLI `gh`: the in-process transport does not create that
@@ -11,10 +10,7 @@
 import { readFileSync } from "node:fs";
 import { afterAll, beforeAll, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  readingPathAt,
-  readingRefOf,
-} from "../../src/authenticatedReadRules.ts";
+import { readingPathAt } from "../../src/authenticatedReadRules.ts";
 import type { GhRequest } from "../../test-support/support/ghRequest.ts";
 import {
   processAlive,
@@ -39,7 +35,6 @@ const realCliCaseMs = 20_000;
 
 const isSeed = (request: GhRequest) =>
   request.kind === "content" && request.path === sharedSeedPath;
-const isListing = (request: GhRequest) => request.kind === "matching-refs";
 
 type StartedRead = Awaited<
   ReturnType<
@@ -107,16 +102,6 @@ const stalls = [
     read: sharedSeedRead,
     reading: (revision: string) => readingPathAt(sharedSeedPath, revision),
     asked: (revision: string) => `content ${sharedSeedPath}@${revision}`,
-  },
-  {
-    label: "revision check",
-    stallRevision: revisionOf("2b"),
-    lateRevision: revisionOf("2d"),
-    held: isListing,
-    warm: (revision: string) => `&since=${revision}`,
-    read: (revision: string) => `&since=${revision}`,
-    reading: () => readingRefOf(source),
-    asked: () => "matching-refs",
   },
 ];
 

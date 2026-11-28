@@ -7,6 +7,7 @@ import {
   admitLandingRequest,
   landingEndpoint,
   landingPrepareEndpoint,
+  parseLandingSubmission,
 } from "../../server/launchLandingAdmission.ts";
 import { submitLanding } from "../../server/launchLandingReporting.ts";
 import { RefusedRequest } from "../../server/localOrigin.ts";
@@ -89,6 +90,15 @@ test.each([
   {
     name: "malformed JSON",
     run: () => admitLandingRequest({ ...prepare, bodyText: "{broken" }),
+    status: 400,
+    message: "The landing request is malformed.",
+  },
+  {
+    name: "a caller-selected repository",
+    run: () =>
+      parseLandingSubmission(
+        JSON.stringify({ ...submission, repository: "/caller-selected" }),
+      ),
     status: 400,
     message: "The landing request is malformed.",
   },

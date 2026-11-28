@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "15a4a6a9-0af2-4c64-8a58-6b224ad6a772",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-27T23:57:10.821Z",
+  "story": "SEED-413#machine-observation-via-vitest",
+  "ranges": [
+    {
+      "base": "f4bebb2d77a0fa2ce77bc0ba13e35d462f471412",
+      "candidate": "cd660b7a6b04a2d3a737748911d4fdb7de83b845"
+    }
+  ]
+}

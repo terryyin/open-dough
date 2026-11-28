@@ -56,31 +56,6 @@ export async function untilStreamingAt(
   );
 }
 
-// Wall time until the fake GitHub has seen at least `count` further
-// matching-refs after `from`, or until `timeoutMs`.
-export async function untilMatchingRefsSince(
-  page: Page,
-  from: number,
-  count: number,
-  timeoutMs = 10_000,
-): Promise<number> {
-  const started = Date.now();
-  for (;;) {
-    const seen = githubFor(page)
-      .calls.slice(from)
-      .filter(({ request }) => request.kind === "matching-refs").length;
-    if (seen >= count) {
-      return seen;
-    }
-    if (Date.now() - started > timeoutMs) {
-      throw new Error(
-        `Expected at least ${String(count)} matching-refs after call ${String(from)}; saw ${String(seen)}.`,
-      );
-    }
-    await page.waitForTimeout(streamPaceMs);
-  }
-}
-
 export function matchingRefsSince(page: Page, from: number): number {
   return githubFor(page)
     .calls.slice(from)

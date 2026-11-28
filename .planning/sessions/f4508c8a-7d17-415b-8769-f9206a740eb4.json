@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "f4508c8a-7d17-415b-8769-f9206a740eb4",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-28T09:50:49.189Z",
+  "story": "SEED-450#keep-runner-across-unrelated-dashboard-deploys",
+  "ranges": [
+    {
+      "base": "8e31e867ad13ab7816a3f4b1a6d475b7c8fbf8ce",
+      "candidate": "534abbbe41964e0d6ef8c33608df659415550164"
+    }
+  ]
+}

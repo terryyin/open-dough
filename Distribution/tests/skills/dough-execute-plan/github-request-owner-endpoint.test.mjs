@@ -1,6 +1,4 @@
-// The request owner's private endpoint, spoken to directly over its socket
-// and through a consumer whose endpoint is not private: caller authentication,
-// scoped read-only arguments and the explicit action-capability welcome.
+// The GitHub request owner's private socket, authentication and operations.
 import assert from "node:assert/strict";
 import { chmodSync, existsSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
@@ -26,7 +24,10 @@ import { GitHubRequests } from "../../../src/skills/dough-execute-plan/scripts/g
 
 const never = () => new AbortController().signal;
 const workflow = ["api", "repos/owner/repo/actions/workflows/ci.yml"];
-const welcome = { welcome: protocol, operations: ["rerun-workflow"] };
+const welcome = {
+  welcome: protocol,
+  operations: ["rerun-workflow", "core-cooldown"],
+};
 
 function consumer(t) {
   const github = instrumentedGithubFixture(t, {

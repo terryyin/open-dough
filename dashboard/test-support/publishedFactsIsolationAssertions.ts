@@ -16,12 +16,7 @@ import {
 } from "./storyCardControls.ts";
 import { credit } from "./agentCredit.ts";
 import { sliceProgress, storyPurpose } from "./storyCardFacts.ts";
-import {
-  contentReads,
-  headsCheckArgv,
-  headsChecks,
-  passTimeUntilChecked,
-} from "./autoRefreshJourney.ts";
+import { contentReads } from "./autoRefreshJourney.ts";
 import { repository } from "./sliceClockRecords.ts";
 import { heldPathsReached } from "./heldReadsReached.ts";
 import {
@@ -199,18 +194,4 @@ export function expectOnlyProjectAsked(
   expect(
     contentReads(calls).every((read) => read.endsWith(`?ref=${revision}`)),
   ).toBe(true);
-}
-
-export async function expectNextProjectCheck(
-  page: Page,
-  selectedRepository: string,
-  known?: string,
-) {
-  const beforeCheck = githubFor(page).calls.length;
-  await passTimeUntilChecked(page);
-  expect(
-    headsChecks(githubFor(page).calls.slice(beforeCheck)).map(
-      ({ argv }) => argv,
-    ),
-  ).toEqual([headsCheckArgv(known, selectedRepository)]);
 }

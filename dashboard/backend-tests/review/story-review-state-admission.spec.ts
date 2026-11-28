@@ -1,155 +1,204 @@
-// A story review state request over raw HTTP: one naming an unconfigured
-// project, naming no project, carrying a malformed change (a path, a missing
-// or non-boolean state, an empty identity, text that is not JSON), or using
-// another method keeps no review state on this machine. An unreadable
-// document reads as nothing reviewed, and the next save moves it aside. A
-// session's explicit mark is kept beside the story's `reviewedAt`, and the
-// story's next change clears it.
+// A story review state request over raw HTTP through the project
+// configuration boundary (../../server/projectConfigurationBoundary.ts): one
+// naming an unconfigured project, naming no project, carrying a malformed
+// change (a path, a missing or non-boolean state, an empty identity, text
+// that is not JSON), using another method, or arriving from another site
+// keeps no review state on this machine. An unreadable document reads as
+// nothing reviewed, and the next save moves it aside. A session's explicit
+// mark is kept beside the story's `reviewedAt`, and the story's next change
+// clears it.
 // Marking itself is in ../../frontend-tests/stories/recently-done-review-state-mount.spec.ts.
-
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { afterEach, beforeEach, expect, test } from "vitest";
+import { machineDashboardPath } from "../../server/machineHome.ts";
+import { installProjectConfigurationMiddleware } from "../../server/projectConfigurationBoundary.ts";
 import {
   storyReviewStateEndpoint,
   storyReviewStatesAnswerSchema,
 } from "../../src/storyReviewState.ts";
-import { expect, test } from "../../test-support/dashboardTest.ts";
 import {
-  keptReviewStates,
-  reviewStatesFile,
-} from "../../test-support/recentlyDoneReviewState.ts";
+  startInProcessBoundaryHttp,
+  type InProcessBoundaryHttp,
+} from "../../test-support/support/inProcessBoundaryHttp.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import {
+  privateSettingsMachine,
+  type PrivateSettingsMachine,
+} from "../support/privateSettingsMachine.ts";
 
 const isoTime = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
-
-// No page: the local boundaries alone answer these requests.
-test.use({ serverMode: "boundary", projectFolders: ["open-dough"] });
-
 const identity = "SEED-331#explain-the-ci-pause";
 
-test("a review state request for an unconfigured project, a malformed change, or another method keeps no state", async ({
-  request,
-  dashboard,
-}) => {
-  const at = (query: string) =>
-    `${dashboard.baseURL}${storyReviewStateEndpoint}${query}`;
-  const headers = { Origin: dashboard.origin };
+let machine: PrivateSettingsMachine;
+let server: InProcessBoundaryHttp;
+beforeEach(async () => {
+  machine = privateSettingsMachine();
+  server = await startInProcessBoundaryHttp(
+    {
+      name: "dough-project-configuration",
+      install: installProjectConfigurationMiddleware,
+    },
+    "production",
+  );
+});
+afterEach(async () => {
+  try {
+    await server.closeBoundary();
+    await server.closeHttp();
+  } finally {
+    machine.close();
+  }
+});
+
+const statesFile = () => machineDashboardPath("story-review-states.json");
+const keptStates = () =>
+  existsSync(statesFile())
+    ? (JSON.parse(readFileSync(statesFile(), "utf8")) as Record<
+        string,
+        unknown
+      >)
+    : undefined;
+
+async function send(
+  query: string,
+  { method = "POST", body }: { method?: string; body?: string } = {},
+) {
+  const response = await rawRequest({
+    url: `${server.origin}${storyReviewStateEndpoint}${query}`,
+    method,
+    // A DELETE body without its length is not parsed as HTTP at all.
+    headers: {
+      Origin: server.origin,
+      "Content-Type": "application/json",
+      "Content-Length": String(Buffer.byteLength(body ?? "")),
+    },
+    ...(body === undefined ? {} : { body }),
+  });
+  return {
+    status: response.status,
+    cache: response.headers["cache-control"],
+    answer: JSON.parse(response.body) as unknown,
+  };
+}
+
+const post = async (change: object) =>
+  storyReviewStatesAnswerSchema.parse(
+    (await send("?id=open-dough", { body: JSON.stringify(change) })).answer,
+  );
+
+test("a review state request for an unconfigured project, a malformed change, another method or another site keeps no state", async () => {
   const malformed = { error: "The review state request is malformed." };
+  const marked = JSON.stringify({ identity, reviewed: true });
   for (const [query, body, status, answer] of [
-    [
-      "?id=elsewhere",
-      { identity, reviewed: true },
-      404,
-      { error: "The project is not configured." },
-    ],
-    [
-      "",
-      { identity, reviewed: true },
-      400,
-      { error: "The review state request names one project." },
-    ],
+    ["?id=elsewhere", marked, 404, { error: "The project is not configured." }],
+    ["", marked, 400, { error: "The review state request names one project." }],
     [
       "?id=open-dough",
-      { identity, reviewed: true, path: "/tmp" },
+      JSON.stringify({ identity, reviewed: true, path: "/tmp" }),
       400,
       malformed,
     ],
-    ["?id=open-dough", { identity }, 400, malformed],
-    ["?id=open-dough", { identity, reviewed: "yes" }, 400, malformed],
-    ["?id=open-dough", { identity: "", reviewed: true }, 400, malformed],
-    ["?id=open-dough", [identity], 400, malformed],
+    ["?id=open-dough", JSON.stringify({ identity }), 400, malformed],
     [
       "?id=open-dough",
-      { identity, session: "", reviewed: true },
+      JSON.stringify({ identity, reviewed: "yes" }),
       400,
       malformed,
     ],
+    [
+      "?id=open-dough",
+      JSON.stringify({ identity: "", reviewed: true }),
+      400,
+      malformed,
+    ],
+    ["?id=open-dough", JSON.stringify([identity]), 400, malformed],
+    [
+      "?id=open-dough",
+      JSON.stringify({ identity, session: "", reviewed: true }),
+      400,
+      malformed,
+    ],
+    ["?id=open-dough", "{not json", 400, { error: "The request is not JSON." }],
   ] as const) {
-    const response = await request.post(at(query), { headers, data: body });
-    expect(response.status(), JSON.stringify([query, body])).toBe(status);
-    expect(await response.json()).toEqual(answer);
-  }
-  const notJson = await request.post(at("?id=open-dough"), {
-    headers: { ...headers, "Content-Type": "application/json" },
-    data: Buffer.from("{not json"),
-  });
-  expect(notJson.status()).toBe(400);
-  expect(await notJson.json()).toEqual({ error: "The request is not JSON." });
-  for (const method of ["PUT", "DELETE", "PATCH"]) {
-    const response = await request.fetch(at("?id=open-dough"), {
-      method,
-      headers,
-      data: { identity, reviewed: true },
-    });
-    expect(response.status(), method).toBe(405);
-    expect(await response.json()).toEqual({
-      error: "Only GET and POST are accepted.",
+    const response = await send(query, { body });
+    expect(response, JSON.stringify([query, body])).toEqual({
+      status,
+      cache: "no-store",
+      answer,
     });
   }
-  const foreign = await request.post(at("?id=open-dough"), {
-    headers: { Origin: "http://elsewhere.example" },
-    data: { identity, reviewed: true },
+  for (const method of ["PUT", "DELETE", "PATCH"])
+    expect(await send("?id=open-dough", { method, body: marked })).toEqual({
+      status: 405,
+      cache: "no-store",
+      answer: { error: "Only GET and POST are accepted." },
+    });
+  const foreign = await rawRequest({
+    url: `${server.origin}${storyReviewStateEndpoint}?id=open-dough`,
+    method: "POST",
+    headers: {
+      Origin: "http://elsewhere.example",
+      "Content-Type": "application/json",
+    },
+    body: marked,
   });
-  expect(foreign.status()).toBe(403);
-  expect(keptReviewStates(dashboard)).toBeUndefined();
+  expect(foreign.status).toBe(403);
+  expect(keptStates()).toBeUndefined();
 
   // The configured project with nothing saved reads as nothing reviewed.
-  const read = await request.get(at("?id=open-dough"), { headers });
-  expect(read.status()).toBe(200);
-  expect(read.headers()["cache-control"]).toBe("no-store");
-  expect(await read.json()).toEqual({ stories: {} });
+  expect(await send("?id=open-dough", { method: "GET" })).toEqual({
+    status: 200,
+    cache: "no-store",
+    answer: { stories: {} },
+  });
 });
 
 // An unreadable document reads as nothing reviewed; the next save moves it
 // aside as `story-review-states.json.unreadable`, keeping its bytes, and
 // starts a new document.
-for (const [kind, text] of [
+test.each([
   ["not JSON", "{not json"],
   [
     "not the document's shape",
     `${JSON.stringify({ "open-dough": [identity] })}\n`,
   ],
-] as const)
-  test(`an unreadable review state document (${kind}) reads as nothing reviewed, and the next save keeps its bytes aside`, async ({
-    request,
-    dashboard,
-  }) => {
-    const file = reviewStatesFile(dashboard);
-    mkdirSync(path.dirname(file), { recursive: true });
-    writeFileSync(file, text);
-    const at = `${dashboard.baseURL}${storyReviewStateEndpoint}?id=open-dough`;
-    const headers = { Origin: dashboard.origin };
-    const read = await request.get(at, { headers });
-    expect(read.status()).toBe(200);
-    expect(await read.json()).toEqual({ stories: {} });
-    expect(readFileSync(file, "utf8")).toBe(text);
-
-    const saved = await request.post(at, {
-      headers,
-      data: { identity, reviewed: true },
+])(
+  "an unreadable review state document (%s) reads as nothing reviewed, and the next save keeps its bytes aside",
+  async (...[, text]) => {
+    mkdirSync(path.dirname(statesFile()), { recursive: true });
+    writeFileSync(statesFile(), text);
+    expect(await send("?id=open-dough", { method: "GET" })).toEqual({
+      status: 200,
+      cache: "no-store",
+      answer: { stories: {} },
     });
-    expect(saved.status()).toBe(200);
+    expect(readFileSync(statesFile(), "utf8")).toBe(text);
+
+    const saved = await send("?id=open-dough", {
+      body: JSON.stringify({ identity, reviewed: true }),
+    });
     // The saved story entry is its mark time alone; no session entry is
     // needed for the story to read as marked.
     const marked = {
-      stories: { [identity]: { reviewedAt: expect.stringMatching(isoTime) } },
+      stories: {
+        [identity]: { reviewedAt: expect.stringMatching(isoTime) as unknown },
+      },
     };
-    expect(await saved.json()).toEqual(marked);
-    expect(keptReviewStates(dashboard)?.["open-dough"]).toEqual(marked.stories);
-    expect(readFileSync(`${file}.unreadable`, "utf8")).toBe(text);
-    const reread = await request.get(at, { headers });
-    expect(await reread.json()).toEqual(await saved.json());
-  });
-
-test("a session's explicit unreview survives the story's covering mark until the story's next change clears it", async ({
-  request,
-  dashboard,
-}) => {
-  const at = `${dashboard.baseURL}${storyReviewStateEndpoint}?id=open-dough`;
-  const headers = { Origin: dashboard.origin };
-  const post = async (data: object) =>
-    storyReviewStatesAnswerSchema.parse(
-      await (await request.post(at, { headers, data })).json(),
+    expect(saved).toEqual({
+      status: 200,
+      cache: "no-store",
+      answer: marked,
+    });
+    expect(keptStates()?.["open-dough"]).toEqual(marked.stories);
+    expect(readFileSync(`${statesFile()}.unreadable`, "utf8")).toBe(text);
+    expect((await send("?id=open-dough", { method: "GET" })).answer).toEqual(
+      saved.answer,
     );
+  },
+);
+
+test("a session's explicit unreview survives the story's covering mark until the story's next change clears it", async () => {
   const covered = await post({ identity, reviewed: true });
   const reviewedAt = covered.stories[identity]?.reviewedAt;
   const session = "claude:first-session";
@@ -159,8 +208,10 @@ test("a session's explicit unreview survives the story's covering mark until the
   expect(await post({ identity, session, reviewed: false })).toEqual(
     unreviewed,
   );
-  expect(await (await request.get(at, { headers })).json()).toEqual(unreviewed);
+  expect((await send("?id=open-dough", { method: "GET" })).answer).toEqual(
+    unreviewed,
+  );
 
   expect(await post({ identity, reviewed: false })).toEqual({ stories: {} });
-  expect(keptReviewStates(dashboard)?.["open-dough"]).toEqual({});
+  expect(keptStates()?.["open-dough"]).toEqual({});
 });

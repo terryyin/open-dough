@@ -70,6 +70,34 @@ export async function mountTouchTerminal(
   });
 }
 
+function strokeScreen(surface: Element, x: number, y: number, travel: number) {
+  const emit = (
+    type: "touchstart" | "touchmove" | "touchend",
+    at: { x: number; y: number },
+  ) => {
+    const active = type !== "touchend";
+    const touch = new Touch({
+      identifier: 1,
+      target: surface,
+      clientX: at.x,
+      clientY: at.y,
+    });
+    surface.dispatchEvent(
+      new TouchEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        touches: active ? [touch] : [],
+        targetTouches: active ? [touch] : [],
+        changedTouches: [touch],
+      }),
+    );
+  };
+  emit("touchstart", { x, y });
+  for (let step = 1; step <= 5; step += 1)
+    emit("touchmove", { x, y: y + (travel * step) / 5 });
+  emit("touchend", { x, y: y + travel });
+}
+
 export async function swipeTerminal(surface: Element, distance: number) {
   const box = surface.getBoundingClientRect();
   const travel =
@@ -77,6 +105,12 @@ export async function swipeTerminal(surface: Element, distance: number) {
   const x = box.left + box.width * 0.5;
   const y = box.top + (box.height - travel) / 2;
   expect(surface.contains(document.elementFromPoint(x, y))).toBe(true);
+  // The live screen's touch listener reads these coordinates. A paused
+  // transcript scrolls by the browser's own touch, which needs a real stroke.
+  if (surface.classList.contains("xterm-screen")) {
+    strokeScreen(surface, x, y, travel);
+    return { x, y };
+  }
   const browser = browserSession();
   const timestamp = Date.now() / 1000 - 0.8;
   await browser.send("Input.dispatchTouchEvent", {

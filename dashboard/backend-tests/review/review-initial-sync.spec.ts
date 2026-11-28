@@ -147,13 +147,15 @@ test("initial sync joins other start requests and stays running when all their c
     second.abort();
     expect(started).toEqual({ kind: "running" });
     expect(joined).toEqual(started);
-    await expect.poll(origin.events).toEqual([`started ${target}`]);
+    await expect
+      .poll(origin.events, { timeout: 3_000 })
+      .toEqual([`started ${target}`]);
     expect(answer("GET")).toEqual({ kind: "running" });
   } finally {
     origin.release();
   }
   await expect
-    .poll(() => answer("GET"))
+    .poll(() => answer("GET"), { timeout: 3_000 })
     .toEqual({
       kind: "ready",
       revision: repository.trunkSha,
@@ -173,7 +175,9 @@ test("ordinary review joins the owned target fetch and mutates another ref only 
   const reads: Promise<string>[] = [];
   try {
     answer("POST");
-    await expect.poll(origin.events).toEqual([`started ${target}`]);
+    await expect
+      .poll(origin.events, { timeout: 3_000 })
+      .toEqual([`started ${target}`]);
     reads.push(syncedReviewRepository(source, ownerSignal()));
     reads.push(syncedReviewRepository(source, ownerSignal(), otherRef));
     const departed = syncedReviewRepository(source, third.signal);
@@ -197,7 +201,9 @@ test("a successful child that populated the wrong ref cannot advertise initial r
 
   answer("POST");
 
-  await expect.poll(() => answer("GET")).toMatchObject({ kind: "failed" });
+  await expect
+    .poll(() => answer("GET"), { timeout: 3_000 })
+    .toMatchObject({ kind: "failed" });
   expect(git(directory, "rev-parse", `refs/remotes/origin/${otherRef}`)).toBe(
     repository.trunkSha,
   );

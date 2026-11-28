@@ -81,12 +81,7 @@ test.describe("authenticated read history reuse at a newly named revision (devel
       await asked(async () => {
         factsAtB = await factsAt(b);
       }),
-    ).toEqual([
-      `compare ${a}...${b}`,
-      `commit ${named("13")}`,
-      // The plan's reachability reads the backlog at B itself.
-      `content ${origin.paths.backlog}@${b}`,
-    ]);
+    ).toEqual([`compare ${a}...${b}`, `commit ${named("13")}`]);
     // Each assignment keeps its own addition, not the other's of the same
     // human.
     expect(JSON.stringify(factsAtB)).toEqual(
@@ -139,7 +134,6 @@ test.describe("authenticated read history reuse at a newly named revision (devel
       [
         `compare ${a}...${b}`,
         `commit ${named("16")}`,
-        `content ${origin.paths.backlog}@${b}`,
         `listing .planning/agents@${b}`,
         `commit-list ${origin.paths.profile}@${b}`,
         `commit-list ${origin.paths.plan}@${b}`,

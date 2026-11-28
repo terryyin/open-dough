@@ -12,9 +12,8 @@ import {
   standingRecord,
 } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-owner-endpoint.mjs";
 import { endFakeGh, fakeGhEnv, installFakeGh } from "./fakeGh.ts";
-import { startFakeGitHub, type FakeGitHub } from "./fakeGitHub.ts";
+import type { FakeGitHub } from "./fakeGitHub.ts";
 import { endGroup, spawnGroupLeader } from "./processGroup.ts";
-import { listingReuseServer } from "./sharedReads.ts";
 import { waitUntil } from "./waitUntil.ts";
 
 const ownerEntry = fileURLToPath(
@@ -153,22 +152,4 @@ async function startOwner(
 // own dashboard to it through `wiring` (./ownerClockTest.ts).
 export async function requestOwnerWithClock(github: FakeGitHub) {
   return closable((folder, lifetime) => startOwner(folder, lifetime, github));
-}
-
-export async function listingReuseWithOwnerClock(
-  startServer: typeof listingReuseServer = listingReuseServer,
-) {
-  return closable(async (folder, lifetime) => {
-    const github = await startFakeGitHub();
-    lifetime.defer(() => github.close());
-    const owner = await startOwner(folder, lifetime, github);
-    const server = await startServer({ github, ...owner.wiring });
-    lifetime.defer(() => server.close());
-    return {
-      server,
-      ownerPid: owner.ownerPid,
-      standingOwnerPid: owner.standingOwnerPid,
-      advanceOwnerClock: owner.advanceOwnerClock,
-    };
-  });
 }

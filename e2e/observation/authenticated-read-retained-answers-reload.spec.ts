@@ -76,7 +76,7 @@ test.describe("a page outliving its dashboard process (preview launch mode)", ()
           )
           .map(describedExactly)
           .sort(),
-      ).toEqual([`branch ${project.branch}`]);
+      ).toEqual([]);
     } finally {
       await restarted.close();
     }

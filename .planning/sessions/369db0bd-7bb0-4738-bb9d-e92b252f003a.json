@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "sessionId": "369db0bd-7bb0-4738-bb9d-e92b252f003a",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-28T11:19:08.995Z",
+  "story": "SEED-413#landing-capture-evidence-via-vitest",
+  "ranges": [
+    {
+      "base": "dfc699737c5df187855e7941ef4d2e44e8021115",
+      "candidate": "f5b38eb90e68703c6633ae2a168262a529dc001d"
+    },
+    {
+      "base": "f5b38eb90e68703c6633ae2a168262a529dc001d",
+      "candidate": "d4c967304b080b4dedaac99e4d9d91b134848b69"
+    },
+    {
+      "base": "d4c967304b080b4dedaac99e4d9d91b134848b69",
+      "candidate": "c138a53602d8d84d333826baa7795433f75fa11c"
+    },
+    {
+      "base": "c138a53602d8d84d333826baa7795433f75fa11c",
+      "candidate": "876fdddbe263a74ecea1a38a59f6739c1e115a32"
+    },
+    {
+      "base": "876fdddbe263a74ecea1a38a59f6739c1e115a32",
+      "candidate": "567ae7298aebefd93d7e4ccea694325fd5164f35"
+    },
+    {
+      "base": "567ae7298aebefd93d7e4ccea694325fd5164f35",
+      "candidate": "45f1c197c89ce0a4fc35b3fe08bbdc5701128963"
+    },
+    {
+      "base": "45f1c197c89ce0a4fc35b3fe08bbdc5701128963",
+      "candidate": "57bf00ea0c0e23aee871fd31135621046af1e9fb"
+    },
+    {
+      "base": "57bf00ea0c0e23aee871fd31135621046af1e9fb",
+      "candidate": "b4328d438337d47e3247fa5df31e49e36553709a"
+    },
+    {
+      "base": "b4328d438337d47e3247fa5df31e49e36553709a",
+      "candidate": "b7a1e73a22bc8e8dd0f2789863e557e5c06a933b"
+    },
+    {
+      "base": "b7a1e73a22bc8e8dd0f2789863e557e5c06a933b",
+      "candidate": "68ba50850c140e89150027efda14f5fb4f3920a2"
+    },
+    {
+      "base": "68ba50850c140e89150027efda14f5fb4f3920a2",
+      "candidate": "66b8ca21a67608511fc8d34c25948fca422dca07"
+    },
+    {
+      "base": "66b8ca21a67608511fc8d34c25948fca422dca07",
+      "candidate": "abf8d10f89e75517ee5d81a4e53f800f235a256d"
+    },
+    {
+      "base": "abf8d10f89e75517ee5d81a4e53f800f235a256d",
+      "candidate": "9860338f3269ac9f549b7cbdc49ab857f42ff933"
+    },
+    {
+      "base": "9860338f3269ac9f549b7cbdc49ab857f42ff933",
+      "candidate": "079e46bf6b7d47136c435480541b9b8decd2cc29"
+    },
+    {
+      "base": "079e46bf6b7d47136c435480541b9b8decd2cc29",
+      "candidate": "76c73605bd6ef201c04f916aa0bd350e5497bd63"
+    },
+    {
+      "base": "86dcd4da22cfc8a395189af3b22ee923d89a9f18",
+      "candidate": "47f988ee7e95fe1d5b1245e29b3a712c6df2a933"
+    },
+    {
+      "base": "47f988ee7e95fe1d5b1245e29b3a712c6df2a933",
+      "candidate": "a1569f57c9e88fcf27b8152fe69dc3e5f2ee8c8a"
+    }
+  ]
+}

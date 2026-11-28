@@ -14,15 +14,17 @@ import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { startInProcessAuthenticatedRead } from "../../test-support/support/inProcessAuthenticatedRead.ts";
 import type { RawResponse } from "../../test-support/support/rawHttp.ts";
 import { rateLimitedAnswer } from "../../test-support/originAnswers.ts";
+import { untilReported } from "../../test-support/support/directedWait.ts";
+import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
 import {
   answeredTogether,
   askedSince,
-  heads,
   otherSeedPath,
   otherSeedText,
   readAt,
   servedHolding,
   sharedSeedPath,
+  sharedReadsPublished,
   sharedSeedRead,
   sharedSeedText,
 } from "../../test-support/support/sharedReads.ts";
@@ -33,10 +35,8 @@ let boundary: Awaited<ReturnType<typeof startInProcessAuthenticatedRead>>;
 let server: Parameters<typeof servedHolding>[0];
 
 beforeAll(async () => {
-  // A zero reuse window: a later check is already past it.
   boundary = await startInProcessAuthenticatedRead({
     ghTransport: "cli",
-    extraEnv: () => ({ DOUGH_REVISION_CHECK_REUSE_MS: "0" }),
   });
   server = {
     baseURL: boundary.origin,
@@ -91,82 +91,51 @@ test("a pinned file, a directory listing and a history read are each asked once 
   expect(askedSince(server, later)).toEqual([]);
 });
 
-test("checks of different revisions and watched branches share one head listing, each learning its own answer, and a later check past the window asks again", async () => {
-  const revision = revisionOf("5c");
-  const watching = (branch: string) =>
-    `&since=${revision}&watch=${encodeURIComponent(branch)}`;
-  const holding = await servedHolding(
-    server,
-    revision,
-    ({ kind }) => kind === "matching-refs",
-    [watching("story/one"), watching("story/two")],
-  );
-  const { answers, whileHeld } = await answeredTogether(
-    server,
-    holding,
-    [
-      `&since=${revision}`,
-      `&since=${revisionOf("5d")}`,
-      watching("story/one"),
-      watching("story/two"),
-    ],
-    1,
-  );
-  const learned = (changed: boolean, branch?: string) => ({
-    revision,
-    changed,
-    branches: branch === undefined ? [] : [{ branch, head: heads[branch] }],
-  });
-  expect(answers.map(bodyOf)).toEqual([
-    learned(false),
-    learned(true),
-    learned(false, "story/one"),
-    learned(false, "story/two"),
-  ]);
-  expect(whileHeld).toEqual(["matching-refs"]);
-  expect(askedSince(server, holding.before)).toEqual(["matching-refs"]);
-
-  const later = server.github.calls.length;
-  expect((await readAt(server, `&since=${revision}`)).status).toBe(200);
-  expect(askedSince(server, later)).toEqual(["matching-refs"]);
-});
-
-test("reads differing in repository, revision, path or kind are asked separately and answered for their own question", async () => {
+test("reads differing in repository, revision, path, or kind are asked separately and answered for their own question", async () => {
   const revision = revisionOf("5e");
   const otherRevision = revisionOf("5f");
-  const check = `&since=${revision}`;
   const other = makeMe.aPublishedSource.pygardon.please();
+  const backlog = `&revision=${revision}`;
+  server.github.serve(everyRepository, sharedReadsPublished(revision));
+  const otherBacklog = await readAt(server, {
+    source: other.id,
+    query: backlog,
+  });
+  expect(otherBacklog.status).toBe(200);
   const holding = await servedHolding(server, revision, () => true, [
-    `&revision=${revision}`,
+    backlog,
+    `&revision=${otherRevision}`,
   ]);
   const { answers } = await answeredTogether(
     server,
     holding,
     [
-      check,
-      { source: other.id, query: check },
-      `&revision=${otherRevision}`,
+      { source: other.id, query: sharedSeedRead(revision) },
+      sharedSeedRead(otherRevision),
       sharedSeedRead(revision),
       `&revision=${revision}&path=${encodeURIComponent(otherSeedPath)}`,
       `${sharedSeedRead(revision)}&committed=last`,
     ],
-    6,
+    5,
   );
-  expect(statuses(answers)).toEqual([200, 200, 200, 200, 200, 200]);
-  const bodies = answers.map(bodyOf);
-  for (const checked of bodies.slice(0, 2)) {
-    expect(checked).toEqual({ revision, changed: false, branches: [] });
-  }
-  expect(bodies[2]).toMatchObject({ revision: otherRevision });
-  expect(bodies[3]).toMatchObject({ text: sharedSeedText });
-  expect(bodies[4]).toMatchObject({ text: otherSeedText });
-  expect(bodies[5]).toMatchObject({ committedAt: "2026-10-01T08:00:00.000Z" });
+  expect(statuses(answers)).toEqual([200, 200, 200, 200, 200]);
+  const bodies = answers.map(({ body }) => JSON.parse(body) as unknown);
+  expect(bodies[0]).toMatchObject({ revision, text: sharedSeedText });
+  expect(bodies[1]).toMatchObject({
+    revision: otherRevision,
+    text: sharedSeedText,
+  });
+  expect(bodies[2]).toMatchObject({ revision, text: sharedSeedText });
+  expect(bodies[3]).toMatchObject({ revision, text: otherSeedText });
+  expect(bodies[4]).toMatchObject({
+    committedAt: "2026-10-01T08:00:00.000Z",
+  });
   const ours = (asked: string) => `terryyin/open-dough ${asked}`;
-  expect(askedSince(server, holding.before, true).sort()).toEqual(
+  const asked = askedSince(server, holding.before, true);
+  expect(asked.sort()).toEqual(
     [
-      ours("matching-refs"),
-      `${other.repository} matching-refs`,
-      ours(`content .planning/PRODUCT-BACKLOG.md@${otherRevision}`),
+      `${other.repository} content ${sharedSeedPath}@${revision}`,
+      ours(`content ${sharedSeedPath}@${otherRevision}`),
       ours(`content ${sharedSeedPath}@${revision}`),
       ours(`content ${otherSeedPath}@${revision}`),
       ours(`commit-list ${sharedSeedPath}@${revision}`),
@@ -209,37 +178,42 @@ test("two requests waiting on a refused read both report the refusal, and the ne
   ]);
 });
 
-test("two checks waiting on a listing GitHub rate-limits both report the wait it directed, and the next check after it asks again", async () => {
+test("two readers of the same history both get the wait GitHub directed, and the next reader after it asks again", async () => {
   const revision = revisionOf("7b");
-  const since = (checked: string) => `&since=${checked}`;
+  const history = `${sharedSeedRead(revision)}&committed=last`;
+  const askedHistory = `commit-list ${sharedSeedPath}@${revision}`;
   const holding = await servedHolding(
     server,
     revision,
-    (request) => request.kind === "matching-refs",
-    [since(revision)],
+    (request) => request.kind === "commit-list",
+    [`&revision=${revision}`],
     rateLimitedAnswer(429, { "Retry-After": "2" }),
   );
   const { answers, whileHeld } = await answeredTogether(
     server,
     holding,
-    [since(revision), since(revisionOf("7c"))],
+    [history, history],
     1,
   );
-  expect(whileHeld).toEqual(["matching-refs"]);
+  const answeredAt = Date.now();
+  expect(whileHeld).toEqual([askedHistory]);
   const waited = {
-    error:
-      "GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading main of terryyin/open-dough. GitHub asked to wait 2 seconds before asking again.",
+    error: `GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading the last commit of ${sharedSeedPath} at ${revision}. GitHub asked to wait 2 seconds before asking again.`,
     retryAfterSeconds: 2,
   };
-  expect(statuses(answers)).toEqual([502, 502]);
+  expect(answers.map(({ status }) => status)).toEqual([502, 502]);
   expect(answers.map(bodyOf)).toEqual([waited, waited]);
 
-  // GitHub's wait holds back every read of this process until it has passed.
-  await new Promise((resolve) => setTimeout(resolve, 2_100));
-  const next = await readAt(server, since(revision));
-  expect(bodyOf(next)).toMatchObject({ revision, changed: false });
+  // The next client read waits for the time GitHub reported.
+  await untilReported(answeredAt, waited.retryAfterSeconds);
+  const next = await readAt(server, history);
+  expect(next.status).toBe(200);
+  expect(JSON.parse(next.body)).toMatchObject({
+    revision,
+    committedAt: "2026-10-01T08:00:00.000Z",
+  });
   expect(askedSince(server, holding.before)).toEqual([
-    "matching-refs",
-    "matching-refs",
+    askedHistory,
+    askedHistory,
   ]);
 });

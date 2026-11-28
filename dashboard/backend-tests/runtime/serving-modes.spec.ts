@@ -5,7 +5,7 @@
 // source beside production.
 
 import type { Plugin, PluginOption } from "vite";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import viteConfig from "../../vite.config.mts";
 import { localBoundaries } from "../../server/localBoundaries.ts";
 import { localBoundaryPlugin } from "../../server/localBoundaryPlugin.ts";
@@ -14,6 +14,9 @@ import type {
   BoundaryMiddlewares,
 } from "../../server/localBoundary.ts";
 import type { ProjectEnvironment } from "../../server/projectConfiguration.ts";
+
+// These cases compare registrations and install a stand-in boundary without recording incidents.
+vi.mock(import("../../server/incidentRecord.ts"), () => ({}));
 
 const pluginNames = (plugins: PluginOption[] | undefined): string[] =>
   (plugins ?? [])

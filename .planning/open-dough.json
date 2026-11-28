@@ -12,7 +12,8 @@
         "label": "E2E Test",
         "kind": "typescript",
         "include": [
-          "**/*.spec.ts"
+          "**/*.spec.ts",
+          "**/*Cases.ts"
         ],
         "makeMe": true,
         "pageObjects": true

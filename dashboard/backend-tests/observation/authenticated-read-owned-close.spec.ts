@@ -1,6 +1,6 @@
 // Boundary close (../../server/authenticatedRead.ts,
-// ../../server/localBoundaryPlugin.ts closeServer) releases held pinned reads,
-// revision checks, and queued waits while the client stays connected. A later
+// ../../server/localBoundaryPlugin.ts closeServer) releases held pinned reads
+// and queued waits while the client stays connected. A later
 // read is refused before GitHub is asked. In process over Node HTTP with the
 // real CLI `gh`. Departure and the read's own bound stay with predecessor specs.
 
@@ -29,7 +29,6 @@ import {
   readAt,
   readUrl,
   refusedMarker,
-  revisionCheck,
 } from "../../test-support/support/sharedReads.ts";
 
 const source = makeMe.aPublishedSource.openDough.please();
@@ -122,27 +121,6 @@ test(
       const pid = await untilRunning(boundary);
       await boundary.closeBoundary();
       await released(pid);
-    } finally {
-      await boundary.close();
-    }
-  },
-  realCliCaseMs,
-);
-
-test(
-  "boundary close releases a held revision check while its client stays connected",
-  async () => {
-    const boundary = await opened();
-    const server = serverOf(boundary);
-    try {
-      boundary.github.serve(everyRepository, hangs);
-      keepReading(boundary, revisionCheck);
-      const pid = await untilRunning(boundary);
-      await boundary.closeBoundary();
-      await released(pid);
-      await expect
-        .poll(() => askedSince(server, 0), { timeout: 5_000 })
-        .toEqual(["matching-refs"]);
     } finally {
       await boundary.close();
     }

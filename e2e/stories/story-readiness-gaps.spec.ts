@@ -146,6 +146,7 @@ test("story readiness keeps changed and conflicting evidence truthful", async ({
 test("story readiness keeps evidence gaps and refreshes truthful", async ({
   page,
   afterGitHubStops,
+  dashboard,
 }) => {
   const {
     openDough,
@@ -180,7 +181,7 @@ test("story readiness keeps evidence gaps and refreshes truthful", async ({
   await test.step("switching projects during a held read cannot leak its late result", async () => {
     await expectProjectSwitchRejectsLateHeldRead(
       page,
-      openDoughOrigin,
+      dashboard.home,
       openDough,
       doughnut,
     );

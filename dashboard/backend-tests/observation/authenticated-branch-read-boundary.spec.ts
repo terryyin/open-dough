@@ -1,7 +1,6 @@
 import { expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
-import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { BranchHeads } from "../../server/branchHeads.ts";
 import { execGh, runGh } from "../../server/ghRead.ts";
 import {
@@ -9,27 +8,24 @@ import {
   performOnBranch,
 } from "../../server/performedBranchRead.ts";
 import { performRevisionCheck } from "../../server/performedRevisionCheck.ts";
-import { PinnedTexts } from "../../server/pinnedTexts.ts";
 import { listedAgentProfiles } from "../../server/recordsBesideBacklog.ts";
 import { parseRequestedRead } from "../../server/requestedRead.ts";
-import { RetainedAnswers } from "../../server/retainedAnswers.ts";
-import { RevisionChecks } from "../../server/revisionChecks.ts";
-import { RevisionMemo } from "../../server/revisionMemo.ts";
+import { demandVerifiedTrunk } from "../../server/performedRefRead.ts";
+import { SharedVerifiedOriginTrunk } from "../../server/sharedVerifiedOriginTrunk.ts";
+import { opened } from "../review/verifiedOriginTrunkCase.ts";
 import {
-  commitOf,
-  headsOf,
   listedAt,
   publishBranch,
   showAt,
 } from "../../test-support/committedOriginRepo.ts";
 import { directoryListingAnswer } from "../../test-support/listingAnswers.ts";
-import { headsAnswer } from "../../test-support/originAnswers.ts";
 import { parseRequest } from "../../test-support/support/ghRequest.ts";
 
 vi.mock(import("../../server/ghRead.ts"), async (importOriginal) => ({
   ...(await importOriginal()),
   runGh: vi.fn(),
   execGh: vi.fn(),
+  requireCoreReadsAllowed: vi.fn().mockResolvedValue(undefined),
 }));
 
 const source = makeMe.aPublishedSource.openDough.please();
@@ -91,13 +87,17 @@ const description = makeMe.aRepository
   .withRevision("advanced", { files: { [planPath]: nextPlan } })
   .please();
 
-test("reads recorded plans only at resolved or watched heads", async ({
-  onTestFinished,
-}) => {
-  const { origin, revisions, cleanup } =
-    await materializeRepository(description);
-  onTestFinished(cleanup);
+test("reads recorded plans only at heads verified by Git", async () => {
+  const {
+    repository: { origin, revisions },
+    pinned,
+    signal,
+  } = await opened(description, source);
   const { trunk: revision, resolved: head, advanced: checkedHead } = revisions;
+  if (revision === undefined || head === undefined || checkedHead === undefined)
+    throw new Error(
+      "The fixture must publish trunk and both branch revisions.",
+    );
   publishBranch(origin, source.ref, revision);
   publishBranch(origin, branch, head);
   publishBranch(origin, otherBranch, checkedHead);
@@ -110,10 +110,6 @@ test("reads recorded plans only at resolved or watched heads", async ({
       throw new Error(`Unexpected GitHub repository: ${args.join(" ")}`);
     }
     switch (request.kind) {
-      case "branch":
-        return Promise.resolve(
-          commitOf(origin, `refs/heads/${request.branch}`) ?? "",
-        );
       case "content": {
         const text = showAt(origin, request.revision, request.path);
         return Promise.resolve(text ?? "");
@@ -128,16 +124,11 @@ test("reads recorded plans only at resolved or watched heads", async ({
         throw new Error(`Unexpected GitHub read: ${args.join(" ")}`);
     }
   });
-  const pinned = new PinnedTexts(new RevisionMemo(new RetainedAnswers()));
   const readers = {
     pinned,
     branches: new BranchHeads(),
-    checks: new RevisionChecks({
-      tracked: new Set(),
-      scope: () => Promise.resolve(undefined),
-    }),
+    trunks: new SharedVerifiedOriginTrunk({ reuseMs: () => 0 }),
   };
-  const signal = new AbortController().signal;
   const readPinned = pinned.reader(source, revision, signal);
   const listPinned = pinned.lister(source, revision, signal);
   pinned.namedByRef(source, revision);
@@ -155,7 +146,11 @@ test("reads recorded plans only at resolved or watched heads", async ({
       case "branch-head-at":
         return performBranchHeadRead(readers, source, request, signal);
       case "revision-check":
-        return performRevisionCheck(readers, source, request, signal);
+        return performRevisionCheck(readers, source, request, signal, () =>
+          demandVerifiedTrunk(readers.trunks, pinned, source, signal, {
+            fresh: true,
+          }),
+        );
       case "file-at":
         if (request.onBranch !== undefined)
           return performOnBranch(
@@ -203,12 +198,8 @@ test("reads recorded plans only at resolved or watched heads", async ({
     kind: "answered",
     answer: { revision, branch, head },
   });
-  const branchRef = `repos/${repositoryName}/git/ref/heads/${branch}`;
-  expect(provider).toHaveBeenCalledExactlyOnceWith(
-    ["api", branchRef, "--jq", ".object.sha"],
-    signal,
-  );
-  provider.mockClear();
+  expect(provider).not.toHaveBeenCalled();
+  expect(heads).not.toHaveBeenCalled();
 
   await expect(fileAt(head, seedPath)).resolves.toMatchObject({
     kind: "refused",
@@ -222,15 +213,7 @@ test("reads recorded plans only at resolved or watched heads", async ({
   await expect(check(otherBranch)).resolves.toEqual(unrecorded);
   expect(heads).not.toHaveBeenCalled();
   expect(provider).not.toHaveBeenCalled();
-  const { status, body } = headsAnswer(headsOf(origin, source.ref, revision));
-  heads.mockResolvedValueOnce({
-    status,
-    body,
-    headers: new Map(),
-    failure: undefined,
-    askedAt: "2026-11-27T00:00:00Z",
-  });
-  await expect(check(branch)).resolves.toEqual({
+  await expect(check(branch)).resolves.toMatchObject({
     kind: "answered",
     answer: {
       revision,
@@ -239,7 +222,5 @@ test("reads recorded plans only at resolved or watched heads", async ({
     },
   });
   await expectPlan(checkedHead, nextPlan);
-  expect(heads.mock.calls.map(([args]) => args)).toEqual([
-    ["api", `repos/${repositoryName}/git/matching-refs/heads/`],
-  ]);
+  expect(heads).not.toHaveBeenCalled();
 });

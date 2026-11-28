@@ -7,11 +7,10 @@
 // before asking GitHub (github-request-kept-admissions / -owned-calls).
 //
 // Usage: node github-request-owner.mjs <endpoint directory> <backoff base ms>
-import { randomBytes, timingSafeEqual } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import { lstatSync, rmSync } from "node:fs";
 import { createServer } from "node:net";
 import { join } from "node:path";
-import { GhFailure } from "./github-request-answer.mjs";
 import { AdmittedCalls } from "./github-request-calls.mjs";
 import { KeptAdmissions } from "./github-request-kept-admissions.mjs";
 import {
@@ -27,23 +26,14 @@ import {
 } from "./github-request-owner-endpoint.mjs";
 import {
   greeted,
-  greetingLimitMs,
   scopeOf,
 } from "./github-request-owner-endpoint-connection.mjs";
-import {
-  fixedOperation,
-  protocol,
-  receive,
-  send,
-  wireAnswer,
-  workflowRerunOperation,
-} from "./github-request-owner-wire.mjs";
+import { ownerConnections } from "./github-request-owner-connections.mjs";
+import { protocol } from "./github-request-owner-wire.mjs";
 
 const directory = process.argv[2] ?? "";
 const backoffBaseMs = Number(process.argv[3]);
 const idleMs = Number(process.env.DOUGH_GITHUB_REQUEST_OWNER_IDLE_MS ?? 5_000);
-// The longest one consumer message may be.
-const messageBytesLimit = 256 * 1024;
 
 if (
   !(backoffBaseMs > 0) ||
@@ -71,106 +61,30 @@ const loginLeft = async () => {
 const scope = scopeOf(directory);
 
 const token = randomBytes(32).toString("hex");
-const admitted = (offered) =>
-  typeof offered === "string" &&
-  offered.length === token.length &&
-  timingSafeEqual(Buffer.from(offered), Buffer.from(token));
-
-// Every connected consumer, and every requester waiting on a call.
-const consumers = new Set();
-const requesters = new Set();
-const left = new Error("The requester left.");
 let ending = false;
-
-// A greeted consumer asks a fixed read or full-workflow repeat, or ends its
-// own wait. An ending owner greets nobody; consumers find the next one.
-function serve(socket) {
-  if (ending) {
-    socket.destroy();
-    return;
-  }
-  const waits = new Map();
-  let welcomed = false;
-  consumers.add(socket);
-  const greeting = setTimeout(() => socket.destroy(), greetingLimitMs);
-  const refuse = (refused) => {
-    send(socket, { refused });
-    socket.end();
-  };
-  socket.on("error", () => undefined);
-  socket.on("close", () => {
-    clearTimeout(greeting);
-    consumers.delete(socket);
-    if (welcomed) idleSince = Date.now();
-    for (const wait of waits.values()) wait.abort(left);
-  });
-  receive(
-    socket,
-    (message) => {
-      if (!welcomed) {
-        if (!admitted(message?.token)) refuse("unauthenticated");
-        else if (message.hello !== protocol) refuse("incompatible");
-        else {
-          welcomed = true;
-          clearTimeout(greeting);
-          send(socket, {
-            welcome: protocol,
-            operations: [workflowRerunOperation],
-          });
-        }
-        return;
-      }
-      const { id, cancel, request } = message ?? {};
-      if (!Number.isSafeInteger(id)) refuse("unknown operation");
-      else if (cancel === "left" || cancel === "bound")
-        waits
-          .get(id)
-          ?.abort(
-            cancel === "left" ? left : new GhFailure({ kind: "timed-out" }),
-          );
-      else if (request === undefined || waits.has(id))
-        refuse("unknown operation");
-      else ask(socket, waits, id, fixedOperation(request));
-    },
-    messageBytesLimit,
-  );
-}
-
-function ask(socket, waits, id, fixed) {
-  if (fixed === undefined || fixed.scope !== scope) {
-    const refused =
-      fixed === undefined ? "not a GitHub API read" : "another login";
-    send(socket, { id, refused });
-    return;
-  }
-  const wait = new AbortController();
-  waits.set(id, wait);
-  requesters.add(wait);
-  earlierEnded
-    .then(() => calls.request(fixed.args, wait.signal, fixed))
-    .then(
-      (answer) =>
-        send(socket, {
-          id,
-          answer: wireAnswer(answer),
-          told: failedAnswers.has(answer),
-        }),
-      (error) => {
-        if (wait.signal.aborted) return;
-        const timedOut =
-          error instanceof GhFailure && error.reason.kind === "timed-out";
-        send(socket, timedOut ? { id, timedOut } : { id });
-      },
-    )
-    .finally(() => {
-      waits.delete(id);
-      requesters.delete(wait);
-    });
-}
+const connections = ownerConnections({
+  token,
+  scope,
+  departed: () => {
+    idleSince = Date.now();
+  },
+  read: (fixed, signal) =>
+    earlierEnded.then(() => calls.request(fixed.args, signal, fixed)),
+  failed: (answer) => failedAnswers.has(answer),
+  coreCooldown: async (signal) => {
+    await earlierEnded;
+    if (!(await loginStands()) || signal.aborted)
+      return { kind: "unavailable" };
+    const refusal = admissions.refusal("core", { retain: false });
+    if (refusal === undefined) return { kind: "clear" };
+    if (refusal.kind === "held-back") return refusal;
+    return { kind: "unavailable" };
+  },
+});
 
 const socketFile = newSocketName();
 const socketPath = join(directory, socketFile);
-const server = createServer(serve);
+const server = createServer(connections.serve);
 await new Promise((resolve, reject) => {
   server.once("error", reject);
   server.listen(socketPath, resolve);
@@ -183,9 +97,8 @@ function end() {
   if (ending) return;
   ending = true;
   rmSync(socketPath, { force: true });
-  for (const wait of requesters) wait.abort(left);
   server.close();
-  for (const consumer of consumers) consumer.destroy();
+  connections.close();
   const lastAt = Date.now() + 2_000;
   setInterval(() => {
     if (calls.running === 0 || Date.now() > lastAt) process.exit(0);
@@ -203,10 +116,12 @@ if (!claimedRecord(directory, generation, record)) {
 
 // Every failed call's answer, so each consumer waiting on it is told so.
 const failedAnswers = new WeakSet();
+const admissions = new KeptAdmissions(directory, backoffBaseMs);
+const loginStands = async () => stands() && (await ownEndpoint()) === directory;
 const calls = new AdmittedCalls({
-  admissions: new KeptAdmissions(directory, backoffBaseMs),
+  admissions,
   owned: new OwnedCalls(directory, generation),
-  loginStands: async () => stands() && (await ownEndpoint()) === directory,
+  loginStands,
   failed: (answer) => failedAnswers.add(answer),
 });
 // No call is asked before each `gh` an earlier owner left running is ended,
@@ -237,7 +152,7 @@ setInterval(
     if (!stands()) end();
     else if (calls.heldBack(now) !== undefined) idleSince = now;
     else if (await loginLeft()) end();
-    else if (consumers.size > 0) idleSince = now;
+    else if (connections.hasConsumers()) idleSince = now;
     else if (now - idleSince >= idleMs) end();
   },
   Math.min(idleMs, 1_000),

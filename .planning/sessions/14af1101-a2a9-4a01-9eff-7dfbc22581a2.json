@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "sessionId": "14af1101-a2a9-4a01-9eff-7dfbc22581a2",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-28T10:15:56.874Z",
+  "story": "SEED-413#machine-observation-via-vitest",
+  "ranges": [
+    {
+      "base": "4609e081cfabab8a95e2a7f3fa9b4bc722484762",
+      "candidate": "d3209ff3ff77c48f2dce3ff5c480dcdbb6277587"
+    },
+    {
+      "base": "d3209ff3ff77c48f2dce3ff5c480dcdbb6277587",
+      "candidate": "bf7e6ef425fffff7cb49a9bd962e174513f4abca"
+    },
+    {
+      "base": "bf7e6ef425fffff7cb49a9bd962e174513f4abca",
+      "candidate": "284e9387cc4ca77279442f2a3447f70d3e6abfe8"
+    },
+    {
+      "base": "284e9387cc4ca77279442f2a3447f70d3e6abfe8",
+      "candidate": "d6bb8a3955a577696a44bc9708ac9230a3528399"
+    },
+    {
+      "base": "d6bb8a3955a577696a44bc9708ac9230a3528399",
+      "candidate": "34bf89399ff58158c8ee735f10a8822068c6ca53"
+    },
+    {
+      "base": "34bf89399ff58158c8ee735f10a8822068c6ca53",
+      "candidate": "874277e6660e50b51f260672409e3f6617371ac5"
+    },
+    {
+      "base": "17471d5d744f23b6b036ea60d02f2a614a32c6ba",
+      "candidate": "fd08e4d8ad92d88848675bbc4b6fc4e9bb8bdf3d"
+    }
+  ]
+}

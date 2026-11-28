@@ -1,12 +1,6 @@
-// A shared read that stalls, at the local authenticated read boundary
-// (../../server/ghRead.ts): no request, however late it joins, waits past
-// its own bound or keeps the `gh` call running past the call's, and the next
-// request asks again. Tested directly against real HTTP and the synthetic
-// `gh`, with the requests made to coincide on a held answer
-// (../../test-support/support/sharedReads.ts). A refused shared read:
-// ./authenticated-read-shared-requests.spec.ts.
-// One request's refusals: ./authenticated-read-revision-check-failures.spec.ts;
-// its bound: ./authenticated-read-subprocess-lifecycle.spec.ts.
+// A pinned `gh` read that stalls at the local authenticated read boundary
+// ends at its bound for both waiters, and the next reader asks again.
+// Shared refusals: ./authenticated-read-shared-requests.spec.ts.
 
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
@@ -31,7 +25,6 @@ test.describe.configure({ mode: "serial" });
 const revisionOf = (pair: string) => pair.repeat(20);
 const isSeed = (request: GhRequest) =>
   request.kind === "content" && request.path === sharedSeedPath;
-const isListing = (request: GhRequest) => request.kind === "matching-refs";
 
 const failed = (body: string) => JSON.parse(body) as unknown;
 
@@ -60,78 +53,54 @@ test.describe("authenticated read boundary: a stalled shared read ends at its ow
     await server.close();
   });
 
-  const stalls = [
-    {
-      label: "pinned read",
-      revision: revisionOf("7d"),
-      held: isSeed,
-      warm: (revision: string) => `&revision=${revision}`,
-      read: sharedSeedRead,
-      reading: (revision: string) => `${sharedSeedPath} at ${revision}`,
-      asked: (revision: string) => `content ${sharedSeedPath}@${revision}`,
-    },
-    {
-      label: "revision check",
-      revision: revisionOf("7e"),
-      held: isListing,
-      warm: (revision: string) => `&since=${revision}`,
-      read: (revision: string) => `&since=${revision}`,
-      reading: () => "main of terryyin/open-dough",
-      asked: () => "matching-refs",
-    },
-  ];
+  test("a pinned read joined late times out within both bounds, ends its `gh` call, and is asked again", async () => {
+    const revision = revisionOf("7d");
+    const query = sharedSeedRead(revision);
+    const asked = `content ${sharedSeedPath}@${revision}`;
+    const held = await servedHolding(server, revision, isSeed, [
+      `&revision=${revision}`,
+    ]);
+    const { before } = held;
 
-  for (const stall of stalls) {
-    test(`a ${stall.label} joined late is answered as timed out within each request's bound, its \`gh\` ends at the read's bound, and a later request asks again`, async () => {
-      const { revision } = stall;
-      const held = await servedHolding(server, revision, stall.held, [
-        stall.warm(revision),
-      ]);
-      const { before } = held;
+    const firstAsked = Date.now();
+    const first = answeredAt(server, query);
+    await refusedMarker(server);
+    await expect
+      .poll(() => server.github.calls.length - before, { timeout: 5_000 })
+      .toBe(1);
+    expect(processAlive(server.ghPid())).toBe(true);
+    // Join halfway through the read's bound: the read's bound then ends
+    // half a bound before the joiner's own would, so a wait of the
+    // joiner's own, or a read it kept outstanding, would end at or past
+    // the joiner's deadline.
+    await new Promise((resolve) =>
+      setTimeout(resolve, firstAsked + boundMs / 2 - Date.now()),
+    );
+    const joinerDeadline = Date.now() + boundMs;
+    const late = answeredAt(server, query);
+    await refusedMarker(server);
+    const { answer: firstAnswer, at: firstAnsweredAt } = await first;
+    const { answer: lateAnswer, at: lateAnsweredAt } = await late;
+    const ghEndedAt = (await waitUntil(() => !processAlive(server.ghPid()), {
+      timeoutMs: 5_000,
+    }))
+      ? Date.now()
+      : Infinity;
 
-      const firstAsked = Date.now();
-      const first = answeredAt(server, stall.read(revision));
-      await refusedMarker(server);
-      await expect
-        .poll(() => server.github.calls.length - before, { timeout: 5_000 })
-        .toBe(1);
-      expect(processAlive(server.ghPid())).toBe(true);
-      // Join halfway through the read's bound: the read's bound then ends
-      // half a bound before the joiner's own would, so a wait of the
-      // joiner's own, or a read it kept outstanding, would end at or past
-      // the joiner's deadline.
-      await new Promise((resolve) =>
-        setTimeout(resolve, firstAsked + boundMs / 2 - Date.now()),
-      );
-      const joinerDeadline = Date.now() + boundMs;
-      const late = answeredAt(server, stall.read(revision));
-      await refusedMarker(server);
-      const { answer: firstAnswer, at: firstAnsweredAt } = await first;
-      const { answer: lateAnswer, at: lateAnsweredAt } = await late;
-      const ghEndedAt = (await waitUntil(() => !processAlive(server.ghPid()), {
-        timeoutMs: 5_000,
-      }))
-        ? Date.now()
-        : Infinity;
+    const timedOut = {
+      error: `The local GitHub CLI did not answer within ${String(boundMs / 1000)} seconds while reading ${sharedSeedPath} at ${revision}.`,
+      recovery: "transient",
+    };
+    expect([firstAnswer.status, lateAnswer.status]).toEqual([502, 502]);
+    expect(failed(firstAnswer.body)).toEqual(timedOut);
+    expect(failed(lateAnswer.body)).toEqual(timedOut);
+    expect(firstAnsweredAt).toBeLessThan(joinerDeadline);
+    expect(lateAnsweredAt).toBeLessThan(joinerDeadline);
+    expect(ghEndedAt).toBeLessThan(joinerDeadline);
+    expect(askedSince(server, before)).toEqual([asked]);
 
-      const timedOut = {
-        error: `The local GitHub CLI did not answer within ${String(boundMs / 1000)} seconds while reading ${stall.reading(revision)}.`,
-        recovery: "transient",
-      };
-      expect([firstAnswer.status, lateAnswer.status]).toEqual([502, 502]);
-      expect(failed(firstAnswer.body)).toEqual(timedOut);
-      expect(failed(lateAnswer.body)).toEqual(timedOut);
-      expect(firstAnsweredAt).toBeLessThan(joinerDeadline);
-      expect(lateAnsweredAt).toBeLessThan(joinerDeadline);
-      expect(ghEndedAt).toBeLessThan(joinerDeadline);
-      expect(askedSince(server, before)).toEqual([stall.asked(revision)]);
-
-      held.release();
-      expect((await readAt(server, stall.read(revision))).status).toBe(200);
-      expect(askedSince(server, before)).toEqual([
-        stall.asked(revision),
-        stall.asked(revision),
-      ]);
-    });
-  }
+    held.release();
+    expect((await readAt(server, query)).status).toBe(200);
+    expect(askedSince(server, before)).toEqual([asked, asked]);
+  });
 });

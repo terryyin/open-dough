@@ -129,10 +129,6 @@ export function ordinaryTrunkModeCompletedHistory() {
   return ordinaryTrunkModeCompletedBuilder(queuedReadyRepository()).please();
 }
 
-export function ordinaryTrunkModeCompletionOntoTip() {
-  return ordinaryTrunkModeCompletedBuilder(makeMe.aRepository);
-}
-
 export function ordinaryStoryBranchCompletionOntoTip(
   completion = freshYuiCompletion(),
 ) {

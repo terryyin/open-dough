@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "sessionId": "1203cf23-0e16-4d50-bff2-92f7c3dd4e88",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-28T02:57:33.189Z",
+  "story": "SEED-334#observe-tagged-install-and-read-e2e-proof",
+  "ranges": [
+    {
+      "base": "b564f34c09cc8fa5e9cf16b2db5c3d1790f8ac65",
+      "candidate": "2a64fe65ac43a0920517c0ea199235630f971953"
+    },
+    {
+      "base": "2a64fe65ac43a0920517c0ea199235630f971953",
+      "candidate": "2f6ac429e50e04b5ad9cdb21390467a668b57f39"
+    },
+    {
+      "base": "2f6ac429e50e04b5ad9cdb21390467a668b57f39",
+      "candidate": "f00802092c1fb7d10b748086397a3d49546ad8a1"
+    },
+    {
+      "base": "f00802092c1fb7d10b748086397a3d49546ad8a1",
+      "candidate": "e976275bf93f1c8f6ae821238d877028c2854af1"
+    },
+    {
+      "base": "e976275bf93f1c8f6ae821238d877028c2854af1",
+      "candidate": "ee8a140ab20edde01affd35689e7fc0e7faf6a8e"
+    },
+    {
+      "base": "ee8a140ab20edde01affd35689e7fc0e7faf6a8e",
+      "candidate": "fda707f32f03b027d91fdfd04dbe5f3ceb3ea667"
+    },
+    {
+      "base": "fda707f32f03b027d91fdfd04dbe5f3ceb3ea667",
+      "candidate": "d8e835f3a289e0bdd0861a839ed1e26b71691499"
+    }
+  ]
+}

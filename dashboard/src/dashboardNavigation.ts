@@ -2,8 +2,6 @@ import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import type { OpenRoster } from "./AgentAssignmentFacts.tsx";
 import { isFromPortrait, useDashboardRoute } from "./dashboardRoute.ts";
 import { useStoryDestination } from "./StoryDestination.tsx";
-import { useProjectKeyboardNavigation } from "./projectKeyboardNavigation.ts";
-import { usePerspectiveFocus } from "./PerspectiveSelect.tsx";
 import type { useObservationAttempt } from "./observationAttempt.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
@@ -77,12 +75,6 @@ export function useDashboardNavigation({
     attempt,
     enabled: !suspended && source !== undefined,
   });
-  useProjectKeyboardNavigation({
-    source,
-    selectProject,
-    enabled: !suspended && source !== undefined,
-  });
-
   const openRoster: OpenRoster = (agent, element) => {
     if (source === undefined) return;
     const openingInfo: RosterOpening = {
@@ -133,8 +125,6 @@ export function useDashboardNavigation({
       focusBoard();
     }
   }, [route.view, source?.id, work]);
-
-  usePerspectiveFocus(route.perspective);
 
   return {
     route,

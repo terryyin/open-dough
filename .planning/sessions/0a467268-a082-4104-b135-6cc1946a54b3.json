@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "0a467268-a082-4104-b135-6cc1946a54b3",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-28T02:16:32.102Z",
+  "story": "SEED-341#make-recently-done-setup-and-claude-timeout-proof-reliable",
+  "ranges": [
+    {
+      "base": "f9898912c99020450e0df51b7d91c64207f1fc38",
+      "candidate": "e8017c40dec04327319e5c03a6cb0b071fdbad77"
+    }
+  ]
+}

@@ -16,7 +16,7 @@ import {
   shortRevision,
   parts,
 } from "./dashboardPage.ts";
-import { noConnection } from "./originAnswers.ts";
+import { holdLaterTrunkTransfers } from "./laterTrunkTransfers.ts";
 import {
   externalPlan,
   legacy,
@@ -44,7 +44,7 @@ export async function expectFailedCheckKeepsPriorRevision(
   backlog: Locator,
 ) {
   const retainedRevision = openDough.revision;
-  const restore = origin.answerWith("main", noConnection);
+  const restore = origin.disconnectGit();
   origin.requests.splice(0, origin.requests.length);
 
   await passTimeUntilChecked(page, 502);
@@ -81,7 +81,7 @@ export async function expectFailedCheckKeepsPriorRevision(
 
 export async function expectProjectSwitchRejectsLateHeldRead(
   page: Page,
-  openDoughOrigin: CommittedOrigin,
+  home: string,
   openDough: ReadinessRepo,
   doughnut: ReadinessRepo,
 ) {
@@ -94,27 +94,32 @@ export async function expectProjectSwitchRejectsLateHeldRead(
     shortRevision(openDough.revision),
   );
 
-  const releaseMain = openDoughOrigin.hold("main");
-  await page.reload();
-  await expect(parts(page).reading).toBeVisible();
+  const transfer = holdLaterTrunkTransfers(home, "terryyin/open-dough");
+  try {
+    await page.reload();
+    await transfer.untilHeld();
+    await expect(parts(page).reading).toBeVisible();
 
-  await chooseProject(page, "Doughnut");
-  await expectMembership(page, {
-    taken: [],
-    backlog: [
-      planless.title,
-      legacy.title,
-      malformed.title,
-      externalPlan.title,
-    ],
-  });
-  const { backlog, readRevision } = parts(page);
-  await expect(readRevision).toContainText(shortRevision(doughnut.revision));
+    await chooseProject(page, "Doughnut");
+    await expectMembership(page, {
+      taken: [],
+      backlog: [
+        planless.title,
+        legacy.title,
+        malformed.title,
+        externalPlan.title,
+      ],
+    });
+    const { backlog, readRevision } = parts(page);
+    await expect(readRevision).toContainText(shortRevision(doughnut.revision));
 
-  releaseMain();
-  await expect(readRevision).toContainText(shortRevision(doughnut.revision));
-  await expect(page.getByText(plannedReady.title)).toHaveCount(0);
-  await expect(storyCard(backlog, planless.title)).toBeVisible();
+    transfer.release();
+    await expect(readRevision).toContainText(shortRevision(doughnut.revision));
+    await expect(page.getByText(plannedReady.title)).toHaveCount(0);
+    await expect(storyCard(backlog, planless.title)).toBeVisible();
+  } finally {
+    transfer.release();
+  }
 }
 
 // With the page clock paused since the page opened, lets page time pass the

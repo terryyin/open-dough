@@ -7,7 +7,9 @@
 // resolved that branch to it (`./branchHeads.ts`).
 
 import type { BranchHeads } from "./branchHeads.ts";
-import { isNotFound } from "./ghRead.ts";
+import { GhFailure, isNotFound, requireCoreReadsAllowed } from "./ghRead.ts";
+import { demandVerifiedTrunk, verifiedTrunk } from "./performedRefRead.ts";
+import type { SharedVerifiedOriginTrunk } from "./sharedVerifiedOriginTrunk.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import {
   branchPlanReachableFromRevision,
@@ -25,7 +27,11 @@ type BranchReaders = {
 // Which commit a branch a Taken entry's profile records at the pinned
 // revision names now; a null head when it is no longer published.
 export async function performBranchHeadRead(
-  { pinned, branches }: BranchReaders,
+  {
+    pinned,
+    branches,
+    trunks,
+  }: BranchReaders & { readonly trunks: SharedVerifiedOriginTrunk },
   source: PublishedSource,
   read: Extract<RequestedRead, { kind: "branch-head-at" }>,
   signal: AbortSignal,
@@ -40,15 +46,25 @@ export async function performBranchHeadRead(
   if (!recorded) {
     return unrecordedBranch;
   }
-  const head = await branches.resolve(source, read.branch, signal);
-  if (head !== undefined) {
+  await requireCoreReadsAllowed(signal);
+  const observation = await demandVerifiedTrunk(
+    trunks,
+    pinned,
+    source,
+    signal,
+    {},
+  );
+  const verified = verifiedTrunk(observation.trunk);
+  const head = verified.branches?.find(
+    ({ branch }) => branch === read.branch,
+  )?.head;
+  if (verified.unrecorded || head === undefined)
+    throw new GhFailure({ kind: "unavailable", part: "origin" });
+  if (head !== null) {
+    branches.remember(source, read.branch, head);
     pinned.heardNamed(source, head);
   }
-  return answered({
-    revision: read.revision,
-    branch: read.branch,
-    head: head ?? null,
-  });
+  return answered({ revision: read.revision, branch: read.branch, head });
 }
 
 // A file or its last commit at a story branch head. A plan the head does not

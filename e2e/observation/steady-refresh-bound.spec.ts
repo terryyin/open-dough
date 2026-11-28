@@ -8,6 +8,7 @@
 // clock is paused and advanced by the test. The carry itself:
 // ./steady-refresh-carry.spec.ts.
 
+import { holdAuthenticatedReadsWhere } from "../../dashboard/test-support/holdAuthenticatedReads.ts";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectSettledPage,
@@ -25,7 +26,6 @@ import {
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import { backlogA } from "../../dashboard/test-support/refreshJourney.ts";
 import { givePageItsTurns } from "../../dashboard/test-support/pageRequestNotes.ts";
-import { noConnection } from "../../dashboard/test-support/publishedOrigin.ts";
 
 import type { MovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 
@@ -99,11 +99,16 @@ test("a story's shown facts give way to what the read itself read when a hidden 
   const queueCard = board.getByRole("article", { name: queueStory });
   const detail = await inspectedDetail(queueCard);
   const atA = `${queueStory}, as published at A.`;
-  const restoreBacklogAtB = origin.answerWith(revisionB, noConnection);
+  const snapshot = await holdAuthenticatedReadsWhere(
+    page,
+    (params) => params.get("revision") === revisionB && params.size === 2,
+    [],
+  );
   origin.advanceTo("B");
   await passTimeUntilChecked(page);
+  await expect.poll(snapshot.held).toBe(1);
+  snapshot.fail();
   await expect(problem).toContainText("this page reads it");
-  restoreBacklogAtB();
   const release = origin.hold(syncRecord);
   await page.clock.runFor(15_250);
 

@@ -15,8 +15,7 @@ import {
   type StoryMembership,
 } from "./dashboardPage.ts";
 import { timeSaid } from "./limitNotice.ts";
-import type { OriginAnswer } from "./originAnswers.ts";
-import type { MovingOrigin } from "./publishedMovingOrigin.ts";
+import type { MovingHistory } from "./publishedMovingOrigin.ts";
 import { defaultRepository } from "./publishedOrigin.ts";
 
 // What the problem says while no published work is shown: when this page
@@ -88,24 +87,22 @@ export async function expectEarlierSnapshotKept(
   ).toHaveAttribute("datetime", retrieved);
 }
 
-// Opens the page on `titles`, then answers `main` with `answer` until the
+// Opens the page on `titles`, then disconnects Git origin until the
 // returned restore is called, and lets page time pass until the page's next
-// revision check has failed: the problem says `failure`, and the snapshot
+// revision check fails with the origin notice, and the snapshot
 // opened stays shown.
 export async function openThenFailCheck(
   page: Page,
-  origin: Pick<MovingOrigin, "answerWith">,
+  origin: Pick<MovingHistory<string>, "disconnectGit">,
   titles: StoryMembership,
-  answer: OriginAnswer,
-  failure: string,
 ): Promise<() => void> {
   await page.goto("/");
   await expectSettledPage(page, titles);
   const retrieved =
     (await parts(page).retrievedAt.getAttribute("datetime")) ?? "";
-  const restore = origin.answerWith("main", answer);
+  const restore = origin.disconnectGit();
   await passTimeUntilChecked(page, 502);
-  await expect(parts(page).problem).toContainText(failure);
+  await expect(parts(page).problem).toContainText(originUnreachable());
   await expectEarlierSnapshotKept(page, retrieved);
   return restore;
 }

@@ -20,6 +20,7 @@ import { ReadProblem } from "./readProblem.ts";
 import { unansweredWithinReadWait, withinReadWait } from "./readWaitBound.ts";
 import { awaitingOwners } from "./assignmentPlacement.ts";
 import { readPublishedDetails } from "./publishedWorkDetails.ts";
+import type { RevisionConfirmation } from "./revisionCheckRead.ts";
 
 // Reads the source's ref afresh, or an already resolved revision. When the
 // wait bound ends after membership, unfinished details become gaps. Humans
@@ -35,8 +36,10 @@ export async function readPublishedWork(
   shown: PublishedWork | undefined,
   reads: PublishedObservationReadSource,
   fresh = false,
+  confirmation?: RevisionConfirmation,
 ): Promise<PublishedWork> {
   return withinReadWait(signal, async (untilEither, bound) => {
+    let confirmationFailure: ReadProblem | undefined;
     try {
       // Every catalog source is read through the one local authenticated
       // boundary: one resolved revision and its raw backlog text first.
@@ -74,23 +77,23 @@ export async function readPublishedWork(
           unreadable: "Published work could not be read.",
         },
       );
-      const { revision, backlog: markdown, askedAt, confirmedAt } = snapshot;
-      // Origin's newer answer was not recorded, so the shown confirmation
-      // stands and this read adds nothing to it.
-      if (
-        snapshot.unrecorded &&
-        shownAtRevision(shown, { source, revision }) !== undefined
-      ) {
-        throw new ReadProblem(
+      const { revision, backlog: markdown } = snapshot;
+      const { askedAt, confirmedAt } = confirmation ?? snapshot;
+      const previous = shown?.source.id === source.id ? shown : undefined;
+      if (snapshot.unrecorded) {
+        confirmationFailure = new ReadProblem(
           `The check of ${readingRefOf(source)} could not be saved.`,
         );
+        // Keep the current view. On open, show the former confirmation
+        // through the normal progress reports before reporting the failure.
+        if (previous !== undefined) throw confirmationFailure;
       }
       const resolved = {
         ...(askedAt === undefined ? {} : { refAskedAt: askedAt }),
         ...(confirmedAt === undefined ? {} : { confirmedAt }),
       };
       outcomes.pinRevision(revision);
-      const kept = shownAtRevision(shown, { source, revision });
+      const kept = shownAtRevision(previous, { source, revision });
       const sameRevision = kept !== undefined;
       const retrievedAt = new Date();
       // Membership first, then preparation enrichment through the same
@@ -107,17 +110,13 @@ export async function readPublishedWork(
             revision,
             retrievedAt,
             ...resolved,
-            // A revision an automatic check named carries no confirmation of
-            // its own; this read of it confirms it.
-            confirmedAt: confirmedAt ?? retrievedAt.toISOString(),
             ...interpretPublishedBacklog(markdown, revision, source),
             done: { status: "loading" },
           });
       // A new revision of the shown project carries the shown facts until
       // its own answers replace them; another project starts afresh.
-      const carriedFrom =
-        !sameRevision && shown?.source.id === source.id ? shown : undefined;
-      return await readPublishedDetails(
+      const carriedFrom = sameRevision ? undefined : previous;
+      const details = await readPublishedDetails(
         reads,
         work,
         sameRevision,
@@ -128,14 +127,19 @@ export async function readPublishedWork(
         outcomes,
         onPartial,
       );
+      if (confirmationFailure !== undefined) throw confirmationFailure;
+      return details;
     } catch (error) {
       // The browser-owned wait bound, not caller departure: eligible for
       // project-local transient recovery. Departure keeps its abort reason.
       if (bound.aborted && !signal.aborted) {
-        throw new ReadProblem(
-          `${unansweredWithinReadWait}, so the read was given up.`,
-          undefined,
-          "transient",
+        throw (
+          confirmationFailure ??
+          new ReadProblem(
+            `${unansweredWithinReadWait}, so the read was given up.`,
+            undefined,
+            "transient",
+          )
         );
       }
       throw error;

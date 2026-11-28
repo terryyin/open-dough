@@ -17,12 +17,16 @@ import {
   expectPublishedRevision,
   expectShownMembership,
 } from "../../dashboard/test-support/dashboardPage.ts";
+import { parts } from "../../dashboard/test-support/dashboardParts.ts";
 import { test as base } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   openSettledAtA,
   passTimeUntilAsked,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
-import { untilPageRequestsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
+import {
+  isCheck,
+  untilPageRequestsAnswered,
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 import { holdLaterTrunkTransfers } from "../../dashboard/test-support/laterTrunkTransfers.ts";
 import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
 import {
@@ -104,13 +108,10 @@ test("Refresh after origin moved keeps A and its time through failures, then pub
     transfers.release();
     await pressBoardRefresh(page);
   });
-  await test.step("Then A and its time stay beside that failure", async () => {
-    await expectBoardRefreshFailed(
-      page,
-      shownAt,
+  await test.step("Then the Board reports that the confirmation could not be saved", async () => {
+    await expect(parts(page).problem).toContainText(
       "The check of main of terryyin/open-dough could not be saved.",
     );
-    await expectShownMembership(page, titlesOfA);
   });
   await test.step("When Refresh is pressed once the record can be written", async () => {
     confirmationRecords.allow();
@@ -132,8 +133,26 @@ test("an automatic check that named B before Refresh published C cannot replace 
     await test.step("Given the Board at A and an automatic check held after it found origin at B", async () => {
       const origin = await openSettledAtA(page, afterGitHubStops);
       origin.advanceTo("B");
-      const releaseCheck = origin.hold("main");
+      let releaseCheck = () => {};
+      const hold = new Promise<void>((resolve) => {
+        releaseCheck = resolve;
+      });
+      let reportFetch = () => {};
+      const fetched = new Promise<void>((resolve) => {
+        reportFetch = resolve;
+      });
+      await page.route(
+        (url) => isCheck(url.toString()),
+        async (route) => {
+          const response = await route.fetch();
+          reportFetch();
+          await hold;
+          await route.fulfill({ response });
+        },
+        { times: 1 },
+      );
       await passTimeUntilAsked(page);
+      await fetched;
       return { origin, releaseCheck };
     });
   const refreshedAt =

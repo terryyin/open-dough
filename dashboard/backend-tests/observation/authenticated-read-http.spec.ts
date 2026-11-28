@@ -15,13 +15,16 @@ import {
 import * as readRules from "../../src/authenticatedReadRules.ts";
 import * as avatarPublication from "../../test-support/authenticatedAvatarRecords.ts";
 import { avatarPng } from "../../test-support/avatarAnswers.ts";
-import { headsAnswer, notLoggedIn } from "../../test-support/originAnswers.ts";
+import { refuseOriginThroughServedHomes } from "../../test-support/support/fixtureOriginRefusal.ts";
 import * as done from "../../test-support/support/doneCatalogReads.ts";
 import * as fakeGh from "../../test-support/support/fakeGh.ts";
 import * as fakeGitHub from "../../test-support/support/fakeGitHub.ts";
 import { holdingAnswer } from "../../test-support/support/heldGitHubAnswer.ts";
 import * as processGroup from "../../test-support/support/processGroup.ts";
-import { routeDashboardHome } from "../../test-support/support/fixtureOriginRoute.ts";
+import {
+  routeDashboardHome,
+  routeServedHomesToPublication,
+} from "../../test-support/support/fixtureOriginRoute.ts";
 import * as http from "../../test-support/support/rawHttp.ts";
 
 const openDough = makeMe.aPublishedSource.openDough.please();
@@ -157,51 +160,43 @@ test("serves the matched avatar bytes with bounded image headers", async () => {
 });
 
 test("admits same-origin Fetch Metadata without an Origin header", async () => {
-  const revision = "cd".repeat(20);
-  github.serve(openDough.repository, () =>
-    Promise.resolve(headsAnswer({ [openDough.ref]: revision })),
-  );
+  const published = fakeGitHub.publishes({});
+  github.serve(openDough.repository, published);
+  routeServedHomesToPublication(github, openDough.repository);
   const response = await checkRevision({
     headers: { "Sec-Fetch-Site": "same-origin" },
   });
   expect(response.status).toBe(200);
   expect(response.headers["cache-control"]).toBe("no-store");
-  expect(JSON.parse(response.body)).toMatchObject({ revision });
-  expect(github.calls).toHaveLength(1);
+  expect(JSON.parse(response.body)).toMatchObject({
+    revision: published.revision,
+  });
+  expect(github.calls).toHaveLength(0);
 });
 
 test("reports actionable login guidance for the selected source without exposing diagnostics", async () => {
-  github.serve(
-    pygardon.repository,
-    fakeGitHub.failsWith(
-      `${notLoggedIn.stderr}token file: ${diagnosticMarker}\n`,
-    ),
+  github.serve(pygardon.repository, fakeGitHub.publishes({}));
+  routeServedHomesToPublication(github, pygardon.repository);
+  onTestFinished(
+    refuseOriginThroughServedHomes(github, pygardon.repository, 401),
   );
   const response = await checkRevision(undefined, pygardon.id);
   expect(response.status).toBe(502);
   expect(response.headers["cache-control"]).toBe("no-store");
   expect(JSON.parse(response.body)).toEqual({
     error:
-      "The local GitHub CLI is not logged in, so main of terryyin/pygardon could not be read. Run `gh auth login` (check with `gh auth status`), then reload the page.",
+      "GitHub answered HTTP 401 to the local GitHub CLI while reading main of terryyin/pygardon. Check that `gh auth status` succeeds and that this login can read terryyin/pygardon, then reload the page.",
   });
   expect(response.body).not.toContain(diagnosticMarker);
   expect(response.body).not.toContain("GH_TOKEN");
 });
 
-test("reports a failed revision check without forwarding raw stderr or reading beyond the ref fallback", async () => {
-  github.serve(
-    openDough.repository,
-    fakeGitHub.failsWith(`fatal: ${diagnosticMarker}\n`),
-  );
+test("reports unavailable origin without forwarding raw stderr or using a REST fallback", async () => {
   const response = await checkRevision();
   expect(response.status).toBe(502);
-  expect(response.body).not.toContain(diagnosticMarker);
+  expect(response.body).toContain("The published trunk is unavailable");
   expect(response.body).not.toContain("fatal:");
-  const repo = `repos/${openDough.repository}`;
-  expect(github.calls.map(({ argv }) => argv)).toEqual([
-    ["api", "--include", `${repo}/git/matching-refs/heads/`],
-    ["api", "--include", `${repo}/commits/${openDough.ref}`, "--jq", ".sha"],
-  ]);
+  expect(github.calls).toEqual([]);
 });
 
 test("a departed Done reader ends its child and a later request reads the body", async () => {

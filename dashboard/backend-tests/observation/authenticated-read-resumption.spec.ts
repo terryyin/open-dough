@@ -3,9 +3,8 @@
 // GitHub: once a directed wait has passed, one call goes first, and the new
 // limit it meets answers the queued requests as held back at once without
 // asking GitHub; a wait met reading one project holds back another project's
-// reads, and a revision check and the optional profile setting file, held
-// back, fail their reads without asking GitHub, the setting file never
-// reading as absent. The admission rules themselves, with explicit clock inputs:
+// reads, and a held-back optional profile setting file fails without asking
+// GitHub or reading as absent. Admission rules with explicit clock inputs:
 // ./authenticated-read-admission.spec.ts.
 
 import { mkdtempSync, rmSync } from "node:fs";
@@ -15,7 +14,6 @@ import { expect, test as base } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { disconnectGh, execGh, GhFailure, runGh } from "../../server/ghRead.ts";
 import { agentSettingsTextAt } from "../../server/recordsBesideBacklog.ts";
-import { RevisionChecks } from "../../server/revisionChecks.ts";
 import {
   endFakeGh,
   fakeGhEnv,
@@ -129,21 +127,5 @@ test("a profile setting file held back fails its read, never reading as absent, 
   );
   expect(settings).toBeInstanceOf(GhFailure);
   expect((settings as GhFailure).reason).toMatchObject({ kind: "held-back" });
-  expect(github.calls).toHaveLength(1);
-});
-
-test("a revision check held back fails its read without asking GitHub", async ({
-  github,
-}) => {
-  await waitMet(github);
-  const checks = new RevisionChecks({
-    tracked: new Set(),
-    scope: () => Promise.resolve(undefined),
-  });
-  const check = await checks.check(source, new AbortController().signal).then(
-    () => undefined,
-    (error: unknown) => error,
-  );
-  expect((check as GhFailure).reason).toMatchObject({ kind: "held-back" });
   expect(github.calls).toHaveLength(1);
 });

@@ -15,11 +15,7 @@ import {
   answeringFirst,
   heldInTurn,
 } from "../../test-support/support/heldGitHubAnswer.ts";
-import {
-  askedSince,
-  readAt,
-  revisionCheck,
-} from "../../test-support/support/sharedReads.ts";
+import { askedSince, readAt } from "../../test-support/support/sharedReads.ts";
 import {
   dashboardsOnOneOwner,
   isWorkflowRead,
@@ -118,14 +114,22 @@ test(
   async () => {
     await withMachine(async (machine) => {
       const revision = revisionOf("9b");
+      const published = withWorkflow(publishedAt(revision));
+      machine.serve(published);
+      expect(
+        (await readAt(machine.first, readOf(`&revision=${revision}`))).status,
+      ).toBe(200);
       machine.serve(
         answeringFirst(
-          withWorkflow(publishedAt(revision)),
-          (request) => request.kind === "matching-refs",
+          published,
+          isSeed,
           rateLimitedAnswer(429, { "Retry-After": "600" }),
         ),
       );
-      const refused = await timedRead(machine.first, readOf(revisionCheck));
+      const refused = await timedRead(
+        machine.first,
+        readOf(seedAt(revision, 0)),
+      );
       expect(refused.body).toMatchObject({ retryAfterSeconds: 600 });
       const before = machine.github.calls.length;
       expectHeldBack(

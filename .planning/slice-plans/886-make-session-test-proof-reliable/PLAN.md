@@ -2,24 +2,55 @@
 
 **Identity:** SEED-341#make-recently-done-setup-and-claude-timeout-proof-reliable
 
-**Source:** [Correction story](../../seeds/SEED-341-simplify-session-tests.md#make-recently-done-setup-and-claude-timeout-proof-reliable) and the maintainer's 2026-11-27 retrospective note reporting setup outside Playwright steps and a four-second readiness failure during a full local run. The exact run log and worker settings were not supplied. The relevant cases trace to `500777a55` and `25be1d9a8` respectively. This work also relates to [Simplify the remaining session tests](../../seeds/SEED-341-simplify-session-tests.md#simplify-remaining-session-tests).
+**Source:** [Correction story](../../seeds/SEED-341-simplify-session-tests.md#make-recently-done-setup-and-claude-timeout-proof-reliable) and the maintainer's 2026-11-27 retrospective note about setup outside Playwright steps and a four-second readiness failure in a full local backend run. The original log and worker settings are unavailable. The affected cases trace to `500777a55` and `25be1d9a8`.
 
-## Scope and proof
+## Scope and examples
 
-Keep every existing assertion and fixture scenario in both specs. Use the
-[existing E2E page objects and MakeMe selection](../../../AGENTS.md) and apply
-the shared [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
+- When a maintainer opens the retained ad hoc selection journey's Playwright
+  report, fixture publication and navigation to Recently done in Intent appear
+  as named setup phases. The journey still proves the open report, scoped Done
+  body reads, saved Intent coverage, historical comparison, exclusion of the
+  unbound entry, and the card revealed beyond the Development window.
+- When Claude is slow to enter the synthetic hang, the test waits within the
+  runner's test budget for a live PID whose termination handlers are installed.
+  Ending the wait then produces an uncertain `timed-out` result, stops that PID
+  via `SIGTERM`, and leaves the launch records empty.
+
+The correction is test-only. Production launch policy and the broader
+[session-test simplification](../../seeds/SEED-341-simplify-session-tests.md#simplify-remaining-session-tests)
+are outside its scope.
+
+## Proof boundaries and decisions
+
 The [North Star's runner boundary](../../NORTH-STAR.md#plain-vitest-for-unit-tests-playwright-only-for-e2e)
 keeps the integrated journey in Playwright and the typed launch boundary in
-Node Vitest. Its [test support guidance](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support)
-favors the existing fixture and controls. Keep browser actions on existing
-page objects in line with [Act as soon as the page allows](../../NORTH-STAR.md#act-as-soon-as-the-page-allows).
+Node Vitest. Follow [Act as soon as the page allows](../../NORTH-STAR.md#act-as-soon-as-the-page-allows)
+by reusing the existing browser actions and observable waits.
+[Make production code directly testable](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support)
+favors the existing typed launch owner, synthetic Claude fixture, PID control,
+and launch-wait end file. Keep test data in the existing MakeMe builders and
+browser actions with the existing page objects under [AGENTS.md](../../../AGENTS.md).
+Apply the shared [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).
 
-At `5581c1392`, runner listing selected the one Chromium journey and the Node
-launch boundary spec containing the SIGTERM case. The reported load failure
-supplies the four-second symptom. Source inspection locates the narrower race
-in the fixture: it writes the PID before registering termination handlers.
-Capture the readiness observation and suite result during slice 2.
+The PID and exit-signal controls have one live reader, the launch boundary
+case. The mounted-server runtime spec now checks mounting and worker ownership.
+The current browser consumer of the hang and explicit end-file control is the
+[story-card startup recovery journey](../../../e2e/launches/agent-launch-story-card-problems.spec.ts).
+Other hang and launched-hang journeys observe recorded launch calls or session
+listings, both emitted before the PID and signal-handler sequence.
+
+## Preparation observations
+
+On 2026-11-28 in this preparation checkout at `3210fc680`, Node 24.21.0 on
+macOS, the following commands ran under `caffeinate -s -i` on AC power. The
+controlled variants were temporary and restored after the observations.
+
+| Premise | Consuming operation and result |
+| --- | --- |
+| The retained selection journey's report omits setup phases | `npm run test:e2e -- e2e/sessions/recently-done-sessions-select-ad-hoc.spec.ts --reporter=json`. One Chromium journey passed and reported six named scenario steps, beginning with opening a report. Wrapping the two setup phases in scratch `test.step` calls made both labels appear before the same passing scenario steps. |
+| A delayed PID can fail the proof before the termination path | `npm run test:dashboard:backend -- agent-launch-boundary.spec.ts --grep 'ends the waiting Claude process with SIGTERM'` selected the one Node Vitest case. The ordinary case passed in a 10-test focused baseline. Inserting a 4,250 ms delay before PID publication failed the four-second assertion with an undefined PID. With PID publication after handler registration and polling tied to the test abort signal, the same delayed case passed all assertions in 4,683 ms under the default 5,000 ms test timeout. This reconstructs the reported symptom with a controlled delay. The original full-run conditions remain unknown. |
+| The published PID can precede signal handling | The same Node selector failed at the SIGTERM assertion when a 450 ms pause separated PID publication and handler registration. The process had exited and the signal file was absent. With the same pause and PID publication after handler registration, the case passed all assertions. |
+| The shared fake still supports the browser's explicit launch-wait trigger | `npm run --silent test:e2e -- e2e/sessions/recently-done-sessions-select-ad-hoc.spec.ts e2e/launches/agent-launch-story-card-problems.spec.ts --reporter=json` passed both Chromium journeys with PID publication after handler registration. The startup journey exercised ending the launch wait, showing uncertainty, and restarting only after explicit recovery. The selection journey showed both named setup steps. |
 
 ## Ordered slices
 
@@ -29,50 +60,48 @@ Type: Structure
 Status: planned
 
 In the [retained ad hoc selection journey](../../../e2e/sessions/recently-done-sessions-select-ad-hoc.spec.ts#L50),
-group publication of the retained sessions and their Done story in a named
-`test.step`. Use a second named step to open Recently done in Intent. Return
-the fixture values needed by the current scenario steps and keep the later
-report, request, history, and Development observations.
+use two named Given steps to publish the retained sessions and their Done
+story and open Recently done in Intent. Give fixture publication a file-local
+function that returns the values used by the scenario. Keep the new callbacks
+within the shared [Playwright step limits](../../../.agents/skills/dough-post-change-refactor/references/refactor-checks.md#write-observable-cases)
+and keep the scenario steps' assertions.
 
-Proof: run `npm run test:e2e -- e2e/sessions/recently-done-sessions-select-ad-hoc.spec.ts`
-and inspect the Playwright report for both setup phases and the existing
-passing journey.
+Proof: run `npm run --silent test:e2e -- e2e/sessions/recently-done-sessions-select-ad-hoc.spec.ts --reporter=json`.
+Inspect the passing journey's two named setup phases and six scenario steps.
 
 ### 2. Trigger the timeout after fake Claude is ready for SIGTERM
 
 Type: Behavior
 Status: planned
 
-Change the existing [hang fixture](../../../dashboard/test-support/fixtures/fake-claude#L186)
-to write the held PID once its termination handlers are installed. Reuse the
-same PID control used by the [mounted-server timeout case](../../../dashboard/backend-tests/runtime/mounted-boundary-server.spec.ts#L171)
-and the launch spec's existing end-file control. In the
+Publish the held PID from the existing [fake Claude hang fixture](../../../dashboard/test-support/fixtures/fake-claude#L186)
+after installing its termination handlers. In the
 [launch boundary case](../../../dashboard/backend-tests/launches/agent-launch-boundary.spec.ts#L201),
-wait for and return that PID in one readiness operation. Observe the process
-alive before writing the end file. Use the existing runner budget and keep any
-essential timeout override inside the individual test, supported by measured
-full-run evidence.
+read the ready PID once successfully, polling with the test context's abort
+signal under the default Vitest budget. Assert that the PID is live before
+writing the existing launch-wait end file. Keep settlement and process-exit
+observations together. Use an individual test timeout override only if
+measured full-run evidence shows it is essential.
 
-The launch boundary spec starts at 252 lines. Reorganize its timeout case
-around a single readiness operation and the controlled timeout outcome.
-Remove the duplicate PID read and streamline that case's setup and settlement
-while retaining its assertions. Keep the resulting spec within the
+The launch boundary spec is 252 lines. Replace the duplicated readiness read
+and streamline the timeout setup and settlement in this case to meet the
 [250-line check](../../../.agents/skills/dough-post-change-refactor/references/refactor-checks.md#file-size).
-Its native refusal and confirmation cases stay in the same spec.
+Preserve the refusal and confirmation cases and their proof in the same spec.
 
-Proof: run `npm run test:dashboard:backend -- agent-launch-boundary.spec.ts mounted-boundary-server.spec.ts`.
-Observe the ready process, the uncertain `timed-out` result, process exit via
-`SIGTERM`, and the empty launch records in the boundary case. Verify that the
-mounted-server consumer still ends its pending launch wait. Run the full local
-backend group using the reported worker settings if recoverable. The full run
-is required because the readiness failure was observed under suite load.
+Proof: run `npm run test:dashboard:backend -- agent-launch-boundary.spec.ts`
+and `npm run test:e2e -- e2e/launches/agent-launch-story-card-problems.spec.ts`.
+Observe the live PID, uncertain outcome, stopped process, SIGTERM marker, and
+empty launch records in Node, and uncertainty followed by explicit recovery in
+Chromium. Run the full local backend group to exercise the fix under suite
+load. Use the reported worker settings if recovered, otherwise record the
+runner's normal local settings and the resulting proof.
 
-Local gate: the focused runs above and `caffeinate -s -i npm run test:dashboard:backend`
-from a fully awake Mac on AC power per [AGENTS.md](../../../AGENTS.md).
+Local gate: run the focused checks above and
+`caffeinate -s -i npm run test:dashboard:backend` from a fully awake Mac on AC
+power per [AGENTS.md](../../../AGENTS.md).
 
 ## Plan review
 
-The report change and readiness change have separate proof and can run in
-order in one correction. The plan keeps the existing runner and fixture
-boundaries. Slice refinement was unnecessary. The exact load profile from the
-reported run is unverified and the repair remains to be proved in execution.
+Slice-plan refinement was unnecessary. Each of the two slices has focused
+proof and uses the existing runner and fixture boundaries. No blocking
+slice-specific concern remains after the preparation observations.

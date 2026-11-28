@@ -121,6 +121,15 @@ the user sees and does next, with the same host/HTTP/record evidence passing.
 
 ## Refinement and verification still required
 
+Carried from SEED-334#observe-tagged-install-and-read-e2e-proof (2026-11-28):
+`startRefinementInCodex` in `dashboard/test-support/launchStoryCardPage.ts`
+now owns "start Story A's refinement in Codex", yet
+`agent-launch-session-choices`, `agent-launch-preparation-codex(-retry)`,
+`agent-launch-codex` and `agent-launch-host-switch-fresh` still inline those
+dialog steps, and four `e2e/launches/` specs each read
+`refs/worktree/dough/preparation-assignment` by hand. Fold both into slice 1's
+shared owners when refining.
+
 Resume `dough-story-refinement`, realign this same plan, then perform slice-plan
 refinement and record the assessment. This provisional plan grants no readiness,
 Take or execution. Inspect current caller cohorts and observe cross-tier reuse

@@ -116,6 +116,9 @@ test("a session not reported complete asks first with its situation; Keep open a
   dashboard,
   origin,
 }) => {
+  // A green CI run used 27s of the 30s default, and the failing run reached
+  // the first Mark as done only as that limit expired.
+  test.setTimeout(60_000);
   const { storyA, storyB } = await launchedStories(dashboard, origin);
   const { entryOf } = await openPage(page, origin);
   const entryA = entryOf(titleA);

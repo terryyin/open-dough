@@ -8,7 +8,6 @@ import {
   branchRefAnswer,
   commitAnswer,
   headsAnswer,
-  httpErrorAnswer,
   noConnection,
   notFoundAnswer,
   rawFileAnswer,
@@ -69,8 +68,6 @@ export type MovingFiles = {
   holdComparisons(): () => void;
   // Answers CI judgment calls from now on; undefined leaves them to published files.
   serveCi(answer: CiAnswerer): void;
-  // Branch-head listings fail with HTTP 504 until restored (ref alone still answers).
-  failListing(): () => void;
 };
 
 export type PublishedFiles = PublishedRevision & {
@@ -98,7 +95,6 @@ export function publishMovingFiles(
   const madeCommits = new Map<string, MadeCommit>();
   let comparisonsHeld: Promise<void> = Promise.resolve();
   let ci: CiAnswerer | undefined;
-  let listingFails = false;
   const answerer: RepositoryAnswerer = async (call) => {
     const { request } = call;
     if (ci !== undefined && isCiJudgmentCall(call)) {
@@ -120,9 +116,6 @@ export function publishMovingFiles(
     }
     if (request.kind === "matching-refs") {
       observe(requests, call);
-      if (listingFails) {
-        return Promise.resolve(httpErrorAnswer(504, "Server Error"));
-      }
       return Promise.resolve(
         headsAnswer({
           ...Object.fromEntries(
@@ -231,12 +224,6 @@ export function publishMovingFiles(
       }
       branches.set(branch, at);
       revisions.push(at);
-    },
-    failListing() {
-      listingFails = true;
-      return () => {
-        listingFails = false;
-      };
     },
   };
 }
