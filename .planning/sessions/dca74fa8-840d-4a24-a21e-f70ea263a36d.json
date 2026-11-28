@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "sessionId": "dca74fa8-840d-4a24-a21e-f70ea263a36d",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-28T13:03:53.236Z",
+  "story": "SEED-413#published-refresh-lifecycle-via-vitest",
+  "ranges": [
+    {
+      "base": "29e8402851ac887b9d4cdd7838b8a20db7bb08f9",
+      "candidate": "a81c91082977318384f25935779cf86b473875e7"
+    },
+    {
+      "base": "a81c91082977318384f25935779cf86b473875e7",
+      "candidate": "1e2fd49f64047a1991fa8613486adefa93095bda"
+    },
+    {
+      "base": "1e2fd49f64047a1991fa8613486adefa93095bda",
+      "candidate": "18a885b9a872194fb927c8cd70c3ad9ef5e51327"
+    },
+    {
+      "base": "18a885b9a872194fb927c8cd70c3ad9ef5e51327",
+      "candidate": "dbe8f349df56748491ff1cc6850a1b987b2b6c63"
+    },
+    {
+      "base": "dbe8f349df56748491ff1cc6850a1b987b2b6c63",
+      "candidate": "fb82189b3e7e4b10f01f8709939387bce055837c"
+    },
+    {
+      "base": "fb82189b3e7e4b10f01f8709939387bce055837c",
+      "candidate": "61c12e9dd1e36d9aa342584814c2d05f46cd4f73"
+    },
+    {
+      "base": "61c12e9dd1e36d9aa342584814c2d05f46cd4f73",
+      "candidate": "694f6fae0e7d71bbed0d94e34bccba58c4cbea20"
+    },
+    {
+      "base": "694f6fae0e7d71bbed0d94e34bccba58c4cbea20",
+      "candidate": "d386e286a128792547703f577f5b6d25a1c09afd"
+    },
+    {
+      "base": "d386e286a128792547703f577f5b6d25a1c09afd",
+      "candidate": "4a4c19527d4a6b38fc4e193e8c6ca00673b0b9d9"
+    },
+    {
+      "base": "4a4c19527d4a6b38fc4e193e8c6ca00673b0b9d9",
+      "candidate": "be8401f43426aae8873205a79440ef2c571b7ba4"
+    },
+    {
+      "base": "be8401f43426aae8873205a79440ef2c571b7ba4",
+      "candidate": "1f79153439c56d3d9feafc95a14b0ae0f5cb9541"
+    },
+    {
+      "base": "1f79153439c56d3d9feafc95a14b0ae0f5cb9541",
+      "candidate": "e0039bd68fcb86dfd7afc16607806f7b9882d11a"
+    },
+    {
+      "base": "e0039bd68fcb86dfd7afc16607806f7b9882d11a",
+      "candidate": "96d7149826639d830f9cf4861adb54c3cb2e7f53"
+    },
+    {
+      "base": "a31a760cd6854b46d1cdb03561eafc76b98dea9c",
+      "candidate": "1c16742096a870ab1cb988b9757c1b3b64c3fad9"
+    },
+    {
+      "base": "c59e44bb019072cb90392dff78f8efb2a422db64",
+      "candidate": "01a8c84c8b3aa583520d34c9fe9573a25e033117"
+    },
+    {
+      "base": "1c16742096a870ab1cb988b9757c1b3b64c3fad9",
+      "candidate": "c59e44bb019072cb90392dff78f8efb2a422db64"
+    }
+  ]
+}

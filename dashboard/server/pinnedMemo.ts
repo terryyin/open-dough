@@ -8,7 +8,8 @@
 
 import { OutstandingReads } from "../../Distribution/src/skills/dough-execute-plan/scripts/github-request-outstanding.mjs";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { commitViaGh, type CommitRecord } from "./ghCommit.ts";
+import { commitViaGh } from "./ghCommit.ts";
+import { readRememberedCommit } from "./commitRecordRead.ts";
 import {
   touchedAt,
   touchedBetweenViaGh,
@@ -39,7 +40,11 @@ export class PinnedMemo {
   private readonly heard = new HeardRevisions();
   private readonly outstanding = new OutstandingReads<string>(readTimeoutMs());
 
-  constructor(private readonly memo: RevisionMemo) {}
+  constructor(
+    private readonly memo: RevisionMemo,
+    private readonly touchedBetween: typeof touchedBetweenViaGh = touchedBetweenViaGh,
+    private readonly readCommit: typeof commitViaGh = commitViaGh,
+  ) {}
 
   // Notes that GitHub named `revision` to this process, as the source's ref
   // or a branch's head.
@@ -56,8 +61,7 @@ export class PinnedMemo {
     return `${source.repository}\0${revision}\0${path}`;
   }
 
-  // A blob is kept in place of a revision under `blob`, which no commit sha
-  // ever is.
+  // A blob is kept under `blob`, which no commit sha ever is.
   private static blobKey(source: PublishedSource, sha: string) {
     return `${source.repository}\0blob\0${sha}`;
   }
@@ -212,7 +216,7 @@ export class PinnedMemo {
     const text = await this.outstanding.waitFor(key, waiter, (signal) =>
       this.memo.recalled(key, this.retainedAt(source, revision), async () =>
         JSON.stringify(
-          await touchedBetweenViaGh(
+          await this.touchedBetween(
             source.repository,
             { base, head: revision },
             this.commitRecorder(source, revision, signal),
@@ -224,24 +228,20 @@ export class PinnedMemo {
     return JSON.parse(text) as readonly string[] | null;
   }
 
-  // A commit's own record -- who committed it and every file it changed --
-  // remembered under that commit with an entry that starts with NUL, which
-  // no file path ever does. Whichever path or read asks, GitHub is asked
-  // about a commit once. Asked for a read at `revision`.
+  // A commit's own record, remembered under that commit so whichever path
+  // or read asks, GitHub is asked once (`./commitRecordRead.ts`). Asked for
+  // a read at `revision`.
   protected commitRecorder(
     source: PublishedSource,
     revision: string,
     signal: AbortSignal,
   ) {
-    return (commit: string): Promise<CommitRecord> =>
-      recalledAsJson(
-        (text) =>
-          this.memo.recalled(
-            PinnedMemo.key(source, commit, "\0commit"),
-            this.retainedAt(source, revision),
-            text,
-          ),
-        () => commitViaGh(source.repository, commit, signal),
+    return (commit: string) =>
+      readRememberedCommit(
+        this.memo,
+        PinnedMemo.key(source, commit, "\0commit"),
+        this.retainedAt(source, revision),
+        () => this.readCommit(source.repository, commit, signal),
       );
   }
 }

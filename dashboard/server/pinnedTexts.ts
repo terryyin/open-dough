@@ -11,6 +11,7 @@ import {
   type ListedFile,
 } from "./ghContents.ts";
 import { listRepositoryTreeViaGh, type TreeEntry } from "./ghTrees.ts";
+import { commitViaGh } from "./ghCommit.ts";
 import { lastCommitTimeViaGh } from "./ghCommitTime.ts";
 import {
   commitChangeOf,
@@ -18,30 +19,58 @@ import {
   listPathCommitsViaGh,
   type ProfileAddition,
 } from "./ghProfileAddition.ts";
+import { touchedBetweenViaGh } from "./commitsBetween.ts";
 import { PinnedMemo } from "./pinnedMemo.ts";
+import type { RevisionMemo } from "./revisionMemo.ts";
 
 // A file a pinned directory listing names, by its repository path, with the
 // sha of its Git blob.
 export type ListedPath = { readonly path: string; readonly sha: string };
 
+// One repository file at a resolved revision. GitHub answers it unless the
+// caller supplies the read this process should use instead.
+export type RepositoryFileRead = (
+  repository: string,
+  path: string,
+  revision: string,
+  signal: AbortSignal,
+) => Promise<string>;
+
 export class PinnedTexts extends PinnedMemo {
+  // `readFile` defaults to GitHub, comparison to `touchedBetweenViaGh`,
+  // and directory listing, commit time, path history, and commit records to
+  // their GitHub readers, so `new PinnedTexts(memo)` and
+  // `new PinnedTexts(memo, readFile)` stay valid.
+  constructor(
+    memo: RevisionMemo,
+    private readonly readFile: RepositoryFileRead = readRepositoryFileViaGh,
+    touchedBetween: typeof touchedBetweenViaGh = touchedBetweenViaGh,
+    private readonly listDirectory: typeof listRepositoryDirectoryViaGh = listRepositoryDirectoryViaGh,
+    private readonly commitTime: typeof lastCommitTimeViaGh = lastCommitTimeViaGh,
+    private readonly listPathCommits: typeof listPathCommitsViaGh = listPathCommitsViaGh,
+    readCommit: typeof commitViaGh = commitViaGh,
+  ) {
+    super(memo, touchedBetween, readCommit);
+  }
+
   // The backlog is read at the revision itself, never compared: membership
   // never waits on GitHub's account of what changed, which only the records
-  // it names wait on.
+  // it names wait on. That read, and a compared path, ask `readFile`.
   reader(source: PublishedSource, revision: string, signal: AbortSignal) {
     return (path: string): Promise<string> => {
       const read = () =>
-        readRepositoryFileViaGh(source.repository, path, revision, signal);
-      return path === source.backlogPath
-        ? this.recalled(source, revision, path, read)
-        : this.recalledOrUnchanged(source, revision, path, signal, read);
+        this.readFile(source.repository, path, revision, signal);
+      if (path === source.backlogPath) {
+        return this.recalled(source, revision, path, read);
+      }
+      return this.recalledOrUnchanged(source, revision, path, signal, read);
     };
   }
 
   // One file at the revision the source's ref just named to this process,
   // remembered at that revision and never compared with another: the
-  // feedback maintenance check (`./feedbackMaintenanceCheck.ts`) asks GitHub
-  // for it once per revision.
+  // feedback maintenance check (`./feedbackMaintenanceCheck.ts`) asks
+  // `readFile` for it once per revision.
   namedRevisionText(
     source: PublishedSource,
     revision: string,
@@ -50,7 +79,7 @@ export class PinnedTexts extends PinnedMemo {
   ): Promise<string> {
     this.heardNamed(source, revision);
     return this.recalled(source, revision, path, () =>
-      readRepositoryFileViaGh(source.repository, path, revision, signal),
+      this.readFile(source.repository, path, revision, signal),
     );
   }
 
@@ -66,12 +95,7 @@ export class PinnedTexts extends PinnedMemo {
         `${directory}/`,
         signal,
         () =>
-          listRepositoryDirectoryViaGh(
-            source.repository,
-            directory,
-            revision,
-            signal,
-          ),
+          this.listDirectory(source.repository, directory, revision, signal),
       );
   }
 
@@ -100,7 +124,7 @@ export class PinnedTexts extends PinnedMemo {
   blobReader(source: PublishedSource, revision: string, signal: AbortSignal) {
     return ({ path, sha }: ListedPath): Promise<string> =>
       this.blobRecalled(source, revision, sha, () =>
-        readRepositoryFileViaGh(source.repository, path, revision, signal),
+        this.readFile(source.repository, path, revision, signal),
       );
   }
 
@@ -114,7 +138,7 @@ export class PinnedTexts extends PinnedMemo {
         revision,
         `${path}\0committed`,
         signal,
-        () => lastCommitTimeViaGh(source.repository, path, revision, signal),
+        () => this.commitTime(source.repository, path, revision, signal),
       );
   }
 
@@ -141,7 +165,7 @@ export class PinnedTexts extends PinnedMemo {
               `${path}\0history`,
               signal,
               () =>
-                listPathCommitsViaGh(source.repository, path, revision, signal),
+                this.listPathCommits(source.repository, path, revision, signal),
             ),
             async (commit) => commitChangeOf(await recordOf(commit), path),
           ),
