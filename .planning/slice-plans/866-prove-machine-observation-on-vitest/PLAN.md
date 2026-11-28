@@ -137,11 +137,13 @@ Independent refactoring isolated the age rule in a real fresh Git checkout
 with only `.git/config` contributing file metadata. The same config is
 withheld at 500 ms and trusted at two seconds. All 11 cases passed after
 that edit (7–161 ms, 1.0 s summed, 2.04 s Vitest), with the age case at 10 ms.
+Published as `d3209ff3ff77c48f2dce3ff5c480dcdbb6277587` on the execution
+branch and registered with its CI observer.
 
 ### 2. Share host sampling and disclose partial availability
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: The first host sample primes a second CPU snapshot and answers that
 span; later samples average the trailing minute of snapshots, and after a gap
@@ -155,10 +157,19 @@ Proof: Node Vitest cases over `HostStatusObservation` with only the typed
 `HostStatusReaders` (CPU snapshots, free bytes, priming, reuse window)
 scripted, moved from `host-status.spec.ts`: CPU window (1), unavailable figures
 (1), shared sample (1). The shared-sample case keeps its read of `reuseMs`
-per demand: a long reuse window for the serve checks, then 1 ms and a wait
-bounded under 50 ms for the no-demand and next-demand checks, so it no longer
-waits 300 ms. Replaces three of the four `host-status.spec.ts` cases. Keep
-that spec until slice 3.
+per demand. It advances virtual timers past the original window with no
+demand, then lowers the window to 1 ms to observe the next sample within
+the original window. Replaces three of the four `host-status.spec.ts` cases.
+Keep that spec until slice 3.
+
+All three cases in `host-status-observation.spec.ts` passed in Node Vitest
+(2 ms, 0 ms, 2 ms, 772 ms elapsed). The real `HostStatusObservation` and
+`SharedObservation` check CPU priming and expiry, independent unavailable
+readings, and concurrent, reused and subsequent samples. Only the typed
+reader callbacks and the sharing case's timers are controlled. The maintained
+group passed 14 Node and four retained Chromium cases. Consumer tracing found
+the same host status API and wire owner. The read-only refactor pass found no
+candidate beyond the temporary duplicate that slice 3 retires.
 
 ### 3. Refuse foreign host status requests at the wire
 
