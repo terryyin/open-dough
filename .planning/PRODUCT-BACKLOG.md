@@ -32,7 +32,6 @@ intent introduced or affected by a newly developed story.
 - [Follow published progress from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git ([plan](slice-plans/823-follow-published-progress-from-local-git/PLAN.md))
 - [Prove GitHub request lifetime and failure evidence in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#github-request-lifetime-and-evidence-via-vitest) — SEED-413#github-request-lifetime-and-evidence-via-vitest ([plan](slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md))
 - [Prove retained landing capture in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#landing-capture-evidence-via-vitest) — SEED-413#landing-capture-evidence-via-vitest ([plan](slice-plans/864-prove-landing-capture-evidence-on-vitest/PLAN.md))
-- [Prove Dashboard machine observations in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#machine-observation-via-vitest) — SEED-413#machine-observation-via-vitest ([plan](slice-plans/866-prove-machine-observation-on-vitest/PLAN.md))
 - [Submit a wrapped revived Cursor continuation](seeds/SEED-450-keep-cursor-sessions-through-runner-restart.md#submit-wrapped-revived-cursor-continuation) — SEED-450#submit-wrapped-revived-cursor-continuation
 
 ## Backlog list

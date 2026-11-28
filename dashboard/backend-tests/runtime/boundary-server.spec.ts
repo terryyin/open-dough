@@ -1,6 +1,7 @@
 // The local boundaries' own rules, as every server that mounts them keeps
 // them. The bundled boundary server entry starts and serves under every
-// boundary-mode backend spec (e.g. ../observation/host-status.spec.ts).
+// boundary-mode backend spec, such as
+// ../observation/authenticated-read-diagnostics.spec.ts.
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { expect, test } from "vitest";
 import { boundaryMiddlewareChain } from "../../server/localBoundary.ts";
