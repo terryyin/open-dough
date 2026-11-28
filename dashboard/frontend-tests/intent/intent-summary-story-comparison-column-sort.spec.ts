@@ -22,6 +22,7 @@ import {
   openSummary,
   press,
   scopeTable,
+  shownSortButton,
   sortButton,
 } from "./intent-summary-proof-page.ts";
 
@@ -32,6 +33,7 @@ test("Summary Change keeps unchanged children last in both directions", async ()
   await openSummaryComparison(makeMe.aComparedStory.inSummaryScope().please());
   const summary = await openSummary(entry);
   const table = scopeTable(summary, entry);
+  const change = await shownSortButton(table, "Change");
   await expectUnsortedRows(table, [
     "folder/",
     "added.spec.ts",
@@ -40,7 +42,6 @@ test("Summary Change keeps unchanged children last in both directions", async ()
     "root.spec.ts",
   ]);
 
-  const change = sortButton(table, "Change");
   press(change);
   await expectSortedBy(table, "Change", "ascending", [
     "added.spec.ts",

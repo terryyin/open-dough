@@ -13,7 +13,7 @@ import {
   openSummary,
   press,
   scopeTable,
-  sortButton,
+  shownSortButton,
 } from "./intent-summary-proof-page.ts";
 import {
   expectNoRelativeTiming,
@@ -125,7 +125,7 @@ test("Show % keeps Summary sort and removed files have no relative marks or late
     "gone.spec.ts",
     "renamed.spec.ts",
   ];
-  press(sortButton(table, "Landed"));
+  press(await shownSortButton(table, "Landed"));
   await expectSortedBy(table, "Landed", "ascending", order);
   await togglePercent(summary, true);
   await expectSortedBy(table, "Landed", "ascending", order);

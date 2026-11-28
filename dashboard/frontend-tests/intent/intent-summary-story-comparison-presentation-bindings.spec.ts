@@ -7,6 +7,7 @@ import {
   openSummary,
   press,
   scopeTable,
+  shownSortButton,
   sortButton,
 } from "./intent-summary-proof-page.ts";
 
@@ -17,7 +18,7 @@ test("Summary header bindings route Change, Baseline, Branch and Counts", async 
   const summary = await openSummary(entry);
   const table = scopeTable(summary, entry);
 
-  press(sortButton(table, "Change"));
+  press(await shownSortButton(table, "Change"));
   await expectSortedBy(table, "Change", "ascending", [
     "added.spec.ts",
     "gone.spec.ts",

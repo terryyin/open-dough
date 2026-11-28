@@ -174,6 +174,14 @@ const sortHeader = (table: Locator, name: string) =>
 export const sortButton = (table: Locator, name: string) =>
   sortHeader(table, name).getByRole("button", { name, exact: true });
 
+// The sort control once its column shows. Comparison columns join the table
+// only when the comparison's answer arrives.
+export async function shownSortButton(table: Locator, name: string) {
+  const button = sortButton(table, name);
+  await expect.element(button).toBeVisible();
+  return button;
+}
+
 // The control's own click or change handler. These handlers are what the
 // comparison acts on; pointer travel is not part of that behavior.
 export function press(control: Locator) {

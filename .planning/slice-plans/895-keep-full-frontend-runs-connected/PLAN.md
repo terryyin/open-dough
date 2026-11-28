@@ -493,6 +493,23 @@ closure work or serves another purpose, and the three specs that call
 `history.back()` predate the guard. One full local run then reported all
 331 files (953 tests) in 148 s at load 4.6.
 
+Hosted proof (2026-11-28, `1c81f7e7d`, probe run `46126693419`, capture
+off): all thirty attempts passed, and each reported `331 passed (331)`. They
+took 130–193 s (median 150 s), against slice 2's 187–280 s. The ordinary
+`ci.yml` run `46126693464` on the same revision ran every file but failed one
+ordinary case.
+
+CI repair (owned): `intent-summary-story-comparison-column-sort.spec.ts:31`
+pressed the Change sort button before the comparison's columns joined the
+Summary table. The plain proof table already passed its unsorted check.
+Two siblings had the same gap: `presentation-bindings` (Change) and
+`relative` (Landed). They now wait for the column through
+`shownSortButton` in `intent-summary-proof-page.ts`. A 400 ms delay on the
+comparison answer reproduced the CI error before the change, and all 12
+specs that use the fixture passed with it after. The three files passed 20
+runs in a row under 16 CPU burners (load about 29). Slice clock: slice 6
+overran at 23.1 active minutes, mostly waiting on the hosted round.
+
 ## Local gate and delivery
 
 - Run full local frontend runs from a fully awake machine on AC power, per
