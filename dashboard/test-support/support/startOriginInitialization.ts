@@ -24,6 +24,7 @@ import {
   type StartRepository,
   type StartRevisions,
 } from "./startOriginPreparation.ts";
+import type { ReleasedInstallation } from "./taggedInstallation.ts";
 import {
   gitHubRepositoryUrl,
   routeOriginThroughHome,
@@ -43,16 +44,18 @@ export async function initializeStartOrigin(
   repository: string,
   layout: StartOriginLayout,
   description: StartRepository,
+  release?: ReleasedInstallation,
 ): Promise<StartRevisions> {
   const { directory: prepared, shared } = await preparedStartOrigin(
     layout,
     description,
+    release,
   );
   const directory = prepared ?? createStartOriginPreparationDirectory();
   try {
     // A configuration with no inherited owner gets a private copy.
     if (prepared === undefined)
-      await prepareStartOrigin(directory, layout, description);
+      await prepareStartOrigin(directory, layout, description, release);
     cpSync(path.join(directory, layout), origin, {
       recursive: true,
     });

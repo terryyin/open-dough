@@ -88,6 +88,17 @@ the [shared set](../../../e2e/README.md#real-and-substituted); the README names
 the journey and its tag. Story example 2 (missing tag) is proved at the tag
 source's own boundary.
 
+Accepted local proof (2026-11-28): `released-installation-preparation.spec.ts`
+1/1 with the provenance attachment; backend
+`launches/released-installation-tag.spec.ts` (missing tag, empty `TMPDIR`);
+`launches/` 154/154 on a quiet rerun. An earlier run lost 5 existing
+`agent-launch-*` cases to 5 s waits at load ~47 from the implementer's own
+concurrent runs; those 4 files passed 14/14 alone, so the hosted run is the
+verdict. The spec matches no listed shard pattern, so its hosted proof is the
+E2E shard that selects it rather than shard 1. Refactor follow-up candidates:
+one shared reader of the preparation assignment (6 files) and
+`startRefinementInCodex` in the existing Codex preparation specs.
+
 ### 2. Name CI entries by their configured label
 Type: Behavior
 Status: planned

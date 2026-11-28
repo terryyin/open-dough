@@ -1,8 +1,8 @@
-// One packed, path-free origin per installation layout and repository
-// description, materialized through the shared repository harness with this
-// run's working-tree skills installed. Only copies reach a test: Git never
-// hardlinks objects or reads alternates, and each checkout names its own bare
-// origin.
+// One packed, path-free origin per installation layout, installation and
+// repository description, materialized through the shared repository harness
+// with this run's working-tree skills or one released installation installed.
+// Only copies reach a test: Git never hardlinks objects or reads alternates,
+// and each checkout names its own bare origin.
 
 import { execFile } from "node:child_process";
 import {
@@ -21,11 +21,17 @@ import { materializeLocalCheckout } from "../../../Distribution/tests/support/re
 import { repoRoot } from "./repositoryRoot.ts";
 import { requestRunArtifact } from "./runArtifacts.ts";
 import {
+  joinInstallation,
   nativeStartLayouts,
   type StartOriginLayout,
   type StartRepository,
-  withInstallation,
+  workingTreeInstallation,
 } from "./startOriginInstallation.ts";
+import {
+  installRelease,
+  pinnedRelease,
+  type ReleasedInstallation,
+} from "./taggedInstallation.ts";
 
 export {
   dashboardDeveloper,
@@ -66,13 +72,16 @@ const runWideKeys = new Map(
   runWideNames.map((name) => [JSON.stringify(runWideRepositories[name]), name]),
 );
 
+// A released installation's origin never shares a working-tree origin's key.
 export function startOriginArtifactKey(
   layout: StartOriginLayout,
   repository: RunWideRepository = "default",
+  release?: ReleasedInstallation,
 ): string {
+  const suffix = release === undefined ? "" : `-release-${release.tag}`;
   return repository === "default"
-    ? `start-origin-${layout}`
-    : `start-origin-${layout}-${repository}`;
+    ? `start-origin-${layout}${suffix}`
+    : `start-origin-${layout}-${repository}${suffix}`;
 }
 
 export function createStartOriginPreparationDirectory(): string {
@@ -85,33 +94,47 @@ export function startOriginArtifacts() {
       runWideNames.map((repository) => startOriginArtifact(layout, repository)),
     ),
     startOriginArtifact("catalog", "queued"),
+    // Prepared only when a released-installation journey requests it.
+    startOriginArtifact("codex", "queued", pinnedRelease),
   ];
 }
 
 function startOriginArtifact(
   layout: StartOriginLayout,
   repository: RunWideRepository,
+  release?: ReleasedInstallation,
 ) {
   return [
-    startOriginArtifactKey(layout, repository),
+    startOriginArtifactKey(layout, repository, release),
     {
       create: createStartOriginPreparationDirectory,
       prepare: (directory: string) =>
-        prepareStartOrigin(directory, layout, runWideRepositories[repository]),
+        prepareStartOrigin(
+          directory,
+          layout,
+          runWideRepositories[repository],
+          release,
+        ),
     },
   ] as const;
 }
+
+const workingTreeSkills = path.join(repoRoot, "Distribution", "src", "skills");
 
 export async function prepareStartOrigin(
   directory: string,
   layout: StartOriginLayout,
   repository: StartRepository,
-  source = path.join(repoRoot, "Distribution", "src", "skills"),
+  installation: string | ReleasedInstallation = workingTreeSkills,
 ): Promise<void> {
   try {
+    const installed =
+      typeof installation === "string"
+        ? workingTreeInstallation(layout, installation)
+        : await installRelease(repoRoot, installation, layout);
     const built = await materializeLocalCheckout(
       undefined,
-      withInstallation(repository, layout, source),
+      joinInstallation(repository, installed),
       { at: mkdtempSync(path.join(directory, "source-")), gitTemplates: true },
     );
     try {
@@ -145,8 +168,11 @@ process.once("exit", () => {
   for (const directory of privateDirectories)
     rmSync(directory, { recursive: true, force: true });
 });
-const privateKey = (layout: StartOriginLayout, description: StartRepository) =>
-  `${layout}\n${JSON.stringify(description)}`;
+const privateKey = (
+  layout: StartOriginLayout,
+  description: StartRepository,
+  release?: ReleasedInstallation,
+) => `${layout}\n${release?.tag ?? ""}\n${JSON.stringify(description)}`;
 
 // Keeps a copy of `started.origin`, the bare origin a start of `description`
 // left, with its named revisions, as that description's prepared origin in
@@ -168,11 +194,17 @@ export function keepStartedOrigin(
 function preparedPrivately(
   layout: StartOriginLayout,
   description: StartRepository,
+  release?: ReleasedInstallation,
 ): Promise<string> {
-  const key = privateKey(layout, description);
+  const key = privateKey(layout, description, release);
   const directory = createStartOriginPreparationDirectory();
   privateDirectories.push(directory);
-  const prepared = prepareStartOrigin(directory, layout, description).then(
+  const prepared = prepareStartOrigin(
+    directory,
+    layout,
+    description,
+    release,
+  ).then(
     () => directory,
     (error: unknown) => {
       privatelyPrepared.delete(key);
@@ -192,23 +224,27 @@ function preparedPrivately(
 export async function preparedStartOrigin(
   layout: StartOriginLayout,
   description: StartRepository,
+  release?: ReleasedInstallation,
 ): Promise<{ readonly directory?: string; readonly shared: boolean }> {
-  const held = privatelyPrepared.get(privateKey(layout, description));
+  const held = privatelyPrepared.get(privateKey(layout, description, release));
   if (held !== undefined) return { directory: await held, shared: false };
   const [first] = description.revisions;
   const runWide = runWideKeys.get(JSON.stringify({ revisions: [first] }));
-  // An explicit fixture override still takes precedence over the run owner.
+  // An explicit fixture override of the working-tree installation still takes
+  // precedence over the run owner.
   const shared =
-    (layout === "catalog"
+    (layout === "catalog" || release !== undefined
       ? undefined
       : process.env[startOriginPreparationVariable]) ??
     (runWide === undefined
       ? undefined
-      : await requestRunArtifact(startOriginArtifactKey(layout, runWide)));
+      : await requestRunArtifact(
+          startOriginArtifactKey(layout, runWide, release),
+        ));
   if (shared !== undefined) return { directory: shared, shared: true };
   if (runWide !== undefined) return { shared: false };
   return {
-    directory: await preparedPrivately(layout, description),
+    directory: await preparedPrivately(layout, description, release),
     shared: false,
   };
 }

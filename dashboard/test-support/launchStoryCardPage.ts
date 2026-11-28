@@ -127,6 +127,16 @@ export function backlogLaunchers(page: Page) {
   };
 }
 
+// Starts a Backlog story's refinement in Codex from its card's dialog.
+export async function startRefinementInCodex(page: Page, title: string) {
+  await backlogLaunchers(page).refine(title).click();
+  await page.getByLabel("Host", { exact: true }).selectOption("codex");
+  await page
+    .getByRole("dialog", { name: "Start refinement in Codex" })
+    .getByRole("button", { name: "Start", exact: true })
+    .click();
+}
+
 export async function expectNoLaunchDialog(page: Page) {
   await expect(page.getByRole("dialog")).toHaveCount(0);
 }
