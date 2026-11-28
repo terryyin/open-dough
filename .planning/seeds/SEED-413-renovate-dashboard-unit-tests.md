@@ -185,7 +185,7 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Identity:** SEED-413#keep-full-frontend-runs-connected
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/895-keep-full-frontend-runs-connected/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"173350d8a8cd01292fe06c26d6ddc7b314c18ceb36bc4f1095c7212a5b10f503","plan":"89bd4e26a3b736048cd859183b8bbae6be0f76d227007252b70662cd7dadd6e7"}}
 ```
 
 - **Goal.** Developers and CI get a complete Dashboard frontend verdict from
@@ -204,22 +204,49 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   ~1.3 GB over a run, under a 3.5 GB JS heap limit. CI shows the same closure.
   Main run `45958801316` (`20c08633f`, job `140371568061`) reported
   `330 passed (331)` with the same `createTesters` error from the WebSocket
-  close handler in `@vitest/browser`. It was one of two dashboard-frontend
-  failures in the last 40 main CI runs.
-- **Recurrence (2026-11-27 and 28).** The same closure failed hosted
-  `dashboard-frontend` on five story branches. The runs were `46026582841`,
-  `46088169203`, `46088808380`, `46089162656` and `46091966500`, the last on
-  `8eeec7d33` of SEED-413#published-review-comparisons-via-vitest. Each
-  stopped on a different Intent or Review file with
-  `VITEST_BROWSER_CONNECTION_CLOSED`. The developer re-queued this story on
-  2026-11-28 as the repair owner for those failures. The earlier plan 881 is
-  recoverable at `818c17745^`.
+  close handler in `@vitest/browser`.
+- **Hosted rate (read 2026-11-28).** Of the 85 `ci.yml` runs that completed
+  between 2026-11-27 12:14 and 2026-11-28 02:37 UTC, on main and story
+  branches, 13 lost `dashboard-frontend` to this closure. They stopped after
+  236–332 files, 123–236 s into the job, each on a different Sessions,
+  Intent or Review file. Seven more frontend failures in that window were
+  ordinary failing cases and belong to their own stories. The developer
+  re-queued this story on 2026-11-28 as the repair owner for the closures.
+  The earlier plan 881 is recoverable at `818c17745^`.
+- **One mechanism reproduced, natural cause still open (2026-11-28).**
+  SEED-430#follow-published-progress-from-local-git investigated the closure
+  on its story branch. Its record is
+  `0a3535052:.planning/slice-plans/823-follow-published-progress-from-local-git/diagnosis-frontend-browser-connection.md`.
+  - One instrumented local run at four workers and one instrumented hosted
+    run both finished normally. Neither captured a natural closure.
+  - Closing only Vite's HMR socket while a tester was pending reproduced the
+    exact signature. Vite's client polled, reloaded the orchestrator page,
+    and the Vitest socket closed 29 ms later. Chromium stayed alive.
+    `server.ws: false` leaves no runnable configuration under Vitest 5.1.0.
+  - That branch carries a guard, `keepVitestOrchestratorOpen` in
+    `dashboard/frontend.vitest.config.mts` (`cfa5f8396`). It rewrites Vite's
+    client so the orchestrator page does not reload on an HMR disconnect.
+  - The closure recurred with the guard present. Run `46098331829`
+    (`99e48eb35`, job `140834871152`) reported `295 passed (332)`. So the
+    natural closure does not need that reload, or reaches the socket another
+    way. No natural failure has yet been captured with the event that
+    precedes the close.
+  - `historyTraversalGuard.ts` (`6a5ce378a`) already refuses the other known
+    trigger, a Back past a tester frame's first history entry.
 - **Scope.**
-  - Find what closes the tester's server connection. The Vitest browser
+  - Capture a natural closure with the event that precedes it, then name
+    what closes the tester's server connection. The Vitest browser
     orchestrator runs under `vitest.standalone()` in
     `dashboard/test-support/support/groupVitest.mjs`, using the two Chromium
     instances in `dashboard/frontend.vitest.config.mts`. Remove that cause so
     full runs complete locally and in CI.
+  - A forced reproduction shows a possible mechanism. Only a captured
+    natural closure, local or hosted, attributes the cause. The two known
+    mechanisms above are already guarded and the closure persists.
+  - Settle the HMR reload guard on evidence once it is on trunk. Keep it
+    when the named cause passes through Vite's disconnect reload. Otherwise
+    remove it. It patches Vite's client source by pattern and has stopped
+    only a forced closure.
   - Required restriction: rerunning dropped files or whole runs does not count
     as the fix. The
     [failure policy](../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md)
@@ -233,14 +260,16 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   - Keep today's honest failure. A connection that really closes still fails
     the run and names the file that never ran.
   - Scope limits: renderer memory growth is in scope only if the diagnosis
-    shows that it causes the closure. Test selection, spec content, and
-    the backend group stay unchanged.
+    shows that it causes the closure. Test selection, spec content, the
+    backend group, and the ordinary failing cases in the measured window
+    stay unchanged.
 - **Key examples.**
   - At two workers and the recorded load range, eight consecutive full local
-    runs each start and report all 331 files. The evidence baseline lost
-    five of eight.
-  - CI's single dashboard-frontend shard reports every file as it settles,
-    where run `45958801316` reported `330 passed (331)`.
+    runs each start and report every selected file. The evidence baseline
+    lost five of eight.
+  - Thirty consecutive hosted `dashboard-frontend` jobs on revisions that
+    carry the repair each report every selected file. The measured window
+    lost 13 of 85, so thirty clean jobs by chance is under one percent.
   - A file whose test fails is reported as failed. Every other file still
     starts and reports.
   - When a tester's browser connection truly drops, for example after a
