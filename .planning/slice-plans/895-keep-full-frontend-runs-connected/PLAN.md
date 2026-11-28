@@ -69,11 +69,11 @@ Read at `6baaf31bb` with Vitest 5.1.0, `@vitest/browser` 5.1.0,
 | Promise (seed Key example) | Owner | Observation |
 | --- | --- | --- |
 | Eight consecutive full local runs each start and report every file | Slice 5 | Eight timed local runs at two workers with load averages, against slice 2's local baseline |
-| Thirty consecutive hosted jobs on the repaired revision each report every file | Slice 5 | One probe round of thirty jobs with the capture off |
+| Thirty consecutive hosted jobs on the repaired revision each report every file | Slice 6 | One probe round of thirty jobs with the capture off |
 | A failing file is reported while every other file still runs | Slice 5 | Scratch failing assertion, reverted |
 | A real connection drop fails the run and names the unstarted file | Slice 5 | Scratch renderer kill, reverted |
-| Worker counts and wall time preserved | Slice 5 | The same local and hosted runs, with unchanged worker settings, against slice 2's durations |
-| The HMR reload guard stays only when the cause needs it | Slice 6 | The captured chronology and, on removal, the config without the guard |
+| Worker counts and wall time preserved | Slices 5 and 6 | The same local and hosted runs, with unchanged worker settings, against slice 2's durations |
+| The ineffective closure guards leave | Slice 6 | The config and harness without the history guard, the SEED-430 decision on trunk, and the hosted round |
 | The probe's ordinary failure is repaired, per the failure policy | Slice 4 | A reproduction that fails for the right reason, then repeated runs of the file under load and slice 5's full runs |
 
 ## Ordered slices
@@ -388,7 +388,7 @@ in slice 5 carry the remaining proof that it passes in a whole run.
 ### 5. Full frontend runs finish every file
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: The full frontend group runs under ordinary load, locally at two
 workers and on hosted runners → every selected file starts and reports. A
@@ -404,48 +404,86 @@ Proof:
   closures remain after the upgrade, fall back to forcing the GC
   (`VITEST_CHROMIUM_GC_DISK_THRESHOLD_GB` and `VITEST_CHROMIUM_GC_FORCE`) in
   the frontend runner, and record why.
-- When a focused check can discriminate the cause, add one that fails
-  without the repair, in the style of
-  `dashboard/frontend-tests/test-harness/history-traversal-guard.spec.ts`.
-  Otherwise record why none can, and the repeated runs below are the proof.
+- No focused check discriminates the cause: it needs a whole run's growth
+  in one page. The repeated full runs below are the proof.
 - Delete the capture and set the probe workflow's capture variable off.
-  Push once with `[probe]` in the head commit message. The probe's thirty
-  jobs each report every file, and the
-  ordinary `dashboard-frontend` job passes. Their durations stay within the
-  spread of slice 2's hosted baseline.
 - Run eight consecutive full local runs at two workers. Each reports every
   file, and wall times stay within the noise of slice 2's local runs at
   comparable load.
 - Make one scratch observation that a failing assertion in one file leaves
   the other files running, and one that killing a Chromium renderer mid-run
   fails the run and names the unstarted file. Revert both.
-- Delete the probe workflow. `git diff origin/main --stat` then shows
-  neither the workflow nor the capture.
-- If the cause lies inside Vitest or Vite and needs an upgrade or a
-  workaround, return the plan for replanning with slices 2 and 3's evidence
-  before changing anything.
+- The upgrade changes the Vitest that the backend group shares, so run its
+  full local suite once.
+- The hosted proof moved to slice 6 (2026-11-28), so one round proves the
+  final state.
 
-### 6. The HMR reload guard stays only when the cause needs it
+Delivered (2026-11-28): Vitest 5.1.2 alone repairs the closure, so the GC
+fallback stays unused. The 5.1.1 and 5.1.2 notes needed no config or
+runner change. #11914's module cache applies to this config: `vitest run`,
+no `persistentContext`, not the `preview` provider, import-map mocks. Only
+the modules mocked by the two `vi.mock` factory specs
+(`navigation/frame-board-look`, `review/story-review-diff-grammar-failure-mount`)
+skip the cache. The capture is deleted, and the frontend config equals
+`origin/main`.
+
+- Eight full local runs at two workers, ordinary path: each reported all
+  332 files with no closure and no failure, in 143–203 s (median about
+  173 s) at one-minute load 3.7–7.4. Slice 2's series had seven closures in
+  eight runs.
+- A scratch failing assertion gave `1 failed | 331 passed (332)`.
+  `kill -9` on one renderer at 70 s failed the run with
+  `VITEST_BROWSER_CONNECTION_CLOSED`, named
+  `navigation/story-card-selection.spec.ts`, and listed the 295 unstarted
+  files. Both scratch edits are reverted.
+- The backend group's full suite passed (524, one opt-in skip, 373 s). The
+  eight Distribution workflow-reader tests pass.
+
+### 6. The closure's ineffective guards leave, and hosted runs finish every file
 
 Type: Behavior
 Status: planned
 
-Behavior: `keepVitestOrchestratorOpen` is on trunk and slice 3 has named
-the cause → the guard stays when the captured natural closure passes
-through Vite's disconnect reload, and is removed otherwise. Full runs still
-finish every file.
+Behavior: Vitest 5.1.2 runs the frontend group → the guards added against
+mechanisms the closure never took are gone, and every hosted job reports
+every file. Developer direction (2026-11-28): find the efforts that fixed
+the wrong things, then remove and simplify them.
+
+Inventory and decisions:
+
+- `historyTraversalGuard.ts` (`6a5ce378a`, on trunk) replaces
+  `history.back`, `forward` and `go` in every frontend file, through the
+  config's `setupFiles`. It guards a forced mechanism that no natural
+  closure took. Its commit left the hosted cause unconfirmed, and nothing
+  but its own `test-harness/history-traversal-guard.spec.ts` uses it. No
+  case was refused in the eight clean A/B runs. It leaves with its spec and
+  its `setupFiles` entry. This is test harness only, so the destructive
+  later-outcome check finds no user-visible path.
+- `keepVitestOrchestratorOpen` (`cfa5f8396`) and its diagnosis record are on
+  the unlanded SEED-430#follow-published-progress-from-local-git branch, not
+  on trunk. Slice 3 shows Vite's reload only follows the socket drop. That
+  execution owns its branch, so this story leaves its work untouched and
+  records the decision where SEED-430 reads it on trunk: the guard and that
+  diagnosis record do not land.
+- The seed's evidence and scope bullets about the two guarded mechanisms
+  are settled by wrap-up.
 
 Proof:
 
-- Read slices 2 and 3's chronology for an HMR close followed by an orchestrator
-  reload. Record the decision and its evidence in this plan.
-- On removal, delete the plugin and its imports from
-  `dashboard/frontend.vitest.config.mts`. `npm run typecheck:dashboard`
-  passes, and the publication's `dashboard-frontend` job reports every
-  file.
-- When the guard has not reached trunk by this slice, record that and leave
-  the decision with SEED-430#follow-published-progress-from-local-git's
-  landing. The slice then changes nothing.
+- Delete the guard, its spec and its `setupFiles` entry.
+  `npm run typecheck:dashboard` passes.
+- Record the SEED-430 decision in its seed section on this branch, in a
+  region its branch has not changed (pre-test with `git merge-file`), and
+  leave its state block alone. It reaches trunk when this story lands, and
+  SEED-430's freshness check absorbs it. If SEED-430 lands first, the guard
+  reaches trunk, and this branch's freshness check brings it here, where
+  this slice deletes it with its imports.
+- Push once with `[probe]` in the head commit message. The probe's thirty
+  jobs, with the capture off, each report every file, and the ordinary
+  `dashboard-frontend` job passes. Their durations stay within the spread of
+  slice 2's hosted baseline (187–280 s).
+- Delete the probe workflow. `git diff origin/main --stat` then shows
+  neither the workflow nor the capture.
 
 ## Local gate and delivery
 
@@ -470,7 +508,7 @@ The repair keeps the frontend group on Vitest Browser Mode and adds no
 Playwright test runner.
 [Make production code directly testable instead of growing test support](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support)
 also applies. The capture is temporary and leaves with the story, slice 6
-removes a guard that the evidence does not support, and the repair adds no
+removes guards that the evidence does not support, and the repair adds no
 test-support wrapper.
 
 ## Plan review

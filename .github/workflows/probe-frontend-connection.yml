@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 env:
-  PROBE_CAPTURE: "on"
+  PROBE_CAPTURE: "off"
 
 jobs:
   dashboard-frontend:
