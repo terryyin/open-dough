@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "c2730bb7-4811-4fa8-9f6f-c97a16fa3c24",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-28T02:15:02.146Z",
+  "story": "SEED-349#explain-native-admission-substitute-empty-stream",
+  "ranges": [
+    {
+      "base": "3210fc680c97e41936eded72cf7aaa949ff0e5d3",
+      "candidate": "3899ed87348713c78c844b65f0411b8dcdbf2da7"
+    }
+  ]
+}
