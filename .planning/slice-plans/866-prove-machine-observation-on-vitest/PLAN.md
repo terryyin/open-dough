@@ -170,11 +170,14 @@ reader callbacks and the sharing case's timers are controlled. The maintained
 group passed 14 Node and four retained Chromium cases. Consumer tracing found
 the same host status API and wire owner. The read-only refactor pass found no
 candidate beyond the temporary duplicate that slice 3 retires.
+Published as `bf7e6ef425fffff7cb49a9bd962e174513f4abca` on the execution
+branch and registered with its CI observer. The earlier CI run was cancelled
+by this newer push under the branch workflow's supersession policy.
 
 ### 3. Refuse foreign host status requests at the wire
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A GET from the page's own origin answers real CPU percent (0–100)
 and free bytes (above zero) with `no-store`; another origin or Host is refused
@@ -186,6 +189,52 @@ cases: the refusals (no sampling), and one answer from the real platform
 readers. Replaces the endpoint case of `host-status.spec.ts` (1). Retire that
 spec once this and slice 2 are green. The real-reader answer is the named
 exception to the ~100 ms case target (about 290 ms observed).
+
+Both HTTP cases passed in Node while the original spec still existed. The
+refusals observed 403 for a foreign Origin, 403 for a foreign Host, and 405
+for POST, with no demand on `HostStatusObservation`. The same-origin GET
+observed 200, `no-store`, CPU in the 0–100 range and positive free bytes
+from the real readers. With the three typed replacement cases already
+passing, the retired spec had no remaining case. The consumer trace found
+no orphaned shared support. The bundled-server example in
+`runtime/boundary-server.spec.ts` now names the existing authenticated read
+diagnostics spec that actually starts that server.
+
+## Final comparison
+
+The maintained group ran all 16 cases with one worker and no retries.
+The same command with `--list` selected 16 Node cases and zero Chromium
+cases. It ran in 4.147 s (3.27 s reported by Vitest, 1.538 s summed case
+time). The exact maintained and standalone timing commands were:
+
+```sh
+caffeinate -s -i npm run test:dashboard:backend -- \
+  'observation/(git-files-identity|host-status(-observation|-boundary)?)\.spec\.ts$' --workers=1
+caffeinate -s -i node_modules/.bin/vitest run --config dashboard/backend.vitest.config.mts \
+  dashboard/backend-tests/observation/git-files-identity.spec.ts \
+  dashboard/backend-tests/observation/host-status-observation.spec.ts \
+  dashboard/backend-tests/observation/host-status-boundary.spec.ts \
+  --maxWorkers=1 --reporter=verbose
+```
+
+| Legacy case | Node Vitest owner and case times |
+| --- | --- |
+| Seven Git changes with held and unsettled identity | `git-files-identity.spec.ts`, unchanged 89 ms, author config 80 ms, linked branch 72 ms, trunk 72 ms, packed refs 65 ms, switched HEAD 156 ms, worktree added 143 ms, folder removed 70 ms, recent file 30 ms |
+| Main-checkout Git leaves identity held | `git-files-identity.spec.ts`, new file and observed index refresh 149 ms |
+| Plain or missing folder | `git-files-identity.spec.ts`, 1 ms |
+| CPU window | `host-status-observation.spec.ts`, 2 ms |
+| Independently unavailable CPU and disk | `host-status-observation.spec.ts`, 0 ms |
+| Shared sample and demand after expiry | `host-status-observation.spec.ts`, 2 ms |
+| Real host status response and refusals | `host-status-boundary.spec.ts`, refusals 23 ms and real GET 259 ms |
+
+Standalone Vitest reported 1.213 s summed case time, 2.65 s elapsed and
+3.051 s process elapsed, compared with about 9.081 s summed and 11.7 s
+reported at the legacy baseline. One-minute host load moved from 11.91 to
+11.35 during the standalone run. The 259 ms real GET is the named exception
+for production priming. The switched-HEAD, added-worktree and main-index
+cases exceeded the ~100 ms target on this run. Those same real Git cases had
+taken 65 ms, 66 ms and 53 ms earlier on the same host before the separate
+age-case refactor. All runs kept default timeouts.
 
 ## Local gate and delivery
 
