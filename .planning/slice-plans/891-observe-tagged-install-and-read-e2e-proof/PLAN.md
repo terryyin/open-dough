@@ -139,6 +139,12 @@ Behavior: the `e2e` Intent location in `.planning/open-dough.json` also selects
 `**/*Cases.ts` → the helpers appear under **E2E Test** in Project Intent →
 Purpose opens their source and Proof lists their declared cases.
 
+Local proof (2026-11-28): `test-entry-rules.mjs` resolves both helpers with
+the `e2e` conventions; spec discovery (`testFiles.mjs`) and CI shard globs do
+not read the include list, and `playwright test --list` shows no `Cases.ts`.
+The dashboard reads Intent from the published repository, so the Project
+Intent observation runs on the published revision with its CI proof.
+
 ## Verification and delivery gates
 
 - Before test edits run installed `test-entry-rules.mjs` on exact paths and
