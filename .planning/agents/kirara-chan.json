@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "agent": "Kirara-chan",
+  "email": "kirara-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-334#observe-tagged-install-and-read-e2e-proof",
+  "host": "claude"
+}
