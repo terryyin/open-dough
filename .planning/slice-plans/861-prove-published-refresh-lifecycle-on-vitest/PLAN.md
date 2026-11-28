@@ -481,6 +481,11 @@ Keep browser SSE delivery, visibility, and recovery cues in
 total. Delete `dashboard/backend-tests/observation/revisionStreamBoundary.ts`
 and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
 
+Held, not started. On this branch the stream takes `RevisionChecks`. Trunk
+deleted that module in `42afce853` and `sourceRevisionStream.ts` now follows
+`SharedVerifiedOriginTrunk`. These eleven cases are not ported onto the
+removed listing cache.
+
 ## Local gate and delivery
 
 - Apply [MakeMe](../../../.agents/skills/dough-makeme/SKILL.md) selection
@@ -565,7 +570,8 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
   passed locally; its CI page was an authenticated-read failure for
   `nerds-odd-e/doughnut`, and this story does not add a second fix for that.
   The same holds for shared listings: trunk removed `revisionChecks.ts`, so
-  slice 9's Node port was not kept.
+  slice 9's Node port was not kept. Slice 10 stays unstarted for the same
+  reason: its stream on this branch still takes that removed module.
 
 ## Execution identity
 
@@ -577,7 +583,7 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
   revision `9379098d55410b514abf36b8fb8e42b0c0931181`.
 - Originating checkout: that same workspace. Integration checkout: none.
 - Target selection: remote `origin`, branch `main`.
-- Published revision `4a4c19527d4a6b38fc4e193e8c6ca00673b0b9d9` accepted on
+- Published revision `be8401f43426aae8873205a79440ef2c571b7ba4` accepted on
   `origin/cursor/prove-published-refresh-lifecycle-in-node-vitest`. That SHA is
   the previously published base for the next increment. The Story Branch claim
   `29e8402851ac887b9d4cdd7838b8a20db7bb08f9` remains `pendingCi: unobserved`.
