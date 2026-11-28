@@ -4,8 +4,9 @@
 // client, are both replaced before the next exec/keep answers; a runner
 // that does not answer the protocol at all is left alone and the work
 // fails unreachable. The build identity is computed from the runner code
-// itself: a reached sibling module moves it in source mode, and the
-// bundled entry's content moves it in bundled mode. The build-proof
+// itself: a sibling reached by a value, mixed, or dynamic import moves it
+// in source mode, and a sibling reached only by a type-only import does
+// not. The bundled entry's content moves it in bundled mode. The build-proof
 // decision itself and start-if-absent beside it are
 // ./cursor-runner-current-proof.spec.ts. Cases run in order: the fixture
 // sets HOME and PATH for the runner client.
@@ -154,3 +155,64 @@ test("build identity moves with a reached sibling in source mode and with the bu
     ),
   ).toBe(computeRunnerBuildId());
 });
+
+// Each form is the entry text computeRunnerBuildId walks. The sibling body
+// is the module that form reaches; only its bytes change between reads.
+for (const example of [
+  {
+    name: "a type-only import leaves the build identity unchanged",
+    entry: 'import type { Label } from "./sibling.ts";\n',
+    moves: false,
+  },
+  {
+    name: "an entirely type specifier list leaves the build identity unchanged",
+    entry: 'import { type Label } from "./sibling";\n',
+    moves: false,
+  },
+  {
+    name: "an export type re-export leaves the build identity unchanged",
+    entry: 'export type { Label } from "./sibling.ts";\n',
+    moves: false,
+  },
+  {
+    name: "a mixed type and value import moves the build identity",
+    entry: 'import { type Label, read } from "./sibling.ts";\n',
+    moves: true,
+  },
+  {
+    name: "a dynamic import moves the build identity",
+    entry: 'import("./sibling.ts");\n',
+    moves: true,
+  },
+  {
+    name: "a value import moves the build identity when that module is also imported as a type",
+    entry:
+      'import type { Label } from "./sibling.ts";\nimport { read } from "./sibling.ts";\n',
+    moves: true,
+  },
+] as const) {
+  test(example.name, () => {
+    const root = mkdtempSync(path.join(tmpdir(), "dough-build-id-"));
+    onTestFinished(() => {
+      rmSync(root, { recursive: true, force: true });
+    });
+    const entry = path.join(root, "runnerMain.ts");
+    const sibling = path.join(root, "sibling.ts");
+    writeFileSync(
+      sibling,
+      "export const read = 1;\nexport type Label = string;\n",
+    );
+    writeFileSync(entry, example.entry);
+    const before = computeRunnerBuildId(entry);
+    writeFileSync(
+      sibling,
+      "export const read = 2;\nexport type Label = number;\n",
+    );
+    const after = computeRunnerBuildId(entry);
+    if (example.moves) {
+      expect(after).not.toBe(before);
+    } else {
+      expect(after).toBe(before);
+    }
+  });
+}
