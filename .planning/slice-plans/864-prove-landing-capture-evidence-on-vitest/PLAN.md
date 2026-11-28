@@ -262,7 +262,7 @@ in `retained-landing-expiry-refusal.spec.ts` (67). Both call
 ### 7. Refuse a deleted launch while its pins are being removed
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Deletion after attempt expiry keeps the tombstone and repository if
 pin cleanup fails. A late capture stays refused. Retrying deletion removes
@@ -275,6 +275,17 @@ real ref-update failure on the original repository, and check refusal before
 and after retry, exact other receipt/pins and absent record. Verify stale
 update and bind cannot remove deletion intent or recreate the record. Retire
 the shared admission spec when slices 2 and 3 and these are green.
+
+Accepted proof: `retained-landing-deletion.spec.ts` selected 1 node test,
+strict status passed, about 7.8 s. `slice7-deletion.json` names it. A locked
+ref keeps the tombstone, repository, and pins. Late `handleLanding` is 409
+while the tombstone remains and 404 after the retry. The retry removes only
+that launch and its pins. A stale `updateRecord` and `bindRecord` keep
+`deletedAt` and do not recreate the record. The legacy recovery-deletion
+spec is deleted. `one-shot-landing-capture-admission.spec.ts` stays: a
+record before any prepare, and an installed retry that says "deleted" while
+the attempt is still kept, are not owned by the Node specs. No production
+file changed. The new spec is 175 lines.
 
 ### 8. Keep the first accepted Story Branch comparison
 
@@ -391,9 +402,10 @@ is not split again. The plan is already at the ten-slice execution allowance.
   `876fdddbe263a74ecea1a38a59f6739c1e115a32`, then the binding split as
   `567ae7298aebefd93d7e4ccea694325fd5164f35`, then slice 4 as
   `45f1c197c89ce0a4fc35b3fe08bbdc5701128963`, then slice 5 as
-  `57bf00ea0c0e23aee871fd31135621046af1e9fb`, on
+  `57bf00ea0c0e23aee871fd31135621046af1e9fb`, then slice 6 as
+  `b4328d438337d47e3247fa5df31e49e36553709a`, on
   `origin/cursor/prove-retained-landing-capture-in-node-vitest`. Suffix base
-  of the slice 5 receipt is slice 4, zero reconciliations. That receipt is
+  of the slice 6 receipt is slice 5, zero reconciliations. That receipt is
   the next increment's previously published base. Observer
   `/tmp/dough-ci-501/watch-1ZhItf` reused.
   No unpublished candidate. Publisher `dashboard-territory.local-open-dough`,
