@@ -1,5 +1,5 @@
 import { expect, onTestFinished, test } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import {
   proofTableFit,
@@ -20,6 +20,7 @@ import {
   expectUnsortedRows,
   figuresAboveTable,
   openSummary,
+  press,
   scopeTable,
   sortButton,
 } from "./intent-summary-proof-page.ts";
@@ -40,7 +41,7 @@ test("Summary Change keeps unchanged children last in both directions", async ()
   ]);
 
   const change = sortButton(table, "Change");
-  await userEvent.click(change);
+  press(change);
   await expectSortedBy(table, "Change", "ascending", [
     "added.spec.ts",
     "gone.spec.ts",
@@ -48,7 +49,7 @@ test("Summary Change keeps unchanged children last in both directions", async ()
     "folder/",
     "root.spec.ts",
   ]);
-  await userEvent.click(change);
+  press(change);
   await expectSortedBy(table, "Change", "descending", [
     "renamed.spec.ts",
     "gone.spec.ts",
@@ -65,11 +66,11 @@ test("Summary Landed keeps incomparable children last, own figures stationary an
   await expectComparisonRows(summary, entryComparisonRows);
 
   const landed = sortButton(table, "Landed");
-  await userEvent.click(landed);
+  press(landed);
   await expect
     .element(table.getByRole("columnheader", { name: "Landed", exact: true }))
     .toHaveAttribute("aria-sort", "ascending");
-  await userEvent.click(landed);
+  press(landed);
   await expectSortedBy(table, "Landed", "descending", [
     "folder/",
     "root.spec.ts",
@@ -99,7 +100,10 @@ test("Summary Landed keeps incomparable children last, own figures stationary an
 });
 
 test("the comparison Summary fits at 200% zoom and keeps complete words without sideways scrolling", async () => {
-  await openSummaryComparison(makeMe.aComparedStory.inSummaryScope().please());
+  // The fit is against Intent's reading pane, which the comparison mount omits.
+  await openSummaryComparison(makeMe.aComparedStory.inSummaryScope().please(), {
+    onPage: true,
+  });
   const summary = await openSummary(entry);
   const table = scopeTable(summary, entry);
   await expectComparisonRows(summary, entryComparisonRows);

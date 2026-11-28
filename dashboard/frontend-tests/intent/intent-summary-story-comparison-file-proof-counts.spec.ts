@@ -1,5 +1,4 @@
 import { expect, test } from "vitest";
-import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { cueOf } from "./intent-ci-comparison-page.ts";
 import {
@@ -14,7 +13,6 @@ import {
   unchangedFile,
   unchangedFileRow,
 } from "./intent-compared-file-expected.ts";
-import { intentStoryCompare } from "./intent-story-compare-page.ts";
 import { openSummaryComparison } from "./intent-summary-comparison-fixture.ts";
 import {
   comparisonLabels,
@@ -22,23 +20,33 @@ import {
   expectNoFileTimingMarks,
   expectObservedBuildFraming,
   fileProofTable,
+  openComparedFileProof,
+  openComparedFolder,
   type ExpectedCues,
   type FileComparisonRow,
 } from "./intent-summary-comparison-page.ts";
 import { expectEvidenceLabels } from "./intent-summary-evidence-page.ts";
+import { openSummary } from "./intent-summary-proof-page.ts";
+
+const entry = "dashboard/tests";
 
 async function showsFileEvidence(
-  name: string,
   path: string,
   row: FileComparisonRow,
   cues: ExpectedCues,
   story = makeMe.aComparedStory.inSummaryScope().please(),
 ) {
   await openSummaryComparison(story);
-  const view = intentStoryCompare();
-  await view.file(name).click();
-  await view.chooseProof();
-  const proof = page.getByRole("region", { name: "Proof", exact: true });
+  const summary = await openSummary(entry);
+  const segments = path.slice(entry.length + 1).split("/");
+  const fileName = segments.pop();
+  if (fileName === undefined) throw new Error(`No file in ${path}`);
+  let current = entry;
+  for (const folder of segments) {
+    current = `${current}/${folder}`;
+    await openComparedFolder(summary, current);
+  }
+  const proof = await openComparedFileProof(summary, fileName);
   await expectEvidenceLabels(comparisonLabels(proof, story.identity), [
     "Baseline No build aaaaaaa",
     "Branch bbbbbbb",
@@ -57,20 +65,15 @@ async function showsFileEvidence(
 }
 
 test("file Proof keeps modified counts, precise times and source cues", async () => {
-  await showsFileEvidence(
-    `Modified ${modifiedFile}`,
-    modifiedFile,
-    modifiedFileRow,
-    {
-      count: "none",
-      duration: "slower-light",
-      countReason: "unchanged",
-    },
-  );
+  await showsFileEvidence(modifiedFile, modifiedFileRow, {
+    count: "none",
+    duration: "slower-light",
+    countReason: "unchanged",
+  });
 });
 
 test("file Proof keeps added counts, precise times and source cues", async () => {
-  await showsFileEvidence(`Added ${addedFile}`, addedFile, addedFileRow, {
+  await showsFileEvidence(addedFile, addedFileRow, {
     count: "none",
     duration: "none",
     countReason: "added",
@@ -94,7 +97,6 @@ test("file Proof keeps renamed across units counts, precise times and source cue
     .withEntriesAt("branch", [branchEntry])
     .please();
   const proof = await showsFileEvidence(
-    `Renamed tests/old.sh → ${renamedFile}`,
     renamedFile,
     renamedFileRow,
     {
@@ -109,7 +111,7 @@ test("file Proof keeps renamed across units counts, precise times and source cue
 });
 
 test("file Proof keeps unchanged counts, precise times and source cues", async () => {
-  await showsFileEvidence(unchangedFile, unchangedFile, unchangedFileRow, {
+  await showsFileEvidence(unchangedFile, unchangedFileRow, {
     count: "none",
     duration: "none",
     countReason: "unchanged",
@@ -126,7 +128,6 @@ test("file Proof keeps owning merge modified counts, precise times and source cu
     .withChanged(...edit.files)
     .please();
   await showsFileEvidence(
-    `Modified ${mergeEditedFile}`,
     mergeEditedFile,
     mergeEditedFileRow,
     {
