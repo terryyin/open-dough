@@ -157,3 +157,21 @@ test("an unframed composer draft of a multiline continuation is submitted once",
     instruction.dispose();
   }
 });
+
+test("a wrapped composer tail of a revived continuation is submitted once", async () => {
+  const { instruction, observed } = recoveryInstruction(continuation);
+  const draft =
+    "\u001b[?2026h\u001b[2J\u001b[H→ Plan, search, build anything\r\n→ without opening another assignment.\r\nReporting command: node dashboard-completion.mjs\r\n\u001b[?2026l";
+  try {
+    await instruction.write(
+      "\u001b[?2026h\u001b[2J\u001b[H→ Add a follow-up\r\n\u001b[?2026l",
+    );
+    expect(observed).toEqual({ typed: [continuation], confirmed: 0 });
+    await instruction.write(draft);
+    expect(observed).toEqual({ typed: [continuation, "\r"], confirmed: 1 });
+    await instruction.write(draft);
+    expect(observed).toEqual({ typed: [continuation, "\r"], confirmed: 1 });
+  } finally {
+    instruction.dispose();
+  }
+});
