@@ -15,7 +15,6 @@ import {
   addedRepository,
   projectAddMachine,
 } from "../../dashboard/test-support/support/projectAddMachine.ts";
-import { publishRetainedProjectStory } from "../../dashboard/test-support/support/retainedProjectStory.ts";
 import { addProjectOnPage } from "../../dashboard/test-support/support/projectAddPage.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { identity } from "../../dashboard/test-support/agentLaunchBoundary.ts";
@@ -51,6 +50,7 @@ test("removing a configured project retains its checkout and records, hides sess
   page,
 }) => {
   const story = { identity, title: "Retained sample session" };
+  const origin = makeMe.aRepository.withTrunkBranch(addedBranch);
   const record = makeMe.aLaunchRecord
     .executing({
       ...story,
@@ -68,7 +68,7 @@ test("removing a configured project retains its checkout and records, hides sess
     "utf8",
   );
   let server = await fixture.start("preview");
-  publishRetainedProjectStory(server, addedRepository, story, addedBranch);
+  server.github.serve(addedRepository, origin.takingStories(story).please());
   await page.goto(server.baseURL);
   await addProjectOnPage(page);
   const { taken } = parts(page);
@@ -99,15 +99,6 @@ test("removing a configured project retains its checkout and records, hides sess
     const dialog = removeDialog(page, "Sample App");
     await expect(dialog).toContainText("Nothing on disk or on GitHub changes.");
     await expect(dialog.getByRole("button", { name: "Cancel" })).toBeFocused();
-    await page.keyboard.press("ArrowLeft");
-    await page.keyboard.press("ArrowRight");
-    await expect(
-      page.getByRole("radio", {
-        name: "Sample App",
-        exact: true,
-        includeHidden: true,
-      }),
-    ).toBeChecked();
     await page.keyboard.press("Tab");
     await expect(
       dialog.getByRole("button", { name: "Remove", exact: true }),
@@ -175,7 +166,7 @@ test("removing a configured project retains its checkout and records, hides sess
   expectUnchangedMachineRecords(recordsFolder, machineRecordsBefore);
   await fixture.stop(server);
   server = await fixture.start("preview");
-  publishRetainedProjectStory(server, addedRepository, story, addedBranch);
+  server.github.serve(addedRepository, origin.takingStories(story).please());
   await openUntilRead(page, server.baseURL);
   await expect(parts(page).project.getByRole("radio")).toHaveCount(
     remainingIds.length,

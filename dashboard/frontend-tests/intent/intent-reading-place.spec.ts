@@ -144,6 +144,7 @@ test("the deep spec read with Changes only on, out collapsed and Purpose scrolle
   await activateButton(story.folderToggle("out", true));
   await activateButton(story.file(deepSpec));
   await expect.poll(story.diffCode).toContain("long 120");
+  await expect.poll(story.diffContextReading).toBe("false");
   const offset = await story.scrollReadingHalfway();
   expect(offset).toBeGreaterThan(20);
 

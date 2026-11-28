@@ -23,7 +23,6 @@ import { publishMain } from "../../dashboard/test-support/committedOriginRepo.ts
 import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
 import { expectServedHomesReach } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import {
-  commitAnswer,
   noConnection,
   rateLimitedAnswer,
 } from "../../dashboard/test-support/originAnswers.ts";
@@ -70,8 +69,6 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   // A check asked before the Take is published answers after it settles,
   // with the revision before it; the settling's fresh read waits at Git.
   // Claude is released with the push so launch settles meanwhile.
-  const restoreMain = published.answerWith("main", commitAnswer(before));
-  const releaseRef = published.hold("main");
   await passTimeUntilAsked(page);
   push.release();
   dashboard.releaseHeldClaude();
@@ -94,7 +91,6 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await transfer.untilHeld();
 
   // The held read completes at the earlier trunk after the native Take.
-  releaseRef();
   transfer.releaseAt(before);
   await expect(page.getByRole("status").first()).toContainText(
     `Published work read at revision ${before.slice(0, 7)}`,
@@ -102,7 +98,6 @@ test("a Take's older snapshot arriving late and an unrelated revision keep it pr
   await expect(story).toContainText(waiting);
   await expectProtected(story);
   await expect(takenStory).toHaveCount(0);
-  restoreMain();
   transfer.release();
 
   // An unrelated revision is not the published Take; a comparison that

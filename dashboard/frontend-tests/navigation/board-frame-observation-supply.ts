@@ -3,6 +3,7 @@ import { onTestFinished } from "vitest";
 import type { MachineAnswer } from "../../src/agentLaunch.ts";
 import type { AcceptanceAnswer } from "../../src/agentLaunchClient.ts";
 import type { MachineReadSource } from "../../src/machineReadSource.ts";
+import type { PublishedSnapshot } from "../../src/authenticatedRead.ts";
 import type { PublishedObservationReadSource } from "../../src/publishedObservationReadSource.ts";
 import type { PublishedWork } from "../../src/publishedWork.ts";
 import type {
@@ -67,6 +68,7 @@ export function boardFrameObservationSupplying(
     machineRead,
     accept,
     doneCatalog,
+    listPublishedSessions,
   }: {
     initialSnapshot?: Error | Promise<PublishedWork>;
     detailFile?: PublishedObservationReadSource["readDetailFile"];
@@ -80,6 +82,8 @@ export function boardFrameObservationSupplying(
     ) => Promise<AcceptanceAnswer>;
     // A case-owned done catalog read, in place of each snapshot's catalog.
     doneCatalog?: PublishedObservationReadSource["readDoneCatalog"];
+    // A case-owned published sessions list, in place of each snapshot's list.
+    listPublishedSessions?: PublishedObservationReadSource["listPublishedSessions"];
   } = {},
 ): BoardFrameObservation {
   const bySource = new Map(snapshots.map((work) => [work.source.id, work]));
@@ -94,31 +98,36 @@ export function boardFrameObservationSupplying(
     sourceId: string,
     signal: AbortSignal,
     knownRevision: string | undefined,
-  ): Promise<{ revision: string; backlog: string }> => {
+  ): Promise<PublishedSnapshot> => {
     snapshotAsks.push({ sourceId, revision: knownRevision });
+    let work: PublishedWork | undefined;
     if (queued.length > 0) {
       const next = queued.shift();
       if (next === undefined) {
         throw new Error(`Queued snapshot for ${sourceId} vanished.`);
       }
       if (next instanceof Error) throw next;
-      const work = await (typeof next === "function" ? next(signal) : next);
+      work = await (typeof next === "function" ? next(signal) : next);
       bySource.set(work.source.id, work);
-      return {
-        revision: work.revision,
-        backlog: backlogMarkdownOf(work),
-      };
+    } else {
+      work = bySource.get(sourceId);
+      if (work === undefined) {
+        throw new Error(`No published work fixture for ${sourceId}.`);
+      }
+      if (knownRevision !== undefined && knownRevision !== work.revision) {
+        throw new Error(
+          `No queued snapshot for ${sourceId} at ${knownRevision}.`,
+        );
+      }
     }
-    const held = bySource.get(sourceId);
-    if (held === undefined) {
-      throw new Error(`No published work fixture for ${sourceId}.`);
-    }
-    if (knownRevision !== undefined && knownRevision !== held.revision) {
-      throw new Error(
-        `No queued snapshot for ${sourceId} at ${knownRevision}.`,
-      );
-    }
-    return { revision: held.revision, backlog: backlogMarkdownOf(held) };
+    return {
+      revision: work.revision,
+      backlog: backlogMarkdownOf(work),
+      ...(knownRevision === undefined && {
+        askedAt: work.refAskedAt,
+        confirmedAt: work.confirmedAt,
+      }),
+    };
   };
 
   const observation: PublishedObservationReadSource = {
@@ -167,7 +176,9 @@ export function boardFrameObservationSupplying(
         unreadable: [],
       });
     },
-    listPublishedSessions: (...[source]) => {
+    listPublishedSessions: (...[source, ...rest]) => {
+      if (listPublishedSessions !== undefined)
+        return listPublishedSessions(source, ...rest);
       const work = bySource.get(source.id);
       const sessions = work?.publishedSessions;
       if (sessions?.status === "listed") {

@@ -20,6 +20,7 @@ import {
   originMain,
   radio,
 } from "../../dashboard/test-support/support/sessionDialog.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -38,7 +39,7 @@ test("effort-only story startup validates the actual established workspace rathe
   };
   const initial = await originMain(origin);
   expectServedHomesReach(github, defaultRepository, initial);
-  const card = await openBacklog(page, origin, true);
+  const card = (await openInstalledStoryBoard(page, origin)).card("Story A");
   await card.getByRole("button", { name: "Start execution" }).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Host", { exact: true }).selectOption("codex");

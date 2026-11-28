@@ -47,7 +47,8 @@ test("a story's installed refinement options appear on refinement alone", async 
     .toBeVisible();
   await expect.element(form.options).not.toBeInTheDocument();
   await expect.element(optionsGroup(form)).not.toBeInTheDocument();
-  await form.cancel.click();
+  await userEvent.keyboard("{Escape}");
+  await expect.element(form.dialog).not.toBeInTheDocument();
 
   await refinement.click();
   const { a, c } = await choices(form);

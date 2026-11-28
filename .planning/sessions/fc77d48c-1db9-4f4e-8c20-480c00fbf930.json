@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "sessionId": "fc77d48c-1db9-4f4e-8c20-480c00fbf930",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-27T15:31:29.825Z",
+  "story": "SEED-418#prove-or-retire-held-read-race-step",
+  "ranges": [
+    {
+      "base": "0e8921453f74ae254603a9c5f9ad9d9725f4c619",
+      "candidate": "976ffccf2b8c6d52ac7c98375047e0ab45ecb937"
+    },
+    {
+      "base": "976ffccf2b8c6d52ac7c98375047e0ab45ecb937",
+      "candidate": "1c42fdf516d22e20a24aff976b9146e2701089f2"
+    },
+    {
+      "base": "1c42fdf516d22e20a24aff976b9146e2701089f2",
+      "candidate": "881fedf287e5e7f6496c7cf30f35da1b31cea6a4"
+    }
+  ]
+}

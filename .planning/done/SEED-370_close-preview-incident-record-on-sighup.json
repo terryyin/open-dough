@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "identity": "SEED-370#close-preview-incident-record-on-sighup",
+  "title": "Close the preview's incident record when the watcher ends on SIGHUP",
+  "completedAt": "2026-11-27T15:11:32.314Z",
+  "developer": "Terry Yin",
+  "agent": "Nana-chan",
+  "host": "claude"
+}

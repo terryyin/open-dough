@@ -16,7 +16,7 @@ import { publishCommittedMembership } from "../../dashboard/test-support/localTa
 import { pygardonRepository } from "../../dashboard/test-support/pygardonProject.ts";
 import {
   chooseProject,
-  expandStoryCardDoneHistory,
+  shownDoneSessionEntriesOf,
   expectProjectChoice,
   expectMembership,
   parts,
@@ -24,8 +24,6 @@ import {
   sessionNamedBy,
   sessionStateOf,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
-import { openCatalogLaunchBoard } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   expectRevealsSince,
   recordReveals,
@@ -44,6 +42,8 @@ import {
   takenAdHocSession,
   startAdHocAndClose,
 } from "../../dashboard/test-support/support/startedAdHocSession.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
+import { catalogOrigin } from "../../dashboard/test-support/support/catalogProjectOrigin.ts";
 test.use({
   projectFolders: ["open-dough", "pygardon"],
 });
@@ -54,13 +54,12 @@ test("its Sessions sidebar Session entry opens Open Dough's stories, the termina
 }) => {
   dashboard.claudeScenario("launched");
   await recordReveals(page);
-  await openCatalogLaunchBoard(page, dashboard.home);
+  await openInstalledStoryBoard(page, catalogOrigin(dashboard.home));
   const text = "why is the CI slow on main?";
   const openDoughStories = { taken: [text], backlog: ["Story A", "Story B"] };
   const { button, entries, entry } = sessionsSidebarParts(page);
   const panel = terminalPanel(page);
   const active = takenAdHocSession(page, text);
-  const card = storyCard(parts(page).taken, text);
   const recent = parts(page).recentlyDone;
 
   await startAdHocAndClose(page, "Open Dough", text);
@@ -98,7 +97,7 @@ test("its Sessions sidebar Session entry opens Open Dough's stories, the termina
     await markDoneAnyway(panel);
     await expect(panel).toHaveCount(0);
     await expect(entries).toHaveCount(0);
-    const closed = sessionEntriesIn(await expandStoryCardDoneHistory(card));
+    const closed = await shownDoneSessionEntriesOf(page, text);
     await expect(sessionStateOf(closed)).toHaveText("Done");
     await expect(closed).toContainText(
       `Named done-Open Dough · Ad hoc · ${text}`,
@@ -109,7 +108,7 @@ test("its Sessions sidebar Session entry opens Open Dough's stories, the termina
 
   await test.step("Open terminal reopens it into the sidebar, and a reload keeps it there", async () => {
     await openTerminalControl(
-      sessionEntriesIn(await expandStoryCardDoneHistory(card)),
+      await shownDoneSessionEntriesOf(page, text),
     ).click();
     await expect(terminalScreenParts(panel).rows).toContainText("attached");
     await expect(entries).toHaveCount(1);

@@ -16,10 +16,7 @@ import {
   expect,
   stored,
 } from "../../dashboard/test-support/support/codexStart.ts";
-import {
-  openCatalogLaunchBoard,
-  test as journeyTest,
-} from "../../dashboard/test-support/support/codexLaunch.ts";
+import { test as journeyTest } from "../../dashboard/test-support/support/codexLaunch.ts";
 import type { FakeCodex } from "../../dashboard/test-support/support/fakeCodex.ts";
 import { publishCommittedOrigin } from "../../dashboard/test-support/committedOrigin.ts";
 import { parts } from "../../dashboard/test-support/dashboardPage.ts";
@@ -27,6 +24,8 @@ import { openTakenBacklog } from "../../dashboard/test-support/launchStoryCardPa
 import { closeSidePanel } from "../../dashboard/test-support/sidePanelFrame.ts";
 import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.ts";
 import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
+import { catalogOrigin } from "../../dashboard/test-support/support/catalogProjectOrigin.ts";
 
 // The ad-hoc and vanished-model cases use codexLaunch.ts, which gives no
 // execution checkout; Start session needs the one an installed origin makes.
@@ -178,7 +177,7 @@ journeyTest(
       supportedReasoningEfforts: [],
     };
     codexProtocol.models = [dynamic];
-    await openCatalogLaunchBoard(page, dashboard.home);
+    await openInstalledStoryBoard(page, catalogOrigin(dashboard.home));
     const open = page.getByRole("button", {
       name: "Start session in Open Dough",
     });

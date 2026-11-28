@@ -84,7 +84,7 @@ function shapeKey({ origin, gitTemplates, layer }) {
  * The registered prefix `description` starts with.
  * @param {RepositoryDescription} description
  */
-function matchingPrefix(description) {
+export function matchingPrefix(description) {
   for (const prefix of preparedPrefixes) {
     const { revisions } = prefix.description;
     if (

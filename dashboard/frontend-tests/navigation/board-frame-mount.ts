@@ -74,6 +74,7 @@ export async function mountBoardFrame(
     review,
     reviewStates,
     doneCatalog,
+    listPublishedSessions,
     sessions = authenticatedSessionServices,
     awaitSessionsRead = true,
     settingsSources,
@@ -91,6 +92,8 @@ export async function mountBoardFrame(
     reviewStates?: StoryReviewStatesReadSource;
     // A case-owned published done catalog read for every project.
     doneCatalog?: PublishedObservationReadSource["readDoneCatalog"];
+    // A case-owned published sessions list for every project.
+    listPublishedSessions?: PublishedObservationReadSource["listPublishedSessions"];
     // The shown session's final report, host status and terminal.
     sessions?: SessionServices;
     awaitSessionsRead?: boolean;
@@ -120,6 +123,7 @@ export async function mountBoardFrame(
     ...(machine.read === undefined ? {} : { machineRead: machine.read }),
     ...(machine.accept === undefined ? {} : { accept: machine.accept }),
     ...(doneCatalog === undefined ? {} : { doneCatalog }),
+    ...(listPublishedSessions === undefined ? {} : { listPublishedSessions }),
   });
   const projects = snapshots.map(({ source }) => source);
   const reads = pageReadsSupplying({

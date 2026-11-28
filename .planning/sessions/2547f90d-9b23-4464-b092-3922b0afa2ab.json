@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "2547f90d-9b23-4464-b092-3922b0afa2ab",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-27T15:04:34.599Z",
+  "story": "SEED-413#fast-runtime-unit-case-cleanup",
+  "ranges": [
+    {
+      "base": "0e8921453f74ae254603a9c5f9ad9d9725f4c619",
+      "candidate": "f27278a2c4ef85b704b8fdae27a097c506b3dc00"
+    }
+  ]
+}

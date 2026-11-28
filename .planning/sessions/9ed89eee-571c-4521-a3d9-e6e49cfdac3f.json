@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "9ed89eee-571c-4521-a3d9-e6e49cfdac3f",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-28T00:14:18.068Z",
+  "story": "SEED-334#observe-tagged-install-and-read-e2e-proof",
+  "ranges": [
+    {
+      "base": "a3a96818c66df03da1cbdd78df68628dead3ebdb",
+      "candidate": "0412b16297d8b9c76ebd7d6eb732b021baf6754f"
+    }
+  ]
+}

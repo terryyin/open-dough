@@ -1,21 +1,57 @@
 // What a consumer process and this machine's GitHub request owner
 // (`./github-request-owner.mjs`) say to each other over its private endpoint
 // (`./github-request-owner-endpoint.mjs`): one JSON message a line. A
-// consumer greets with the protocol and caller token, then asks a fixed read
-// or one full-workflow repeat. The
-// owner answers each numbered operation once. Each request names the API
+// consumer greets with the protocol and caller token, then asks a fixed read,
+// a core cooldown observation, or one full-workflow repeat. The owner
+// answers each numbered operation once. Each request names the API
 // host and login it is asked under as its endpoint directory is named. No
 // credential, command or path is ever said.
 
 import { readAnswer } from "./github-request-answer.mjs";
-import { safeOwnerCause } from "./github-request-owner-failure.mjs";
+import {
+  ownerFailure,
+  safeOwnerCause,
+} from "./github-request-owner-failure.mjs";
+import { longestDirectedWaitSeconds } from "./github-request-rules.mjs";
 
 /** @import { Socket } from "node:net" */
 /** @import { GhAnswer, GhPrintedFailure } from "./github-request-answer.mjs" */
+/** @import { OwnerReply } from "./github-request-owner-link.mjs" */
+/** @typedef {{ readonly kind: "clear" } | { readonly kind: "held-back"; readonly waitSeconds: number } | { readonly kind: "unsupported" } | { readonly kind: "unavailable"; readonly failure: import("./github-request-answer.mjs").GhRequestFailure }} CoreCooldown */
 
 // What an owner and its consumers must agree on to be spoken to at all.
 export const protocol = 2;
 export const workflowRerunOperation = "rerun-workflow";
+export const coreCooldownOperation = "core-cooldown";
+export const unknownOperationRefusal = "not a GitHub API read";
+
+/** @param {OwnerReply} reply @returns {CoreCooldown} */
+export function coreCooldownFromWire({
+  cooldown,
+  refused,
+  failure,
+  left,
+  timedOut,
+}) {
+  // Protocol 2 owners that predate this query return their fixed refusal.
+  if (refused === unknownOperationRefusal) return { kind: "unsupported" };
+  if (cooldown?.kind === "clear") return { kind: "clear" };
+  const waitSeconds = cooldown?.waitSeconds;
+  if (
+    cooldown?.kind === "held-back" &&
+    typeof waitSeconds === "number" &&
+    Number.isSafeInteger(waitSeconds) &&
+    waitSeconds > 0 &&
+    waitSeconds <= longestDirectedWaitSeconds
+  )
+    return { kind: "held-back", waitSeconds };
+  return {
+    kind: "unavailable",
+    failure:
+      failure ??
+      (left || timedOut ? { kind: "timed-out" } : ownerFailure(undefined)),
+  };
+}
 
 // The most one answer may print, and the longest one call may run.
 const answerBytesLimit = 64 * 1024 * 1024;
@@ -200,7 +236,13 @@ export function fixedWorkflowRerun(request) {
   };
 }
 
-export const fixedOperation = (request) =>
-  request?.operation === undefined
-    ? fixedRequest(request)
-    : fixedWorkflowRerun(request);
+export function fixedOperation(request) {
+  if (request?.operation === undefined) return fixedRequest(request);
+  if (request.operation === coreCooldownOperation) {
+    const { operation, scope, ...remaining } = request;
+    return typeof scope === "string" && Object.keys(remaining).length === 0
+      ? { operation, scope }
+      : undefined;
+  }
+  return fixedWorkflowRerun(request);
+}

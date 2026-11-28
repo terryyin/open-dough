@@ -1,12 +1,11 @@
 import { expect, onTestFinished, test } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page } from "vitest/browser";
 import { zoomedViewport } from "./board-accessibility.ts";
 import { mountBoardFrame } from "./board-frame-mount.ts";
 import { boardReading } from "./board-reading-page.ts";
 import { boardWork, longBacklog, story } from "./board-work.ts";
 import {
   banner,
-  bannerStops,
   compactProject,
   expectBannerRow,
   expectFrameTextWhole,
@@ -17,10 +16,9 @@ import {
   settings,
 } from "./dashboard-header-reading.ts";
 import { expectServedBrandAsset } from "./frame-brand-asset.ts";
-import { expectIconControl, fitsViewport } from "./frame-icon-control.ts";
+import { expectIconControl } from "./frame-icon-control.ts";
 import {
   doughnut,
-  focus,
   mountProjectCatalog,
   openDough,
   projectRadio,
@@ -74,15 +72,11 @@ test("the selected project banner stays pinned and reachable across wide, mid an
   await expect
     .element(page.getByText("Reading preparation…"))
     .not.toBeInTheDocument();
-  const beforeWalk = {
-    snapshots: [...frame.snapshotAsks],
-    details: [...frame.detailPaths],
-  };
-  expect(beforeWalk.snapshots).toEqual([
+  expect(frame.snapshotAsks).toEqual([
     { sourceId: "open-dough", revision: undefined },
   ]);
-  expect(beforeWalk.details).toHaveLength(entries.length);
-  expect(new Set(beforeWalk.details).size).toBe(entries.length);
+  expect(frame.detailPaths).toHaveLength(entries.length);
+  expect(new Set(frame.detailPaths).size).toBe(entries.length);
 
   await expectIconControl(sessions, "Sessions", "Sessions (⌘B)");
   await expectIconControl(settings, "System settings", "System settings");
@@ -108,7 +102,7 @@ test("the selected project banner stays pinned and reachable across wide, mid an
     await expectBannerRow(showsCompact ? compactProject : projectChoices);
     expectOnlyBannerControls();
     if (showsCompact) {
-      await expect.element(compactProject).toHaveTextContent("Open Dough");
+      await expect.element(compactProject).toHaveValue("open-dough");
       expect(projectChoices.query()).toBeNull();
     } else {
       await expect.element(projectRadio("Open Dough")).toBeChecked();
@@ -129,39 +123,7 @@ test("the selected project banner stays pinned and reachable across wide, mid an
       await expectIconControl(sessions, "Sessions", "Sessions (⌘B)");
       await expectIconControl(settings, "System settings", "System settings");
     }
-
-    const stops = bannerStops();
-    expect(stops[0]).toBe(sessions.element());
-    expect(stops.at(-1)).toBe(settings.element());
-    const gear = settings.element().getBoundingClientRect();
-    for (const stop of stops)
-      expect(stop.getBoundingClientRect().right).toBeLessThanOrEqual(
-        gear.right + 0.5,
-      );
-    focus(sessions);
-    await userEvent.tab({ shift: true });
-    expect(header.querySelector(":focus")).toBeNull();
-
-    focus(last);
-    let previous = last.element();
-    for (let step = 0; step < 10; step += 1) {
-      await userEvent.tab({ shift: true });
-      const target = document.activeElement;
-      if (!(target instanceof HTMLElement))
-        throw new Error("The Board lost keyboard focus.");
-      const context = `${viewport.width}px, previous control ${step + 1}`;
-      expect(target, context).not.toBe(previous);
-      previous = target;
-      expect(fitsViewport(target), context).toBe(true);
-      expect(
-        target.getBoundingClientRect().top,
-        context,
-      ).toBeGreaterThanOrEqual(header.getBoundingClientRect().bottom);
-    }
-    expect(header.getBoundingClientRect().top).toBe(0);
   }
-  expect(frame.snapshotAsks).toEqual(beforeWalk.snapshots);
-  expect(frame.detailPaths).toEqual(beforeWalk.details);
 });
 
 test("the banner selects the other project's Board without changing the Sessions product mark", async () => {

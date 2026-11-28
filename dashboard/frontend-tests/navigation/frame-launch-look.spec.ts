@@ -1,5 +1,5 @@
 import { createElement } from "react";
-import { expect, onTestFinished, test } from "vitest";
+import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import refinementOptions from "../../../Distribution/src/skills/dough-story-refinement/references/refinement-options.json";
 import {
@@ -7,9 +7,9 @@ import {
   optionsDefinitionSchema,
 } from "../../src/commandOptions.ts";
 import { StartLaunch } from "../../src/StartLaunch.tsx";
+import { scaleDevice } from "../../test-support/component-mount/deviceScale.ts";
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { painted } from "../../test-support/composedColours.ts";
-import { browserSession } from "../review/browser-session.ts";
 import {
   controlContrast,
   decorativeIcon,
@@ -198,16 +198,6 @@ test("at a narrow window Start session keeps every control reachable and readabl
 });
 
 test("at 200% zoom Start session keeps every control reachable and readable without sideways scrolling", async () => {
-  const browser = browserSession();
-  onTestFinished(async () => {
-    await browser.send("Emulation.clearDeviceMetricsOverride");
-  });
-  await browser.send("Emulation.setDeviceMetricsOverride", {
-    width: 0,
-    height: 0,
-    deviceScaleFactor: 2,
-    mobile: false,
-  });
-  expect(window.devicePixelRatio).toBe(2);
+  await scaleDevice(2);
   await startSessionReadsAt(sessionZoom);
 });

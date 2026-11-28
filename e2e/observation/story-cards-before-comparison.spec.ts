@@ -92,9 +92,7 @@ test("while the comparison is held, B's cards show under B keeping the details s
   release();
   await expectSettledAt(page, revisionB);
   const asked = readsBesideChecks(origin.requests.slice(before));
-  expect(recordsReadAt(asked, revisionB)).toEqual([
-    `content ${backlogPath}@${revisionB}`,
-  ]);
+  expect(recordsReadAt(asked, revisionB)).toEqual([]);
   expect(asked.filter((call) => call.startsWith("commit "))).toEqual([
     `commit ${revisionB}`,
   ]);
@@ -142,8 +140,5 @@ test("while the comparison is held, B's changed backlog shows its new membership
   await expectSettledAt(page, revisionB, [queuedTitle, addedTitle]);
   expect(
     recordsReadAt(readsBesideChecks(origin.requests.slice(before)), revisionB),
-  ).toEqual([
-    `content ${backlogPath}@${revisionB}`,
-    `content ${seedPath}@${revisionB}`,
-  ]);
+  ).toEqual([`content ${seedPath}@${revisionB}`]);
 });

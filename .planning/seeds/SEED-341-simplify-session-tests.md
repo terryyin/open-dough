@@ -69,6 +69,11 @@ reopening or switching scopes is the behavior. Keep integrated navigation in
 a representative E2E journey, and check that an existing test proves the same
 recovery before cutting it from a longer case.
 
+#### Related correction
+
+[Make Recently done setup traceable and Claude timeout proof reliable](#make-recently-done-setup-and-claude-timeout-proof-reliable)
+covers the setup steps in the retained ad hoc selection journey.
+
 #### Starting evidence
 
 On 2026-11-13 the 112 session specs averaged 60 lines per case. The longest
@@ -91,3 +96,22 @@ retirement story still owns Intent and navigation under the interim runner.
 Refinement should target the FE/E2E/Backend homes above rather than the emptied
 interim folder, and settle overlap with any remaining cheapening of those
 homes before work starts.
+
+<a id="make-recently-done-setup-and-claude-timeout-proof-reliable"></a>
+
+### Make Recently done setup traceable and Claude timeout proof reliable
+
+**Identity:** SEED-341#make-recently-done-setup-and-claude-timeout-proof-reliable
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/886-make-session-test-proof-reliable/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"130ba294467c0a8c3dbc3232907d27551223680705b20c654784ef6b52c881d7","plan":"9ba11c3c6a8644194eeb8e7749e2caa547a95a2c7fb67edba033fc915f638ba6"}}
+```
+
+**Goal.** Dashboard maintainers can locate failures in Recently done setup
+and trust the Claude launch timeout proof under full-suite load.
+
+**Scope.** The retained ad hoc selection journey and the fake-Claude
+launch boundary timeout case. Preserve both specs' behavioral coverage.
+This is a test-only correction related to
+[Simplify the remaining session tests](#simplify-remaining-session-tests).
+
+**Plan:** [Correct the two Dashboard tests](../slice-plans/886-make-session-test-proof-reliable/PLAN.md)

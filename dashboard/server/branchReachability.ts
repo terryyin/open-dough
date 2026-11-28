@@ -6,8 +6,12 @@
 // and on it only that entry's recorded plan: nothing a branch says widens
 // what may be read.
 
+import { isSafeBranchName } from "../src/authenticatedReadRules.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
-import { parseAgentProfile } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import {
+  parseAgentProfile,
+  parseAgentProfileFile,
+} from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 import { takenHeading } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 import {
   canonicalEntriesFromBacklog,
@@ -18,40 +22,64 @@ import {
 } from "./reachablePaths.ts";
 import { listedAgentProfiles } from "./recordsBesideBacklog.ts";
 
-// The Taken entries whose agent profile, listed beside the backlog at the
-// pinned revision, records Story Branch Mode on `branch`. What a profile says
-// is the shared profile reader's; an unreadable profile records no branch.
-async function takenEntriesOnBranch(
+// Recorded branches of Taken entries, from the backlog and profiles at the
+// same revision. An unusable name does not become a Git or provider target.
+export async function takenEntriesByBranch(
   source: PublishedSource,
   revision: string,
-  branch: string,
   readPinned: PinnedReader,
   listPinned: PinnedLister,
-): Promise<CanonicalEntry[]> {
-  const identities = new Set<string>();
+  { currentWatches = false }: { readonly currentWatches?: boolean } = {},
+): Promise<ReadonlyMap<string, readonly CanonicalEntry[]>> {
+  const identitiesByBranch = new Map<string, Set<string>>();
+  const claims = new Map<string, number>();
   for (const { path } of await listedAgentProfiles(source, listPinned)) {
-    const read = parseAgentProfile(await readPinned(path)) as {
+    const text = await readPinned(path);
+    // Current watches follow the Board's assignment rules. Pinned REST reads
+    // retain their established profile admission until those reads move.
+    const read = (
+      currentWatches
+        ? parseAgentProfileFile(path.split("/").at(-1) ?? path, text)
+        : parseAgentProfile(text)
+    ) as {
       ok: boolean;
-      profile?: { identity: string; mode?: string; branch?: string };
+      profile?: {
+        identity: string;
+        activity: string;
+        mode?: string;
+        branch?: string;
+      };
     };
+    const profile = read.profile;
+    if (!read.ok || profile?.activity !== "execution") continue;
+    claims.set(profile.identity, (claims.get(profile.identity) ?? 0) + 1);
     if (
-      read.ok &&
-      read.profile?.mode === "story-branch" &&
-      read.profile.branch === branch
-    ) {
-      identities.add(read.profile.identity);
-    }
+      profile.mode !== "story-branch" ||
+      profile.branch === undefined ||
+      !isSafeBranchName(profile.branch)
+    )
+      continue;
+    const identities =
+      identitiesByBranch.get(profile.branch) ?? new Set<string>();
+    identities.add(profile.identity);
+    identitiesByBranch.set(profile.branch, identities);
   }
-  if (identities.size === 0) {
-    return [];
-  }
-  return canonicalEntriesFromBacklog(
+  if (identitiesByBranch.size === 0) return new Map();
+  const taken = canonicalEntriesFromBacklog(
     await readPinned(source.backlogPath),
     source,
     revision,
-  ).filter(
-    ({ identity, list }) => list === takenHeading && identities.has(identity),
-  );
+  ).filter(({ list }) => list === takenHeading);
+  const result = new Map<string, readonly CanonicalEntry[]>();
+  for (const [branch, identities] of identitiesByBranch) {
+    const entries = taken.filter(
+      ({ identity }) =>
+        identities.has(identity) &&
+        (!currentWatches || claims.get(identity) === 1),
+    );
+    if (entries.length > 0) result.set(branch, entries);
+  }
+  return result;
 }
 
 // Whether a Taken entry's profile at the pinned revision records `branch`.
@@ -63,16 +91,8 @@ export async function branchRecordedAtRevision(
   listPinned: PinnedLister,
 ): Promise<boolean> {
   return (
-    (
-      await takenEntriesOnBranch(
-        source,
-        revision,
-        branch,
-        readPinned,
-        listPinned,
-      )
-    ).length > 0
-  );
+    await takenEntriesByBranch(source, revision, readPinned, listPinned)
+  ).has(branch);
 }
 
 // Whether `requestedPath` is the plan the pinned revision records for a
@@ -85,13 +105,13 @@ export async function branchPlanReachableFromRevision(
   readPinned: PinnedReader,
   listPinned: PinnedLister,
 ): Promise<boolean> {
-  const entries = await takenEntriesOnBranch(
+  const branches = await takenEntriesByBranch(
     source,
     revision,
-    branch,
     readPinned,
     listPinned,
   );
+  const entries = branches.get(branch) ?? [];
   for (const { href, path } of entries) {
     if (plannedPlanPath(await readPinned(path), href, path) === requestedPath) {
       return true;

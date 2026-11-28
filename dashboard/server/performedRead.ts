@@ -12,10 +12,10 @@ import {
   performBranchHeadRead,
   performOnBranch,
 } from "./performedBranchRead.ts";
+import { performPinnedFileRead } from "./performedPinnedFileRead.ts";
 import { performVerifiedTrunkRead } from "./performedRefRead.ts";
-import { performRevisionCheck } from "./performedRevisionCheck.ts";
+import { performHttpRevisionCheck } from "./performedRevisionCheck.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
-import type { RevisionChecks } from "./revisionChecks.ts";
 import type { SharedVerifiedOriginTrunk } from "./sharedVerifiedOriginTrunk.ts";
 import { withTrackedGh } from "./trackedGh.ts";
 import {
@@ -28,10 +28,7 @@ import { performListedRecordsRead } from "./listedRecordsRead.ts";
 import { performAdditionRead } from "./additionRead.ts";
 import { performPublishedSessionsRead } from "./publishedSessionsRead.ts";
 import { performDoneCatalogRead } from "./doneCatalogRead.ts";
-import {
-  pathSelectedByIntentLocations,
-  performIntentLocationsRead,
-} from "./intentLocationsRead.ts";
+import { performIntentLocationsRead } from "./intentLocationsRead.ts";
 import { performIntentCandidatesRead } from "./intentCandidatesRead.ts";
 import { performIntentCiComparisonRead } from "./intentCiComparisonRead.ts";
 import { performIntentCiHistoryRead } from "./intentCiHistoryRead.ts";
@@ -39,8 +36,7 @@ import { performIntentCiProofRead } from "./intentCiProofRead.ts";
 import { performIntentCiStatusRead } from "./intentCiStatusRead.ts";
 import { performProjectBrowseRead } from "./projectBrowseRead.ts";
 import { executionCheckout } from "./executionCheckout.ts";
-import { answered, unreachable, type Outcome } from "./readOutcome.ts";
-import { pathReachableFromRevision } from "./reachablePaths.ts";
+import { answered, type Outcome } from "./readOutcome.ts";
 import { readingOf } from "./readingRequestedRead.ts";
 import type { RequestedRead } from "./requestedRead.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
@@ -48,7 +44,6 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 export type Boundary = {
   readonly tracked: Set<AbortController>;
   readonly pinned: PinnedTexts;
-  readonly checks: RevisionChecks;
   readonly trunks: SharedVerifiedOriginTrunk;
   readonly branches: BranchHeads;
   readonly avatars: AvatarImages;
@@ -58,7 +53,7 @@ export type Boundary = {
 // failure for this source and what was being read when it failed.
 export async function perform(
   req: IncomingMessage,
-  { tracked, pinned, checks, branches, trunks }: Boundary,
+  { tracked, pinned, branches, trunks }: Boundary,
   source: PublishedSource,
   read: RequestedRead,
 ): Promise<Outcome> {
@@ -92,8 +87,8 @@ export async function perform(
           };
           switch (read.kind) {
             case "revision-check":
-              return await performRevisionCheck(
-                { pinned, checks, branches },
+              return await performHttpRevisionCheck(
+                { pinned, branches, trunks },
                 source,
                 read,
                 signal,
@@ -168,13 +163,13 @@ export async function perform(
               return await performContainmentRead(source, read, signal);
             case "branch-head-at":
               return await performBranchHeadRead(
-                { pinned, branches },
+                { pinned, branches, trunks },
                 source,
                 read,
                 signal,
               );
             case "commit-time-at":
-            case "file-at": {
+            case "file-at":
               if (read.onBranch !== undefined) {
                 return await performOnBranch(
                   { pinned, branches },
@@ -184,37 +179,14 @@ export async function perform(
                   signal,
                 );
               }
-              const { revision, path } = read;
-              const readPinned = pinned.reader(source, revision, signal);
-              if (
-                !(await pathReachableFromRevision(
-                  source,
-                  revision,
-                  path,
-                  readPinned,
-                )) &&
-                !(await pathSelectedByIntentLocations(path, readPinned))
-              ) {
-                return unreachable;
-              }
-              return read.kind === "file-at"
-                ? answered({ revision, path, text: await readPinned(path) })
-                : answered({
-                    revision,
-                    path,
-                    committedAt: await pinned.committer(
-                      source,
-                      revision,
-                      signal,
-                    )(path),
-                  });
-            }
+              return await performPinnedFileRead(pinned, source, read, signal);
             case "ref":
               return await performVerifiedTrunkRead(
                 trunks,
                 pinned,
                 source,
                 signal,
+                { fresh: read.fresh },
               );
           }
         }),

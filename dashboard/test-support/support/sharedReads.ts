@@ -1,4 +1,4 @@
-// Shared support for ../../backend-tests/observation/authenticated-read-shared.spec.ts,
+// Shared support for ../../backend-tests/observation/authenticated-read-shared-requests.spec.ts,
 // ../../backend-tests/observation/authenticated-read-shared-waiters.spec.ts,
 // and ../../backend-tests/observation/authenticated-read-shared-failures.spec.ts: a published
 // revision whose backlog names two seeds and two story-branch profiles, the
@@ -6,11 +6,7 @@
 // one held GitHub answer and observes the questions that reached GitHub.
 
 import assert from "node:assert/strict";
-import {
-  developmentBoundary,
-  startDashboardServer,
-  type DashboardServer,
-} from "./dashboardServer.ts";
+import type { DashboardServer } from "./dashboardServer.ts";
 import {
   everyRepository,
   publishes,
@@ -26,23 +22,6 @@ import {
   describedRevision,
   withBacklogFallback,
 } from "../describedRevisions.ts";
-
-// How long a listing-reuse boundary case keeps a settled listing answerable.
-export const listingReuseWindowMs = 60_000;
-
-// A boundary server whose revision-check listings reuse for that window.
-export function listingReuseServer(
-  overrides: Pick<
-    Parameters<typeof startDashboardServer>[0],
-    "github" | "pathPrefix" | "requestOwnerRoot" | "ghTransport"
-  > = {},
-): Promise<DashboardServer> {
-  return startDashboardServer({
-    ...developmentBoundary,
-    revisionCheckReuseMs: listingReuseWindowMs,
-    ...overrides,
-  });
-}
 
 export const sharedSeedPath = ".planning/seeds/SEED-shared.md";
 export const otherSeedPath = ".planning/seeds/SEED-other.md";
@@ -66,28 +45,28 @@ const onBranch = (name: string, identity: string, branch: string) =>
     .executing({ name, identity, mode: "story-branch", branch })
     .please();
 
+export const sharedReadsFacts = () => ({
+  backlog: {
+    taken: [
+      story("One", "SEED-shared#one", "seeds/SEED-shared.md#one"),
+      story("Two", "SEED-other#two", "seeds/SEED-other.md#two"),
+    ],
+  },
+  files: {
+    [sharedSeedPath]: sharedSeedText,
+    [otherSeedPath]: otherSeedText,
+  },
+  agentProfiles: [
+    onBranch("Yui", "SEED-shared#one", "story/one"),
+    onBranch("Akiho", "SEED-other#two", "story/two"),
+  ],
+});
+
 // `revision` as every repository's ref and trunk head names it, with the
 // story branches' heads listed beside it.
 export function sharedReadsPublished(revision: string): RepositoryAnswerer {
   const at = describedRevision(
-    makeMe.aRepository
-      .withRevision("shared", {
-        backlog: {
-          taken: [
-            story("One", "SEED-shared#one", "seeds/SEED-shared.md#one"),
-            story("Two", "SEED-other#two", "seeds/SEED-other.md#two"),
-          ],
-        },
-        files: {
-          [sharedSeedPath]: sharedSeedText,
-          [otherSeedPath]: otherSeedText,
-        },
-        agentProfiles: [
-          onBranch("Yui", "SEED-shared#one", "story/one"),
-          onBranch("Akiho", "SEED-other#two", "story/two"),
-        ],
-      })
-      .please(),
+    makeMe.aRepository.withRevision("shared", sharedReadsFacts()).please(),
     revision,
   );
   const published = publishes({
@@ -105,7 +84,7 @@ export function sharedReadsPublished(revision: string): RepositoryAnswerer {
 // Once released, the first held answer is `firstHeld` when given, and every
 // other one as published.
 export async function servedHolding(
-  server: DashboardServer,
+  server: BoundaryAt,
   revision: string,
   isHeld: (request: GhRequest) => boolean,
   warm: readonly string[] = [],
@@ -125,6 +104,9 @@ export async function servedHolding(
   server.github.serve(everyRepository, held.answer);
   return { release: held.release, before: server.github.calls.length };
 }
+
+// A boundary over real HTTP, launched or in process, and its fake GitHub.
+type BoundaryAt = Pick<DashboardServer, "baseURL" | "origin" | "github">;
 
 // A read of `source` (by default open-dough) with `query` appended.
 export type SharedRead =
@@ -149,7 +131,7 @@ export function readAt(
 
 // A revision no published answer names: the one a revision check was shown
 // and a pinned read pins.
-export const unnamedRevision = "ab".repeat(20);
+const unnamedRevision = "ab".repeat(20);
 
 // The query asking whether main still names a revision shown, as the page's
 // scheduled checks ask it: one listing of the published branch heads, then
@@ -179,7 +161,7 @@ export function pinnedAt(
 
 // A request the boundary refuses before asking GitHub. Once it is answered,
 // every request sent before it waits on its `gh` call.
-export async function refusedMarker(server: DashboardServer): Promise<void> {
+export async function refusedMarker(server: BoundaryAt): Promise<void> {
   assert.equal((await readAt(server, "&revision=main")).status, 400);
 }
 
@@ -212,7 +194,7 @@ export function askedSince(
 // only once it is answered: the reads coincide on what is held. `whileHeld`
 // is what reached GitHub since `before` once `heldCount` questions had.
 export async function answeredTogether(
-  server: DashboardServer,
+  server: BoundaryAt,
   {
     release,
     before,

@@ -5,11 +5,11 @@
 
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { GhFailure, type UnavailableTrunkPart } from "./ghFailure.ts";
-import { observeProjectRevision } from "./observedSessionLandings.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
 import type {
   AskedOriginTrunk,
+  OriginTrunkDemand,
   SharedVerifiedOriginTrunk,
 } from "./sharedVerifiedOriginTrunk.ts";
 import type { VerifiedOriginTrunk } from "./verifiedOriginTrunk.ts";
@@ -19,8 +19,27 @@ export async function performVerifiedTrunkRead(
   pinned: PinnedTexts,
   source: PublishedSource,
   signal: AbortSignal,
+  demand: OriginTrunkDemand,
 ): Promise<Outcome> {
-  const demanded = await trunks.demand(source, pinned, signal);
+  const observation = await demandVerifiedTrunk(
+    trunks,
+    pinned,
+    source,
+    signal,
+    demand,
+  );
+  return admit(pinned, source, observation);
+}
+
+export async function demandVerifiedTrunk(
+  trunks: SharedVerifiedOriginTrunk,
+  pinned: PinnedTexts,
+  source: PublishedSource,
+  signal: AbortSignal,
+  demand: OriginTrunkDemand,
+): Promise<AskedOriginTrunk> {
+  signal.throwIfAborted();
+  const demanded = await trunks.demand(source, pinned, signal, demand);
   if (demanded.kind === "departed") {
     signal.throwIfAborted();
     throw signal.reason;
@@ -28,7 +47,7 @@ export async function performVerifiedTrunkRead(
   if (demanded.kind === "unanswered") {
     throw new GhFailure({ kind: "timed-out" });
   }
-  return admit(pinned, source, demanded.value);
+  return demanded.value;
 }
 
 function admit(
@@ -36,13 +55,20 @@ function admit(
   source: PublishedSource,
   { askedAt, trunk }: AskedOriginTrunk,
 ): Outcome {
-  if (trunk.kind === "verified") {
-    const { revision, backlog } = trunk;
-    observeProjectRevision(pinned, source, revision);
-    // This backlog is the revision a later trunk is compared with.
-    pinned.answeredBacklog(source, revision);
-    return answered({ revision, backlog, askedAt });
-  }
+  const { revision, backlog, confirmedAt, unrecorded } = verifiedTrunk(trunk);
+  // This backlog is the revision a later trunk is compared with.
+  pinned.answeredBacklog(source, revision);
+  return answered({
+    revision,
+    backlog,
+    askedAt,
+    confirmedAt,
+    ...(unrecorded ? { unrecorded } : {}),
+  });
+}
+
+export function verifiedTrunk(trunk: VerifiedOriginTrunk) {
+  if (trunk.kind === "verified") return trunk;
   throw new GhFailure({
     kind: "unavailable",
     part: unavailablePart[trunk.kind],

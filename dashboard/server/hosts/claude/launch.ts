@@ -153,44 +153,71 @@ function expired(signal: AbortSignal): boolean {
 // It starts in the project's execution checkout, or in the established start's workspace
 // when the launch has one. An abort (the launch wait expiring) leaves it
 // uncertain whether a session started.
-export async function launchClaude(
+export function launchClaude(
   source: PublishedSource,
   request: RecordedLaunchRequest,
   folder: LocalFolder,
   signal: AbortSignal,
   established?: EstablishedLaunch,
 ): Promise<HostLaunch> {
-  const startedIn = established?.workspace ?? folder;
-  const launch = await startClaudeInBackground(
-    claudeSessionName(source, request),
-    {
-      instruction: claudeInstruction(request, established?.handoff),
-      model: request.model,
-      effort: request.effort,
-    },
-    startedIn,
+  return launchClaudeStartedBy(startClaudeInBackground)(
+    source,
+    request,
+    folder,
     signal,
+    established,
   );
-  if (expired(signal)) {
-    return timedOut();
-  }
-  if (launch.error) {
-    return failedLaunch(launch.error, launch.stderr, startedIn, request.model);
-  }
-  const shortId = printedShortId(launch.stdout);
-  if (shortId === undefined) {
-    return unconfirmed();
-  }
-  const listed = await claudeSessions(folder, signal);
-  if (expired(signal)) {
-    return timedOut();
-  }
-  const confirmed = listed?.find((entry) => entry.session.shortId === shortId);
-  return confirmed === undefined
-    ? unconfirmed()
-    : {
-        kind: "launched",
-        session: confirmed.session,
-        sessionState: confirmed.sessionState,
-      };
 }
+
+// The same launch over a given background start, which reads the wait's
+// signal as Claude Code's own start does.
+export const launchClaudeStartedBy =
+  (start: typeof startClaudeInBackground) =>
+  async (
+    source: PublishedSource,
+    request: RecordedLaunchRequest,
+    folder: LocalFolder,
+    signal: AbortSignal,
+    established?: EstablishedLaunch,
+  ): Promise<HostLaunch> => {
+    const startedIn = established?.workspace ?? folder;
+    const launch = await start(
+      claudeSessionName(source, request),
+      {
+        instruction: claudeInstruction(request, established?.handoff),
+        model: request.model,
+        effort: request.effort,
+      },
+      startedIn,
+      signal,
+    );
+    if (expired(signal)) {
+      return timedOut();
+    }
+    if (launch.error) {
+      return failedLaunch(
+        launch.error,
+        launch.stderr,
+        startedIn,
+        request.model,
+      );
+    }
+    const shortId = printedShortId(launch.stdout);
+    if (shortId === undefined) {
+      return unconfirmed();
+    }
+    const listed = await claudeSessions(folder, signal);
+    if (expired(signal)) {
+      return timedOut();
+    }
+    const confirmed = listed?.find(
+      (entry) => entry.session.shortId === shortId,
+    );
+    return confirmed === undefined
+      ? unconfirmed()
+      : {
+          kind: "launched",
+          session: confirmed.session,
+          sessionState: confirmed.sessionState,
+        };
+  };

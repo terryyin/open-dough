@@ -105,28 +105,39 @@ export class ReviewComparison {
     return this;
   }
 
-  // The review scopes listed under Sessions, in order, by name: Whole story,
-  // then each session by its workflow name, which its time follows.
+  // The review scopes Review scope offers, in order, by name: Whole story,
+  // then each session by its workflow name, which its time follows. The
+  // dropdown opens to read them and is dismissed after.
   async expectSessions(names: readonly string[]) {
-    await expect(this.#sessions().locator("label")).toHaveText(
+    await this.#openScopes();
+    await expect(this.#scopeOptions()).toHaveText(
       names.map((name) => new RegExp(`^\\s*${name}( — |$)`)),
     );
+    await this.#scopeList().press("Escape");
     return this;
   }
 
-  // Chooses the scope listed at `position` under Sessions, Whole story first.
+  // Chooses the scope offered at `position` by Review scope, Whole story
+  // first.
   async chooseSession(position: number) {
-    await this.#sessions().getByRole("radio").nth(position).check();
+    await this.#openScopes();
+    await this.#scopeOptions().nth(position).click();
+    await expect(this.#scopeList()).toHaveCount(0);
     return this;
   }
 
-  // The scope at `position` under Sessions is the chosen one; without a
+  // The scope at `position` in Review scope is the chosen one; without a
   // position, some session rather than Whole story is.
   async expectSessionChosen(position?: number) {
-    const radios = this.#sessions().getByRole("radio");
-    await (position === undefined
-      ? expect(radios.first()).not.toBeChecked()
-      : expect(radios.nth(position)).toBeChecked());
+    if (position === undefined) {
+      await expect(this.#scope()).not.toHaveText("Whole story");
+      return this;
+    }
+    await this.#openScopes();
+    const option = this.#scopeOptions().nth(position);
+    await expect(option).toHaveAttribute("aria-selected", "true");
+    await expect(this.#scope()).toHaveText((await option.textContent()) ?? "");
+    await this.#scopeList().press("Escape");
     return this;
   }
 
@@ -139,8 +150,27 @@ export class ReviewComparison {
     return this;
   }
 
-  #sessions() {
-    return this.#review.getByRole("radiogroup", { name: "Sessions" });
+  #scope() {
+    return this.#review.getByRole("combobox", {
+      name: "Review scope",
+      exact: true,
+    });
+  }
+
+  #scopeList() {
+    return this.#review.getByRole("listbox", {
+      name: "Review scope",
+      exact: true,
+    });
+  }
+
+  #scopeOptions() {
+    return this.#scopeList().getByRole("option");
+  }
+
+  async #openScopes() {
+    if ((await this.#scopeList().count()) === 0) await this.#scope().click();
+    await expect(this.#scopeList()).toBeVisible();
   }
 
   #mergedCheck() {

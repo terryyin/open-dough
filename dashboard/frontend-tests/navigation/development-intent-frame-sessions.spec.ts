@@ -1,5 +1,4 @@
 import { expect, onTestFinished, test, vi } from "vitest";
-import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { boardReading as board } from "./board-reading-page.ts";
 import { emptyMachineAnswer } from "./board-frame-observation-supply.ts";
@@ -20,10 +19,10 @@ import {
   mountPerspectiveFrame,
   openDoughStory,
   params,
-  project,
   pygardonStory,
   showsUnconfiguredIntent,
 } from "./development-intent-frame-page.ts";
+import { showsChosenProject } from "./dashboard-header-reading.ts";
 import { withWidthStorage } from "./side-panel-width-view.ts";
 
 test("a Sessions sidebar entry from Intent goes to its project's Development stories and session, and the terminal stays attached across perspectives", async () => {
@@ -66,20 +65,7 @@ test("a Sessions sidebar entry from Intent goes to its project's Development sto
   });
   const before = currentHistoryIndex();
   await openSidebarSession(pygardonStory.title);
-  const compactProject = page.getByRole("button", {
-    name: "Project",
-    exact: true,
-  });
-  await expect
-    .poll(() => {
-      const compact = compactProject.query();
-      const tab = project("Pygardon").query();
-      return (
-        compact?.textContent.trim() === "Pygardon" ||
-        (tab instanceof HTMLInputElement && tab.checked)
-      );
-    })
-    .toBe(true);
+  await expect.poll(() => showsChosenProject("Pygardon")).toBe(true);
   await expect.element(development).toBeChecked();
   await expect.element(intent).not.toBeInTheDocument();
   expect(params().get("project")).toBe("pygardon");

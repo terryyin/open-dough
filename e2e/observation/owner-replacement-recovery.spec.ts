@@ -1,23 +1,18 @@
-// A visible page recovers across a request owner replacement without a
-// reload. A check finds B; while calls hold every turn at GitHub, the page's
-// read of B's backlog waits behind them, never asked, and the owner standing
-// for the page's dashboard is killed outright. That read fails as local, the
-// page keeps snapshot A labelled with its retrieval time, the failure is in
-// this user's incident record naming the killed owner, and the page's
-// existing recovery asks again through the owner started in its place. No
-// call left at GitHub is asked a second time. Owner replacement itself:
-// ../../Distribution/tests/skills/dough-execute-plan/github-request-owner-replacement.test.mjs;
-// the page's recovery from an eligible failure: ./auto-refresh-recovery.spec.ts.
+// A visible Board can continue after its request owner dies with all turns
+// occupied. Git has supplied A's membership, so killing the owner before
+// its queued REST detail reaches GitHub leaves A and a local detail gap.
+// The next check can read B through the replacement owner without
+// resending an upstream call or reloading the page.
 
+import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
-import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
-import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import {
   expect,
   githubFor,
 } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
+  expectPublishedRevision,
   expectSettledPage,
   expectWholeSnapshot,
   parts,
@@ -26,18 +21,14 @@ import {
   callsSince,
   contentReads,
   expectSteadyPace,
-  headsChecks,
-  passTimeUntilAsked,
   passTimeUntilChecked,
   pausePageClock,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
-import { isCheck } from "../../dashboard/test-support/pageRequestNotes.ts";
-import { backlogPath } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
+  dashboardEntry,
+  dashboardStory,
   inspectDashboardStory,
-  refreshHistory,
-  titlesOfA,
-  titlesOfB,
+  recordsAt,
 } from "../../dashboard/test-support/refreshJourney.ts";
 import type { GhCall } from "../../dashboard/test-support/support/fakeGitHub.ts";
 import type { GhRequest } from "../../dashboard/test-support/support/ghRequest.ts";
@@ -46,23 +37,23 @@ import {
   standingOwner,
   test,
   waitingOnItsCall,
-  type StandingOwner,
 } from "../../dashboard/test-support/support/killableRequestOwnerTest.ts";
 import { inspect } from "../../dashboard/test-support/support/readDiagnostics.ts";
 import { readAt } from "../../dashboard/test-support/support/sharedReads.ts";
 import { turns } from "../../dashboard/test-support/support/turnReads.ts";
-import { expectEarlierSnapshotKept } from "../../dashboard/test-support/transientRecoveryPage.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 
-// Revisions nobody published, whose backlog reads GitHub never answers
-// (never released): each holds one of the login's turns at GitHub.
+// Each synthetic pin holds one real owner turn on an unanswered backlog.
 const heldRevisions = Array.from(Array(turns).keys(), (index) =>
   `${String(index + 1)}d`.repeat(20),
 );
 const isHeldRead = (request: GhRequest) =>
   "revision" in request && heldRevisions.includes(request.revision);
 const isHeld = ({ request }: GhCall) => isHeldRead(request);
+const recordPath = ".planning/seeds/SEED-021-progress.md";
+const titles = { taken: [], backlog: [dashboardStory] };
 
-test("a read queued behind a killed request owner fails as local, keeps A labelled, is recorded, and recovers through the next owner without a reload or a second ask", async ({
+test("a pinned detail queued behind a killed request owner fails locally beside A, and the Board reads B through the replacement without a reload or a duplicate call", async ({
   page,
   dashboard,
   afterGitHubStops,
@@ -71,156 +62,124 @@ test("a read queued behind a killed request owner fails as local, keeps A labell
 }) => {
   const github = githubFor(page);
   await pausePageClock(page);
+  const history = makeMe.aRepository
+    .withRevision("A", {
+      backlog: { queued: [dashboardEntry] },
+      files: { [recordPath]: recordsAt("A")[recordPath] ?? "" },
+    })
+    .withRevision("B", {
+      backlog: { queued: [dashboardEntry] },
+      files: { [recordPath]: recordsAt("B")[recordPath] ?? "" },
+    })
+    .please();
   const origin = await publishMovingHistory(
     page,
-    refreshHistory(),
+    history,
     "A",
     afterGitHubStops,
     undefined,
     (answerer) => holdingAnswer(answerer, isHeldRead).answer,
   );
   const { A: revisionA, B: revisionB } = origin.revisions;
-  const backlogAtB = `${backlogPath}?ref=${revisionB}`;
-  const routedTrunk = () =>
-    remoteBranchHead(
-      gitHubRepositoryUrl("terryyin/open-dough"),
-      "refs/heads/main",
-      { cwd: dashboard.home, env: { HOME: dashboard.home }, maxBuffer: 4096 },
+  const detailAtA = `${recordPath}?ref=${revisionA}`;
+  const detailAtB = `${recordPath}?ref=${revisionB}`;
+  const before = github.calls.length;
+  const holding = heldRevisions.map((pin) =>
+    readAt(dashboard, `&revision=${pin}`),
+  );
+  await expect
+    .poll(() => callsSince(page, before).filter(isHeld))
+    .toHaveLength(turns);
+
+  const detail = page.waitForResponse((response) => {
+    const { searchParams } = new URL(response.url());
+    return (
+      searchParams.get("revision") === revisionA &&
+      searchParams.get("path") === recordPath
     );
-  expect(await routedTrunk()).toBe(revisionA);
+  });
   await page.goto("/");
-  await expectSettledPage(page, titlesOfA);
-  const { board, problem, retrievedAt } = parts(page);
+  const { backlog, retrievedAt } = parts(page);
+  const card = storyCard(backlog, dashboardStory);
+  await expect(card).toBeVisible();
+  await expectPublishedRevision(page, revisionA);
   const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
   expect(retrievedA).not.toBe("");
+  await waitingOnItsCall(sent, `/contents/${detailAtA}`);
+  expect(contentReads(callsSince(page, before))).not.toContain(detailAtA);
+
+  const killed = standingOwner(requestOwner);
+  process.kill(killed.pid, "SIGKILL");
+  const failed = await detail;
+  expect(failed.status()).toBe(502);
+  const message = `The connection to the local GitHub request owner was lost while reading ${recordPath} at ${revisionA}.`;
+  const failure = await failed.text();
+  expect(failure).toContain(message);
+  expect(JSON.parse(failure)).not.toHaveProperty("recovery");
+  for (const advice of ["reload", "endpoint configuration", "restart"])
+    expect(failure).not.toContain(advice);
+  for (const response of await Promise.all(holding))
+    expect(response.status).toBe(502);
+  expect(contentReads(callsSince(page, before))).not.toContain(detailAtA);
+
+  await expect(card).toContainText(
+    "The canonical record could not be read for preparation facts.",
+  );
+  await expectMembership(page, titles);
+  await expect(retrievedAt).toHaveAttribute("datetime", retrievedA);
+
+  const generation = Number(/owner\.(\d+)\.json$/.exec(killed.file)?.[1]);
+  await expect
+    .poll(async () =>
+      (await inspect(dashboard)).record.failures.filter(
+        ({ pin, category }) => pin === revisionA && category === "content",
+      ),
+    )
+    .toEqual([
+      expect.objectContaining({
+        kind: "failed-read",
+        category: "content",
+        failureCategory: "local",
+        cause: "owner-unavailable",
+        ownerCause: "connection-lost",
+        dispatched: false,
+        ownerPid: killed.pid,
+        ownerGeneration: generation,
+      }),
+    ]);
+
   await inspectDashboardStory(page);
-  // A reload or navigation would drop this mark.
-  await page.evaluate(() => {
-    (window as { openedOnce?: true }).openedOnce = true;
-  });
   const navigations: string[] = [];
   page.on("framenavigated", (frame) => {
     if (frame === page.mainFrame()) navigations.push(frame.url());
   });
   origin.advanceTo("B");
-  expect(await routedTrunk()).toBe(revisionB);
-  const before = github.calls.length;
-  const heldSince = () => callsSince(page, before).filter(isHeld).length;
-  const holding: ReturnType<typeof readAt>[] = [];
-  const hold = (index: number) =>
-    holding.push(readAt(dashboard, `&revision=${heldRevisions[index] ?? ""}`));
+  expectSteadyPace(await passTimeUntilChecked(page));
+  await expectSettledPage(page, titles);
+  await expectWholeSnapshot(page, { revision: revisionB, titles }, [revisionA]);
+  await expect(retrievedAt).not.toHaveAttribute("datetime", retrievedA);
+  await expect(card).toContainText(`${dashboardStory}, as published at B.`);
+  expect(standingOwner(requestOwner).pid).not.toBe(killed.pid);
 
-  let killed: StandingOwner | undefined;
-  await test.step("B's backlog read waits behind every turn and fails as local once its owner is killed", async () => {
-    // Seven turns held, the check's listing the eighth until it finds B.
-    for (let index = 0; index < turns - 1; index += 1) hold(index);
-    await expect.poll(heldSince, { timeout: 10_000 }).toBe(turns - 1);
-    const releaseCheck = origin.hold("main");
-    const checked = page.waitForResponse((response) => isCheck(response.url()));
-    await passTimeUntilAsked(page);
-    await expect
-      .poll(() => headsChecks(callsSince(page, before)).length)
-      .toBe(1);
-    // Next in line for the check's turn once it is answered.
-    hold(turns - 1);
-    await waitingOnItsCall(sent, heldRevisions[turns - 1] ?? "");
-    const backlogRead = page.waitForRequest((request) =>
-      request.url().includes(`revision=${revisionB}`),
-    );
-    releaseCheck();
-    expect((await checked).status()).toBe(200);
-    await expect.poll(heldSince, { timeout: 10_000 }).toBe(turns);
-    await backlogRead;
-    await waitingOnItsCall(sent, `/contents/${backlogAtB}`);
-    expect(contentReads(callsSince(page, before))).not.toContain(backlogAtB);
-
-    const owner = standingOwner(requestOwner);
-    const failed = page.waitForResponse((response) =>
-      response.url().includes(`revision=${revisionB}`),
-    );
-    process.kill(owner.pid, "SIGKILL");
-    killed = owner;
-    expect((await failed).status()).toBe(502);
-    for (const response of await Promise.all(holding))
-      expect(response.status).toBe(502);
-    expect(contentReads(callsSince(page, before))).not.toContain(backlogAtB);
+  // The formerly unasked A detail can be read at its original pin, and
+  // the calls that reached GitHub before the kill are never sent again.
+  const recovered = await readAt(
+    dashboard,
+    `&revision=${revisionA}&path=${encodeURIComponent(recordPath)}`,
+  );
+  expect(recovered.status).toBe(200);
+  expect(JSON.parse(recovered.body)).toMatchObject({
+    text: expect.stringContaining(`${dashboardStory}, as published at A.`),
   });
-
-  await test.step("A stays shown, labelled with its retrieval time", async () => {
-    await expect(problem).toContainText("Published work could not be read");
-    // A lost owner connection needs no correction and no reload.
-    await expect(problem).toContainText(
-      `The connection to the local GitHub request owner was lost while reading ${backlogPath} at ${revisionB}.`,
-    );
-    for (const advice of ["reload", "endpoint configuration", "restart"])
-      await expect(problem).not.toContainText(advice);
-    await expectEarlierSnapshotKept(page, retrievedA);
-    await expect(problem).toContainText(
-      "Automatic checks continue every 15 seconds while this page is visible.",
-    );
-    // The failure names B's backlog; the Board still shows A alone.
-    await expectMembership(page, titlesOfA);
-    await expect(board.locator(`a[href*="${revisionB}"]`)).toHaveCount(0);
-    await expect(
-      board.locator(`a[href*="/blob/${revisionA}/"]`).first(),
-    ).toBeVisible();
-  });
-
-  await test.step("the incident record names the killed owner for the unasked read", async () => {
-    const generation = Number(
-      /owner\.(\d+)\.json$/.exec(killed?.file ?? "")?.[1],
-    );
-    await expect
-      .poll(
-        async () =>
-          (await inspect(dashboard)).record.failures.filter(
-            (entry) => entry.pin === revisionB,
-          ),
-        { timeout: 10_000 },
-      )
-      .toEqual([
-        expect.objectContaining({
-          kind: "failed-read",
-          category: "backlog",
-          failureCategory: "local",
-          cause: "owner-unavailable",
-          ownerCause: "connection-lost",
-          dispatched: false,
-          ownerPid: killed?.pid,
-          ownerGeneration: generation,
-        }),
-      ]);
-  });
-
-  await test.step("the next steady check asks again through the owner started in its place, and B is shown", async () => {
-    const fromRecovery = github.calls.length;
-    expectSteadyPace(await passTimeUntilChecked(page));
-    await expectSettledPage(page, titlesOfB);
-    await expectWholeSnapshot(
-      page,
-      { revision: revisionB, titles: titlesOfB },
-      [revisionA],
-    );
-    await expect(retrievedAt).not.toHaveAttribute("datetime", retrievedA);
-    await expect(problem).toHaveCount(0);
-    expect(headsChecks(callsSince(page, fromRecovery))).toHaveLength(1);
-    expect(standingOwner(requestOwner).pid).not.toBe(killed?.pid);
-  });
-
-  // B's backlog was asked of GitHub once, and each call left at GitHub by
-  // the killed owner once, never again.
   const calls = callsSince(page, before);
-  expect(contentReads(calls).filter((read) => read === backlogAtB)).toEqual([
-    backlogAtB,
-  ]);
+  expect(
+    contentReads(calls).filter(
+      (read) => read === detailAtA || read === detailAtB,
+    ),
+  ).toEqual([detailAtB, detailAtA]);
   const asked = calls
     .filter(isHeld)
     .map(({ request }) => ("revision" in request ? request.revision : ""));
   expect(asked.toSorted()).toEqual(heldRevisions.toSorted());
   expect(navigations).toEqual([]);
-  expect(
-    await page.evaluate(
-      () => (window as { openedOnce?: true }).openedOnce === true,
-    ),
-  ).toBe(true);
 });

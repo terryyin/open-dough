@@ -1,23 +1,10 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef } from "react";
 import type { PublishedSource } from "./publishedSource.ts";
 import { useVisibleProjects } from "./projectList.tsx";
 import "./project-select.css";
 
-// Shared with page-wide project arrow navigation so native radios and the
-// shortcut recognize the same control group.
-export const projectRadioName = "project";
-
-// Compact project control shown when the tabs do not fit (`banner.css`);
-// page-wide arrow cycling focuses this when it is the shown project control.
-export const projectCompactSelectClass = "project-title-select";
-
-// Which project this dashboard observes, chosen from the configured list.
-// Selecting one is the only effect this control has: what happens when the
-// selection changes belongs to the caller, not here. The tab-shaped radios
-// stay on one line beside the other banner controls; whenever that line has
-// no room for all of them, the compact button takes their place and opens a
-// listbox so touch and keyboard (including Escape) share one accessible
-// pattern. The selected control is also the banner's project name.
+// Tab-shaped radios show the visible projects when they fit on the banner.
+// A compact select shows the same choices at narrower widths.
 export function ProjectSelect({
   source,
   onSelect,
@@ -40,7 +27,7 @@ export function ProjectSelect({
             <label key={option.id} className="project-choice">
               <input
                 type="radio"
-                name={projectRadioName}
+                name="project"
                 value={option.id}
                 checked={source.id === option.id}
                 onChange={() => {
@@ -52,7 +39,23 @@ export function ProjectSelect({
           ))}
         </div>
       </div>
-      <ProjectCompactSelect source={source} onSelect={onSelect} />
+      <select
+        className="project-title-select"
+        aria-label="Project"
+        value={source.id}
+        onChange={(event) => {
+          const option = projects.find(
+            ({ id }) => id === event.currentTarget.value,
+          );
+          if (option !== undefined) onSelect(option);
+        }}
+      >
+        {projects.map(({ id, label }) => (
+          <option key={id} value={id}>
+            {label}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
@@ -85,163 +88,4 @@ function useTabsFit() {
     };
   }, []);
   return { slot, tabs };
-}
-
-function ProjectCompactSelect({
-  source,
-  onSelect,
-}: {
-  readonly source: PublishedSource;
-  readonly onSelect: (next: PublishedSource) => void;
-}) {
-  const projects = useVisibleProjects();
-  const listId = useId();
-  const root = useRef<HTMLDivElement>(null);
-  const button = useRef<HTMLButtonElement>(null);
-  const list = useRef<HTMLUListElement>(null);
-  const [open, setOpen] = useState(false);
-  const [active, setActive] = useState(source.id);
-
-  useEffect(() => {
-    if (!open) {
-      setActive(source.id);
-    }
-  }, [open, source.id]);
-
-  useLayoutEffect(() => {
-    if (open) {
-      list.current?.focus();
-    }
-  }, [open]);
-
-  const dismiss = () => {
-    setOpen(false);
-    button.current?.focus();
-  };
-
-  useEffect(() => {
-    if (!open) return;
-    const onPointer = (event: PointerEvent) => {
-      if (
-        event.target instanceof Node &&
-        root.current?.contains(event.target)
-      ) {
-        return;
-      }
-      dismiss();
-    };
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      event.preventDefault();
-      event.stopPropagation();
-      dismiss();
-    };
-    window.addEventListener("pointerdown", onPointer);
-    window.addEventListener("keydown", onKey, true);
-    return () => {
-      window.removeEventListener("pointerdown", onPointer);
-      window.removeEventListener("keydown", onKey, true);
-    };
-  }, [open]);
-
-  const choose = (id: string) => {
-    const next = projects.find((option) => option.id === id);
-    dismiss();
-    if (next !== undefined && next.id !== source.id) onSelect(next);
-  };
-
-  const moveActive = (step: number) => {
-    const index = Math.max(
-      0,
-      projects.findIndex((option) => option.id === active),
-    );
-    const next =
-      projects[(index + step + projects.length) % projects.length]?.id ??
-      source.id;
-    setActive(next);
-  };
-
-  return (
-    <div className={projectCompactSelectClass} ref={root}>
-      <button
-        type="button"
-        ref={button}
-        className="project-title-select-button"
-        data-project-id={source.id}
-        aria-label="Project"
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-controls={listId}
-        onClick={() => {
-          setOpen((was) => !was);
-        }}
-        onKeyDown={(event) => {
-          if (
-            (event.key === "ArrowDown" ||
-              event.key === "Enter" ||
-              event.key === " ") &&
-            !open
-          ) {
-            event.preventDefault();
-            setOpen(true);
-            setActive(source.id);
-          }
-        }}
-      >
-        {source.label}
-      </button>
-      {open ? (
-        <ul
-          id={listId}
-          ref={list}
-          className="project-title-select-list"
-          role="listbox"
-          aria-label="Project"
-          tabIndex={-1}
-          aria-activedescendant={`${listId}-${active}`}
-          onKeyDown={(event) => {
-            if (event.key === "ArrowDown") {
-              event.preventDefault();
-              moveActive(1);
-              return;
-            }
-            if (event.key === "ArrowUp") {
-              event.preventDefault();
-              moveActive(-1);
-              return;
-            }
-            if (event.key === "Home") {
-              event.preventDefault();
-              setActive(projects[0]?.id ?? source.id);
-              return;
-            }
-            if (event.key === "End") {
-              event.preventDefault();
-              setActive(projects[projects.length - 1]?.id ?? source.id);
-              return;
-            }
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              choose(active);
-            }
-          }}
-        >
-          {projects.map((option) => (
-            <li
-              key={option.id}
-              id={`${listId}-${option.id}`}
-              role="option"
-              aria-selected={option.id === source.id}
-              data-active={option.id === active ? "true" : undefined}
-              onClick={() => {
-                choose(option.id);
-              }}
-            >
-              {option.label}
-            </li>
-          ))}
-        </ul>
-      ) : null}
-    </div>
-  );
 }

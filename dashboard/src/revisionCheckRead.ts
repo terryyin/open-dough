@@ -25,6 +25,8 @@ import { noteLimit, standingLimit } from "./readingLimit.ts";
 const okCheck = z.object({
   revision: commitSha,
   changed: z.boolean(),
+  askedAt: z.iso.datetime().optional(),
+  confirmedAt: z.iso.datetime().optional(),
   branches: z
     .array(z.object({ branch: z.string().min(1), head: commitSha.nullable() }))
     .optional(),
@@ -44,14 +46,20 @@ const streamErrorAnswer = z.object({
 // Whether the source's ref still names the revision shown, or which commit it
 // names now. While it does, the check also says which head each watched story
 // branch names now, undefined when it is no longer published; it names none
-// when the boundary could not list branch heads this time. Nothing of the
-// backlog or its records is read.
-export type RevisionCheck =
+// when the boundary could not list branch heads this time. The reply carries
+// the time and revision of the verified observation.
+export type RevisionConfirmation = {
+  readonly askedAt: string;
+  readonly confirmedAt: string;
+};
+
+export type RevisionCheck = (
   | {
       readonly changed: false;
       readonly heads: StoryBranchHeads;
     }
-  | { readonly changed: true; readonly revision: string };
+  | { readonly changed: true; readonly revision: string }
+) & { readonly confirmation?: RevisionConfirmation };
 
 function watchedBranchesQuery(watched: readonly string[]): string {
   return watched
@@ -73,6 +81,8 @@ export function revisionCheckFromAnswer(
   if (
     !parsed.success ||
     parsed.data.changed !== (parsed.data.revision !== shown) ||
+    (parsed.data.askedAt === undefined) !==
+      (parsed.data.confirmedAt === undefined) ||
     (branches !== undefined &&
       (branches.length !== watched.length ||
         branches.some(({ branch }, at) => branch !== watched[at])))
@@ -81,10 +91,16 @@ export function revisionCheckFromAnswer(
       `The local authenticated read answered in a shape this dashboard does not understand while checking ${reading}.`,
     );
   }
+  const { askedAt, confirmedAt } = parsed.data;
+  const metadata =
+    askedAt === undefined || confirmedAt === undefined
+      ? {}
+      : { confirmation: { askedAt, confirmedAt } };
   return parsed.data.changed
-    ? { changed: true, revision: parsed.data.revision }
+    ? { changed: true, revision: parsed.data.revision, ...metadata }
     : {
         changed: false,
+        ...metadata,
         heads: new Map(
           (branches ?? []).map(({ branch, head }) => [
             branch,

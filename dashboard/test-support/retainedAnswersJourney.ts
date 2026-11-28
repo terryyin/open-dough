@@ -86,18 +86,18 @@ const history: PathHistories = {
   ],
 };
 
-// A routed trunk with explicitly controlled REST branch and history answers.
+// A routed trunk and story branch with controlled REST detail answers.
 export function published(
   label: string,
-  head: string,
+  branchLabel: string,
   failing: (request: GhRequest) => OriginAnswer | undefined = () => undefined,
 ) {
   const files = filesFor(label);
-  const publication = reusePublication(files, history);
   const branch = `story/${label}`;
-  publication.revisions.set(head, files);
-  publication.branches.set(branch, head);
-  publication.histories?.set(head, history);
+  const publication = reusePublication(files, history, {
+    name: branch,
+    label: branchLabel,
+  });
   return {
     branch,
     publication,
@@ -165,10 +165,11 @@ export async function readProject(
   const membership = await membershipRead(server.github, () =>
     read(server, ""),
   );
-  // When membership was asked differs by process; the rest is compared.
+  // When membership was asked, and when origin confirmed its revision, differ
+  // by process; the rest is compared.
   const shown = Object.fromEntries(
     Object.entries(membership.body as object).filter(
-      ([key]) => key !== "askedAt",
+      ([key]) => key !== "askedAt" && key !== "confirmedAt",
     ),
   ) as { revision: string };
   expect(shown.revision).toBe(publication.trunk.revision);

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "f8daa614-7b70-48ae-b0a5-04d483553b52",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-27T14:10:28.756Z",
+  "story": "SEED-370#close-preview-incident-record-on-sighup",
+  "ranges": [
+    {
+      "base": "98fc5cfd34bf936d3d34d754675b7cc5ea482e12",
+      "candidate": "43be239d71742c029dc346e8d8dee9d6e8e41f5b"
+    }
+  ]
+}

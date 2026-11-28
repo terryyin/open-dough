@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { relativeOf } from "./intent-ci-comparison-page.ts";
 import { comparisonIn } from "./intent-ci-scope-page.tsx";
@@ -11,8 +11,9 @@ import {
 import {
   expectSortedBy,
   openSummary,
+  press,
   scopeTable,
-  sortButton,
+  shownSortButton,
 } from "./intent-summary-proof-page.ts";
 import {
   expectNoRelativeTiming,
@@ -124,7 +125,7 @@ test("Show % keeps Summary sort and removed files have no relative marks or late
     "gone.spec.ts",
     "renamed.spec.ts",
   ];
-  await userEvent.click(sortButton(table, "Landed"));
+  press(await shownSortButton(table, "Landed"));
   await expectSortedBy(table, "Landed", "ascending", order);
   await togglePercent(summary, true);
   await expectSortedBy(table, "Landed", "ascending", order);

@@ -44,8 +44,6 @@ test("confirmed Ad hoc and repeated story sessions share review changes while un
   dashboard,
   origin,
 }) => {
-  // Use the real claim, completion, publication and retired checkout.
-  test.setTimeout(90_000);
   const title =
     "Ad hoc completed session with a long title that remains readable in session details";
   const linked = await retainAdHocCompletedStory(dashboard, origin, {

@@ -3,11 +3,29 @@
 // page of a context comes to run it. The waits on what is noted are in
 // ./pageRequestNotes.ts.
 
+import { deepStrictEqual } from "node:assert/strict";
 import type { BrowserContext, Page } from "@playwright/test";
 import { agentChangedEndpoint } from "../src/agentLaunch.ts";
 import { authenticatedReadEndpoint } from "../src/authenticatedReadRules.ts";
 import { agentDoneEndpoint } from "../src/doneMark.ts";
 import { projectListEndpoint } from "../src/projectConfiguration.ts";
+
+// What noting in an open page, and the waits on what it notes, ask of a
+// page: to run their scripts in it.
+export type PageScripts = Pick<Page, "evaluate">;
+
+export type StoryMembership = {
+  readonly taken: string[];
+  readonly backlog: string[];
+};
+
+// A published read that failed for good cannot bring any more titles.
+export function expectMembershipAfterReadFailure(
+  shown: StoryMembership,
+  expected: StoryMembership,
+): void {
+  deepStrictEqual(shown, { taken: expected.taken, backlog: expected.backlog });
+}
 
 // A browser request to the local boundary is a revision check when it names
 // the revision the page already shows with this search parameter.
@@ -138,7 +156,7 @@ const notedRequests = {
   changeWaitPath: agentChangedEndpoint,
 };
 
-export async function noteRequestsInOpenPage(page: Page): Promise<void> {
+export async function noteRequestsInOpenPage(page: PageScripts): Promise<void> {
   await page.evaluate(noteRequestsInPage, notedRequests);
 }
 

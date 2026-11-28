@@ -1,91 +1,27 @@
-// A direct real request consumer with the API executable poisoned: successful
-// reads must be answered inside its real private request-owner process.
+// The synthetic CLI's in-process transport called directly against a local
+// fake GitHub, with its origin given explicitly: no `gh` executable, request
+// owner or mounted environment takes part. The real owner and the shell CLI are
+// proven by Distribution/tests/test-runner/fake-gh-real-owner.sh.
+import { test as base } from "vitest";
 import {
-  existsSync,
-  mkdtempSync,
-  rmSync,
-  unlinkSync,
-  writeFileSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
-import path from "node:path";
-import { GitHubRequests } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-requests.mjs";
-import { ownerRecords } from "../../../Distribution/tests/skills/dough-execute-plan/github-request-owner-test-fixtures.mjs";
-import { expect, test as base } from "../../test-support/support/pageTest.ts";
-import {
-  endFakeGh,
-  fakeGhEnv,
-  installFakeGh,
-  type FakeGhPaths,
-} from "../../test-support/support/fakeGh.ts";
-import { startFakeGitHub } from "../../test-support/support/fakeGitHub.ts";
+  startFakeGitHub,
+  type FakeGitHub,
+} from "../../test-support/support/fakeGitHub.ts";
 import { runFakeGh } from "../../test-support/support/fakeGhTransport.mjs";
-import { withRestoredEnv } from "../../test-support/support/testEnv.ts";
-import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
-export { expect };
 
-type RecordedOwner = {
-  readonly pid: number;
-  readonly protocol: number;
-  readonly token: string;
-  readonly socket: string;
-  readonly directory: string;
-  readonly file: string;
+type RawCall = {
+  error: (Error & { code?: string | number }) | null;
+  stdout: Buffer;
+  stderr: Buffer;
+  pid: unknown;
 };
 
-// Independent evidence: API execution writes a marker and fails, while auth
-// keeps the committed native fixture. Unlink before changing its hardlink.
-export function poisonApi(gh: FakeGhPaths, root: string) {
-  const poison = path.join(root, "api-launched");
-  const executable = path.join(gh.binDir, "gh");
-  unlinkSync(executable);
-  writeFileSync(
-    executable,
-    `#!/bin/sh
-if [ "$1" = api ]; then printf poison > ${JSON.stringify(poison)}; exit 99; fi
-exec ${JSON.stringify(path.join(repoRoot, "dashboard/test-support/fixtures/fake-gh"))} "$@"
-`,
-    { mode: 0o755 },
-  );
-  return () => existsSync(poison);
-}
-
-export async function inProcessFixture() {
-  const root = mkdtempSync(path.join(tmpdir(), "dough-gh-in-process-"));
-  const github = await startFakeGitHub();
-  const gh = installFakeGh(root);
-  const apiLaunched = poisonApi(gh, root);
-  const env = { ...fakeGhEnv(gh, github.url), GH_TOKEN: "fixture-token" };
-  const restore = withRestoredEnv(env);
-  const consumers: GitHubRequests[] = [];
-  let closed = false;
-  const consumer = (options = {}) => {
-    const requests = new GitHubRequests({
-      boundMs: 10_000,
-      backoffBaseMs: 1,
-      ...options,
-    });
-    consumers.push(requests);
-    return requests;
-  };
+function frameClient(github: FakeGitHub) {
+  const env = { FAKE_GH_ORIGIN: github.url };
   return {
-    root,
     github,
-    gh,
-    env,
-    consumer,
-    owners: (): RecordedOwner[] =>
-      ownerRecords(gh.requestOwnerRoot) as RecordedOwner[],
-    apiLaunched,
-    read: (args: string[], options = {}) =>
-      consumer(options).request(args, new AbortController().signal),
     raw: (args: string[], options: Record<string, unknown> = {}) =>
-      new Promise<{
-        error: (Error & { code?: string | number }) | null;
-        stdout: Buffer;
-        stderr: Buffer;
-        pid: unknown;
-      }>((resolve) => {
+      new Promise<RawCall>((resolve) => {
         const child = runFakeGh(
           args,
           { env, encoding: "buffer", ...options },
@@ -94,31 +30,17 @@ export async function inProcessFixture() {
           },
         );
       }),
-    async close() {
-      if (closed) {
-        return;
-      }
-      closed = true;
-      for (const requests of consumers) {
-        requests.disconnect();
-      }
-      await endFakeGh(gh);
-      await github.close();
-      restore();
-      rmSync(root, { recursive: true, force: true });
-    },
   };
 }
 
-type Client = Awaited<ReturnType<typeof inProcessFixture>>;
-export const test = base.extend<{ client: Client }>({
+export const test = base.extend<{ client: ReturnType<typeof frameClient> }>({
   // eslint-disable-next-line no-empty-pattern
   client: async ({}, use) => {
-    const client = await inProcessFixture();
+    const github = await startFakeGitHub();
     try {
-      await use(client);
+      await use(frameClient(github));
     } finally {
-      await client.close();
+      await github.close();
     }
   },
 });

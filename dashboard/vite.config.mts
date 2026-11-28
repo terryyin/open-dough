@@ -51,7 +51,7 @@ export default defineConfig(({ command }) => {
     plugins: [
       react(),
       brandAssetPlugin(),
-      ...localBoundaries.map(localBoundaryPlugin),
+      ...localBoundaries.map((boundary) => localBoundaryPlugin(boundary)),
     ],
     server: {
       host: loopbackOnly,

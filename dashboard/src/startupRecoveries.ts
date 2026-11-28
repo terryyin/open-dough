@@ -10,7 +10,6 @@ import {
   worktreeUpdateNeeded,
   type AgentLaunchRequest,
   type AttemptObservation,
-  type LaunchRecord,
 } from "./agentLaunch.ts";
 import {
   requestAttemptContinuation,
@@ -44,10 +43,7 @@ export type AttemptEvidence = "unread" | "unanswered" | "unreadable" | "read";
 
 // What the developer can do from Startup recovery.
 export type RecoveryActions = {
-  readonly continueStartup: (
-    attempt: AttemptObservation,
-    onRecovered: (record: LaunchRecord) => void,
-  ) => void;
+  readonly continueStartup: (attempt: AttemptObservation) => void;
   readonly updateWorktreeAndRetry: (attempt: AttemptObservation) => void;
   readonly recheckStartups: (attempt?: AttemptObservation) => void;
 };
@@ -111,7 +107,6 @@ export function useStartupRecovery({
     (
       attempt: AttemptObservation,
       ask: (attempt: AttemptObservation) => Promise<AcceptanceAnswer>,
-      onRecovered?: (record: LaunchRecord) => void,
     ) => {
       settle(attempt.id, {
         kind: "continuing",
@@ -137,11 +132,7 @@ export function useStartupRecovery({
                     explanation: answer.explanation,
                   },
           );
-        else {
-          settle(attempt.id, { kind: "continuing", after: asksSoFar() });
-          if (answer.recoveredSession !== undefined)
-            onRecovered?.(answer.recoveredSession);
-        }
+        else settle(attempt.id, { kind: "continuing", after: asksSoFar() });
         reread();
       });
     },
@@ -195,11 +186,7 @@ export function useStartupRecovery({
     for (const attempt of known) {
       const { request } = attempt;
       if (request.source !== sourceId) continue;
-      if (attempt.unboundRecovery === true)
-        items.push(
-          itemOf(attempt.id, attemptCause(attempt), { request, attempt }),
-        );
-      else if (request.workflow === "ad-hoc")
+      if (request.workflow === "ad-hoc")
         latestAdHoc = laterAttempt(latestAdHoc, attempt);
     }
     const lostAdHoc = unacknowledged.find(
@@ -226,8 +213,8 @@ export function useStartupRecovery({
   return {
     recoveriesOf,
     attemptEvidence,
-    continueStartup: (attempt, onRecovered) => {
-      beginRecovery(attempt, requestAttemptContinuation, onRecovered);
+    continueStartup: (attempt) => {
+      beginRecovery(attempt, requestAttemptContinuation);
     },
     updateWorktreeAndRetry: (attempt) => {
       beginRecovery(attempt, requestUpdateWorktreeAndRetry);

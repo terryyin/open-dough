@@ -9,18 +9,15 @@
 // (../../dashboard/test-support/branchProgressRecords.ts); the local read boundary, the shared readers,
 // and the page decide everything shown.
 
-import type { Page } from "@playwright/test";
 import {
   expect,
   githubFor,
-  pausePageClockAt,
   test,
 } from "../../dashboard/test-support/dashboardTest.ts";
-import {
-  expectMembership,
-  parts,
-} from "../../dashboard/test-support/dashboardPage.ts";
-import { publishCommittedFiles } from "../../dashboard/test-support/publishedOrigin.ts";
+import { parts } from "../../dashboard/test-support/dashboardPage.ts";
+import { openedSettled } from "../../dashboard/test-support/branchRefreshJourney.ts";
+import { boardConfirmation } from "../../dashboard/server/boardConfirmation.ts";
+import { homeReviewRepository } from "../../dashboard/test-support/support/reviewRepositoryFixture.ts";
 import {
   inspectedDetail,
   storyCard,
@@ -34,46 +31,29 @@ import {
 import {
   beforeProfiles,
   branchDeleted,
-  branchHead,
-  branches,
   onBranch,
   onTrunk,
-  opened,
   planMissing,
   planPath,
   planUninterpretable,
   profilePath,
-  repository,
-  similarlyNamed,
-  stories,
-  trunkPublication,
   twoOwners,
 } from "../../dashboard/test-support/branchProgressRecords.ts";
 import { credit } from "../../dashboard/test-support/agentCredit.ts";
 
-async function openedAtOpening(page: Page) {
-  await pausePageClockAt(page, opened);
-  const { requests, revision } = publishCommittedFiles(page, {
-    repository,
-    ...trunkPublication,
-    branches,
-  });
-  await page.goto("/");
-  await expectMembership(page, {
-    taken: stories.map(({ title }) => title),
-    backlog: [],
-  });
-  await expect(page.getByText("Reading plan slices…")).toHaveCount(0);
-  await expect(page.getByText("Reading current slice time…")).toHaveCount(0);
-  const { taken } = parts(page);
-  const progress = (title: string) => sliceProgress(storyCard(taken, title));
-  return { requests, revision, taken, progress };
-}
-
 test("Taken cards show progress from where each story is published, or the gap that stops it", async ({
   page,
+  dashboard,
+  afterGitHubStops,
 }) => {
-  const { requests, revision, taken, progress } = await openedAtOpening(page);
+  const { origin } = await openedSettled(page, afterGitHubStops);
+  const { taken } = parts(page);
+  const { requests } = origin;
+  const revision = origin.at("trunk").revision;
+  const branchHead = origin.at("story/example").revision;
+  const missingHead = origin.at("story/plan-missing").revision;
+  const unreadableHead = origin.at("story/uninterpretable").revision;
+  const progress = (title: string) => sliceProgress(storyCard(taken, title));
 
   await test.step("a Story Branch Mode story shows 6 of 8 from its branch head, named as not in trunk", async () => {
     // The scan view qualifies the count briefly; the exact branch and
@@ -147,19 +127,21 @@ test("Taken cards show progress from where each story is published, or the gap t
     );
   });
 
-  await test.step("only recorded, unambiguous branches were asked for, and on them only their plan", () => {
+  await test.step("only recorded, unambiguous branches are confirmed, and on them only the plan is read", async () => {
     const calls = githubFor(page).calls;
-    const asked = calls.flatMap(({ request }) =>
-      request.kind === "branch" ? [request.branch] : [],
+    expect(calls.filter(({ request }) => request.kind === "branch")).toEqual(
+      [],
     );
-    expect(asked.sort()).toEqual(
-      [
-        "story/deleted",
-        "story/example",
-        "story/plan-missing",
-        "story/uninterpretable",
-      ].sort(),
+    const record = await boardConfirmation(
+      homeReviewRepository(dashboard.home),
+      "main",
     );
+    expect(record?.branches?.map(({ branch }) => branch).sort()).toEqual([
+      "story/deleted",
+      "story/example",
+      "story/plan-missing",
+      "story/uninterpretable",
+    ]);
     const trunkRevisions = new Set([revision]);
     const onBranches = requests.flatMap(({ request }) =>
       request.kind === "content" || request.kind === "commit-list"
@@ -172,16 +154,10 @@ test("Taken cards show progress from where each story is published, or the gap t
       [
         `content ${planPath("on-branch")}@${branchHead}`,
         `commit-list ${planPath("on-branch")}@${branchHead}`,
-        `content ${planPath("plan-missing")}@${branches["story/plan-missing"]?.revision ?? ""}`,
-        `content ${planPath("plan-uninterpretable")}@${branches["story/uninterpretable"]?.revision ?? ""}`,
+        `content ${planPath("plan-missing")}@${missingHead}`,
+        `content ${planPath("plan-uninterpretable")}@${unreadableHead}`,
       ].sort(),
     );
-    expect(
-      calls.some(
-        ({ request }) =>
-          request.kind === "branch" && request.branch === similarlyNamed,
-      ),
-    ).toBe(false);
     // The Take is read on trunk, where the profile was read.
     expect(
       requests.some(
@@ -209,7 +185,7 @@ test("Taken cards show progress from where each story is published, or the gap t
     await expect(
       await inspectedDetail(storyCard(taken, planMissing)),
     ).toContainText(
-      `From branch story/plan-missing at ${branches["story/plan-missing"]?.revision.slice(0, 7) ?? ""}; not in trunk.`,
+      `From branch story/plan-missing at ${missingHead.slice(0, 7)}; not in trunk.`,
     );
   });
 });

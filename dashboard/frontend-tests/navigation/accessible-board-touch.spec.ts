@@ -12,6 +12,7 @@ import {
   useTouchScreen,
 } from "./board-touch-page.ts";
 import { boardWork, story } from "./board-work.ts";
+import { compactProject } from "./dashboard-header-reading.ts";
 
 const identity = `SEED-090#${"a-long-anchor-".repeat(6)}end`;
 const title = `Keep a title with ${"Uninterruptedlyconcatenated".repeat(5)} and ordinary words readable across the Board`;
@@ -68,16 +69,6 @@ function textFitsInCard(part: Element, card: Element) {
   );
 }
 
-const project = () =>
-  page.getByRole("button", { name: "Project", exact: true });
-async function chooseProject(label: string) {
-  await expect.element(project()).toBeVisible();
-  await tapWhereShown(project().element());
-  const option = page.getByRole("option", { name: label, exact: true });
-  await expect.element(option).toBeVisible();
-  await tapWhereShown(option.element());
-}
-
 test.beforeEach(async () => {
   await useTouchScreen();
   await reducedBoardMotion();
@@ -108,7 +99,7 @@ test("project and column navigation keep a long story readable and its detail op
     },
   );
   await board.shows(["Backlog"], ["Taken 2 entries"]);
-  await chooseProject("Doughnut");
+  await compactProject.selectOptions("doughnut");
   await expect
     .element(
       board
@@ -116,7 +107,7 @@ test("project and column navigation keep a long story readable and its detail op
         .getByText("No Backlog entries are recorded.", { exact: true }),
     )
     .toBeVisible();
-  await chooseProject("Open Dough");
+  await compactProject.selectOptions("open-dough");
   await expect
     .poll(() => board.column("Backlog").getByRole("article").elements().length)
     .toBe(3);
@@ -191,9 +182,7 @@ test("project and column navigation keep a long story readable and its detail op
     ["Taken"],
     ["Backlog 3 entries", "Recently done 2 entries"],
   );
-  await expect
-    .poll(() => project().element().textContent.trim())
-    .toBe("Open Dough");
+  await expect.element(compactProject).toHaveValue("open-dough");
 });
 
 test("an open session's disabled Start reason is readable without hover and does not start another session", async () => {

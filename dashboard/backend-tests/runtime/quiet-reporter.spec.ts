@@ -1,17 +1,13 @@
-// QuietReporter: five direct hook cases with the stream seam, plus one nested
-// run for global-setup output that no reporter event carries.
-import { afterAll, expect, test } from "vitest";
+// QuietReporter's output rules, from reported events and the run's own
+// output on the streams it watches.
+import { expect, test } from "vitest";
 import type { Suite, TestCase, TestResult } from "@playwright/test/reporter";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import QuietReporter from "../../test-support/support/quietReporter.ts";
 import { shown } from "../../test-support/support/quietReporterFormat.ts";
-import {
-  proofFixtures,
-  removeProofDirectories,
-  startProofRun,
-} from "../../test-support/support/proofRecordRun.ts";
+import { proofFixtures } from "../../test-support/support/proofRecordRun.ts";
 import { repoRoot } from "../../test-support/support/repositoryRoot.ts";
 import {
   beginReporter,
@@ -19,8 +15,6 @@ import {
   onlyCase,
   temporaryProof,
 } from "../support/directProofRecord.ts";
-
-afterAll(removeProofDirectories);
 
 function quietRun(
   directory: string,
@@ -205,16 +199,22 @@ test("a deadline names it, shows the completed failure, and keeps the report", a
   );
 });
 
+// Global setup runs in the runner process and writes straight to its
+// stdout, which the reporter watches from its creation.
 test("output from the run itself fails the run and is shown", async () => {
-  const run = startProofRun({
-    spec: "passing.proof.ts",
-    recordPath: false,
-    config: {
-      globalSetup: path.join(proofFixtures, "printingSetup.ts"),
-    },
-  });
-  const result = await run.result;
-  expect(result.status).not.toBe(0);
-  expect(result.stdout).toContain("outside any test");
-  expect(result.stdout).toContain("stray chatter from global setup");
+  const { directory, outputDir } = temporaryProof("quiet-reporter-");
+  const file = path.join(proofFixtures, "passing.proof.ts");
+  const run = quietRun(directory, outputDir, file, "adds quietly", "expected");
+  const { stdout, reporter } = openReporter();
+  stdout.write("stray chatter from global setup\n");
+  const end = await driveCase(
+    reporter,
+    run,
+    onlyCase(run.cases),
+    makeMe.aReporterResult.withStatus("passed").please(),
+    "passed",
+  );
+  expect(end).toEqual({ status: "failed" });
+  expect(stdout.text()).toContain("outside any test");
+  expect(stdout.text()).toContain("stray chatter from global setup");
 });

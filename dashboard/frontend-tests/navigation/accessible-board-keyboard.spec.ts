@@ -33,6 +33,8 @@ const work = boardWork(
   ],
   {
     revision,
+    refAskedAt: "2026-10-08T08:00:00.000Z",
+    confirmedAt: "2026-10-08T08:00:01.000Z",
     taken: [
       story("Taken work comes after Backlog", 20),
       story("A second Taken entry", 21),
@@ -49,16 +51,12 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
     .getByRole("heading", { name: "Near-future direction" })
     .element()
     .closest("summary");
-  if (direction === null) throw new Error("Direction has no disclosure.");
+  if (!(direction instanceof HTMLElement))
+    throw new Error("Direction has no disclosure.");
   const stops = [
-    button("Sessions").element(),
-    page.getByRole("radio", { name: "Development", checked: true }).element(),
-    button("Recent stories, no story selected").element(),
-    page.getByRole("radio", { name: "Open Dough", checked: true }).element(),
-    button("System settings").element(),
-    direction,
     button("Start session in Open Dough").element(),
     button("Preparation badge legend").element(),
+    button("Refresh").element(),
   ];
   for (const name of ["Backlog", "Taken"] as const) {
     for (const entry of board.column(name).getByRole("article").elements()) {
@@ -100,7 +98,7 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
       }
     }
   }
-  expect(stops).toHaveLength(22);
+  direction.focus();
   await expectTabOrder(stops);
   expect(
     document.querySelectorAll(".board[tabindex='-1'], .board [tabindex='-1']"),
@@ -108,7 +106,7 @@ test("accessible Board is read by keyboard in reading order, with visible focus,
   expect(document.querySelectorAll(".board [tabindex='0']")).toHaveLength(0);
   await userEvent.tab();
   expect(stops).not.toContain(document.activeElement);
-  await expectTabOrder(stops.toReversed(), { shift: true });
+  await expectTabOrder([...stops.toReversed(), direction], { shift: true });
 
   const card = board
     .column("Backlog")

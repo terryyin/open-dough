@@ -55,6 +55,41 @@ export function commitBacklogCompletion(workspace: string, message: string) {
   return makeMe.theWorkspace(workspace).commitAll(message).please();
 }
 
+// Publishes the project's done record of the story as completed at
+// `completedAt`, with the done catalog the installed backlog CLI rebuilds.
+export function publishDoneStoryCompletedAt(
+  project: string,
+  completedAt: Date,
+  identity = queuedIdentity,
+) {
+  const record = `.planning/done/${doneRecordFileName(identity)}`;
+  const facts = JSON.parse(
+    readFileSync(path.join(project, record), "utf8"),
+  ) as Record<string, unknown>;
+  makeMe
+    .theWorkspace(project)
+    .writeAt(
+      record,
+      `${JSON.stringify({ ...facts, completedAt: completedAt.toISOString() }, null, 2)}\n`,
+    )
+    .please();
+  execFileSync(
+    process.execPath,
+    [
+      installedBacklogScript(project, ".agents/skills"),
+      "catalog-done",
+      "--file",
+      ".planning/PRODUCT-BACKLOG.md",
+    ],
+    { cwd: project, stdio: "pipe" },
+  );
+  makeMe
+    .theWorkspace(project)
+    .commitAll("publish the done record's completion time")
+    .please();
+  push(project);
+}
+
 export function resolveStoryConflict(
   workspace: string,
   mergeArguments: readonly string[],

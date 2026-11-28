@@ -6,6 +6,7 @@ import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
 import { projectAddMachine } from "../../dashboard/test-support/support/projectAddMachine.ts";
 import { addProjectOnPage } from "../../dashboard/test-support/support/projectAddPage.ts";
 import {
+  chooseProject,
   expectCompactProjectSelect,
   expectProjectChoice,
   expectVisibleProjectLabels,
@@ -40,7 +41,7 @@ const readSaved = (mode: "dev" | "preview") =>
     unknown
   >[];
 
-test("hiding a project removes it from tabs, compact selector and cycling while keeping its settings row, saved inventory entry and Remove confirmation, and showing restores it", async ({
+test("hiding a project removes it from the banner while keeping its settings row, saved inventory entry and Remove confirmation, and showing restores it", async ({
   page,
 }) => {
   let server = await fixture.start("preview");
@@ -89,11 +90,6 @@ test("hiding a project removes it from tabs, compact selector and cycling while 
   await expect(page.getByRole("radio", { name: "Doughnut" })).toHaveCount(0);
   await expectVisibleProjectLabels(page, visibleWithoutDoughnut);
 
-  await page.keyboard.press("ArrowRight");
-  await expectProjectChoice(page, "Pygardon");
-  await page.keyboard.press("ArrowLeft");
-  await expectProjectChoice(page, "Open Dough");
-
   await page.setViewportSize({ width: 390, height: 844 });
   await expectCompactProjectSelect(page, "Open Dough", visibleWithoutDoughnut);
   await page.setViewportSize({ width: 1280, height: 720 });
@@ -133,8 +129,7 @@ test("hiding a project removes it from tabs, compact selector and cycling while 
 
   await back(page).click();
   await expectVisibleProjectLabels(page, allSeededLabels);
-  await page.keyboard.press("ArrowRight");
-  await expectProjectChoice(page, "Doughnut");
+  await chooseProject(page, "Doughnut");
   await untilPublishedWorkRead(page);
   await expect(
     page.getByRole("region", { name: "Taken", exact: true }),

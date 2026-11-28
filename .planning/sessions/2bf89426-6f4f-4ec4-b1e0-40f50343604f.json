@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "sessionId": "2bf89426-6f4f-4ec4-b1e0-40f50343604f",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-28T10:15:32.958Z",
+  "story": "SEED-430#follow-published-progress-from-local-git",
+  "ranges": [
+    {
+      "base": "67ea32dc937aca15bbcce14f5066bf6811fc1fff",
+      "candidate": "f20d569a4237e10beb6d50f4c4b7390a35a6cc69"
+    },
+    {
+      "base": "f20d569a4237e10beb6d50f4c4b7390a35a6cc69",
+      "candidate": "f93c21c4efbd9840af6407582ba98126d9728ff0"
+    },
+    {
+      "base": "f93c21c4efbd9840af6407582ba98126d9728ff0",
+      "candidate": "759d6c4d42f6e8780f4dd7a85cd044aefaccfae3"
+    },
+    {
+      "base": "759d6c4d42f6e8780f4dd7a85cd044aefaccfae3",
+      "candidate": "003a5f4d06bd94be52189ecea56d58c95c4c307e"
+    },
+    {
+      "base": "003a5f4d06bd94be52189ecea56d58c95c4c307e",
+      "candidate": "d469bbf9b7405e5e19508eb7da7959ebd864ba6b"
+    },
+    {
+      "base": "d469bbf9b7405e5e19508eb7da7959ebd864ba6b",
+      "candidate": "14cd75c734f0d29f8bbe131e2449068c17b98ef7"
+    },
+    {
+      "base": "14cd75c734f0d29f8bbe131e2449068c17b98ef7",
+      "candidate": "cfa5f839693da1b70b6c1d5a5facd533bb75f2dd"
+    },
+    {
+      "base": "cfa5f839693da1b70b6c1d5a5facd533bb75f2dd",
+      "candidate": "79654a7774fc91633450b536b17e196cf96f1f86"
+    },
+    {
+      "base": "79654a7774fc91633450b536b17e196cf96f1f86",
+      "candidate": "0a3535052c41f477584984dd858a2239811a837f"
+    },
+    {
+      "base": "0a3535052c41f477584984dd858a2239811a837f",
+      "candidate": "1f44a5379f582531a0ff9386ff4f0ff7763cd672"
+    },
+    {
+      "base": "1f44a5379f582531a0ff9386ff4f0ff7763cd672",
+      "candidate": "aefe19ecc43dbb19d32ea557ecdd501526941798"
+    },
+    {
+      "base": "aefe19ecc43dbb19d32ea557ecdd501526941798",
+      "candidate": "8c5831deebf402f60f22196a65a1170a1755643f"
+    },
+    {
+      "base": "8c5831deebf402f60f22196a65a1170a1755643f",
+      "candidate": "39fbba2cde1d8a7c37a94255af2a5a9a8623cb97"
+    },
+    {
+      "base": "39fbba2cde1d8a7c37a94255af2a5a9a8623cb97",
+      "candidate": "2cedaf2bec1bce289d12fc5980e4200dbcb7571f"
+    },
+    {
+      "base": "2cedaf2bec1bce289d12fc5980e4200dbcb7571f",
+      "candidate": "42afce853ed52747d65e2645796a5487a8b3e4cb"
+    },
+    {
+      "base": "42afce853ed52747d65e2645796a5487a8b3e4cb",
+      "candidate": "99e48eb358423458e486390b354fb90d942da06c"
+    },
+    {
+      "base": "99e48eb358423458e486390b354fb90d942da06c",
+      "candidate": "e0e12ad8355cf6a8d15cf3650b0f54d3b34b40a6"
+    },
+    {
+      "base": "e0e12ad8355cf6a8d15cf3650b0f54d3b34b40a6",
+      "candidate": "bd0d18913702d0c10bdb361ee9ca54ee24cb6b13"
+    },
+    {
+      "base": "bd0d18913702d0c10bdb361ee9ca54ee24cb6b13",
+      "candidate": "a1aee15796d919e1d1c37e28dfc1aef1bbdc5b1d"
+    },
+    {
+      "base": "a1aee15796d919e1d1c37e28dfc1aef1bbdc5b1d",
+      "candidate": "3ce316382b8640abd1c5fe4f6a01104d3d3c5a5b"
+    },
+    {
+      "base": "57d07d1a23d4ddef7b903aaae3e5f090ace90b11",
+      "candidate": "c3afaab5377900a4cefff3a198b43b13e290536e"
+    }
+  ]
+}

@@ -18,9 +18,8 @@
 // here; the lint configuration rejects a direct import of `test` from
 // `@playwright/test` under `dashboard/test-support/`.
 //
-// Every worker-scoped fixture of the suite is declared here, whichever specs
-// take it; the published-main ones come from ./publishedMainWorkerFixtures.ts
-// and the server and origin inputs from ./serverInputWorkerFixtures.ts.
+// Every worker-scoped fixture of the suite is registered here, whichever
+// specs take it, from ./workerPreparationFixtures.ts.
 // Playwright runs a test only in a worker whose fixture pool
 // declares the same worker-scoped fixtures (the worker hash is the set of
 // those registrations, not the fixtures a test uses), so a worker-scoped
@@ -34,117 +33,20 @@
 // module-level `test.use`, which applies only to the first spec file that
 // loads the module in a worker.
 
-import { test as base, type Fixtures } from "@playwright/test";
-import type { LaunchJourney } from "../launchJourney.ts";
+import { test as base } from "@playwright/test";
 import { noteRequestsInEveryPage } from "../pageRequestNotes.ts";
-import type { KeptComparedStoryBranch } from "./keptComparedStoryBranch.ts";
 import { endDescendantsAtExit } from "./processGroup.ts";
+import { finishRouteHandlers } from "./routeHandlerTeardown.ts";
 import {
-  coldInputPreparation,
-  publishedMainWorkerFixtures,
-  type PublishedMainWorkerFixtures,
-} from "./publishedMainWorkerFixtures.ts";
-import {
-  serverInputWorkerFixtures,
-  type ServerInputWorkerFixtures,
-} from "./serverInputWorkerFixtures.ts";
-import type { StartRepository } from "./startOriginPreparation.ts";
+  workerPreparationFixtures,
+  type WorkerPreparationFixtures,
+} from "./workerPreparationFixtures.ts";
 
 export { expect } from "@playwright/test";
 export type { FixtureServerMode } from "./serverInputWorkerFixtures.ts";
 
 // No process a test started outlives its worker (./processGroup.ts).
 endDescendantsAtExit();
-
-type KeptStoryWorkerFixtures = {
-  keptStory: StartRepository;
-  keptIntentStory: StartRepository;
-  keptSummaryComparisonStory: StartRepository;
-};
-
-// Story A published as completed and kept (./keptPublishedStory.ts), on the
-// queued trunk, on Intent's and on the summary comparison's: the worker that
-// takes one prepares it before its first such case and answers the
-// description those cases' origins start from, so none publishes the story in
-// its own time.
-export const keptStoryWorkerFixtures: Fixtures<
-  object,
-  KeptStoryWorkerFixtures
-> = {
-  keptStory: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => {
-      const { prepareKeptStory } = await import("./keptPublishedStory.ts");
-      await use(await prepareKeptStory("queued"));
-    },
-    coldInputPreparation,
-  ],
-  keptIntentStory: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => {
-      const { prepareKeptStory } = await import("./keptPublishedStory.ts");
-      await use(await prepareKeptStory("intent"));
-    },
-    coldInputPreparation,
-  ],
-  keptSummaryComparisonStory: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => {
-      const { prepareKeptStory } = await import("./keptPublishedStory.ts");
-      await use(await prepareKeptStory("summary comparison"));
-    },
-    coldInputPreparation,
-  ],
-};
-
-type WorkerPreparationFixtures = PublishedMainWorkerFixtures &
-  ServerInputWorkerFixtures &
-  KeptStoryWorkerFixtures & {
-    launchJourney: LaunchJourney;
-    keptComparedStoryBranch: KeptComparedStoryBranch;
-  };
-
-// Every input the pool prepares once per worker, each in cold preparation's
-// own worker allowance, beside the options that select among them. A new
-// worker input preparation joins this record, whose every registration
-// ../../backend-tests/runtime/kept-history-worker.spec.ts checks.
-export const workerPreparationFixtures: Fixtures<
-  object,
-  WorkerPreparationFixtures
-> = {
-  ...serverInputWorkerFixtures,
-  ...publishedMainWorkerFixtures,
-  ...keptStoryWorkerFixtures,
-  // The real-CLI compared Story Branch history (./keptComparedStoryBranch.ts),
-  // completed before the first case that asks for it; a spec selects it per
-  // case through
-  // `startingFromKeptComparedStoryBranch`.
-  keptComparedStoryBranch: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => {
-      const { prepareKeptComparedStoryBranch } =
-        await import("./keptComparedStoryBranch.ts");
-      await use(await prepareKeptComparedStoryBranch());
-    },
-    coldInputPreparation,
-  ],
-  // The launch journeys' origin (../launchJourney.ts says what it publishes),
-  // published once per worker and read, never written, by every journey the
-  // worker runs from it (../launchStoryCardPage.ts serves it as GitHub would).
-  // `fullyParallel` runs a `beforeAll` once per worker per file, so this
-  // shared read-only origin is a worker fixture. Only a worker that takes
-  // the fixture loads the publishing code.
-  launchJourney: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => {
-      const { publishLaunchJourney } = await import("../launchJourney.ts");
-      const journey = await publishLaunchJourney();
-      await use(journey);
-      await journey.cleanup();
-    },
-    coldInputPreparation,
-  ],
-};
 
 // Playwright's worker-only extension takes an empty test-fixture type.
 export const test = base.extend<object, WorkerPreparationFixtures>({
@@ -155,7 +57,6 @@ export const test = base.extend<object, WorkerPreparationFixtures>({
   },
   page: async ({ page }, use) => {
     await use(page);
-    // A spec that closed its page has no handler left to finish.
-    if (!page.isClosed()) await page.unrouteAll({ behavior: "wait" });
+    await finishRouteHandlers(page);
   },
 });

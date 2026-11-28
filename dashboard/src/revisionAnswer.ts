@@ -5,12 +5,18 @@
 // continue at its pace.
 
 import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
-import type { RevisionCheck } from "./revisionCheckRead.ts";
+import type {
+  RevisionCheck,
+  RevisionConfirmation,
+} from "./revisionCheckRead.ts";
 import { movedBranches } from "./movedBranchProgress.ts";
 
 export type RevisionAnswerHandlers = {
-  readonly onChanged: (revision: string) => void;
-  readonly onUnchanged: () => void;
+  readonly onChanged: (
+    revision: string,
+    confirmation?: RevisionConfirmation,
+  ) => void;
+  readonly onUnchanged: (confirmation?: RevisionConfirmation) => void;
   readonly onBranchesMoved: (moved: StoryBranchHeads) => void;
   readonly onFailed: (error: unknown) => void;
 };
@@ -32,10 +38,10 @@ export function reactToRevisionCheck(
   >,
 ): RevisionAnswerReaction {
   if (check.changed) {
-    onChanged(check.revision);
+    onChanged(check.revision, check.confirmation);
     return "reading";
   }
-  onUnchanged();
+  onUnchanged(check.confirmation);
   const moved = movedBranches(watchedHeads, check.heads);
   if (moved.size > 0) {
     onBranchesMoved(moved);

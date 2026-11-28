@@ -1,59 +1,51 @@
-// Real startup profiles reach the ordinary fast default, even with a caller's
-// NODE_OPTIONS probe. The API executable is poisoned independently of answers.
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
-import {
-  sharedDashboardBuild,
-  startDashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
-import {
-  everyRepository,
-  publishes,
-} from "../../test-support/support/fakeGitHub.ts";
-import { checkedAt } from "../../test-support/support/sharedReads.ts";
-import { expect, test } from "../support/fakeGhInProcess.ts";
+// Every serving mode starts from one composed environment, so a caller's
+// NODE_OPTIONS probe and the default fast owner preload are one rule.
+import { expect, test } from "vitest";
+import { dashboardServerEnvironment } from "../../test-support/support/dashboardServerEnvironment.ts";
+import { fakeGhEnv } from "../../test-support/support/fakeGh.ts";
 
-const published = publishes({});
-const { revision } = published;
-
-for (const mode of ["boundary", "dev", "preview"] as const) {
-  test(`${mode} uses the default fast owner alongside a custom preload`, async ({
-    client,
-    // Request worker preparation; this fixture deliberately yields no value.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    dashboardPreviewReady: _dashboardPreviewReady,
-  }) => {
-    expect(client.gh.transport).toBe("in-process");
-    client.github.serve(everyRepository, published);
-    const probe = path.join(client.root, "server-probe.mjs");
-    const noted = path.join(client.root, "probe-ran");
-    writeFileSync(
-      probe,
-      `import {writeFileSync} from 'node:fs'; writeFileSync(${JSON.stringify(noted)}, 'caller preload ran');`,
+test("a server's environment keeps the default fast owner alongside a caller's preload", () => {
+  const ghEnv = fakeGhEnv(
+    {
+      transport: "in-process",
+      binDir: "/gh/bin",
+      pidPath: "/gh/pid",
+      requestOwnerRoot: "/owners",
+    },
+    "http://127.0.0.1:1/",
+  );
+  for (const mode of ["boundary", "dev", "preview"] as const) {
+    const env = dashboardServerEnvironment(
+      {
+        mode,
+        requestOwnerRoot: "/owners",
+        extraEnv: { NODE_OPTIONS: "--import=probe.mjs" },
+      },
+      ghEnv,
+      {},
+      { binDir: "/codex/bin", env: {} },
+      "http://127.0.0.1:1/",
     );
-    const server = await startDashboardServer({
-      mode,
-      environment: "development",
-      prebuilt: sharedDashboardBuild,
-      github: client.github,
-      pathPrefix: [client.gh.binDir],
-      requestOwnerRoot: client.gh.requestOwnerRoot,
-      extraEnv: { NODE_OPTIONS: `--import=${JSON.stringify(probe)}` },
+    expect(env["NODE_OPTIONS"]).toMatch(/--import="file:.*fakeGhPreload\.mjs"/);
+    expect(env["NODE_OPTIONS"]?.endsWith(" --import=probe.mjs")).toBe(true);
+    expect(env).toMatchObject({
+      FAKE_GH_TRANSPORT: "in-process",
+      FAKE_GH_ORIGIN: "http://127.0.0.1:1/",
+      DOUGH_GITHUB_REQUEST_OWNER_ROOT: "/owners",
     });
-    try {
-      const answer = await checkedAt(server);
-      expect(answer.status).toBe(200);
-      expect(JSON.parse(answer.body)).toMatchObject({ revision });
-      expect(client.github.calls.map(({ request }) => request.kind)).toContain(
-        "matching-refs",
-      );
-      expect(readFileSync(noted, "utf8")).toBe("caller preload ran");
-      expect(client.apiLaunched()).toBe(false);
-      expect(server.ghPid()).toBeUndefined();
-      expect(existsSync(client.gh.pidPath)).toBe(false);
-    } finally {
-      await server.close();
-    }
-    expect(client.github.unansweredCalls).toBe(0);
-  });
-}
+  }
+});
+
+test("each fake gh installation directs its calls to its own request owner root", () => {
+  const installation = (root: string) =>
+    fakeGhEnv({
+      transport: "in-process",
+      binDir: `${root}/bin`,
+      pidPath: `${root}/pid`,
+      requestOwnerRoot: `${root}/owners`,
+    })["DOUGH_GITHUB_REQUEST_OWNER_ROOT"];
+  expect([installation("/a"), installation("/b")]).toEqual([
+    "/a/owners",
+    "/b/owners",
+  ]);
+});

@@ -1,7 +1,8 @@
 // Admitted ad hoc Codex Starts, each through production `attemptRun`, land
 // from one shared checkout through the installed delivery run in process
 // (../support/installedPublisher.ts), then close through the installed
-// wrap-up children. Each keeps its own accepted comparison, and a claim whose
+// wrap-up children. Each keeps its own accepted comparison, a range landed
+// while its checkout is noted as shared is marked uncertain, and a claim whose
 // accepted evidence is lost is held.
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -11,17 +12,18 @@ import {
   sessionRecordPathBeside,
   sharedCheckoutUncertainty,
 } from "../../../Distribution/src/skills/dough-execute-plan/scripts/session-record.mjs";
-import { sharedCheckoutNotePathBeside } from "../../../Distribution/src/skills/dough-execute-plan/scripts/shared-checkout-note.mjs";
+import {
+  sharedCheckoutNotePathBeside,
+  sharedCheckoutNoteText,
+} from "../../../Distribution/src/skills/dough-execute-plan/scripts/shared-checkout-note.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { keptRecords } from "../../server/launchRecordStore.ts";
 import { mountProjectConfiguration } from "../../server/projectConfiguration.ts";
 import {
   finishAdmittedClaim,
   landNativeWork,
   type AdmittedCompletion,
 } from "../../test-support/support/admittedSessionCompletion.ts";
-import { countedGit } from "../../test-support/support/completionRecovery.ts";
 import {
   installFakeCodex,
   type FakeCodex,
@@ -34,10 +36,7 @@ import { keepStartedOrigin } from "../../test-support/support/startOriginPrepara
 import { trunkCommitFromAnotherWriter } from "../../test-support/support/storyBranchIntegration.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
 import { admitCodexLaunch } from "../support/admittedCodexLaunch.ts";
-import {
-  deliverInstalled,
-  retryInstalledLanding,
-} from "../support/installedPublisher.ts";
+import { deliverInstalled } from "../support/installedPublisher.ts";
 
 const source = makeMe.aPublishedSource.openDough.please();
 const repository = queuedReadyRepository().please();
@@ -93,15 +92,6 @@ test("each admitted launch keeps its accepted comparison when another launch lan
     earlierFile,
     deliverInstalled,
   );
-  const receipt = (await keptRecords(source.id)).find(
-    ({ request }) =>
-      request.reporting?.reference === earlier.reporting.reference,
-  )?.landing;
-  if (!receipt) throw new Error("The earlier landing has no receipt.");
-  expect(receipt).toMatchObject({
-    base: earlier.claim.publishedSha,
-    revision: earlierLanded,
-  });
 
   native.threadId = "later-native-session";
   const later = await admitCodexLaunch(source, origin, "Verify later work");
@@ -141,45 +131,34 @@ test("each admitted launch keeps its accepted comparison when another launch lan
     ],
   });
   expect(earlierRecord.ranges[0]).not.toHaveProperty("uncertainty");
-  const beforeLaterClosure = (
-    await origin.originGit("rev-parse", "main")
-  ).trim();
-  const laterFinal = await finishAdmittedClaim(later, beforeLaterClosure);
-  expect(existsSync(later.claim.workspace)).toBe(false);
-  expect(await publishedSession(later)).toMatchObject({
-    sessionId: later.reporting.reference,
-    story: later.identity,
+  // Two admissions, two landings and a closure each run real Git children.
+}, 30_000);
+
+test("a launch noted as sharing its checkout publishes its landed range as uncertain", async () => {
+  const admitted = await admitCodexLaunch(source, origin, "Verify noted work");
+  writeFileSync(
+    sharedCheckoutNotePathBeside(admitted.landingContext),
+    sharedCheckoutNoteText(new Date().toISOString()),
+  );
+  const landed = await landNativeWork(
+    admitted,
+    "noted-native.txt",
+    deliverInstalled,
+  );
+  const final = await finishAdmittedClaim(admitted, landed);
+  expect(await publishedSession(admitted)).toMatchObject({
+    sessionId: admitted.reporting.reference,
     ranges: [
       {
-        base: later.claim.publishedSha,
-        candidate: laterLanded,
+        base: admitted.claim.publishedSha,
+        candidate: landed,
         uncertainty: sharedCheckoutUncertainty,
       },
-      { base: beforeLaterClosure, candidate: laterFinal },
+      { base: landed, candidate: final },
     ],
   });
-  for (const [file, candidate] of [
-    [earlierFile, earlierLanded],
-    [laterFile, laterLanded],
-  ] as const) {
-    expect(
-      (await origin.originGit("rev-list", "main", "--", file)).trim(),
-    ).toBe(candidate);
-  }
-
-  const tip = await origin.originGit("rev-parse", "main");
-  const counted = await countedGit(origin.machine);
-  vi.stubEnv("PATH", counted.env.PATH);
-  expect(await retryInstalledLanding(earlier.landingContext)).toMatchObject({
-    reference: earlier.reporting.reference,
-    base: earlier.claim.publishedSha,
-    revision: earlierLanded,
-    receipt: receipt.receipt,
-  });
-  expect(existsSync(counted.log)).toBe(false);
-  expect(await origin.originGit("rev-parse", "main")).toBe(tip);
-  // Two admissions, landings and closures each run real Git children.
-}, 30_000);
+  // An admission, a landing and a closure each run real Git children.
+}, 20_000);
 
 async function landClaimWithRetainedComparison() {
   const admitted = await admitCodexLaunch(

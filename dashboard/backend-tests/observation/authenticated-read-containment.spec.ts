@@ -1,171 +1,246 @@
-// Whether a pinned revision contains a launch's accepted publication, asked of
-// the local authenticated read boundary (../../server/containmentRead.ts)
-// directly over real HTTP, with the synthetic `gh` answering from a fake
-// GitHub that records every invocation. GitHub's comparison of the two commits
-// in the catalog source's own repository decides; a failure or rate limit is
-// reported as every read's is, never answered as containment; and a request
-// naming anything but one shown and one accepted full commit id is refused
-// before any `gh` call. The page's use of it, against a real origin's history:
-// ../../../e2e/launches/responsive-session-reconciliation.spec.ts.
-
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import {
-  developmentBoundary,
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
-import {
-  everyRepository,
-  type GhCall,
-} from "../../test-support/support/fakeGitHub.ts";
-import { compareAnswer } from "../../test-support/comparisonAnswers.ts";
+import { beforeAll, beforeEach, describe, expect, test, vi } from "vitest";
+import { readAnswer } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-answer.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { performContainmentRead } from "../../server/containmentRead.ts";
+import { execGh } from "../../server/ghRead.ts";
+import { reportedFailure } from "../../server/readFailureMessage.ts";
+import { readingOf } from "../../server/readingRequestedRead.ts";
+import { parseRequestedRead } from "../../server/requestedRead.ts";
+import { comparisonIn } from "../../test-support/comparisonAnswers.ts";
 import {
   noConnection,
-  notFoundAnswer,
   rateLimitedAnswer,
   type OriginAnswer,
 } from "../../test-support/originAnswers.ts";
-import { onServerOfItsOwn } from "../../test-support/support/directedWait.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
+import { asGhReply } from "../../test-support/support/ghReply.ts";
+import { parseRequest } from "../../test-support/support/ghRequest.ts";
 
-test.describe.configure({ mode: "serial" });
+vi.mock(import("../../server/ghRead.ts"), async (importOriginal) => ({
+  ...(await importOriginal()),
+  execGh: vi.fn(),
+}));
 
+const source = makeMe.aPublishedSource.pygardon.please();
+const compare = vi.mocked(execGh);
 const accepted = "a1".repeat(20);
 const shown = "b2".repeat(20);
+const askedAt = "2026-09-01T09:00:00Z";
 
-test.describe("authenticated read boundary containment (development environment)", () => {
-  let server: DashboardServer;
-  let answer: OriginAnswer = compareAnswer("ahead");
+function parse(accepted: string, shown: string) {
+  const parameters = new URLSearchParams({
+    source: source.id,
+    revision: shown,
+    contains: accepted,
+  });
+  const read = parseRequestedRead(parameters);
+  if (read.kind !== "containment-at")
+    throw new Error("Expected an admitted containment read.");
+  return read;
+}
 
-  test.beforeAll(async () => {
-    server = await startDashboardServer(developmentBoundary);
-    server.github.serve(everyRepository, (call: GhCall) =>
-      Promise.resolve(
-        call.request.kind === "compare"
-          ? answer
-          : { exitCode: 1, stderr: "fake gh: unrecognized invocation\n" },
-      ),
+function answerComparisons(
+  answer: (base: string, head: string) => OriginAnswer,
+) {
+  compare.mockImplementation((args) => {
+    const request = parseRequest(args);
+    if (request.kind !== "compare" || request.repository !== source.repository)
+      throw new Error("Expected a comparison in the configured repository.");
+    const { stdout, stderr, exitCode } = asGhReply(
+      ["--include", ...args],
+      request,
+      answer(request.base, request.head),
     );
-  });
-
-  test.afterAll(async () => {
-    await server.close();
-  });
-
-  const ask = async (query: string) => {
-    const before = server.github.calls.length;
-    const response = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?${query}`,
-      headers: { Origin: server.origin },
-    });
-    return {
-      status: response.status,
-      body: JSON.parse(response.body) as unknown,
-      calls: server.github.calls.slice(before).map((call) => call.argv),
-    };
-  };
-  const contains = (from = accepted, at = shown) =>
-    ask(`source=open-dough&revision=${at}&contains=${from}`);
-
-  test("answers whether the shown revision is, or descends from, the accepted one, asking GitHub's comparison in the source's repository", async () => {
-    const expected = {
-      ahead: true,
-      identical: true,
-      behind: false,
-      diverged: false,
-    } as const;
-    for (const [status, contained] of Object.entries(expected)) {
-      answer = compareAnswer(status as keyof typeof expected);
-      const read = await contains();
-      expect(read.status).toBe(200);
-      expect(read.body).toEqual({ revision: shown, accepted, contained });
-      expect(read.calls).toEqual([
-        [
-          "api",
-          "--include",
-          `repos/terryyin/open-dough/compare/${accepted}...${shown}?per_page=1`,
-          "--jq",
-          ".status",
-        ],
-      ]);
-    }
-    // GitHub knows no such accepted commit: the shown revision does not
-    // contain it.
-    answer = notFoundAnswer();
-    expect((await contains()).body).toEqual({
-      revision: shown,
-      accepted,
-      contained: false,
-    });
-  });
-
-  test("a failure or rate limit is reported as a read failure, with the wait GitHub directs", async () => {
-    const reading = `whether ${shown} contains ${accepted}`;
-    const directed = await onServerOfItsOwn(async (own) => {
-      own.github.serve(everyRepository, () =>
-        Promise.resolve(rateLimitedAnswer(429, { "Retry-After": "120" })),
-      );
-      return rawRequest({
-        url: `${own.baseURL}/__authenticated-read?source=open-dough&revision=${shown}&contains=${accepted}`,
-        headers: { Origin: own.origin },
+    const decoded = readAnswer(
+      exitCode === 0 ? null : { code: exitCode },
+      stdout,
+      stderr,
+      askedAt,
+    );
+    const failure = decoded.failure;
+    if (failure?.kind === "rate-limited") {
+      const { status, waitSeconds } = failure;
+      if (waitSeconds === undefined)
+        throw new Error("Expected GitHub to direct a wait in this fixture.");
+      return Promise.resolve({
+        ...decoded,
+        failure: { kind: "rate-limited", status, waitSeconds },
       });
-    });
-    expect({
-      status: directed.status,
-      body: JSON.parse(directed.body) as unknown,
-    }).toEqual({
-      status: 502,
-      body: {
-        error: `GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading ${reading}. GitHub asked to wait 120 seconds before asking again.`,
-        retryAfterSeconds: 120,
-      },
-    });
-    answer = noConnection;
-    expect(await contains()).toMatchObject({
-      status: 502,
-      body: {
-        error: `The local GitHub CLI could not reach GitHub while reading ${reading}.`,
-        recovery: "transient",
-      },
-    });
-    // An answer that names no comparison status is no answer.
-    answer = {
-      status: 200,
-      contentType: "application/json; charset=utf-8",
-      body: JSON.stringify({ message: "something else" }),
-    };
-    const unnamed = await contains();
-    expect(unnamed.status).toBe(502);
-    expect(unnamed.body).toMatchObject({
-      error: expect.stringContaining(
-        `The local authenticated read failed while reading ${reading}.`,
-      ),
-    });
+    }
+    return Promise.resolve({ ...decoded, failure });
+  });
+}
+
+beforeEach(() => {
+  compare.mockReset();
+});
+
+describe("published containment", () => {
+  const description = makeMe.aRepository
+    .withRevision("base")
+    .withRevision("accepted", { files: { "publication.md": "Accepted\n" } })
+    .withRevision("unrelated", {
+      parents: ["base"],
+      files: { "unrelated.md": "Unrelated\n" },
+      tags: ["unrelated"],
+    })
+    .withRevision("descendant", {
+      parents: ["accepted"],
+      files: { "publication.md": "Advanced\n" },
+    })
+    .please();
+  let repository: Awaited<
+    ReturnType<
+      typeof materializeRepository<
+        "base" | "accepted" | "unrelated" | "descendant"
+      >
+    >
+  >;
+
+  beforeAll(async () => {
+    repository = await materializeRepository(description);
+    return () => repository.cleanup();
   });
 
-  test("refuses anything but one shown and one accepted full commit id of a catalog source, before any gh call", async () => {
-    answer = compareAnswer("ahead");
-    const refusals = [
-      `source=open-dough&revision=${shown}&contains=main`,
-      `source=open-dough&revision=${shown}&contains=${accepted.slice(0, 7)}`,
-      `source=open-dough&revision=HEAD&contains=${accepted}`,
-      `source=open-dough&contains=${accepted}`,
-      `source=open-dough&revision=${shown}&contains=${accepted}&contains=${shown}`,
-      `source=open-dough&revision=${shown}&contains=${accepted}&path=README.md`,
-      `source=open-dough&revision=${shown}&contains=${accepted}&branch=main`,
-      `source=open-dough&since=${shown}&contains=${accepted}`,
-      `source=open-dough&revision=${shown}&contains=${accepted.toUpperCase()}`,
-      `source=open-dough&revision=${shown}&contains=${encodeURIComponent(`${accepted};rm -rf /`)}`,
-    ];
-    for (const query of refusals) {
-      const refused = await ask(query);
-      expect(refused.status, query).toBe(400);
-      expect(refused.calls, query).toEqual([]);
-    }
-    const unknown = await ask(
-      `source=elsewhere&revision=${shown}&contains=${accepted}`,
+  test.each([
+    {
+      name: "an equal revision",
+      accepted: "accepted",
+      shown: "accepted",
+      contains: true,
+    },
+    {
+      name: "a descendant",
+      accepted: "accepted",
+      shown: "descendant",
+      contains: true,
+    },
+    {
+      name: "a behind revision",
+      accepted: "accepted",
+      shown: "base",
+      contains: false,
+    },
+    {
+      name: "a divergent revision",
+      accepted: "accepted",
+      shown: "unrelated",
+      contains: false,
+    },
+    {
+      name: "an unknown accepted commit",
+      accepted: "missing",
+      shown: "descendant",
+      contains: false,
+    },
+  ] as const)("answers containment for $name", async (row) => {
+    const revisions = { ...repository.revisions, missing: "cc".repeat(20) };
+    answerComparisons((base, head) =>
+      comparisonIn(repository.origin, base, head),
     );
-    expect(unknown.status).toBe(404);
-    expect(unknown.calls).toEqual([]);
+    const accepted = revisions[row.accepted];
+    const revision = revisions[row.shown];
+    const signal = new AbortController().signal;
+
+    await expect(
+      performContainmentRead(source, parse(accepted, revision), signal),
+    ).resolves.toEqual({
+      kind: "answered",
+      answer: { revision, accepted, contained: row.contains },
+    });
+    expect(compare).toHaveBeenCalledExactlyOnceWith(
+      [
+        "api",
+        `repos/${source.repository}/compare/${accepted}...${revision}?per_page=1`,
+        "--jq",
+        ".status",
+      ],
+      signal,
+    );
   });
+});
+
+const reading = `whether ${shown} contains ${accepted}`;
+
+test.each([
+  {
+    name: "a rate limit directing a wait",
+    answer: rateLimitedAnswer(429, { "Retry-After": "120" }),
+    message:
+      `GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading ${reading}. ` +
+      "GitHub asked to wait 120 seconds before asking again.",
+    retryAfterSeconds: 120,
+    recovery: undefined,
+  },
+  {
+    name: "an unavailable comparison",
+    answer: noConnection,
+    message: `The local GitHub CLI could not reach GitHub while reading ${reading}.`,
+    retryAfterSeconds: undefined,
+    recovery: "transient",
+  },
+  {
+    name: "a comparison without a status",
+    answer: {
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ message: "something else" }),
+    },
+    message: `The local authenticated read failed while reading ${reading}. Check that \`gh auth status\` succeeds and that this login can read ${source.repository}, then reload the page.`,
+    retryAfterSeconds: undefined,
+    recovery: undefined,
+  },
+])(
+  "fails the read for $name",
+  async ({ answer, message, retryAfterSeconds, recovery }) => {
+    answerComparisons(() => answer);
+    const read = parse(accepted, shown);
+
+    await expect(
+      performContainmentRead(source, read, new AbortController().signal).catch(
+        (error: unknown) =>
+          reportedFailure(error, source, readingOf(source, read)),
+      ),
+    ).resolves.toEqual({ message, retryAfterSeconds, recovery });
+  },
+);
+
+const shownParameter = `revision=${shown}`;
+const acceptedParameter = `contains=${accepted}`;
+const pair = `${shownParameter}&${acceptedParameter}`;
+const fullRevisions = "A containment read names only full commit shas.";
+const onlyRevisions =
+  "A containment read names only the revision shown and the accepted revision.";
+
+test.each([
+  ["an accepted branch name", `${shownParameter}&contains=main`, fullRevisions],
+  [
+    "an abbreviated accepted commit",
+    `${shownParameter}&contains=${accepted.slice(0, 7)}`,
+    fullRevisions,
+  ],
+  [
+    "a symbolic shown revision",
+    `revision=HEAD&${acceptedParameter}`,
+    fullRevisions,
+  ],
+  ["a missing shown revision", acceptedParameter, onlyRevisions],
+  ["two accepted revisions", `${pair}&contains=${shown}`, onlyRevisions],
+  ["an extra file path", `${pair}&path=README.md`, onlyRevisions],
+  ["an extra branch", `${pair}&branch=main`, onlyRevisions],
+  [
+    "a check in place of the shown revision",
+    `since=${shown}&${acceptedParameter}`,
+    onlyRevisions,
+  ],
+  [
+    "an upper-case accepted revision",
+    `${shownParameter}&contains=${accepted.toUpperCase()}`,
+    fullRevisions,
+  ],
+  ["an accepted revision with a suffix", `${pair}%3Bextra`, fullRevisions],
+] as const)("refuses %s in a containment request", (...[, query, message]) => {
+  expect(
+    parseRequestedRead(new URLSearchParams(`source=${source.id}&${query}`)),
+  ).toEqual({ kind: "refused", status: 400, message });
 });

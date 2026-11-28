@@ -9,7 +9,6 @@ import {
   expect,
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
-import { openBacklog } from "../../dashboard/test-support/support/sessionDialog.ts";
 import { launchWaitMs } from "../../dashboard/test-support/support/launchWait.ts";
 import { terminalPanel } from "../../dashboard/test-support/terminalScreenPage.ts";
 import {
@@ -23,6 +22,7 @@ import {
   startSession,
   startSessionDialog,
 } from "../../dashboard/test-support/launchStoryCardPage.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 
 // The admitted story stays published and its kept start resumes on the same
 // Start request, under the same story.
@@ -65,7 +65,7 @@ for (const { scenario, words } of failures) {
     origin,
   }) => {
     dashboard.claudeScenario(scenario);
-    const card = await openBacklog(page, origin, true);
+    const card = (await openInstalledStoryBoard(page, origin)).card("Story A");
     const button = startSession(page, "Open Dough");
     const row = parts(page).projectActions;
 
@@ -108,7 +108,7 @@ test.describe("when Claude Code does not answer within the launch wait", () => {
     origin,
   }) => {
     dashboard.claudeScenario("hang");
-    const card = await openBacklog(page, origin, true);
+    const card = (await openInstalledStoryBoard(page, origin)).card("Story A");
     const button = startSession(page, "Open Dough");
     const dialog = startSessionDialog(page, "Open Dough");
 

@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "sessionId": "36920bab-a25d-4bc8-8ef2-9d6ee38ba396",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-28T10:51:30.523Z",
+  "story": "SEED-450#keep-runner-across-unrelated-dashboard-deploys",
+  "ranges": [
+    {
+      "base": "dda5d34b3e54efaaf5f08e10b24aa03b9bba6b3e",
+      "candidate": "da82421a3fee1f7f9b219c9cca28f2703edbef1a"
+    },
+    {
+      "base": "da82421a3fee1f7f9b219c9cca28f2703edbef1a",
+      "candidate": "2b12a42f1477c3d4156cd25bc4de1a375e0999b6"
+    },
+    {
+      "base": "2b12a42f1477c3d4156cd25bc4de1a375e0999b6",
+      "candidate": "b7aa9f05c39b564f2686e22d25ae8f51be492377"
+    }
+  ]
+}

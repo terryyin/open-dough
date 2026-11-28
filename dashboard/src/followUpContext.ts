@@ -197,7 +197,7 @@ export function followUpItems({
   ];
 }
 
-// A standalone session keeps its existing first-input context block.
+// A session follow-up keeps its session's context as one first-input block.
 export function followUpContextText({ label, items }: FollowUpSection): string {
   return [preamble, `Session “${label}”:`, ...items.map(itemText)].join("\n");
 }

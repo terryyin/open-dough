@@ -20,7 +20,7 @@ import {
   sessionsRevisionHeader,
 } from "../../dashboard/src/machineSessionsRevision.ts";
 import {
-  expandStoryCardDoneHistory,
+  shownDoneSessionEntriesOf,
   parts,
   storyCardSessions,
   storyCardDoneDisclosure,
@@ -140,9 +140,11 @@ async function shownRetained(page: Page) {
   const backlogCard = storyCard(board.backlog, backlogStoryTitle);
   await expect(storyCardDoneDisclosure(backlogCard)).toContainText("1");
   await expect(
-    (await expandStoryCardDoneHistory(backlogCard))
-      .getByRole("article")
-      .filter({ hasText: "Retained session 1" }),
+    await shownDoneSessionEntriesOf(
+      page,
+      backlogStoryTitle,
+      "Retained session 1",
+    ),
   ).toBeVisible();
   await expect(board.backlog).not.toContainText("Reading preparation");
   await givePageItsTurns(page);

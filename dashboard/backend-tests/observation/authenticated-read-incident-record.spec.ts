@@ -22,9 +22,7 @@ import {
   startFakeGitHub,
 } from "../../test-support/support/fakeGitHub.ts";
 import { httpErrorAnswer } from "../../test-support/originAnswers.ts";
-import { checkedAt, pinnedAt } from "../../test-support/support/sharedReads.ts";
-import { defaultRepository } from "../../test-support/publishedOriginBasics.ts";
-import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
+import { pinnedAt, readAt } from "../../test-support/support/sharedReads.ts";
 import {
   incidentEntries,
   incidentFiles,
@@ -59,8 +57,7 @@ test("a replaced server lists the failures the earlier one retained, newest firs
       // socket and caller token.
       const published = publishes({});
       github.serve(everyRepository, published);
-      expectServedHomesReach(github, defaultRepository, published.revision);
-      const initial = await checkedAt(first);
+      const initial = await readAt(first, `&revision=${published.revision}`);
       expect(initial.status).toBe(200);
       expect(JSON.parse(initial.body)).toMatchObject({
         revision: published.revision,

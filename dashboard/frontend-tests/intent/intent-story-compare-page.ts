@@ -40,8 +40,21 @@ export function intentStoryCompare() {
     exact: true,
   });
   const compare = header.getByRole("group", { name: "Compare" });
+  // The review scope dropdown: its closed combobox announces the chosen
+  // scope, and its open list offers Whole story and each session.
+  const scope = compare.getByRole("combobox", {
+    name: "Review scope",
+    exact: true,
+  });
+  const scopeList = compare.getByRole("listbox", { name: "Review scope" });
+  const scopeOption = (name: string) =>
+    scopeList.getByRole("option", { name, exact: true });
+  const openScope = async () => {
+    if (scopeList.query() === null) await activateComparisonControl(scope);
+    await expect.element(scopeList).toBeVisible();
+  };
   const purpose = intent.getByRole("region", { name: "Purpose", exact: true });
-  // The landed runs' choices, apart from the Sessions choices beside them.
+  // The landed runs' choices, apart from the Review scope dropdown beside them.
   const landingChoices = compare
     .getByRole("radiogroup", { name: "Comparison", exact: true })
     .getByRole("radio", { name: / — / });
@@ -154,6 +167,22 @@ export function intentStoryCompare() {
     }),
     revisions: () =>
       textOf(header.element().querySelector(".intent-story-revisions")),
+    scope,
+    scopeList,
+    scopeOption,
+    // The scope dropdown's options by name, opening it first.
+    scopeNames: async () => {
+      await openScope();
+      return [...scopeList.element().querySelectorAll('[role="option"]')].map(
+        (option) => textOf(option).trim(),
+      );
+    },
+    // Chooses the scope named `name` from the opened dropdown.
+    chooseScope: async (name: string) => {
+      await openScope();
+      await expect.element(scopeOption(name)).toBeVisible();
+      (scopeOption(name).element() as HTMLElement).click();
+    },
     choice: (name: string) => compare.getByRole("radio", { name }),
     choose: (name: string) =>
       activateComparisonControl(compare.getByRole("radio", { name })),
@@ -190,6 +219,8 @@ export function intentStoryCompare() {
       await pressButton(refreshButton);
     },
     viewTab,
+    // The panel the named story view's tab controls.
+    viewPanel: view,
     chooseTab: async (name: View) => {
       if (pathReading.query() !== null) await goHome();
       await activateComparisonControl(viewTab(name));
@@ -209,5 +240,15 @@ export function intentStoryCompare() {
       ).trim(),
     diffCode: () =>
       textOf(purpose.element().querySelector(".story-review-code")),
+    // Whether the diff still reads the file's texts for its omitted context.
+    diffContextReading: () =>
+      purpose
+        .element()
+        .querySelector(".story-review-code")
+        ?.getAttribute("aria-busy"),
   };
 }
+
+// An execution session's Review scope option is named by its close time.
+export const executionName = ({ closedAt }: { readonly closedAt: string }) =>
+  `Execution — ${new Date(closedAt).toLocaleString()}`;

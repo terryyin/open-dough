@@ -20,13 +20,13 @@ import { nextAcceptedAttemptId } from "../../dashboard/test-support/acceptedAtte
 import { settledOutcome } from "../../dashboard/test-support/acceptedAttempts.ts";
 import { untilPageRequestsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { expect } from "../../dashboard/test-support/dashboardTest.ts";
-import { commitAnswer } from "../../dashboard/test-support/originAnswers.ts";
 import { removeQueuedStory } from "../../dashboard/test-support/responsiveRecovery.ts";
 import {
   expectProtected,
   openStories,
   test,
 } from "../../dashboard/test-support/responsiveStart.ts";
+import { checkReuseMs } from "../../dashboard/src/revisionCheckSchedule.ts";
 import { holdLaterTrunkTransfers } from "../../dashboard/test-support/laterTrunkTransfers.ts";
 import { radio } from "../../dashboard/test-support/support/sessionDialog.ts";
 import type { StartOrigin } from "../../dashboard/test-support/support/startOrigin.ts";
@@ -50,16 +50,13 @@ async function startAfter(
   origin: StartOrigin,
   change: () => Promise<unknown>,
 ) {
-  const before = (await origin.originGit("rev-parse", "main")).trim();
   const opened = await openStories(page, origin);
-  const restore = opened.published.answerWith("main", commitAnswer(before));
   await change();
   await opened.story.getByRole("button", { name: "Start execution" }).click();
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Start", exact: true })
     .click();
-  restore();
   return opened;
 }
 
@@ -127,57 +124,62 @@ test("a start refused because another writer removed the story publishes nothing
   expect(dashboard.claudeLaunchCalls()).toEqual([]);
 });
 
-test("a one-shot refinement publishes nothing: once its session settles, a fresh read asked afterwards holds Starts for the open session", async ({
-  page,
-  dashboard,
-  origin,
-}) => {
-  dashboard.claudeScenario("held");
-  const { published, story } = await openStories(page, origin);
+// Production reuse: the settled open check would otherwise answer the fresh read.
+test.describe("at production check reuse", () => {
+  test.use({ revisionCheckReuseMs: checkReuseMs });
 
-  await story.getByRole("button", { name: "Start refinement" }).click();
-  const dialog = page.getByRole("dialog");
-  await radio(dialog, "Tracking", "One-shot").check();
-  await dialog.getByRole("button", { name: "Start", exact: true }).click();
-  await expect(dialog).toBeHidden();
-  await expect
-    .poll(async () => (await attempts(dashboard))[0]?.publication.kind, {
-      timeout: 30_000,
-    })
-    .toBe("none");
+  test("a one-shot refinement publishes nothing: once its session settles, a fresh read asked afterwards, even within production check reuse, holds Starts for the open session", async ({
+    page,
+    dashboard,
+    origin,
+  }) => {
+    dashboard.claudeScenario("held");
+    const { published, story } = await openStories(page, origin);
 
-  // The fresh read is held at Git: settling alone returns nothing.
-  const transfer = holdLaterTrunkTransfers(
-    dashboard.home,
-    published.repository,
-  );
-  dashboard.releaseHeldClaude();
-  await expect(storyCardSessions(story)).toHaveCount(1, { timeout: 30_000 });
-  await expect(story).toContainText(waiting);
-  await expectProtected(story);
-  await transfer.untilHeld();
+    await story.getByRole("button", { name: "Start refinement" }).click();
+    const dialog = page.getByRole("dialog");
+    await radio(dialog, "Tracking", "One-shot").check();
+    await dialog.getByRole("button", { name: "Start", exact: true }).click();
+    await expect(dialog).toBeHidden();
+    await expect
+      .poll(async () => (await attempts(dashboard))[0]?.publication.kind, {
+        timeout: 30_000,
+      })
+      .toBe("none");
 
-  transfer.release();
-  await expectSettledPage(page);
-  await expect(story).not.toContainText(waiting);
-  const startRefinement = story.getByRole("button", {
-    name: "Start refinement",
+    // The fresh read is held at Git: settling alone returns nothing.
+    const transfer = holdLaterTrunkTransfers(
+      dashboard.home,
+      published.repository,
+    );
+    dashboard.releaseHeldClaude();
+    await expect(storyCardSessions(story)).toHaveCount(1, { timeout: 30_000 });
+    await expect(story).toContainText(waiting);
+    await expectProtected(story);
+    await transfer.untilHeld();
+
+    transfer.release();
+    await expectSettledPage(page);
+    await expect(story).not.toContainText(waiting);
+    const startRefinement = story.getByRole("button", {
+      name: "Start refinement",
+    });
+    const startExecution = story.getByRole("button", {
+      name: "Start execution",
+    });
+    await expect(startRefinement).toBeDisabled();
+    await expect(startExecution).toBeDisabled();
+    await expect(startRefinement).toHaveAccessibleDescription(
+      openSessionDescription,
+    );
+    await expect(startExecution).toHaveAccessibleDescription(
+      openSessionDescription,
+    );
+    await expect(
+      story.getByRole("button", { name: "Inspect story" }),
+    ).toBeEnabled();
+    expect(published.compares).toEqual([]);
   });
-  const startExecution = story.getByRole("button", {
-    name: "Start execution",
-  });
-  await expect(startRefinement).toBeDisabled();
-  await expect(startExecution).toBeDisabled();
-  await expect(startRefinement).toHaveAccessibleDescription(
-    openSessionDescription,
-  );
-  await expect(startExecution).toHaveAccessibleDescription(
-    openSessionDescription,
-  );
-  await expect(
-    story.getByRole("button", { name: "Inspect story" }),
-  ).toBeEnabled();
-  expect(published.compares).toEqual([]);
 });
 
 test("a Take whose session is refused reconciles with that Take: its Taken card keeps the answer and offers the kept start's continuation", async ({

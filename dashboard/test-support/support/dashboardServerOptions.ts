@@ -42,7 +42,7 @@ export type DashboardServerOptions = FakeClaudeOptions & {
   readonly limitBackoffMs?: number | undefined;
   // Retained-answer budget (`../../server/retainedAnswers.ts`); 64 MiB unset.
   readonly retainedAnswersBytes?: number | undefined;
-  // Listing reuse ms (`../../server/revisionChecks.ts`); omitted/undefined forces 0
+  // Verified Git observation reuse ms; omitted/undefined forces 0
   // so fake-clock paced checks see one listing each; pass `checkReuseMs` for settled sharing.
   readonly revisionCheckReuseMs?: number | undefined;
   // Whether the test controls the clock reuse windows are measured by
@@ -73,3 +73,14 @@ export type DashboardServerOptions = FakeClaudeOptions & {
   // default. Caller-owned restart machines stay on the real route.
   readonly cursorRunner?: DashboardCursorRunner;
 };
+
+// What a server start serves from the run's shared artifacts
+// (./runArtifacts.ts): a preview serves the app build, and a start that
+// serves from source or mounts the boundary in this worker needs no server
+// bundle.
+export function servedArtifacts(
+  mode: DashboardServerMode,
+  mounted: boolean,
+): { app: boolean; bundle: boolean } {
+  return { app: mode === "preview", bundle: !mounted && mode !== "dev" };
+}

@@ -1,16 +1,18 @@
 // A chosen session's CI comparison measures its chosen recorded range as the
-// selected range, or, without a published record, measures nothing and says
-// so; Whole story restores the story's own comparison and its chosen run. The
-// case's review answers, keyed by `published` and `run`, own the recorded
-// pairs.
+// selected range; while that range is read, or without a published record,
+// it measures nothing and says so; Whole story restores the story's own
+// comparison and its chosen run. The case's review answers, keyed by
+// `published` and `run`, own the recorded pairs.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { IntentCiReadSource } from "../../src/intentCiReadSource.ts";
 import type { CiComparisonRange } from "../../src/selectedCiComparison.ts";
+import { heldReply } from "./intent-ci-evidence-page.tsx";
 import {
   activateComparisonControl,
   comparisonRead,
   intentStoryCompare,
+  executionName,
 } from "./intent-story-compare-page.ts";
 import {
   doneCompletion,
@@ -24,7 +26,7 @@ const execution = makeMe.aSessionRecord
   .forExecutionOf(doneIdentity)
   .closedAt(new Date(Date.now() - 3_600_000).toISOString())
   .please();
-const executionName = `Execution — ${new Date(execution.closedAt).toLocaleString()}`;
+const executionScope = executionName(execution);
 const first: CiComparisonRange = { start: "3".repeat(40), end: "4".repeat(40) };
 const second: CiComparisonRange = {
   start: "5".repeat(40),
@@ -82,16 +84,44 @@ test("a chosen session's CI comparison measures its chosen range and Whole story
   const measured = story.landedEndpoint();
   expect(asked).toEqual([]);
 
-  await activateComparisonControl(story.choice(executionName));
+  await story.chooseScope(executionScope);
   await expect.poll(() => asked.at(-1)).toEqual(first);
 
   await activateComparisonControl(story.choice("Published range 2 of 2"));
   await expect.poll(() => asked.at(-1)).toEqual(second);
   expect(story.noteIn("CI comparison")).toBeNull();
 
-  await activateComparisonControl(story.choice("Whole story"));
+  await story.chooseScope("Whole story");
   await comparisonRead(story.landedEndpoint).toBe(measured);
   expect(asked).toEqual([first, second]);
+});
+
+test("a chosen session's held read measures nothing until its range arrives", async () => {
+  const asked: CiComparisonRange[] = [];
+  const held = heldReply<ReturnType<typeof range>>();
+  await openDoneStoryComparison({
+    publishedSessions: [execution],
+    review: (query) =>
+      query.published === undefined
+        ? Promise.resolve(publishedCompletion())
+        : held.promise,
+    ci: measuring(asked),
+  });
+  const story = intentStoryCompare();
+  await story.chooseTab("CI comparison");
+  await comparisonRead(story.landedEndpoint).not.toBe("");
+
+  await story.chooseScope(executionScope);
+  await comparisonRead(() => story.viewText("CI comparison")).toContain(
+    "Reading the story's changes…",
+  );
+  expect(story.landedEndpoint()).toBe("");
+  expect(story.noteIn("CI comparison")).toBeNull();
+  expect(asked).toEqual([]);
+
+  held.resolve(range(1, first));
+  await expect.poll(() => asked.at(-1)).toEqual(first);
+  expect(story.noteIn("CI comparison")).toBeNull();
 });
 
 test("a session without a published record measures nothing and says so; Whole story measures the story again", async () => {
@@ -118,7 +148,7 @@ test("a session without a published record measures nothing and says so; Whole s
   await comparisonRead(story.landedEndpoint).not.toBe("");
   const measured = story.landedEndpoint();
 
-  await activateComparisonControl(story.choice(launchedName));
+  await story.chooseScope(launchedName);
   await comparisonRead(() => story.viewText("CI comparison")).toContain(
     "This session published no comparison.",
   );
@@ -127,7 +157,7 @@ test("a session without a published record measures nothing and says so; Whole s
   expect(story.viewText("CI comparison")).not.toContain("Check again");
   expect(asked).toEqual([]);
 
-  await activateComparisonControl(story.choice("Whole story"));
+  await story.chooseScope("Whole story");
   await comparisonRead(story.landedEndpoint).toBe(measured);
 });
 
@@ -167,10 +197,10 @@ test("Whole story keeps the story's chosen landed run after a session visit", as
   const runRange = { start: "1".repeat(40), end: "2".repeat(40) };
   await expect.poll(() => asked.at(-1)).toEqual(runRange);
 
-  await activateComparisonControl(story.choice(executionName));
+  await story.chooseScope(executionScope);
   await expect.poll(() => asked.at(-1)).toEqual(first);
 
-  await activateComparisonControl(story.choice("Whole story"));
+  await story.chooseScope("Whole story");
   await expect.element(story.runChoice(run.key)).toBeChecked();
   await expect.poll(() => asked.at(-1)).toEqual(runRange);
 });

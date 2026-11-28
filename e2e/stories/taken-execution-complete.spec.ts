@@ -14,7 +14,6 @@ import {
   adviceless,
   allDone,
   branch,
-  branchHead,
   noChange,
   onBranch,
   onTrunk,
@@ -35,9 +34,13 @@ const complete = "Execution complete, awaiting wrap-up";
 
 test("a Taken card whose plan records its execution as complete shows it awaiting wrap-up and since when, or the record's gap", async ({
   page,
+  afterGitHubStops,
 }) => {
-  const { taken: takenColumn, backlog: backlogColumn } =
-    await openTakenExecutionComplete(page);
+  const {
+    taken: takenColumn,
+    backlog: backlogColumn,
+    branchHead,
+  } = await openTakenExecutionComplete(page, afterGitHubStops);
   const card = (title: string) => storyCard(takenColumn, title);
   const progress = (title: string) => sliceProgress(card(title));
 

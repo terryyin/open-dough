@@ -67,6 +67,8 @@ export type PublishedWork = {
   // When the local server asked for the ref this read resolved, by its own
   // clock; absent when the revision was resolved before the read.
   readonly refAskedAt?: string;
+  // When origin last confirmed this revision, by the local server's clock.
+  readonly confirmedAt?: string;
   // "" when the backlog records no near-future direction.
   readonly direction: string;
   readonly taken: readonly WorkEntry[];
@@ -93,6 +95,18 @@ export type PublishedWorkProgress = (
   work: PublishedWork,
   answered: PublishedWork,
 ) => void;
+
+// The shown snapshot when it is the read project's at the read revision.
+// Every repository may be published at the same commit, so the revision alone
+// does not name a snapshot.
+export function shownAtRevision(
+  shown: PublishedWork | undefined,
+  read: Pick<PublishedWork, "source" | "revision">,
+): PublishedWork | undefined {
+  return shown?.source.id === read.source.id && shown.revision === read.revision
+    ? shown
+    : undefined;
+}
 
 // A revision as it is said inside a sentence. Pinned links keep the whole
 // revision.

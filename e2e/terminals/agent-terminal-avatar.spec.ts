@@ -13,7 +13,6 @@ import { existsSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import type { Locator } from "@playwright/test";
 import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
-import { openCatalogLaunchBoard } from "../../dashboard/test-support/support/codexLaunch.ts";
 import {
   parts,
   sessionNamedBy,
@@ -42,6 +41,8 @@ import type { LaunchRecord } from "../../dashboard/src/agentLaunch.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { sidePanelNamesOf } from "../../dashboard/test-support/sidePanelFrame.ts";
 import { credit } from "../../dashboard/test-support/agentCredit.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
+import { catalogOrigin } from "../../dashboard/test-support/support/catalogProjectOrigin.ts";
 
 test.use({ projectFolders: ["open-dough"] });
 
@@ -63,7 +64,7 @@ test("the header shows the recorded agent's portrait left of its two rows, propo
     /\/agent-avatars\/odd-e-nerds\/cartoon\/ruuf\.webp$/,
     (route) => route.fulfill({ status: 404 }),
   );
-  await openCatalogLaunchBoard(page, dashboard.home);
+  await openInstalledStoryBoard(page, catalogOrigin(dashboard.home));
   const panel = terminalPanel(page);
   const { rows } = terminalScreenParts(panel);
   const sessionRow = sidePanelNamesOf(panel).sessionName;

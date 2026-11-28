@@ -164,16 +164,26 @@ export class KeptAdmissions {
 
   // Why a call of `resource` may not be asked now. A wait is told of only
   // once it is kept: until it is, the call is refused as failed, and still
-  // not asked.
+  // not asked. An observer can inspect what is kept without writing it.
   /**
    * @param {string} resource
+   * @param {{ readonly retain?: boolean }} [options]
    * @returns {GhRequestFailure | undefined}
    */
-  refusal(resource) {
-    const refused = this.of(resource).heldBack(Date.now());
-    return refused === undefined || this.keep(resource)
-      ? refused
-      : { kind: "failed" };
+  refusal(resource, { retain = true } = {}) {
+    const refused = this.#admissions.get(resource)?.heldBack(Date.now());
+    if (refused === undefined) return undefined;
+    const kept = retain
+      ? this.keep(resource)
+      : this.#stored.has(resource) &&
+        this.#stored.get(resource) === this.#keptText(resource);
+    return kept ? refused : { kind: "failed" };
+  }
+
+  /** @param {string} resource */
+  #keptText(resource) {
+    const hold = this.#admissions.get(resource)?.kept;
+    return hold === undefined ? undefined : written(hold);
   }
 
   // Stores what `resource`'s admission knows of a wait, or removes it once
@@ -181,8 +191,7 @@ export class KeptAdmissions {
   // stored: false leaves the earlier record, and the next call stores again.
   /** @param {string} resource */
   keep(resource) {
-    const hold = this.of(resource).kept;
-    const text = hold === undefined ? undefined : written(hold);
+    const text = this.#keptText(resource);
     if (this.#stored.get(resource) === text) return true;
     const name = `hold.${resource}.json`;
     try {

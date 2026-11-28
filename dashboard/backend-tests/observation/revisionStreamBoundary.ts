@@ -1,37 +1,27 @@
 // Helpers for the authenticated read boundary's revision-stream specs
 // (./authenticated-read-revision-stream.spec.ts): a lowered-pace development
 // or preview server, stream URLs, EventSource-shaped opens, settling within a
-// bound, matching-refs accounting and fixed failing answers against the
-// synthetic `gh`.
+// bound, and a counted Git origin.
 
-import { expect } from "../../test-support/support/pageTest.ts";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { homeReviewRepository } from "../../test-support/support/reviewRepositoryFixture.ts";
+import {
+  heldUploadPack,
+  signalFifo,
+} from "../review/verifiedOriginTrunkCase.ts";
 import {
   sharedDashboardBuild,
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
 } from "../../test-support/support/dashboardServer.ts";
-import type { OriginAnswer } from "../../test-support/originAnswers.ts";
-import type { RepositoryAnswerer } from "../../test-support/support/fakeGitHub.ts";
-import type { GhRequest } from "../../test-support/support/ghRequest.ts";
-import {
-  openEventStream,
-  rawRequest,
-} from "../../test-support/support/rawHttp.ts";
+import { openEventStream } from "../../test-support/support/rawHttp.ts";
 
 type StreamEndpoint = Pick<DashboardServer, "baseURL" | "origin">;
-
-// Answers as `published` does, except each request kind in `fixed` with its
-// fixed answer, such as a failing matching-refs listing.
-export function answeringInstead(
-  published: RepositoryAnswerer,
-  fixed: Partial<Record<GhRequest["kind"], OriginAnswer>>,
-): RepositoryAnswerer {
-  return (call) => {
-    const answer = fixed[call.request.kind];
-    return answer === undefined ? published(call) : Promise.resolve(answer);
-  };
-}
 
 // What `answer` settles to, or timed out when it has not settled within `ms`.
 export function settledWithin<T>(
@@ -82,25 +72,72 @@ export function openStream(
   });
 }
 
-export function matchingRefsSince(
-  server: Pick<DashboardServer, "github">,
-  before: number,
-): number {
-  return server.github.calls
-    .slice(before)
-    .filter(({ request }) => request.kind === "matching-refs").length;
+// The boundary really probes and fetches this origin. A case can hold one
+// transfer or leave the gate counting all operations without holding them.
+export async function streamOrigin(
+  home: string,
+  heldFrom = Number.MAX_SAFE_INTEGER,
+  older: RevisionFacts = { backlog: { taken: [] } },
+) {
+  const repository = await materializeRepository(
+    makeMe.aRepository
+      .withRevision("older", older)
+      .withRevision("published", {
+        files: { "publication.txt": "Second commit.\n" },
+      })
+      .please(),
+  );
+  const review = homeReviewRepository(home);
+  const pack = heldUploadPack(repository.fixture, review, repository.origin, {
+    heldFrom,
+  });
+  return {
+    review,
+    repository,
+    pack,
+    operations: () =>
+      readFileSync(pack.log, "utf8")
+        .split("\n")
+        .filter((line) => line === "call").length,
+    blockConfirmationWrite() {
+      mkdirSync(path.join(review, "open-dough-board-confirmation.json.tmp"));
+    },
+    failOriginProbe(failure: "unavailable" | "credentials") {
+      const stderr =
+        failure === "credentials"
+          ? "echo 'fatal: could not read Username' >&2\n"
+          : "";
+      writeFileSync(pack.gate, `#!/bin/sh\n${stderr}exit 128\n`);
+    },
+    close: async () => {
+      await signalFifo(pack.releaseFifo, false);
+      await repository.cleanup();
+    },
+  };
 }
 
-export async function warmProfiles(
-  server: StreamEndpoint,
-  revision: string,
+export async function withStreamOrigin<
+  Server extends {
+    readonly home: string;
+    close(): Promise<void>;
+  },
+>(
+  server: Server,
+  prove: (
+    origin: Awaited<ReturnType<typeof streamOrigin>>,
+    server: Server,
+  ) => Promise<void>,
+  older?: RevisionFacts,
 ): Promise<void> {
-  expect(
-    (
-      await rawRequest({
-        url: streamUrl(server, `&revision=${revision}&agents=profiles`),
-        headers: { Origin: server.origin },
-      })
-    ).status,
-  ).toBe(200);
+  let origin: Awaited<ReturnType<typeof streamOrigin>> | undefined;
+  try {
+    origin = await streamOrigin(server.home, undefined, older);
+    await prove(origin, server);
+  } finally {
+    try {
+      await server.close();
+    } finally {
+      await origin?.close();
+    }
+  }
 }

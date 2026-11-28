@@ -55,12 +55,6 @@ export function expectCursorRunnerStandIn(home: string): void {
   assert.equal(readCursorRunnerAddress(home)?.pid, process.pid);
 }
 
-export function runnerCommand(pid: number): string {
-  return spawnSync("ps", ["-o", "command=", "-p", String(pid)], {
-    encoding: "utf8",
-  }).stdout.trim();
-}
-
 // The environment this home's live runner was started with, read back word
 // by word after its command, so values holding spaces are cut short.
 export function runnerEnvironment(home: string): Record<string, string> {

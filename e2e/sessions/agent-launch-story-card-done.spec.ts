@@ -12,7 +12,7 @@ import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   storyCardSessionOf,
   expectMembership,
-  expandStoryCardDoneHistory,
+  shownDoneSessionEntriesOf,
   parts,
   standaloneSessionName,
   sessionNamedBy,
@@ -94,7 +94,7 @@ test.describe("marking a card's session done", () => {
       await expectEntries(recent, []);
       const disclosure = storyCardDoneDisclosure(story);
       await expect(disclosure).toContainText("1");
-      await expandStoryCardDoneHistory(story);
+      await shownDoneSessionEntriesOf(page, readyStory);
       const entry = sessionEntryShowing(story, `claude:${unavailable}`);
       await expect(entry).toContainText(`Session ${unavailable}`);
       await expect(sessionStateOf(entry)).toHaveText("Done");

@@ -1,155 +1,94 @@
-import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
+// A HOME's routes are a list Git reads in order: among equally long matching
+// URLs it takes the first. Git's own longest match is exercised by the
+// journeys that read a committed origin through `expectServedHomesReach`.
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { expect, test as base } from "vitest";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import type { PublishedSource } from "../../src/publishedSource.ts";
-import {
-  everyRepository,
-  publishes,
-  startFakeGitHub,
-  type FakeGitHub,
-} from "../../test-support/support/fakeGitHub.ts";
+import { expect, test } from "vitest";
 import {
   gitHubRepositoryUrl,
-  routeDashboardHome,
-  routeOriginThroughHome,
+  unroutedAway,
 } from "../../test-support/support/fixtureOriginRoute.ts";
-import { holdingAnswer } from "../../test-support/support/heldGitHubAnswer.ts";
+import {
+  homeRoutes,
+  publicationRoutes,
+  republishedRoutes,
+  withRoute,
+  writeHomeRoutes,
+  type HomeRoute,
+} from "../../test-support/support/homeRoutes.ts";
 
-const project = makeMe.aPublishedSource
-  .with({
-    id: "release-board",
-    label: "Release Board",
-    repository: "fixture/release-board",
-    ref: "release+stable",
-  })
-  .please();
-const other = makeMe.aPublishedSource
-  .with({ id: "other", label: "Other", repository: "fixture/other" })
-  .please();
-const seeded = makeMe.aPublishedSource.openDough.please();
+const url = gitHubRepositoryUrl("fixture/release-board");
+const otherUrl = gitHubRepositoryUrl("fixture/other");
+const awayFromGitHub = unroutedAway("/home");
+const explicit = { origin: "/explicit", url };
+const first = { origin: "/first-publication", url };
+const second = { origin: "/second-publication", url };
+const other = { origin: "/other-publication", url: otherUrl };
 
-const test = base.extend<{ github: FakeGitHub; newHome: () => string }>({
-  // eslint-disable-next-line no-empty-pattern
-  github: async ({}, use) => {
-    const github = await startFakeGitHub();
-    try {
-      await use(github);
-    } finally {
-      await github.close();
-    }
-  },
-  // eslint-disable-next-line no-empty-pattern
-  newHome: async ({}, use) => {
-    const root = mkdtempSync(path.join(tmpdir(), "dough-publication-routes-"));
-    try {
-      await use(() => mkdtempSync(path.join(root, "home-")));
-    } finally {
-      rmSync(root, { recursive: true, force: true });
-    }
-  },
-});
-
-function readHead(home: string, { repository, ref }: PublishedSource) {
-  return spawnSync(
-    "git",
-    [
-      "ls-remote",
-      "--exit-code",
-      gitHubRepositoryUrl(repository),
-      `refs/heads/${ref}`,
-    ],
-    {
-      cwd: home,
-      env: { ...process.env, HOME: home, GIT_ALLOW_PROTOCOL: "file" },
-      encoding: "utf8",
-    },
-  );
-}
-
-function reachedRevision(home: string, source: PublishedSource) {
-  const result = readHead(home, source);
-  expect(result.status, result.stderr).toBe(0);
-  return result.stdout.split("\t")[0];
-}
-
-function serveFirstPublication(github: FakeGitHub) {
-  const published = publishes({ defaultBranch: project.ref });
-  github.serve(project.repository, published);
-  return published.revision;
-}
-
-function serveSecondPublication(github: FakeGitHub) {
-  const published = publishes({ defaultBranch: project.ref });
-  const held = holdingAnswer(published, ({ kind }) => kind === "content");
-  github.serve(project.repository, held.answer);
-  return published.revision;
-}
-
-test("Git reaches the wrapped second publication in HOMEs registered before and after the first", ({
-  github,
-  newHome,
-}) => {
-  const early = newHome();
-  routeDashboardHome(early, github);
-  const first = serveFirstPublication(github);
-
-  const late = newHome();
-  routeDashboardHome(late, github);
-  expect(reachedRevision(early, project)).toBe(first);
-  expect(reachedRevision(late, project)).toBe(first);
-
-  const second = serveSecondPublication(github);
-  expect(reachedRevision(early, project)).toBe(second);
-  expect(reachedRevision(late, project)).toBe(second);
-});
+const firstFor = (routes: readonly HomeRoute[], wanted: string) =>
+  routes.find((route) => route.url === wanted)?.origin;
 
 test.for([
-  { route: "another named project", source: other, servedAs: other.repository },
-  { route: "the seeded fallback", source: seeded, servedAs: everyRepository },
+  {
+    home: "a HOME routed before the first publication",
+    routes: [awayFromGitHub, first, other],
+    reaches: second.origin,
+  },
+  {
+    home: "a HOME whose own fixture routed the repository first",
+    routes: [explicit, awayFromGitHub, first, other],
+    reaches: explicit.origin,
+  },
 ])(
-  "re-serving a project preserves $route",
-  ({ source, servedAs }, { github, newHome }) => {
-    const home = newHome();
-    routeDashboardHome(home, github);
-    const retained = publishes({ defaultBranch: source.ref });
-    github.serve(servedAs, retained);
-    serveFirstPublication(github);
+  "republication of $home reaches the expected origin",
+  ({ routes, reaches }) => {
+    const republished = republishedRoutes(routes, first, second);
 
-    serveSecondPublication(github);
-
-    expect(reachedRevision(home, source)).toBe(retained.revision);
+    expect(firstFor(republished, url)).toBe(reaches);
+    expect(republished).not.toContainEqual(first);
+    expect(republished).toEqual(
+      expect.arrayContaining([awayFromGitHub, other]),
+    );
   },
 );
 
-test("the HOME's explicit route takes precedence after republication", ({
-  github,
-  newHome,
-}) => {
-  const home = newHome();
-  const explicit = publishes({ defaultBranch: project.ref });
-  routeOriginThroughHome(home, explicit.origin, project.repository);
-  routeDashboardHome(home, github);
-  serveFirstPublication(github);
+test("a committed publication leaves its origin as the only route for its URL", () => {
+  const routes = [explicit, awayFromGitHub, second, other];
 
-  serveSecondPublication(github);
-
-  expect(reachedRevision(home, project)).toBe(explicit.revision);
+  expect(publicationRoutes(routes, second)).toEqual([
+    awayFromGitHub,
+    second,
+    other,
+  ]);
 });
 
-test("an unserved and unseeded repository fails through a local route", ({
-  github,
-  newHome,
-}) => {
-  const home = newHome();
-  routeDashboardHome(home, github);
-  github.serve(everyRepository, publishes({ defaultBranch: other.ref }));
+test("an origin routes one URL and keeps its place", () => {
+  expect(
+    withRoute([first, other], { origin: first.origin, url: otherUrl }),
+  ).toEqual([{ origin: first.origin, url: otherUrl }, other]);
+});
 
-  const result = readHead(home, other);
+test("a HOME's routes round-trip through config text in order, keeping other settings", () => {
+  const home = mkdtempSync(path.join(tmpdir(), "dough-home-routes-"));
+  try {
+    writeFileSync(
+      path.join(home, ".gitconfig"),
+      '[user]\n\tname = Fixture\n[url "/stale"]\n\tinsteadOf = https://github.com/stale.git\n',
+    );
+    const routes = [
+      explicit,
+      awayFromGitHub,
+      { origin: '/with "quote"', url: otherUrl },
+    ];
 
-  expect(result.status).toBe(128);
-  expect(result.stderr).toContain(home);
-  expect(result.stderr).toContain(`${other.repository}.git`);
+    writeHomeRoutes(home, routes);
+
+    expect(homeRoutes(home)).toEqual(routes);
+    expect(readFileSync(path.join(home, ".gitconfig"), "utf8")).toContain(
+      "name = Fixture",
+    );
+  } finally {
+    rmSync(home, { recursive: true, force: true });
+  }
 });

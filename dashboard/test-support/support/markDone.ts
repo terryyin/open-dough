@@ -12,7 +12,10 @@
 import { expect, type Locator } from "@playwright/test";
 import { untilDoneMarkAnswered } from "../pageRequestNotes.ts";
 import type { ClaudeListingControls } from "./fakeClaudeListing.ts";
-import { sessionActions } from "./sessionEntryDisclosure.ts";
+import {
+  sessionActions,
+  sessionActionsControl,
+} from "./sessionEntryDisclosure.ts";
 
 const anyway = "Mark it done anyway?";
 
@@ -51,8 +54,17 @@ export const keepOpen = (question: Locator) =>
 // Presses Mark as done and expects the question that opens with this
 // statement (`expectQuestion`).
 export async function expectAsked(scope: Locator, statement: string) {
+  const action = markAsDone(scope);
+  const disclosure = sessionActionsControl(scope);
+  // The entry's disclosure can render after its reading. Opening only when
+  // the control is already counted misses it, and Mark as done stays hidden.
+  await expect
+    .poll(
+      async () => (await action.isVisible()) || (await disclosure.isVisible()),
+    )
+    .toBe(true);
   await sessionActions(scope);
-  await markAsDone(scope).click();
+  await action.click();
   return expectQuestion(scope, statement);
 }
 

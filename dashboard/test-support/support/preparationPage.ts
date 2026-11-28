@@ -8,34 +8,26 @@ import {
 import { startDashboardServer } from "./dashboardServer.ts";
 import { installFakeCodex } from "./fakeCodex.ts";
 import { launchWaitMs } from "./launchWait.ts";
+import { preparationOrigin } from "./preparationOrigin.ts";
 import { serveOriginBaseCi } from "./serveOriginBaseCi.ts";
 import {
   queuedOriginRepository,
   startOrigin,
   type StartOriginFixtures,
 } from "./startOrigin.ts";
+import type { ReleasedInstallation } from "./taggedInstallation.ts";
 export { expect } from "../dashboardTest.ts";
 export const test = base.extend<
   StartOriginFixtures & {
     preparationHost: "claude" | "codex";
+    // A released installation instead of this run's working-tree skills.
+    preparationRelease: ReleasedInstallation | undefined;
   }
 >({
   preparationHost: ["claude", { option: true }],
+  preparationRelease: [undefined, { option: true }],
   originRepository: queuedOriginRepository,
-  // Both hosts' queued bases are worker preparation
-  // (./serverInputWorkerFixtures.ts), so a first case of either host, or with
-  // a later-revision override, copies a prepared base in its own time.
-  origin: async (
-    { queuedOriginsReady, originRepository, preparationHost },
-    use,
-  ) => {
-    await Promise.resolve(queuedOriginsReady);
-    const origin = await startOrigin(originRepository, {
-      host: preparationHost,
-    });
-    await use(origin);
-    origin.cleanup();
-  },
+  origin: preparationOrigin(startOrigin),
   codexProtocol: async ({ origin, preparationHost }, use) => {
     const native =
       preparationHost === "codex"

@@ -99,10 +99,10 @@ test("saved Codex conversation reconnects after daemon loss at startup", async (
   const launches = startDashboard();
 
   // Construction restores the daemon before any call to the session read or attach.
+  const daemonLog = native.env["FAKE_CODEX_DAEMON_LOG"] ?? "";
   await expect
-    .poll(() => existsSync(native.env["FAKE_CODEX_DAEMON_LOG"] ?? ""))
-    .toBe(true);
-  expect(daemonStarts(native)).toEqual([{ cwd: realpathSync(home) }]);
+    .poll(() => (existsSync(daemonLog) ? daemonStarts(native) : []))
+    .toEqual([{ cwd: realpathSync(home) }]);
   const daemonEnvironments = codexEnvironments(native, "app-server");
   expect(daemonEnvironments).toHaveLength(1);
   expect(

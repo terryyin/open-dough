@@ -11,7 +11,7 @@ import {
   scopeOf,
   startOwnerProcess,
 } from "./github-request-owner-endpoint-connection.mjs";
-import { send } from "./github-request-owner-wire.mjs";
+import { coreCooldownOperation, send } from "./github-request-owner-wire.mjs";
 import {
   OwnerUnavailable,
   ownerFailure,
@@ -40,6 +40,7 @@ function readable(read) {
  *   readonly left?: true;
  *   readonly timedOut?: true;
  *   readonly answer?: any;
+ *   readonly cooldown?: { readonly kind?: string; readonly waitSeconds?: number };
  *   readonly told?: boolean;
  *   readonly refused?: string;
  *   readonly failure?: import("./github-request-owner-failure.mjs").OwnerUnavailableFailure;
@@ -99,7 +100,7 @@ export class OwnerLink {
   // `leavingAtBound` says so; a safe `failure` when the owner cannot be
   // asked. Reads may retry after a login change; actions never do.
   /**
-   * @param {{ readonly args?: readonly string[]; readonly operation?: string; readonly repository?: string; readonly runId?: number; readonly boundMs: number; readonly maxBufferBytes: number }} request
+   * @param {{ readonly operation: typeof coreCooldownOperation } | { readonly args?: readonly string[]; readonly operation?: string; readonly repository?: string; readonly runId?: number; readonly boundMs: number; readonly maxBufferBytes: number }} request
    * @param {AbortSignal} signal
    * @param {() => boolean} leavingAtBound
    * @returns {Promise<OwnerReply>}
@@ -115,9 +116,10 @@ export class OwnerLink {
           signal,
           leavingAtBound,
         );
-        // Actions never enter the read loop that retries under a new login.
-        if (request.operation !== undefined || reply.left || reply.timedOut)
-          return reply;
+        const action =
+          request.operation !== undefined &&
+          request.operation !== coreCooldownOperation;
+        if (action || reply.left || reply.timedOut) return reply;
         if (directory === (await this.#binding.directory())) return reply;
       }
     } catch (error) {

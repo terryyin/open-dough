@@ -4,7 +4,10 @@
 // no-match notice, and the listed files' controls; in Project Intent, the
 // lead while the project tree is read or its read failed, with Retry.
 import { expect } from "vitest";
-import { activateButton } from "../page-objects/activateButton.ts";
+import {
+  activateButton,
+  expandButton,
+} from "../page-objects/activateButton.ts";
 import "../page-objects/cssLocator.ts";
 import { fileLayout, intentPage as intent } from "./intent-file-layout-page.ts";
 
@@ -52,9 +55,7 @@ export function intentStoryFiles() {
       const toggle = folder(ancestor).getByCSS(
         ":scope > div > button[aria-expanded]",
       );
-      await expect.element(toggle).toBeVisible();
-      if (toggle.element().getAttribute("aria-expanded") === "false")
-        await activateButton(toggle);
+      await expandButton(toggle);
       await expect.element(toggle).toHaveAttribute("aria-expanded", "true");
     }
   }

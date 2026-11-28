@@ -1,5 +1,4 @@
-// An opt-in trace of revision observation on stderr: each branch-head listing
-// asked and how it settled (`./revisionChecks.ts`), each revision stream
+// An opt-in trace of revision streams on stderr: each stream
 // opened (`./revisionStreamObservation.ts`), each event written and each
 // stream ended (`./revisionStreamEvents.ts`), with the time it happened. Only
 // a process started with `DOUGH_REVISION_OBSERVATION_TRACE=1` writes it, as a

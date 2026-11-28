@@ -11,7 +11,7 @@ import { sessionBranchPins } from "../../server/launchRecordPins.ts";
 import { keptSession } from "../../server/launchRecordStore.ts";
 import { localFolder } from "../../server/localFolder.ts";
 import { captureBranchResult } from "../../server/sessionBranchCapture.ts";
-import { source, takenStoryFiles } from "../support/doneCaptureCase.ts";
+import { source } from "../support/doneCaptureCase.ts";
 import { aDoneCaptureCase } from "../support/doneCaptureCaseBuilder.ts";
 import { dashboardReporting } from "../support/publisherDashboardOrigin.ts";
 
@@ -25,7 +25,7 @@ test("a newer quiet Done takes precedence over a manual mark still capturing its
     at,
   } = await aDoneCaptureCase()
     .withOrigin()
-    .withBaseFiles(takenStoryFiles(storyA))
+    .withTakenStory(storyA)
     .withWorkspace("draft")
     .withIsolatedLaunch("isolated-draft", { launched: 60 }, "draft", (launch) =>
       launch

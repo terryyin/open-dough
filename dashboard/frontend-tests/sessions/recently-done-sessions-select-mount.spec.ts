@@ -5,6 +5,7 @@
 import { expect, test } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { authenticatedSessionServices } from "../../src/sessionServices.ts";
+import { compactProject } from "../navigation/dashboard-header-reading.ts";
 import { doneCard } from "./recently-done-column-page.ts";
 import {
   development,
@@ -111,15 +112,7 @@ test("selecting a linked row from Intent keeps the opened final report in the Si
   await shown.select(linked.title).click();
 
   // The open Side panel narrows the banner to its compact Project control.
-  await expect
-    .poll(
-      () =>
-        page
-          .getByRole("banner")
-          .getByRole("button", { name: "Project" })
-          .query()?.textContent,
-    )
-    .toBe("Pygardon");
+  await expect.element(compactProject).toHaveValue("pygardon");
   await expect
     .element(intent())
     .toHaveAttribute("data-selected-story", linked.identity);

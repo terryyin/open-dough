@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Tsukasa-chan",
-  "email": "tsukasa-chan@example.org",
-  "identity": "SEED-418#review-scope-dropdown",
-  "mode": "story-branch",
-  "branch": "claude/choose-review-scope-from-a-compact-dropdown",
-  "host": "claude"
-}

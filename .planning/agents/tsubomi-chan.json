@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "agent": "Tsubomi-chan",
   "email": "tsubomi-chan@example.org",
-  "identity": "SEED-413#published-read-admission-via-vitest",
+  "identity": "SEED-450#submit-wrapped-revived-cursor-continuation",
   "mode": "story-branch",
-  "branch": "codex/prove-published-read-admission-in-node-vitest",
-  "host": "codex",
-  "model": "gpt-6.2-sol"
+  "branch": "cursor/submit-wrapped-revived-cursor-continuation-e406",
+  "host": "cursor",
+  "model": "grok-4.6"
 }

@@ -22,7 +22,6 @@ import {
   test,
 } from "../../dashboard/test-support/support/preparationPage.ts";
 import {
-  openBacklog,
   originMain,
   radio,
 } from "../../dashboard/test-support/support/sessionDialog.ts";
@@ -31,6 +30,7 @@ import {
   expectLandingHandoff,
 } from "../../dashboard/test-support/support/startSessionLandingCapture.ts";
 import { worktree } from "../../dashboard/test-support/support/startSessionLanding.ts";
+import { openInstalledStoryBoard } from "../../dashboard/test-support/installedStoryCardPage.ts";
 
 test("Isolated workspace · Automatically land carries its landing context and captures a landing from its admitted worktree", async ({
   page,
@@ -38,7 +38,7 @@ test("Isolated workspace · Automatically land carries its landing context and c
   origin,
 }) => {
   const initialRevision = await originMain(origin);
-  await openBacklog(page, origin, true);
+  await openInstalledStoryBoard(page, origin);
   expectServedHomesReach(dashboard.github, defaultRepository, initialRevision);
   await startSession(page, "Open Dough").click();
   const dialog = startSessionDialog(page, "Open Dough");
@@ -61,10 +61,7 @@ test("Isolated workspace · Automatically land carries its landing context and c
     dashboard.claudeLaunches()[0]?.instruction ?? "",
     dashboard,
     origin.project,
-    [
-      `Taken story: ${"storyIdentity" in record.request ? record.request.storyIdentity : ""}`,
-      "Session",
-    ],
+    "Session",
   );
   expect(session).toMatchObject({
     workspace: worktree(origin.project, "session"),

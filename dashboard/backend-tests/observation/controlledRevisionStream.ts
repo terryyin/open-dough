@@ -1,18 +1,10 @@
-// Controls only the authenticated-read stream's pace while the real HTTP
-// server, request owner and synthetic GitHub keep using their normal timers.
-// Observe the held GitHub call before advancing its deadline. For a stream,
-// observe the server disconnect or the clean response end, then step the
-// cadence and check that the canceled timer fires no callback and GitHub
-// receives no call. Keep process startup and teardown on real timers.
+// Controls only the authenticated-read stream's pace. The HTTP server,
+// request owner and Git origin use real time. Check the next scheduled tick
+// or the server's observed disconnect before stepping cadence.
 import { EventEmitter, once } from "node:events";
-import { installAuthenticatedReadMiddleware } from "../../server/authenticatedReadMiddleware.ts";
+import { installAuthenticatedReadMiddleware } from "../../server/authenticatedRead.ts";
 import { controlRequestTimers } from "../../test-support/support/controlledRequestTimers.ts";
-import {
-  everyRepository,
-  type RepositoryAnswerer,
-} from "../../test-support/support/fakeGitHub.ts";
-import type { GhRequest } from "../../test-support/support/ghRequest.ts";
-import { heldInTurn } from "../../test-support/support/heldGitHubAnswer.ts";
+import path from "node:path";
 import { startInProcessAuthenticatedRead } from "../../test-support/support/inProcessAuthenticatedRead.ts";
 
 // A distinctive delay separates the pace from the read and process timers
@@ -53,6 +45,7 @@ export async function controlledStreamServer() {
     baseURL: boundary.origin,
     origin: boundary.origin,
     github: boundary.github,
+    home: path.join(boundary.tempRoot, "home"),
     advance: clock.advance,
     pendingPaces: clock.pendingTimers,
     waitForPace: clock.waitForTimer,
@@ -60,18 +53,6 @@ export async function controlledStreamServer() {
       const disconnected = once(responses, "disconnect");
       stream.close();
       await disconnected;
-    },
-    holdListings(published: RepositoryAnswerer) {
-      const isListing = (request: GhRequest) =>
-        request.kind === "matching-refs";
-      const listings = heldInTurn(published, isListing);
-      const arrivals = new EventEmitter();
-      boundary.github.serve(everyRepository, (call) => {
-        const answer = listings.answer(call);
-        if (isListing(call.request)) arrivals.emit("listing");
-        return answer;
-      });
-      return { ...listings, nextArrival: () => once(arrivals, "listing") };
     },
     closeBoundary: boundary.closeBoundary,
     async close() {

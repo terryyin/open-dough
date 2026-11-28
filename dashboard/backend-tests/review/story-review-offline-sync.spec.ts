@@ -95,7 +95,7 @@ test("a sync after origin returns advances the comparison, records the time and 
   expect(record).not.toHaveProperty("lastFailure");
 });
 
-const deadlineMs = 1500;
+const deadlineMs = 500;
 
 async function syncedStoryWithHangingOrigin() {
   const story = await publishedStory();
@@ -137,7 +137,9 @@ test("a Taken reopen whose trunk sync used up the deadline starts no branch fetc
   const reopened = story.open(deadline);
   try {
     // Expire the deadline only after Git has started the trunk fetch.
-    await expect.poll(recording.requests).toEqual(trunkFetch);
+    await expect
+      .poll(recording.requests, { timeout: 3_000 })
+      .toEqual(trunkFetch);
   } finally {
     elapsed.abort();
     await reopened;

@@ -11,6 +11,7 @@ import {
   textContrast,
 } from "../navigation/board-accessibility.ts";
 import { mountBoardFrame } from "../navigation/board-frame-mount.ts";
+import { showsChosenProject } from "../navigation/dashboard-header-reading.ts";
 import { boardReading as board } from "../navigation/board-reading-page.ts";
 import {
   closeTerminal,
@@ -210,20 +211,7 @@ test("system appearance changes frame chrome and Intent source without losing th
       .poll(() => matchMedia(`(prefers-color-scheme: ${scheme})`).matches)
       .toBe(true);
     expectSurface(scheme);
-    await expect
-      .poll(() => {
-        const radio = page
-          .getByRole("radio", { name: "Open Dough", exact: true })
-          .query();
-        const compact = page
-          .getByRole("button", { name: "Project", exact: true })
-          .query();
-        return (
-          (radio instanceof HTMLInputElement && radio.checked) ||
-          compact?.textContent.trim() === "Open Dough"
-        );
-      })
-      .toBe(true);
+    await expect.poll(() => showsChosenProject("Open Dough")).toBe(true);
     await expect.element(intentChoice).toBeChecked();
     await expect.element(development).not.toBeChecked();
     await expect.element(intent).toBeVisible();

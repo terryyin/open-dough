@@ -2,8 +2,7 @@
 // tab controlling the
 // tabpanel its caller renders under `intentTabPanelId`. The selected tab is
 // the only one in the tab order; Arrow keys, Home and End move between the
-// tabs, choose the one reached and focus it, and the handled keys never reach
-// page-wide project cycling (`./projectKeyboardNavigation.ts`). Directly
+// tabs, choose the one reached and focus it. Directly
 // activating a tab (click, Enter or Space), the selected one included, also
 // tells `onActivate`; moving by those keys only chooses.
 

@@ -29,6 +29,15 @@ export async function resolvePublishedMain(developmentRoot, env, signal) {
     ["ls-remote", "--", origin, "refs/heads/main"],
     options,
   );
+  return publishedMainFrom(origin, listed);
+}
+/**
+ * The commit origin's main names, from origin's ls-remote listing of
+ * refs/heads/main. Local refs and edits are not inputs.
+ * @param {string} origin @param {string} listed
+ * @returns {PublishedCommit}
+ */
+export function publishedMainFrom(origin, listed) {
   if (listed === "") {
     throw new Error(`Origin ${origin} has no published main branch.`);
   }
@@ -42,12 +51,24 @@ export async function resolvePublishedMain(developmentRoot, env, signal) {
   }
   return { origin, commit };
 }
-/** @param {string} directory @param {PublishedCommit} published @param {NodeJS.ProcessEnv} [env] */
-export async function verifyPublishedCommit(directory, published, env) {
-  const head = await command("git", ["rev-parse", "HEAD"], {
+/** @param {string} directory @param {PublishedCommit} published @param {NodeJS.ProcessEnv} [env] @param {typeof command} [runCommand] */
+async function verifyPublishedCommit(
+  directory,
+  published,
+  env,
+  runCommand = command,
+) {
+  const head = await runCommand("git", ["rev-parse", "HEAD"], {
     cwd: directory,
     ...(env ? { env } : {}),
   });
+  expectSelectedCommit(head, published);
+}
+/**
+ * Refuses a checkout whose HEAD is not the selected commit, before its code runs.
+ * @param {string} head @param {PublishedCommit} published
+ */
+function expectSelectedCommit(head, published) {
   if (head !== published.commit) {
     throw new Error(
       `Fetched commit ${head} did not match selected main commit ${published.commit}.`,
@@ -81,9 +102,15 @@ export async function ownedCommitDirectory(developmentRoot, root, commit) {
  * the directory while its owner removes it.
  * @param {string} origin @param {string[]} commits
  * @param {import("./productionProcess.mjs").CommandOptions} options
+ * @param {typeof command} [runCommand]
  */
-export async function fetchIntoOwnedDirectory(origin, commits, options) {
-  await command(
+export async function fetchIntoOwnedDirectory(
+  origin,
+  commits,
+  options,
+  runCommand = command,
+) {
+  await runCommand(
     "git",
     [
       "-c",
@@ -99,9 +126,9 @@ export async function fetchIntoOwnedDirectory(origin, commits, options) {
     options,
   );
 }
-/** @param {{developmentRoot: string, published: PublishedCommit, deploymentsRoot?: string, env?: NodeJS.ProcessEnv, signal?: AbortSignal}} options */
+/** @param {{developmentRoot: string, published: PublishedCommit, deploymentsRoot?: string, env?: NodeJS.ProcessEnv, signal?: AbortSignal, runCommand?: typeof command}} options */
 export async function stageDeployment(options) {
-  const { published, env } = options;
+  const { published, env, runCommand = command } = options;
   const directory = await ownedCommitDirectory(
     options.developmentRoot,
     options.deploymentsRoot ??
@@ -115,14 +142,15 @@ export async function stageDeployment(options) {
   };
   const remove = () => rm(directory, { recursive: true, force: true });
   try {
-    await command("git", ["init", "--quiet"], commandOptions);
+    await runCommand("git", ["init", "--quiet"], commandOptions);
     // Fetch the selected commit, never whatever main names later.
     await fetchIntoOwnedDirectory(
       published.origin,
       [published.commit],
       commandOptions,
+      runCommand,
     );
-    await command(
+    await runCommand(
       "git",
       [
         "-c",
@@ -134,10 +162,10 @@ export async function stageDeployment(options) {
       ],
       commandOptions,
     );
-    await verifyPublishedCommit(directory, published, env);
+    await verifyPublishedCommit(directory, published, env, runCommand);
     // The build needs dev dependencies whatever NODE_ENV the shell inherited:
     // npm otherwise omits them under an inherited `production`.
-    await command(
+    await runCommand(
       "npm",
       [
         "ci",
@@ -150,7 +178,12 @@ export async function stageDeployment(options) {
       commandOptions,
       180_000,
     );
-    await command("npm", ["run", "build:dashboard"], commandOptions, 120_000);
+    await runCommand(
+      "npm",
+      ["run", "build:dashboard"],
+      commandOptions,
+      120_000,
+    );
     return { directory, remove };
   } catch (error) {
     await remove();

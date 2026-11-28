@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "sessionId": "5620a4a5-cc36-4e24-9334-17473bffc6ed",
+  "workflow": "dough-story-refinement",
+  "closedAt": "2026-11-27T23:58:13.051Z",
+  "story": "SEED-413#landing-capture-evidence-via-vitest",
+  "ranges": [
+    {
+      "base": "1cec9fbf0203b9b88f18152f14fd2ac6423b4799",
+      "candidate": "dd50175a396f309af2a345c09290092abc7111ba"
+    }
+  ]
+}

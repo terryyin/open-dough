@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "sessionId": "5a45de4e-1b4a-46ce-a2ac-6a97382a841c",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-28T02:43:14.991Z",
+  "story": "SEED-413#published-review-comparisons-via-vitest",
+  "ranges": [
+    {
+      "base": "4c38141a1b7f5a808d5b793e95d98c827a210055",
+      "candidate": "5877072a47e8a11330e47025ee2b13a53b40d86a"
+    },
+    {
+      "base": "5877072a47e8a11330e47025ee2b13a53b40d86a",
+      "candidate": "31c29c4ce3b2b46b5ebae396eafe4923ea20f54e"
+    },
+    {
+      "base": "31c29c4ce3b2b46b5ebae396eafe4923ea20f54e",
+      "candidate": "93353ce11ad8c685f8c78e47145afad3f46279c7"
+    },
+    {
+      "base": "93353ce11ad8c685f8c78e47145afad3f46279c7",
+      "candidate": "ce25b6fe71d4ac96d376969fea996a3ab82be762"
+    },
+    {
+      "base": "ce25b6fe71d4ac96d376969fea996a3ab82be762",
+      "candidate": "4de31466023cea0c5c8d659d2c129d97f2162876"
+    },
+    {
+      "base": "4de31466023cea0c5c8d659d2c129d97f2162876",
+      "candidate": "8eeec7d33eb46956881b3afa008c2f192740a271"
+    },
+    {
+      "base": "8eeec7d33eb46956881b3afa008c2f192740a271",
+      "candidate": "fbf625d70e8ad1b03aec4fa0067c29dfea3e6a96"
+    },
+    {
+      "base": "fbf625d70e8ad1b03aec4fa0067c29dfea3e6a96",
+      "candidate": "375e4ffb39fa8658f81b11132116adc8a97bf5d7"
+    },
+    {
+      "base": "375e4ffb39fa8658f81b11132116adc8a97bf5d7",
+      "candidate": "930573d78f4682c669629e3c0df0ff18232cc365"
+    },
+    {
+      "base": "930573d78f4682c669629e3c0df0ff18232cc365",
+      "candidate": "5b8e48655f576d1ceb0a2fa71a952b962d67932f"
+    },
+    {
+      "base": "5b8e48655f576d1ceb0a2fa71a952b962d67932f",
+      "candidate": "a3f3f87fb5c5835d79512b0b28e9a3cc56088d29"
+    },
+    {
+      "base": "a3f3f87fb5c5835d79512b0b28e9a3cc56088d29",
+      "candidate": "75afaaa6464a19084b3d10dc92916acae2efd363"
+    },
+    {
+      "base": "99e94dcb8701836c7af234b766616340efcb109a",
+      "candidate": "096f98172e57a5ee6e098877beb4553655bf896b"
+    }
+  ]
+}

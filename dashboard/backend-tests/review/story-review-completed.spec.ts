@@ -1,218 +1,272 @@
-import { expect, test } from "../../test-support/support/preparationPage.ts";
+// A Done review opens its immutable published comparison from the admitted
+// sync, and its exact file reads stay on that sync.
+import { realpathSync, renameSync } from "node:fs";
+import { beforeAll, expect, test } from "vitest";
+import { prepareRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { stubRemoteRequestRecording } from "../support/fixtureHome.ts";
+import { configuredFixtureProject } from "../support/fixtureProject.ts";
+import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+import type { RepositoryDescription } from "../../../Distribution/tests/support/repositoryTestData.mjs";
+import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
+import { storyReview } from "../../server/storyReview.ts";
+import { reviewedFileDiff } from "../../server/storyReviewFileResponse.ts";
+import type { StoryReview } from "../../src/storyReviewContract.ts";
 import {
-  getReview as get,
-  completedStoryQuery as named,
-  completedReviewQuery as completed,
-} from "../../test-support/support/completedReviewRequests.ts";
+  agentWorktree,
+  claimWorktree,
+} from "../../test-support/support/agentAuthoredWorktree.ts";
+import {
+  ordinaryCompletedReviewHistories,
+  ordinaryTrunkModeCompletedHistory,
+} from "../../test-support/support/completedStoryHistory.ts";
 import {
   advanceCompletedTrunk,
   laterDeveloperCarriesDoneRecord,
 } from "../../test-support/support/completedStoryVisibleActions.ts";
 import {
-  ordinaryCompletedReviewHistories,
-  ordinaryTrunkModeCompletedHistory,
-} from "../../test-support/support/completedStoryHistory.ts";
-import { git } from "../../test-support/support/storyReviewWorktree.ts";
-import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
-import {
-  storyReviewEndpoint,
-  storyReviewFileEndpoint,
-  storyReviewSchema,
-} from "../../src/storyReviewContract.ts";
-import {
+  homeReviewRepository,
   renameExecutionCheckout,
   trunkAdvancedPastCheckout,
 } from "../../test-support/support/reviewRepositoryFixture.ts";
+import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
+import { git } from "../../test-support/support/storyReviewWorktree.ts";
 
-test.use({ serverMode: "boundary" });
+// Each history's template is built before the cases that copy it.
+for (const [, history] of ordinaryCompletedReviewHistories())
+  beforeAll(() => prepareRepository(history));
 
-for (const [mode, history] of ordinaryCompletedReviewHistories()) {
-  test.describe(mode, () => {
-    test.use({ originRepository: history });
+const subject = { source: "open-dough", identity: queuedIdentity };
+const signal = new AbortController().signal;
+const yui = agentIdentity("Yui").agent;
+type Published = Extract<StoryReview, { kind: "published" }>;
 
-    test(`completion keeps interleaved-work isolation and immutable literal-file diffs`, async ({
-      request,
-      dashboard,
-      origin,
-    }) => {
-      const completion = origin.revision("completion");
-      const response = await get(
-        request,
-        dashboard,
-        storyReviewEndpoint,
-        completed,
-      );
-      expect(response.status()).toBe(200);
-      const review = storyReviewSchema.parse(await response.json());
-      expect(review.kind).toBe("published");
-      if (review.kind !== "published") throw new Error("No published review");
-      expect(review.completion).toBe(completion);
-      expect(review.agent).toBe(agentIdentity("Yui").agent);
-      expect(review.files.map((file) => file.path)).toContain("shared.txt");
-      expect(review.files.map((file) => file.path)).not.toContain(
-        "other-story.txt",
-      );
-      expect(review.files.map((file) => file.path)).not.toContain(
-        "integration-other.txt",
-      );
-      if (mode === "story-branch")
-        expect(origin.revision("branch completion")).toBe(
-          git(origin.project, "rev-parse", `${completion}^2`),
-        );
-      const file = {
-        ...named,
-        completion,
-        baseline: review.baseline,
-        tree: review.tree,
-        path: "[literal]*.txt",
-      };
-      const remote = git(
-        origin.project,
-        "config",
-        "--get",
-        "remote.origin.url",
-      );
-      git(
-        origin.project,
-        "config",
-        "remote.origin.url",
-        `${origin.machine}/unreachable.git`,
-      );
-      const accepted = await get(
-        request,
-        dashboard,
-        storyReviewFileEndpoint,
-        file,
-      );
-      expect(accepted.status()).toBe(200);
-      expect(await accepted.json()).toMatchObject({
-        kind: "diff",
-        printed: expect.stringContaining("+delivered on another machine"),
-      });
-      const shared = await get(request, dashboard, storyReviewFileEndpoint, {
-        ...file,
-        path: "shared.txt",
-      });
-      expect(await shared.json()).toMatchObject({
-        kind: "diff",
-        printed: expect.stringContaining("+story first"),
-      });
-      const printed = ((await shared.json()) as { printed: string }).printed;
-      expect(printed).not.toContain("+other last");
-      expect(printed).not.toContain("-line 11");
-      git(origin.project, "config", "remote.origin.url", remote);
-      advanceCompletedTrunk(origin);
-      expect(
-        storyReviewSchema.parse(
-          await (
-            await get(request, dashboard, storyReviewEndpoint, completed)
-          ).json(),
-        ),
-      ).toEqual(review);
-      const fixed = await get(
-        request,
-        dashboard,
-        storyReviewFileEndpoint,
-        file,
-      );
-      expect(await fixed.json()).toEqual(await accepted.json());
-    });
-
-    test(`completion keeps its own delivery after a later story's branch merges trunk and fast-forwards`, async ({
-      request,
-      dashboard,
-      origin,
-    }) => {
-      const completion = origin.revision("completion");
-      const delivered = storyReviewSchema.parse(
-        await (
-          await get(request, dashboard, storyReviewEndpoint, completed)
-        ).json(),
-      );
-      expect(delivered).toMatchObject({ kind: "published", completion });
-      // Started from trunk before Story A's done record arrived.
-      laterDeveloperCarriesDoneRecord(origin, completion);
-      const review = storyReviewSchema.parse(
-        await (
-          await get(request, dashboard, storyReviewEndpoint, completed)
-        ).json(),
-      );
-      expect(review).toEqual(delivered);
-      if (review.kind !== "published") throw new Error("No published review");
-      const diff = await get(request, dashboard, storyReviewFileEndpoint, {
-        ...named,
-        completion,
-        baseline: review.baseline,
-        tree: review.tree,
-        path: "shared.txt",
-      });
-      expect(diff.status()).toBe(200);
-      expect(await diff.json()).toMatchObject({
-        kind: "diff",
-        printed: expect.stringContaining("+story first"),
-      });
-    });
-  });
+// The described Done history on origin, configured as the open-dough project
+// whose execution checkout is the integration checkout.
+async function doneStory(history: RepositoryDescription<string>) {
+  const { repository, home } = await configuredFixtureProject(history);
+  const origin = {
+    machine: repository.fixture,
+    origin: repository.origin,
+    project: repository.integration,
+  };
+  const { completion } = repository.revisions;
+  if (completion === undefined) throw new Error("No completion revision");
+  const open = () =>
+    storyReview({ read: { subject, completed: true } }, signal);
+  const published = async () => {
+    const review = await open();
+    if (review.kind !== "published") throw new Error("No published review");
+    return review;
+  };
+  const readFile = (
+    { baseline, tree }: Published,
+    path = "[literal]*.txt",
+    at = completion,
+  ) => {
+    return reviewedFileDiff(
+      { read: { subject, completion: at, baseline, tree, path } },
+      signal,
+    );
+  };
+  // Records origin requests from here on; `since()` lists the later ones.
+  const recordOriginRequests = () => {
+    const recording = stubRemoteRequestRecording(origin.machine);
+    const reviewRepository = homeReviewRepository(realpathSync(home));
+    const mark = () => recording.requests().length;
+    let from = mark();
+    return {
+      fetches: () => recording.fetchesIn(reviewRepository),
+      startHere: () => {
+        from = mark();
+      },
+      since: () => recording.requests().slice(from),
+    };
+  };
+  const takeOriginAway = () => {
+    renameSync(origin.origin, `${origin.origin}-away`);
+  };
+  return {
+    origin,
+    completion,
+    open,
+    published,
+    readFile,
+    recordOriginRequests,
+    takeOriginAway,
+  };
 }
 
-test.describe("execution checkout", () => {
-  test.use({ originRepository: ordinaryTrunkModeCompletedHistory() });
+const diffContaining = (text: string) => ({
+  kind: "diff",
+  printed: expect.stringContaining(text) as unknown,
+});
 
-  test("a renamed execution checkout leaves the published review and its file diffs readable", async ({
-    request,
-    dashboard,
-    origin,
-  }) => {
-    const review = storyReviewSchema.parse(
-      await (
-        await get(request, dashboard, storyReviewEndpoint, completed)
-      ).json(),
+for (const [mode, history] of ordinaryCompletedReviewHistories())
+  test(`a ${mode} completion reads its delivered file without origin requests, leaving interleaved work out`, async () => {
+    const story = await doneStory(history);
+    const review = await story.published();
+    expect(review).toMatchObject({ completion: story.completion, agent: yui });
+    const paths = review.files.map(({ path }) => path);
+    expect(paths).toContain("shared.txt");
+    expect(paths).not.toContain("other-story.txt");
+    expect(paths).not.toContain("integration-other.txt");
+    const requests = story.recordOriginRequests();
+
+    const literal = await story.readFile(review);
+
+    expect(requests.since()).toEqual([]);
+    expect(literal).toMatchObject(
+      diffContaining("+delivered on another machine"),
     );
-    if (review.kind !== "published")
-      throw new Error("No initial published review");
-    const moved = renameExecutionCheckout(origin);
-    try {
-      const reopened = await get(
-        request,
-        dashboard,
-        storyReviewEndpoint,
-        completed,
-      );
-      expect(await reopened.json()).toMatchObject({
-        kind: "published",
-        completion: review.completion,
-        baseline: review.baseline,
-        tree: review.tree,
-        files: review.files,
-      });
-      const file = await get(request, dashboard, storyReviewFileEndpoint, {
-        ...named,
-        completion: review.completion,
-        baseline: review.baseline,
-        tree: review.tree,
-        path: "[literal]*.txt",
-      });
-      expect(file.status()).toBe(200);
-    } finally {
-      moved.restore();
-    }
   });
 
-  test("opening a published review leaves the execution checkout's tracked trunk where it was", async ({
-    request,
-    dashboard,
-    origin,
-  }) => {
-    const synced = trunkAdvancedPastCheckout(origin);
-    const review = await get(
-      request,
-      dashboard,
-      storyReviewEndpoint,
-      completed,
+for (const [mode, history] of ordinaryCompletedReviewHistories())
+  test(`a ${mode} completion reads its shared file's own lines without origin requests`, async () => {
+    const story = await doneStory(history);
+    const review = await story.published();
+    const requests = story.recordOriginRequests();
+
+    const shared = await story.readFile(review, "shared.txt");
+
+    expect(requests.since()).toEqual([]);
+    expect(shared).toMatchObject(diffContaining("+story first"));
+    if (shared.kind !== "diff") throw new Error("No shared diff");
+    expect(shared.printed).not.toContain("+other last");
+    expect(shared.printed).not.toContain("-line 11");
+  });
+
+for (const [mode, history] of ordinaryCompletedReviewHistories())
+  test(`a ${mode} completion keeps its comparison and file diff after later trunk`, async () => {
+    const story = await doneStory(history);
+    const review = await story.published();
+    const literal = await story.readFile(review);
+
+    advanceCompletedTrunk(story.origin);
+
+    expect(await story.open()).toEqual(review);
+    expect(await story.readFile(review)).toEqual(literal);
+  });
+
+for (const [mode, history] of ordinaryCompletedReviewHistories())
+  test(`a ${mode} completion keeps its own delivery after a later story's branch merges trunk and fast-forwards`, async () => {
+    const story = await doneStory(history);
+    const delivered = await story.published();
+    expect(delivered.completion).toBe(story.completion);
+    // Started from trunk before the story's done record arrived.
+    laterDeveloperCarriesDoneRecord(story.origin, story.completion);
+
+    const review = await story.open();
+
+    expect(review).toEqual(delivered);
+    expect(await story.readFile(delivered, "shared.txt")).toMatchObject(
+      diffContaining("+story first"),
     );
-    expect(await review.json()).toMatchObject({ kind: "published" });
-    expect(git(origin.project, "rev-parse", "refs/remotes/origin/main")).toBe(
-      synced,
-    );
+  });
+
+test("a published completion stays fixed with competing dirty worktrees", async () => {
+  const story = await doneStory(ordinaryTrunkModeCompletedHistory());
+  const original = await story.published();
+  const first = await claimWorktree(
+    story.origin,
+    yui,
+    "ambiguous-a",
+    story.completion,
+    subject.identity,
+  );
+  git(first, "push", "--quiet", "origin", "HEAD:main");
+  const second = await agentWorktree(
+    story.origin,
+    yui,
+    "ambiguous-b",
+    git(first, "rev-parse", "HEAD"),
+  );
+  makeMe.theWorkspace(first).writeAt("local-a.txt", "first only\n").please();
+  makeMe.theWorkspace(second).writeAt("local-b.txt", "second only\n").please();
+
+  const active = await storyReview({ read: { subject } }, signal);
+  const historical = await story.open();
+
+  expect(active).toEqual({
+    kind: "unavailable",
+    explanation: "No published comparison is available for this story.",
+  });
+  expect(historical).toEqual(original);
+  expect(await story.readFile(original)).toMatchObject(
+    diffContaining("+delivered on another machine"),
+  );
+});
+
+test("a moved execution checkout leaves the published review and its file diffs readable", async () => {
+  const story = await doneStory(ordinaryTrunkModeCompletedHistory());
+  const review = await story.published();
+  renameExecutionCheckout(story.origin);
+
+  const reopened = await story.open();
+
+  expect(reopened).toEqual(review);
+  expect(await story.readFile(review)).toMatchObject(
+    diffContaining("+delivered on another machine"),
+  );
+});
+
+test("opening a published review leaves the execution checkout's tracked trunk and working state where they were", async () => {
+  const story = await doneStory(ordinaryTrunkModeCompletedHistory());
+  const synced = trunkAdvancedPastCheckout(story.origin);
+  makeMe
+    .theWorkspace(story.origin.project)
+    .writeAt("uncommitted.txt", "kept\n")
+    .please();
+  const status = git(story.origin.project, "status", "--porcelain");
+
+  expect(await story.open()).toMatchObject({ kind: "published" });
+
+  expect(
+    git(story.origin.project, "rev-parse", "refs/remotes/origin/main"),
+  ).toBe(synced);
+  expect(git(story.origin.project, "status", "--porcelain")).toBe(status);
+});
+
+test("a synced Done review reopens offline from its last sync, naming the failed sync, and reads its file diff", async () => {
+  const story = await doneStory(ordinaryTrunkModeCompletedHistory());
+  const synced = await story.published();
+  story.takeOriginAway();
+
+  const reopened = await story.published();
+
+  expect(reopened).toMatchObject({
+    completion: story.completion,
+    syncFailure: { lastSyncedAt: expect.any(String) as unknown },
+  });
+  expect(reopened.files).toEqual(synced.files);
+  expect(await story.readFile(reopened)).toMatchObject(
+    diffContaining("+delivered on another machine"),
+  );
+});
+
+test("an opened Done review refuses a completion beyond its last sync without an origin request", async () => {
+  const story = await doneStory(ordinaryTrunkModeCompletedHistory());
+  const requests = story.recordOriginRequests();
+  const review = await story.published();
+  expect(requests.fetches()).toBe(1);
+  const beyond = advanceCompletedTrunk(story.origin);
+  requests.startHere();
+
+  await expect(
+    story.readFile(review, "[literal]*.txt", beyond),
+  ).rejects.toMatchObject({ status: 409 });
+  expect(requests.since()).toEqual([]);
+});
+
+test("a Done review never synced and opened offline is unavailable and names the failed sync", async () => {
+  const story = await doneStory(ordinaryTrunkModeCompletedHistory());
+  story.takeOriginAway();
+
+  const review = await story.open();
+
+  expect(review).toMatchObject({
+    kind: "unavailable",
+    explanation: expect.stringMatching(
+      /^The review could not sync from origin/,
+    ) as unknown,
   });
 });

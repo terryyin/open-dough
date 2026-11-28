@@ -17,6 +17,8 @@ import {
 import { OwnerLink } from "./github-request-owner-link.mjs";
 import {
   answerFromWire,
+  coreCooldownFromWire,
+  coreCooldownOperation,
   fixedWorkflowRerun,
   workflowRerunOperation,
 } from "./github-request-owner-wire.mjs";
@@ -92,6 +94,22 @@ export class GitHubRequests {
   /** @returns {Promise<string | undefined>} */
   scope() {
     return this.#owner.scope();
+  }
+
+  // Ask the local owner about a standing core cooldown without a GitHub call.
+  /** @param {AbortSignal} signal */
+  async coreCooldown(signal) {
+    signal.throwIfAborted();
+    const reply = await atRequestBound(
+      signal,
+      this.#bounds.boundMs,
+      (bounded) =>
+        this.#owner.ask({ operation: coreCooldownOperation }, bounded, () =>
+          endedAtBound(bounded),
+        ),
+    );
+    signal.throwIfAborted();
+    return coreCooldownFromWire(reply);
   }
 
   // Disconnect before ending all this consumer's waits, so cancellation is

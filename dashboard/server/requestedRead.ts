@@ -48,11 +48,13 @@ import {
 export type OnBranch = { readonly branch: string; readonly head: string };
 
 export type RequestedRead =
-  | { readonly kind: "ref" }
+  // `fresh`: answered only by a check begun after this read asked.
+  | { readonly kind: "ref"; readonly fresh: boolean }
   | ContainmentRead
   | {
       readonly kind: "revision-check";
       readonly since: string;
+      readonly fresh: boolean;
       // Story branches recorded at `since` whose heads the check also reports.
       readonly watched: readonly string[];
     }
@@ -213,11 +215,16 @@ export function parseRequestedRead(
     const watched = parseWatchedBranches(watch, "revision check");
     return "kind" in watched
       ? watched
-      : { kind: "revision-check", since, watched };
+      : {
+          kind: "revision-check",
+          since,
+          watched,
+          fresh: params.get("fresh") === "1",
+        };
   }
   if (revision === null) {
     return path === null && committed === null
-      ? { kind: "ref" }
+      ? { kind: "ref", fresh: params.get("fresh") === "1" }
       : refused("A pinned revision and repository path are both required.");
   }
   if (!isPinnedRevision(revision)) {

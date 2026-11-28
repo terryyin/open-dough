@@ -19,6 +19,10 @@ import {
   groupFiles,
   matchesGroupFile,
 } from "../dashboard/test-support/support/groupSelection.mjs";
+import {
+  groupRunSettings,
+  vitestRunDirectory,
+} from "../dashboard/test-support/support/runnerSettings.mjs";
 import { fullDashboardSuite } from "../dashboard/test-support/support/fullSuiteSelection.mjs";
 import { remainingSuiteTime } from "../dashboard/test-support/support/suiteDeadline.mjs";
 
@@ -50,11 +54,13 @@ function workerCount(workers) {
 export async function runDashboardGroup({ group, vitestConfig, engine, name }) {
   const dashboard = fileURLToPath(group.directory);
   const vitestConfigFile = path.join(dashboard, vitestConfig);
-  const { prefix } = group;
-  const splitSetting = group.sharded === false ? undefined : `${prefix}_SPLIT`;
-  const proofSetting = `${prefix}_PROOF_RECORD`;
-  const timesSetting = `${prefix}_TIMES`;
-  const deadlineSetting = `${prefix}_DEADLINE_MS`;
+  const settings = groupRunSettings(group, process.env);
+  const {
+    split: splitSetting,
+    proofRecord: proofSetting,
+    times: timesSetting,
+    deadline: deadlineSetting,
+  } = settings.names;
   const argv = process.argv.slice(2);
   const stop = new AbortController();
   const playwright =
@@ -73,10 +79,7 @@ export async function runDashboardGroup({ group, vitestConfig, engine, name }) {
   }
 
   async function groupRun(args, files) {
-    const deadline = remainingSuiteTime(
-      process.env[deadlineSetting],
-      deadlineSetting,
-    );
+    const deadline = remainingSuiteTime(settings.deadline, deadlineSetting);
     const timer =
       deadline === undefined
         ? undefined
@@ -86,12 +89,7 @@ export async function runDashboardGroup({ group, vitestConfig, engine, name }) {
           ).unref();
     const scratch = mkdtempSync(path.join(tmpdir(), `${group.job}-`));
     const startedAt = new Date().toISOString();
-    const results = path.join(
-      dashboard,
-      group.root,
-      "test-results",
-      `vitest-${startedAt.replaceAll(":", "-")}-${process.pid}`,
-    );
+    const results = vitestRunDirectory(group, startedAt, process.pid);
     const report = path.join(results, "vitest.json");
     const nativeRecord = path.join(scratch, "playwright.json");
     const nativeTimes = path.join(scratch, "playwright-times.txt");
@@ -152,8 +150,8 @@ export async function runDashboardGroup({ group, vitestConfig, engine, name }) {
         nativeTimes,
         optionalReporter: args.reporter,
         proofSetting,
-        destination: process.env[proofSetting],
-        times: process.env[timesSetting],
+        destination: settings.proofRecord,
+        times: settings.times,
         run: {
           id: randomUUID(),
           startedAt,
@@ -182,10 +180,7 @@ export async function runDashboardGroup({ group, vitestConfig, engine, name }) {
   process.once("SIGINT", interrupt);
   process.once("SIGTERM", interrupt);
   try {
-    const all = groupFiles(
-      group,
-      splitSetting === undefined ? undefined : process.env[splitSetting],
-    );
+    const all = groupFiles(group, settings.split);
     if (playwright && !all.some((file) => file.vitest))
       return await playwright.run(argv);
     const args = groupArguments(argv);

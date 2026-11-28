@@ -16,6 +16,11 @@ import { fullDashboardSuite } from "./fullSuiteSelection.mjs";
 import { remainingSuiteTime } from "./suiteDeadline.mjs";
 import { browserGroupSelection } from "./browserTestGroups.mjs";
 import {
+  groupOutputs,
+  groupRunSettings,
+  runnerVariables,
+} from "./runnerSettings.mjs";
+import {
   dashboardTestMatch,
   dashboardTestProjects,
   runOutputs,
@@ -47,30 +52,12 @@ export function useDisposableTestHome() {
 }
 
 /**
- * `<prefix>_SPLIT`, `_TIMES`, `_PROOF_RECORD`, `_DEADLINE_MS` and
- * `_RUN_STAMP`: the settings one runner reads.
- * @param {string} prefix
- */
-export function runnerVariables(prefix) {
-  return {
-    split: `${prefix}_SPLIT`,
-    times: `${prefix}_TIMES`,
-    proofRecord: `${prefix}_PROOF_RECORD`,
-    deadline: `${prefix}_DEADLINE_MS`,
-    runStamp: `${prefix}_RUN_STAMP`,
-  };
-}
-
-/**
- * Prepares this process for the run and returns its share and the run
- * options every group's configuration shares.
+ * Prepares this process for the run: its isolated environment, local suite
+ * admission and run stamp (groupRunOptions reads the result).
  * @param {ReturnType<typeof runnerVariables>} variables
  * @param {string} outputs absolute directory holding the runner's
  *   `test-results/` run directories and CI `playwright-report/` directories
- * @returns {Promise<{
- *   split: string | undefined,
- *   options: import("@playwright/test").PlaywrightTestConfig,
- * }>}
+ * @returns {Promise<void>}
  */
 async function prepareGroupRun(variables, outputs) {
   // Fixtures create independent Git repositories. Inherited repository paths
@@ -125,9 +112,8 @@ async function prepareGroupRun(variables, outputs) {
     process.env[variables.runStamp] =
       `${new Date().toISOString().replace(/:/g, "-")}-${String(process.pid)}`;
   }
-  const runStamp = process.env[variables.runStamp] ?? "";
   const results = path.join(outputs, runOutputs.results);
-  if (runStamp === "") {
+  if ((process.env[variables.runStamp] ?? "") === "") {
     throw new Error(
       `${variables.runStamp} is empty; refusing ${results} as outputDir.`,
     );
@@ -135,13 +121,30 @@ async function prepareGroupRun(variables, outputs) {
   // Playwright may mkdir the stamp directory without creating its parent; a
   // sibling run's cleanup can remove the last stamp and leave the root gone.
   mkdirSync(results, { recursive: true });
+}
 
+/**
+ * The share and run options `group`'s runner takes from `env`: only its own
+ * settings (groupRunSettings), and an output directory under its own
+ * `test-results/` named by its own run stamp.
+ * @param {import("./browserTestGroups.mjs").BrowserTestGroup} group
+ * @param {Record<string, string | undefined>} env
+ * @returns {{
+ *   split: string | undefined,
+ *   ci: boolean,
+ *   options: import("@playwright/test").PlaywrightTestConfig,
+ * }}
+ */
+function groupRunOptions(group, env) {
+  const settings = groupRunSettings(group, env);
+  const outputs = groupOutputs(group);
+  const runStamp = settings.runStamp ?? "";
   // CI's recorded deadline ends the run, build included, before the job's
   // own bound, so the run fails naming it and keeps what completed
   // (./suiteDeadline.mjs). Without it the run is unbounded.
   const globalTimeout = remainingSuiteTime(
-    process.env[variables.deadline],
-    variables.deadline,
+    settings.deadline,
+    settings.names.deadline,
   );
   // Only this configuration grants the requested paths to its own reporter.
   // Custom nested configurations do not acquire an outer run's evidence or
@@ -149,15 +152,16 @@ async function prepareGroupRun(variables, outputs) {
   const quietReporter = [
     fileURLToPath(new URL("./quietReporter.ts", import.meta.url)),
     {
-      proofRecord: process.env[variables.proofRecord],
-      times: process.env[variables.times],
+      proofRecord: settings.proofRecord,
+      times: settings.times,
     },
   ];
-  const ci = Boolean(process.env["CI"]);
+  const ci = Boolean(env["CI"]);
   return {
-    split: process.env[variables.split],
+    split: settings.split,
+    ci,
     options: {
-      outputDir: path.join(results, runStamp),
+      outputDir: path.join(outputs, runOutputs.results, runStamp),
       fullyParallel: true,
       // Local runs leave room for neighboring projects. CI keeps every core
       // per job; Playwright's explicit --workers override applies to either
@@ -211,16 +215,29 @@ async function prepareGroupRun(variables, outputs) {
  * }>}
  */
 export async function prepareFocusedRun(group, include) {
-  const { prefix, directory, root } = group;
-  const variables = runnerVariables(prefix);
-  const run = await prepareGroupRun(
-    variables,
-    fileURLToPath(new URL(`${root}/`, directory)),
-  );
-  const selection = { ...browserGroupSelection(group), include };
+  await prepareGroupRun(runnerVariables(group.prefix), groupOutputs(group));
+  return focusedRun(group, process.env, { include });
+}
+
+/**
+ * `group`'s run as its configuration takes it from `env` once prepared
+ * (prepareFocusedRun): its own options and spec selection.
+ * @param {import("./browserTestGroups.mjs").BrowserTestGroup} group
+ * @param {Record<string, string | undefined>} env
+ * @param {{
+ *   include?: (file: string) => boolean,
+ *   files?: string[],
+ *   declaration?: object,
+ * }} [selected] the engine filter, and the spec labels and parsed shard
+ *   declaration when not read from the filesystem and ci.yml (testFiles.mjs)
+ */
+export function focusedRun(group, env, selected = {}) {
+  const { directory } = group;
+  const run = groupRunOptions(group, env);
+  const selection = { ...browserGroupSelection(group), ...selected };
   return {
     options: run.options,
     testMatch: dashboardTestMatch(directory, run.split, selection),
-    projects: dashboardTestProjects(directory, run.split, selection),
+    projects: dashboardTestProjects(directory, run.split, selection, run.ci),
   };
 }

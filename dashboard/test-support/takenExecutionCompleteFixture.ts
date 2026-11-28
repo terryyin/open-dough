@@ -6,14 +6,11 @@ import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import type { Page } from "@playwright/test";
 import { expect, pausePageClockAt } from "./dashboardTest.ts";
 import { expectMembership, parts } from "./dashboardPage.ts";
-import { publishCommittedFiles } from "./committedFiles.ts";
+import { publishCommittedFileHistory } from "./committedFiles.ts";
 import { profilePath } from "./branchProgressRecords.ts";
 import { addedAt } from "./pathHistoryAnswers.ts";
-import { describedRevisions } from "./describedRevisions.ts";
 
 const repository = "terryyin/open-dough";
-const revision = "a7".repeat(20);
-export const branchHead = "b8".repeat(20);
 export const branch = "story/complete";
 const opened = new Date("2026-09-25T09:00:00.000Z");
 
@@ -67,110 +64,113 @@ const seed = `# Execution complete card fixture
 
 ${membership.map((story) => renderStorySection(story)).join("\n")}`;
 
-const { trunk, branchTip } = describedRevisions(
-  makeMe.aRepository
-    .withRevision("trunk", {
-      backlog: {
-        taken: membership.slice(0, taken.length),
-        queued: membership.slice(taken.length),
-      },
-      files: {
-        [seedPath]: seed,
-        // Trunk's copy of the branch story's plan is as it was at Take.
-        [planPath("on-branch")]: renderSlicePlan(
-          makeMe.aSlicePlan
-            .withStatuses(["planned", "planned", "planned"])
-            .please(),
-          { heading: "Slices" },
-        ),
-        [planPath("on-trunk")]: renderSlicePlan(
-          makeMe.aSlicePlan
-            .withStatuses(["done", "done"], { advice: noChange })
-            .please(),
-          { heading: "Slices" },
-        ),
-        [planPath("all-done")]: renderSlicePlan(
-          makeMe.aSlicePlan.withStatuses(["done", "done"]).please(),
-          { heading: "Slices" },
-        ),
-        // A completion record whose advice section is not readable advice.
-        [planPath("adviceless")]: `${renderSlicePlan(
-          makeMe.aSlicePlan.withStatuses(["done", "done"]).please(),
-          { heading: "Slices" },
-        )}
+const description = makeMe.aRepository
+  .withRevision("trunk", {
+    backlog: {
+      taken: membership.slice(0, taken.length),
+      queued: membership.slice(taken.length),
+    },
+    files: {
+      [seedPath]: seed,
+      // Trunk's copy of the branch story's plan is as it was at Take.
+      [planPath("on-branch")]: renderSlicePlan(
+        makeMe.aSlicePlan
+          .withStatuses(["planned", "planned", "planned"])
+          .please(),
+        { heading: "Slices" },
+      ),
+      [planPath("on-trunk")]: renderSlicePlan(
+        makeMe.aSlicePlan
+          .withStatuses(["done", "done"], { advice: noChange })
+          .please(),
+        { heading: "Slices" },
+      ),
+      [planPath("all-done")]: renderSlicePlan(
+        makeMe.aSlicePlan.withStatuses(["done", "done"]).please(),
+        { heading: "Slices" },
+      ),
+      // A completion record whose advice section is not readable advice.
+      [planPath("adviceless")]: `${renderSlicePlan(
+        makeMe.aSlicePlan.withStatuses(["done", "done"]).please(),
+        { heading: "Slices" },
+      )}
 ## Execution complete
 
 The retrospective found nothing to record.
 `,
-        [planPath("queued")]: renderSlicePlan(
-          makeMe.aSlicePlan
-            .withStatuses(["done"], { advice: "Queue the next story." })
-            .please(),
-          { heading: "Slices" },
-        ),
-      },
-      storyStates: stories.map(({ anchor }) => ({
-        identity: `SEED-094#${anchor}`,
-        href: href(anchor),
-        ...makeMe.aStoryPreparation
-          .plannedIn(`../slice-plans/094-${anchor}/PLAN.md`)
+      [planPath("queued")]: renderSlicePlan(
+        makeMe.aSlicePlan
+          .withStatuses(["done"], { advice: "Queue the next story." })
           .please(),
-      })),
-      agentProfiles: taken.flatMap(({ anchor, agent, mode }) =>
-        agent === undefined || mode === undefined
-          ? []
-          : [
-              makeMe.anAgentProfile
-                .executing({
-                  name: agent,
-                  identity: `SEED-094#${anchor}`,
-                  mode,
-                  branch: mode === "trunk" ? "origin/main" : branch,
-                  host: "claude",
-                })
-                .please(),
-            ],
+        { heading: "Slices" },
       ),
-    })
-    .withRevision("branchTip", {
-      files: {
-        [planPath("on-branch")]: renderSlicePlan(
-          makeMe.aSlicePlan
-            .withStatuses(["done", "done", "done"], {
-              advice: "Queue a story to show the advice on the card.",
-            })
-            .please(),
-          { heading: "Slices" },
-        ),
-      },
-    })
-    .please(),
-  { trunk: revision, branchTip: branchHead },
-);
+    },
+    storyStates: stories.map(({ anchor }) => ({
+      identity: `SEED-094#${anchor}`,
+      href: href(anchor),
+      ...makeMe.aStoryPreparation
+        .plannedIn(`../slice-plans/094-${anchor}/PLAN.md`)
+        .please(),
+    })),
+    agentProfiles: taken.flatMap(({ anchor, agent, mode }) =>
+      agent === undefined || mode === undefined
+        ? []
+        : [
+            makeMe.anAgentProfile
+              .executing({
+                name: agent,
+                identity: `SEED-094#${anchor}`,
+                mode,
+                branch: mode === "trunk" ? "origin/main" : branch,
+                host: "claude",
+              })
+              .please(),
+          ],
+    ),
+  })
+  .withRevision("branchTip", {
+    files: {
+      [planPath("on-branch")]: renderSlicePlan(
+        makeMe.aSlicePlan
+          .withStatuses(["done", "done", "done"], {
+            advice: "Queue a story to show the advice on the card.",
+          })
+          .please(),
+        { heading: "Slices" },
+      ),
+    },
+  })
+  .please();
 
-export async function openTakenExecutionComplete(page: Page) {
+export async function openTakenExecutionComplete(
+  page: Page,
+  afterGitHubStops: (cleanup: () => Promise<void>) => void,
+) {
   await pausePageClockAt(page, opened);
-  publishCommittedFiles(page, {
+  const origin = await publishCommittedFileHistory(page, description, {
     repository,
-    files: trunk.files,
-    committed: {
-      [planPath("on-branch")]: minutesBefore(3 * 24 * 60),
-      [planPath("on-trunk")]: minutesBefore(15),
-      [planPath("all-done")]: minutesBefore(20),
-      [planPath("adviceless")]: minutesBefore(25),
-    },
-    history: {
-      [profilePath("Akiho")]: [addedAt(0x71, minutesBefore(90))],
-      [profilePath("Yuma")]: [addedAt(0x72, minutesBefore(60))],
-      [profilePath("Sola")]: [addedAt(0x73, minutesBefore(60))],
-      [profilePath("Mana")]: [addedAt(0x74, minutesBefore(60))],
-    },
-    branches: {
-      [branch]: {
-        ...branchTip,
+    trunk: "trunk",
+    branches: { [branch]: "branchTip" },
+    afterGitHubStops,
+    details: () => ({
+      trunk: {
+        committed: {
+          [planPath("on-branch")]: minutesBefore(3 * 24 * 60),
+          [planPath("on-trunk")]: minutesBefore(15),
+          [planPath("all-done")]: minutesBefore(20),
+          [planPath("adviceless")]: minutesBefore(25),
+        },
+        history: {
+          [profilePath("Akiho")]: [addedAt(0x71, minutesBefore(90))],
+          [profilePath("Yuma")]: [addedAt(0x72, minutesBefore(60))],
+          [profilePath("Sola")]: [addedAt(0x73, minutesBefore(60))],
+          [profilePath("Mana")]: [addedAt(0x74, minutesBefore(60))],
+        },
+      },
+      branchTip: {
         committed: { [planPath("on-branch")]: minutesBefore(40) },
       },
-    },
+    }),
   });
   await page.goto("/");
   await expectMembership(page, {
@@ -180,5 +180,5 @@ export async function openTakenExecutionComplete(page: Page) {
   await expect(page.getByText("Reading plan slices…")).toHaveCount(0);
   await expect(page.getByText("Reading current slice time…")).toHaveCount(0);
   await expect(page.getByText("Reading completion time…")).toHaveCount(0);
-  return parts(page);
+  return { ...parts(page), branchHead: origin.at("branchTip").revision };
 }

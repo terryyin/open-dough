@@ -5,6 +5,7 @@
 // ../../dashboard/test-support/autoRefreshJourney.ts; the page's clock is paused and
 // advanced by the test.
 
+import { holdAuthenticatedReadsWhere } from "../../dashboard/test-support/holdAuthenticatedReads.ts";
 import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
 import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
 import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
@@ -52,8 +53,12 @@ for (const { width, at } of [
     const { backlog, reading, status } = parts(page);
     const settledTop = (await box(backlog)).y;
 
-    // B's backlog read is held, so the read stays under way to be seen.
-    const release = origin.hold(revisionB);
+    // The browser's pinned B snapshot request remains in flight.
+    const snapshot = await holdAuthenticatedReadsWhere(
+      page,
+      (params) => params.get("revision") === revisionB && params.size === 2,
+      [],
+    );
     origin.advanceTo("B");
     expect(
       await remoteBranchHead(
@@ -78,7 +83,7 @@ for (const { width, at } of [
     });
 
     await test.step("once B is read, the Backlog column is still where it was", async () => {
-      release();
+      snapshot.release();
       await expectSettledPage(page, titlesOfA);
       await expect(status).toHaveText(
         new RegExp(

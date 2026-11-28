@@ -77,7 +77,7 @@ export class Intent extends PageObject {
     );
   }
 
-  // A session, not Whole story, is chosen under Sessions, and the comparison
+  // A session, not Whole story, is chosen in Review scope, and the comparison
   // summary counts `files` changed, as "1 changed file".
   expectSessionChosen(files: string) {
     return this.cueHere(`Intent: a session is chosen, ${files}`, async () => {

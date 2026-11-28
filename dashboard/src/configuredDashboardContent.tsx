@@ -29,6 +29,7 @@ export function ConfiguredDashboardContent({
   storyNotice,
   attempt,
   reading,
+  refresh,
   withheld,
   recoversAt,
   limitedUntil,
@@ -51,6 +52,7 @@ export function ConfiguredDashboardContent({
   readonly storyNotice: ReactNode;
   readonly attempt: ReturnType<typeof useObservationAttempt>["attempt"];
   readonly reading: boolean;
+  readonly refresh: () => void;
   readonly withheld: boolean;
   readonly recoversAt: Date | undefined;
   readonly limitedUntil: Date | undefined;
@@ -95,13 +97,14 @@ export function ConfiguredDashboardContent({
           launches={launches}
           presentTerminal={presentTerminal}
           hidden={!showsBoard}
+          checking={reading}
+          refresh={refresh}
         />
         {showsBoard && (
           <StartupRecovery
             items={launches.recoveriesOf(source.id)}
             evidence={launches.attemptEvidence}
             actions={launches}
-            presentTerminal={presentTerminal}
           />
         )}
         <StartupAnnouncer

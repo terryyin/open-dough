@@ -1,5 +1,5 @@
-// A visible dashboard honors GitHub's rate limit: a rate-limited revision
-// check that says when to ask again (`Retry-After`, or `X-RateLimit-Reset`
+// A visible dashboard honors GitHub's rate limit: a refused detail request
+// starts a wait (`Retry-After`, or `X-RateLimit-Reset`
 // once `X-RateLimit-Remaining` is `0`) keeps the last successful snapshot,
 // says when checks resume, and asks nothing -- not even when the page is seen
 // again -- before that time; the check at that time reads what was published,
@@ -32,7 +32,6 @@ import {
   callsSince,
   checksAskedWhilePassing,
   expectSteadyPace,
-  headsChecks,
   openSettledAtA,
   pageTimeStepMs,
   passTimeUntilAsked,
@@ -43,13 +42,18 @@ import {
   isCheck,
   untilPageRequestsAnswered,
 } from "../../dashboard/test-support/pageRequestNotes.ts";
-import { rateLimitedAnswer } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
+  rateLimitedAnswer,
+  type OriginAnswer,
+} from "../../dashboard/test-support/publishedOrigin.ts";
+import {
+  dashboardEntry,
   inspectDashboardStory,
   titlesOfA,
   titlesOfB,
 } from "../../dashboard/test-support/refreshJourney.ts";
 import { test } from "../../dashboard/test-support/support/ownerClockTest.ts";
+import { readUrl } from "../../dashboard/test-support/support/sharedReads.ts";
 import { expectEarlierSnapshotKept } from "../../dashboard/test-support/transientRecoveryPage.ts";
 import {
   failedAt,
@@ -82,7 +86,7 @@ async function passTimeUntilLimited(page: Page) {
   return { passed, retryAfterSeconds };
 }
 
-test("auto refresh rate limit: a rate-limited check waits as GitHub directs before checking again, offers no Retry, and the check at the directed time reads B, clears the failure, and restores the steady pace", async ({
+test("auto refresh waits out a standing REST limit without offering Retry, then checks at the directed time and restores its pace", async ({
   page,
   dashboard,
   afterGitHubStops,
@@ -104,21 +108,42 @@ test("auto refresh rate limit: a rate-limited check waits as GitHub directs befo
   const { problem, retrievedAt } = parts(page);
   const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
   await inspectDashboardStory(page);
-  const restoreMain = origin.answerWith(
-    "main",
-    rateLimitedAnswer(429, { "Retry-After": "2" }),
+  origin.advanceTo("B");
+  const endpoint = new URL(page.url()).origin;
+  const seed = `.planning/${dashboardEntry.href.replace(/#.*/, "")}`;
+  const detail = readUrl(
+    endpoint,
+    `&revision=${revisionB}&path=${encodeURIComponent(seed)}`,
   );
+  const startWait = async (answer: OriginAnswer, retryAfterSeconds: number) => {
+    const restore = origin.answerWith(seed, answer);
+    try {
+      const refused = await page.request.get(detail, {
+        headers: { Origin: endpoint },
+      });
+      expect(refused.status()).toBe(502);
+      expect(await refused.json()).toMatchObject({
+        error: expect.stringContaining(
+          `while reading ${seed} at ${revisionB}.`,
+        ),
+        retryAfterSeconds,
+      });
+    } finally {
+      restore();
+    }
+  };
   const expectSnapshotA = async () => {
     await expectMembership(page, titlesOfA);
     await expectEarlierSnapshotKept(page, retrievedA);
   };
 
-  await test.step("the rate-limited check is reported with the time GitHub asked checks to wait until", async () => {
+  await startWait(rateLimitedAnswer(429, { "Retry-After": "2" }), 2);
+  await test.step("the held-back check reports when checks can resume", async () => {
     const limited = await passTimeUntilLimited(page);
     expectSteadyPace(limited.passed);
     expect(limited.retryAfterSeconds).toBe(2);
     await expect(problem).toContainText(
-      "GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading main of terryyin/open-dough. GitHub asked to wait 2 seconds before asking again.",
+      "GitHub limited the rate of the local GitHub CLI's requests, so main of terryyin/open-dough was not asked of GitHub. Reading resumes in 2 seconds.",
     );
     await expect(problem).toContainText(limitSaid);
     await expect(problem).not.toContainText("Retry");
@@ -137,8 +162,6 @@ test("auto refresh rate limit: a rate-limited check waits as GitHub directs befo
     expect(await checksAskedWhilePassing(page, 750)).toBe(0);
     expect(callsSince(page, quietFrom)).toEqual([]);
   });
-
-  restoreMain();
 
   await test.step("owner time held before the directed time, the check page time reaches is refused by the owner and asks GitHub nothing", async () => {
     const quietFrom = githubFor(page).calls.length;
@@ -164,24 +187,24 @@ test("auto refresh rate limit: a rate-limited check waits as GitHub directs befo
   owner.advanceOwnerClock(2_000);
   const resetSeconds = 18;
   const resetMs = resetSeconds * 1_000;
-  const restoreLimit = origin.answerWith(
-    "main",
+  await startWait(
     rateLimitedAnswer(403, {
       "X-RateLimit-Remaining": "0",
       "X-RateLimit-Reset": String(
         Math.floor(owner.ownerNow() / 1000) + resetSeconds,
       ),
     }),
+    resetSeconds,
   );
 
-  await test.step("owner and page time at the directed time, the check is asked of GitHub, and a still-limited answer directs the next wait by its reset time", async () => {
+  await test.step("a longer owner wait still holds back the next check and delays another until the reset time", async () => {
     const from = githubFor(page).calls.length;
     const reset = await passTimeUntilLimited(page);
     expectAtDirectedTime(0, reset.passed, 2_000);
-    expect(headsChecks(callsSince(page, from))).toHaveLength(1);
+    expect(callsSince(page, from)).toEqual([]);
     expect(reset.retryAfterSeconds).toBe(resetSeconds);
     await expect(problem).toContainText(
-      `GitHub limited the rate of the local GitHub CLI's requests (HTTP 403) while reading main of terryyin/open-dough. GitHub asked to wait ${String(resetSeconds)} seconds before asking again.`,
+      `GitHub limited the rate of the local GitHub CLI's requests, so main of terryyin/open-dough was not asked of GitHub. Reading resumes in ${String(resetSeconds)} seconds.`,
     );
     // Past the steady pace and up to just before the reset time.
     const quietFrom = githubFor(page).calls.length;
@@ -191,8 +214,6 @@ test("auto refresh rate limit: a rate-limited check waits as GitHub directs befo
   });
 
   await test.step("restored access, the check at the directed time reads B and clears the failure", async () => {
-    restoreLimit();
-    origin.advanceTo("B");
     expect(
       await remoteBranchHead(
         gitHubRepositoryUrl("terryyin/open-dough"),
@@ -220,9 +241,7 @@ test("auto refresh rate limit: a rate-limited check waits as GitHub directs befo
   });
 
   await test.step("with GitHub's wait passed, checks resume at the steady pace", async () => {
-    const from = githubFor(page).calls.length;
     expectSteadyPace(await passTimeUntilChecked(page));
-    expect(headsChecks(callsSince(page, from))).toHaveLength(1);
     await expect(problem).toHaveCount(0);
   });
   // Every wait was kept by the owner this case started and advanced.

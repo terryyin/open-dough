@@ -55,7 +55,7 @@ async function namedComparison(
   return { repository: reviewRepositoryPath(source), comparison };
 }
 
-async function readStoryReviewResult(
+export async function readStoryReviewResult(
   read: StoryReviewResultRead,
   signal: AbortSignal,
 ): Promise<StoryReviewResult> {

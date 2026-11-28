@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "sessionId": "c98d21fe-e7bb-4981-93f3-5d2343e60115",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-27T14:52:40.809Z",
+  "story": "SEED-413#diagnose-dashboard-ci-probe-flakes",
+  "ranges": [
+    {
+      "base": "004f77b9377d44b6ecde381ab54f32a8aab675f5",
+      "candidate": "df83bed913fc2ab4643916e5920879cbcea3c6f9"
+    },
+    {
+      "base": "df83bed913fc2ab4643916e5920879cbcea3c6f9",
+      "candidate": "c446520f5c9539b05f6610aba91311e72e31593f"
+    },
+    {
+      "base": "c446520f5c9539b05f6610aba91311e72e31593f",
+      "candidate": "2734e2295a2d52b5fc402f9b731443b4e5d49c5f"
+    },
+    {
+      "base": "2734e2295a2d52b5fc402f9b731443b4e5d49c5f",
+      "candidate": "88810b6a9c883d99ecf8e8f60ef697f6b525db7c"
+    },
+    {
+      "base": "d0f04fb688579b3b639dac06eeb2c2c8ef33ccd2",
+      "candidate": "a06455feac1b549f3e3192036da2f79861a2b6c0"
+    }
+  ]
+}

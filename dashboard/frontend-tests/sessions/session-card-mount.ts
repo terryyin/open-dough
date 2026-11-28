@@ -18,6 +18,7 @@ import { withPagePreferences } from "../../test-support/component-mount/framePre
 import { mountComponent } from "../../test-support/component-mount/mountComponent.ts";
 import { pageReadsSupplying } from "../../test-support/component-mount/unreadPageReads.ts";
 import type { InstructionTranscriptionSource } from "../../src/instructionTranscriptionSource.ts";
+import type { StoryReviewStatesReadSource } from "../../src/storyReviewStatesReadSource.ts";
 import { boardFrameObservationSupplying } from "../navigation/board-frame-observation-supply.ts";
 import { boardWork, story } from "../navigation/board-work.ts";
 
@@ -114,6 +115,7 @@ export async function mountSessionCards({
   machineReads = {},
   readRunningCursorSessions,
   readFinalReport,
+  reviewStates,
   transcription,
   openTerminal,
   storeTerminalImage,
@@ -134,6 +136,8 @@ export async function mountSessionCards({
   markDone?: MachineReadSource["markDone"];
   markRead?: MachineReadSource["markRead"];
   readFinalReport?: SessionServices["readFinalReport"];
+  // Each project's story review states, read and changed.
+  reviewStates?: StoryReviewStatesReadSource;
   transcription?: InstructionTranscriptionSource;
   viewport?: { width: number; height: number };
   openTerminal?: SessionServices["openTerminal"];
@@ -151,6 +155,7 @@ export async function mountSessionCards({
   const reads = pageReadsSupplying({
     ...(transcription === undefined ? {} : { transcription }),
     ...(done === undefined ? {} : { done }),
+    ...(reviewStates === undefined ? {} : { reviewStates }),
     observation: {
       ...supply.observation,
       readDetailFile: (...args) =>

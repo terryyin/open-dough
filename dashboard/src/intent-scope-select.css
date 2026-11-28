@@ -1,0 +1,30 @@
+/* Intent's review scope dropdown (./IntentScopeSelect.tsx) on the compact
+   select's appearance (./compact-select.css): the closed button takes the
+   width its row leaves; the open list spans the viewport's width at most and
+   wraps long names so each reads in full. */
+.intent-scope-select {
+  flex: 0 1 18rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.intent-scope-select-button {
+  color: var(--text);
+}
+
+.intent-scope-select-list {
+  box-sizing: border-box;
+  width: max-content;
+  min-width: 100%;
+  max-width: min(32rem, calc(100vw - 2 * var(--space-2)));
+}
+
+.intent-scope-select-list [role="option"] {
+  overflow-wrap: anywhere;
+}
+
+/* An ad hoc session's icon; its name "Ad hoc" is the span's aria-label. */
+.intent-scope-ad-hoc::before {
+  content: "\2726" / "";
+  color: var(--muted);
+}

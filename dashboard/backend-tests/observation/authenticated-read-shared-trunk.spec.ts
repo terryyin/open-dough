@@ -4,7 +4,7 @@
 // was asked, and ask GitHub nothing. The transfer is held at the origin's
 // upload-pack (../review/verifiedOriginTrunkCase.ts); the marker the boundary
 // refuses confirms both opens arrived before it is released. Simultaneous
-// GitHub reads: ./authenticated-read-shared.spec.ts.
+// GitHub reads: ./authenticated-read-shared-requests.spec.ts.
 
 import { readFileSync, rmSync } from "node:fs";
 import { expect, test } from "../../test-support/support/pageTest.ts";
@@ -68,15 +68,14 @@ test("two opens share one held trunk check and answer the same asked time; a lat
     expect(two).toEqual(one);
     expect(askedSince(server, before)).toEqual([]);
 
-    // Reuse is zero, so this open starts another trunk check.
+    // Reuse is zero, so this open starts another trunk check; origin still
+    // advertises the confirmed revision, so it probes without fetching.
     const later = await readAt(server, "");
     expect(later.status).toBe(200);
     const again = JSON.parse(later.body) as Opened;
     expect(again.revision).toBe(repository.trunkSha);
     expect(again.askedAt).not.toBe(one?.askedAt);
-    expect(readFileSync(pack.log, "utf8")).toBe(
-      "call\ncall\nheld\ncall\ncall\n",
-    );
+    expect(readFileSync(pack.log, "utf8")).toBe("call\ncall\nheld\ncall\n");
   } finally {
     await signalFifo(pack.releaseFifo, false);
     rmSync(review, { recursive: true, force: true });

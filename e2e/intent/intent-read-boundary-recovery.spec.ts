@@ -3,7 +3,6 @@
 
 import {
   expect,
-  githubFor,
   pausePageClockAt,
   test,
 } from "../../dashboard/test-support/dashboardTest.ts";
@@ -32,7 +31,7 @@ import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
 import { limiting } from "../../dashboard/test-support/limitedReadingJourney.ts";
 import { noticedResumeTime } from "../../dashboard/test-support/limitNotice.ts";
 import { untilReported } from "../../dashboard/test-support/support/directedWait.ts";
-import { headsChecks } from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { whileNotingChecks } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { intentSettingsText } from "../../dashboard/test-support/support/intentSettingsFile.ts";
 
 const publishedLocations = () =>
@@ -83,14 +82,15 @@ for (const failure of ["settings", "listing"] as const) {
         ? `${settingsPath} could not be read`
         : "GitHub answered HTTP 503",
     );
-    const checksBefore = headsChecks(githubFor(page).calls).length;
     unavailable = false;
-
-    await advanceRecoveryClock(page, 14_999);
-    expect(reads()).toBe(1);
-    await advanceRecoveryClock(page, 251);
-    expect(reads()).toBe(2);
-    expect(headsChecks(githubFor(page).calls)).toHaveLength(checksBefore + 1);
+    await whileNotingChecks(page, async (askedAfter) => {
+      await advanceRecoveryClock(page, 14_999);
+      expect(reads()).toBe(1);
+      expect(await askedAfter()).toEqual([]);
+      await advanceRecoveryClock(page, 251);
+      expect(reads()).toBe(2);
+      expect(await askedAfter()).toHaveLength(1);
+    });
     await expect(intentLocationName(intent, "scripts")).toBeVisible();
     await expect(readFailure(intent)).toHaveCount(0);
   });

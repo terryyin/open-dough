@@ -8,6 +8,7 @@ import type { Page } from "@playwright/test";
 import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
 import {
   noteRequestsInOpenPage,
+  type PageScripts,
   type RequestsNoted,
 } from "./pageRequestNoting.ts";
 
@@ -77,7 +78,7 @@ export async function passCheckPace(page: Page): Promise<void> {
 // revision check is left alone, so a journey holding GitHub's listing can
 // still wait here. A page whose requests are not noted has nothing to wait
 // for.
-export async function untilPageReadsAnswered(page: Page): Promise<void> {
+export async function untilPageReadsAnswered(page: PageScripts): Promise<void> {
   await untilNotedAnswered(page, "readsUnanswered");
 }
 
@@ -96,7 +97,7 @@ export async function untilPageReadsAnswered(page: Page): Promise<void> {
 // which its turns send the project list's read; that read is awaited with the
 // published work's, and its answer leads to theirs. A page that notes no
 // requests, or is not the dashboard's, has nothing to wait for.
-export async function untilPublishedWorkRead(page: Page): Promise<void> {
+export async function untilPublishedWorkRead(page: PageScripts): Promise<void> {
   await page.evaluate(async () => {
     const root = document.getElementById("root");
     if (
@@ -152,7 +153,7 @@ export async function reloadUntilRead(page: Page): Promise<void> {
 // `unansweredNote` unanswered and none of its requests was answered since they began: an
 // answer read while they ran, or just after them, gets turns of its own.
 async function untilNotedAnswered(
-  page: Page,
+  page: PageScripts,
   unansweredNote: UnansweredNote,
 ): Promise<void> {
   for (;;) {

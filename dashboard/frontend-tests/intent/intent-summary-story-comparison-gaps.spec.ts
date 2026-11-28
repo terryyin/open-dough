@@ -97,7 +97,7 @@ test("a queued selection renders no previous Summary comparison or Baseline colu
     .inSummaryScope()
     .withWork({ backlog: queued.work.backlog })
     .please();
-  const { selectStory } = await openSummaryComparison(done);
+  const { selectStory } = await openSummaryComparison(done, { onPage: true });
   const summary = await openSummary(entry);
   await expectComparisonRows(summary, entryComparisonRows);
 

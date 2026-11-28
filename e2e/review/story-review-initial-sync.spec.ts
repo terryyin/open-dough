@@ -22,10 +22,6 @@ import {
 import { renameExecutionCheckout } from "../../dashboard/test-support/support/reviewRepositoryFixture.ts";
 import { publishDeclaredTrunk } from "../../dashboard/test-support/support/storyCiComparisonBaseline.ts";
 
-// A second tab's Board reuses the first tab's trunk check, so the held
-// origin sees only the Review's own transfers.
-const boardCheckReuseMs = 10 * 60_000;
-
 const test = base.extend<{
   prepareColdReview: () => Promise<{
     transfers: ReturnType<typeof holdLaterTrunkTransfers>;
@@ -41,6 +37,7 @@ const test = base.extend<{
         transfers = holdLaterTrunkTransfers(
           path.join(origin.machine, "home"),
           "terryyin/open-dough",
+          { reviewOnly: true },
         );
         moved = renameExecutionCheckout(origin);
         other = await page.context().newPage();
@@ -53,8 +50,6 @@ const test = base.extend<{
     }
   },
 });
-
-test.use({ revisionCheckReuseMs: boardCheckReuseMs });
 
 function resumesReviewAt(requestUrl: string, revision: string) {
   const url = new URL(requestUrl);

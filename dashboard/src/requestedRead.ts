@@ -7,6 +7,7 @@
 // shown only what it answered itself: facts it carried from the shown
 // snapshot while it was under way (`./carriedFacts.ts`) do not outlive it.
 
+import { useState } from "react";
 import type { StoryBranchHeads } from "./authenticatedBranchRead.ts";
 import { readMovedProgress } from "./movedBranchProgress.ts";
 import type { ObservationOutcomes } from "./observationOutcomes.ts";
@@ -14,12 +15,51 @@ import type { PublishedObservationReadSource } from "./publishedObservationReadS
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
 import { readPublishedWork } from "./publishedWorkRead.ts";
+import type { RevisionConfirmation } from "./revisionCheckRead.ts";
 
-export type ReadRequest = {
+// Why the ref is read again: limit recovery, or launch reconciliation's
+// fresh read.
+export type RefAsk = "recovery" | "fresh";
+
+type ReadRequest = {
   readonly asked: number;
   readonly revision: string | undefined;
+  // Launch reconciliation's ask: only a ref check begun after it may answer.
+  readonly fresh?: boolean;
   readonly movedBranches?: StoryBranchHeads;
+  readonly confirmation?: RevisionConfirmation | undefined;
 };
+
+// The first read is of the ref. Each subsequent ask replaces the request so
+// repeating the same read starts a new attempt.
+export function useReadRequest() {
+  const [request, setRequest] = useState<ReadRequest>({
+    asked: 1,
+    revision: undefined,
+  });
+  return {
+    request,
+    requestSnapshot: (
+      revision: string | undefined,
+      fresh: boolean,
+      confirmation?: RevisionConfirmation,
+    ) => {
+      setRequest((last) => ({
+        asked: last.asked + 1,
+        revision,
+        fresh,
+        confirmation,
+      }));
+    },
+    requestMovedProgress: (movedBranches: StoryBranchHeads) => {
+      setRequest((last) => ({
+        asked: last.asked + 1,
+        revision: last.revision,
+        movedBranches,
+      }));
+    },
+  };
+}
 
 // What a read reports as it goes: each snapshot it shows, the first naming
 // its membership; its failure, after membership or not; and, once it lands,
@@ -37,7 +77,7 @@ export type ReadReports = {
 // answered itself, once its signal is aborted.
 export function carryOutRead(
   reads: PublishedObservationReadSource,
-  { revision, movedBranches }: ReadRequest,
+  { revision, fresh = false, movedBranches, confirmation }: ReadRequest,
   source: PublishedSource,
   shown: PublishedWork | undefined,
   signal: AbortSignal,
@@ -91,6 +131,8 @@ export function carryOutRead(
     revision,
     shown,
     reads,
+    fresh,
+    confirmation,
   ).then(
     (read) => {
       landed(true, () => {

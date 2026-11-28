@@ -1,11 +1,7 @@
-// Two published sessions and two Story cards for Side panel replacement and
+// A published session and two Story cards for Side panel replacement and
 // perspective changes. Story B's report is recovered from native history.
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  addedOnBranch,
-  publishedPairAdding,
-  trunkAdvancedWith,
-} from "../originatingMachine.ts";
+import { addedOnBranch, publishedPairAdding } from "../originatingMachine.ts";
 import { sidePanelPages } from "../sidePanelPages.ts";
 import { keepLaunchRecords } from "./launchStore.ts";
 import { test as base } from "./preparationPage.ts";
@@ -26,19 +22,12 @@ export const test = base.extend<{
     reviewReads: readonly string[];
     journey: ReturnType<typeof sidePanelPages>;
     storyBSession: string;
-    first: string;
-    second: string;
+    session: string;
   };
 }>({
   storiesAAndB: async ({ page, dashboard, origin, codexProtocol }, use) => {
     if (codexProtocol === undefined) throw new Error("Missing native fixture");
-    const started = publishedPairAdding(origin, "first.txt");
-    const candidate = trunkAdvancedWith(origin, "second.txt");
-    const first = publishReviewSession(origin, {
-      base: started.base,
-      candidate,
-    });
-    const second = publishReviewSession(
+    const session = publishReviewSession(
       origin,
       publishedPairAdding(origin, "story-b.txt"),
     );
@@ -70,8 +59,7 @@ export const test = base.extend<{
     await use({
       reviewReads,
       journey: sidePanelPages(page),
-      first,
-      second,
+      session,
       storyBSession: codexProtocol.threadId,
     });
   },

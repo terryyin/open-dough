@@ -1,4 +1,5 @@
 import { createElement, useState } from "react";
+import { onTestFinished } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { MachineSessions } from "../../src/agentLaunches.ts";
 import { Board } from "../../src/Board.tsx";
@@ -116,6 +117,13 @@ export async function mountBoard(
     done?: DoneRecordReadSource;
   } = {},
 ) {
+  // A column move still runs its slide, including transitionrun. The product's
+  // 200ms ease is not what these cases observe.
+  const style = document.head.appendChild(document.createElement("style"));
+  style.textContent = ".board-row[data-sliding] { transition-duration: 1ms; }";
+  onTestFinished(() => {
+    style.remove();
+  });
   withPagePreferences({ sessionsSidebar });
   let sessions = { ...noSessions, ...observed };
   let work = projects;

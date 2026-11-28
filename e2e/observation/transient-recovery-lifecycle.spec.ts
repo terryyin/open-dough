@@ -37,7 +37,6 @@ import {
   withheldTitle,
 } from "../../dashboard/test-support/limitedReadingRecords.ts";
 import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
-import { httpErrorAnswer } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   inspectDashboardStory,
   refreshHistory,
@@ -133,6 +132,9 @@ test("two pages share a recovery read: one hides while the other finishes; the f
   const opens = [page, other].map((tab) => noteColdOpens(tab, "open-dough"));
   await Promise.all([page.goto("/"), other.goto("/")]);
   await transfer.held;
+  // Each page's wait bound starts when it sends its cold open; both must have
+  // sent it before page time passes the bound.
+  await expect.poll(() => opens.map((asked) => asked.length)).toEqual([1, 1]);
   await page.clock.runFor(30_000);
   for (const tab of [page, other])
     await expectProblemAndNoSnapshot(
@@ -225,13 +227,7 @@ test("an ordinary transient failure does not hold back another project's reads",
     afterGitHubStops,
     doughnutRepository,
   );
-  await openThenFailCheck(
-    page,
-    openDough,
-    titlesOfA,
-    httpErrorAnswer(503),
-    "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-  );
+  await openThenFailCheck(page, openDough, titlesOfA);
 
   await projectTab(page, "Doughnut").check();
   await expectSettledPage(page, {

@@ -128,23 +128,25 @@ export function cursorRunnerChildEnvironment(
   };
 }
 
+// Node runs a bundled runner entry as it is and the source entry through its
+// TypeScript transform.
+export function runnerArguments(entry: string): readonly string[] {
+  return entry.endsWith(".mjs")
+    ? [entry]
+    : ["--experimental-transform-types", "--no-warnings", entry];
+}
+
 export async function spawnRunner(home: string): Promise<boolean> {
   const directory = cursorRunnerDirectory(home);
   await mkdir(directory, { recursive: true });
   const log = openSync(path.join(directory, "cursor-runner.log"), "a");
   const entry = runnerEntryPath();
-  const child = spawn(
-    process.execPath,
-    entry.endsWith(".mjs")
-      ? [entry]
-      : ["--experimental-transform-types", "--no-warnings", entry],
-    {
-      detached: true,
-      stdio: ["ignore", log, log],
-      env: cursorRunnerChildEnvironment(process.env, home),
-      cwd: process.cwd(),
-    },
-  );
+  const child = spawn(process.execPath, [...runnerArguments(entry)], {
+    detached: true,
+    stdio: ["ignore", log, log],
+    env: cursorRunnerChildEnvironment(process.env, home),
+    cwd: process.cwd(),
+  });
   child.unref();
   closeSync(log);
   const childState = { exited: false };

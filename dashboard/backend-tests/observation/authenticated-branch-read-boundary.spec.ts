@@ -1,247 +1,226 @@
-// The local authenticated read boundary (../../server/authenticatedRead.ts) on
-// a story branch, tested directly against real HTTP and a synthetic `gh` on
-// this suite's own isolated server process's PATH that answers from a fake
-// GitHub recording every invocation. A branch is read only as a Taken
-// entry's agent profile records it at the pinned revision, and a file only at
-// a head this boundary resolved, itself or in a revision check watching the
-// branch; malformed branch parameters are covered in
-// ./authenticated-read-refusal.spec.ts, and what the page shows from branch
-// reads in ../../../e2e/stories/branch-slice-progress.spec.ts. Shares this suite's harness
-// (../../test-support/support/dashboardServer.ts) and ./authenticated-read-boundary.spec.ts's
-// approach.
-
+import { expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { renderStorySection } from "../../../Distribution/tests/support/published-seed.mjs";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { BranchHeads } from "../../server/branchHeads.ts";
+import { execGh, runGh } from "../../server/ghRead.ts";
 import {
-  developmentBoundary,
-  startDashboardServer,
-  type DashboardServer,
-} from "../../test-support/support/dashboardServer.ts";
-import { publishes } from "../../test-support/support/fakeGitHub.ts";
-import { expectServedHomesReach } from "../../test-support/support/fixtureOriginRoute.ts";
-import { keepingOrigin } from "../../test-support/support/publishedRepository.ts";
+  performBranchHeadRead,
+  performOnBranch,
+} from "../../server/performedBranchRead.ts";
+import { performRevisionCheck } from "../../server/performedRevisionCheck.ts";
+import { listedAgentProfiles } from "../../server/recordsBesideBacklog.ts";
+import { parseRequestedRead } from "../../server/requestedRead.ts";
+import { demandVerifiedTrunk } from "../../server/performedRefRead.ts";
+import { SharedVerifiedOriginTrunk } from "../../server/sharedVerifiedOriginTrunk.ts";
+import { opened } from "../review/verifiedOriginTrunkCase.ts";
 import {
-  branchRefAnswer,
-  headsAnswer,
-} from "../../test-support/originAnswers.ts";
-import { describedFiles } from "../../test-support/describedRevisions.ts";
-import { backlogPath } from "../../test-support/publishedOriginBasics.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
+  listedAt,
+  publishBranch,
+  showAt,
+} from "../../test-support/committedOriginRepo.ts";
+import { directoryListingAnswer } from "../../test-support/listingAnswers.ts";
+import { parseRequest } from "../../test-support/support/ghRequest.ts";
 
-test.describe.configure({ mode: "serial" });
+vi.mock(import("../../server/ghRead.ts"), async (importOriginal) => ({
+  ...(await importOriginal()),
+  runGh: vi.fn(),
+  execGh: vi.fn(),
+  requireCoreReadsAllowed: vi.fn().mockResolvedValue(undefined),
+}));
 
-const knownSourceId = "open-dough";
-const knownRepository = "terryyin/open-dough";
+const source = makeMe.aPublishedSource.openDough.please();
+const repositoryName = source.repository;
+const branch = "story/recorded";
+const otherBranch = "story/unrecorded";
+const seedPath = ".planning/seeds/SEED-branch.md";
+const planPath = ".planning/slice-plans/092-branch/PLAN.md";
+const firstPlan = "# First branch plan\n\n## Slices\n";
+const nextPlan = "# Updated branch plan\n\n## Slices\n";
+function storyEntry(anchor: string, title: string) {
+  return makeMe.aBacklogEntry
+    .with({
+      title,
+      identity: `SEED-branch#${anchor}`,
+      href: `seeds/SEED-branch.md#${anchor}`,
+    })
+    .please();
+}
 
-test.describe("authenticated read boundary on a story branch (development environment)", () => {
-  let server: DashboardServer;
+const branchStory = storyEntry("story", "Branch story");
+const trunkStory = storyEntry("trunk", "Trunk story");
 
-  test.beforeAll(async () => {
-    server = await startDashboardServer(developmentBoundary);
-  });
-
-  test.afterAll(async () => {
-    await server.close();
-  });
-
-  test("reads on a story branch only as a Taken entry's profile records it at the pinned revision, at a head it resolved, and refuses anything else before asking GitHub", async () => {
-    const head = "b8".repeat(20);
-    const seedPath = ".planning/seeds/SEED-branch.md";
-    const planPath = ".planning/slice-plans/092-branch/PLAN.md";
-    const planText = "# Plan\n\n## Slices\n";
-    const entry = (title: string, anchor: string) =>
-      makeMe.aBacklogEntry
-        .with({
-          title,
-          identity: `SEED-branch#${anchor}`,
-          href: `seeds/SEED-branch.md#${anchor}`,
-        })
-        .please();
-    const branchStory = entry("Branch story", "story");
-    const trunkStory = entry("Trunk story", "trunk");
-    const files = describedFiles({
-      backlog: {
-        taken: [branchStory, trunkStory],
+const description = makeMe.aRepository
+  .withRevision("trunk", {
+    backlog: { taken: [branchStory, trunkStory] },
+    files: {
+      [seedPath]: `# Seed\n\n${renderStorySection(branchStory)}`,
+      [planPath]: "# Trunk plan\n",
+    },
+    storyStates: [
+      {
+        identity: branchStory.identity,
+        href: branchStory.href,
+        ...makeMe.aStoryPreparation
+          .plannedIn("../slice-plans/092-branch/PLAN.md")
+          .please(),
       },
-      files: {
-        [seedPath]: `# Seed
-
-${renderStorySection(branchStory)}`,
-        [planPath]: planText,
-      },
-      storyStates: [
-        {
+    ],
+    agentProfiles: [
+      makeMe.anAgentProfile
+        .executing({
+          name: "Yui",
           identity: branchStory.identity,
-          href: branchStory.href,
-          ...makeMe.aStoryPreparation
-            .plannedIn("../slice-plans/092-branch/PLAN.md")
-            .please(),
-        },
-      ],
-      agentProfiles: [
-        makeMe.anAgentProfile
-          .executing({
-            name: "Yui",
-            identity: branchStory.identity,
-            mode: "story-branch",
-            branch: "story/recorded",
-          })
-          .please(),
-        makeMe.anAgentProfile
-          .executing({
-            name: "Akiho",
-            identity: trunkStory.identity,
-            mode: "trunk",
-            branch: "origin/main",
-          })
-          .please(),
-      ],
-    });
-    const published = publishes({ files, backlog: files[backlogPath] ?? "" });
-    const { revision } = published;
-    server.github.serve(
-      knownRepository,
-      keepingOrigin(
-        (call) =>
-          call.request.kind === "branch"
-            ? Promise.resolve(branchRefAnswer(call.request.branch, head))
-            : published(call),
-        published,
-      ),
-    );
-    expectServedHomesReach(server.github, knownRepository, revision);
-    const read = (query: string) =>
-      rawRequest({
-        url: `${server.baseURL}/__authenticated-read?source=${knownSourceId}${query}`,
-        headers: { Origin: server.origin },
-      });
-    // The records deciding what a branch may be read for are read first, as
-    // the page reads them: membership, the canonical record, and profiles.
-    const membership = await read("");
-    expect(membership.status).toBe(200);
-    expect(JSON.parse(membership.body)).toMatchObject({ revision });
-    expect(
-      (await read(`&revision=${revision}&path=${encodeURIComponent(seedPath)}`))
-        .status,
-    ).toBe(200);
-    expect((await read(`&revision=${revision}&agents=profiles`)).status).toBe(
-      200,
-    );
+          mode: "story-branch",
+          branch,
+        })
+        .please(),
+      makeMe.anAgentProfile
+        .executing({
+          name: "Akiho",
+          identity: trunkStory.identity,
+          mode: "trunk",
+        })
+        .please(),
+    ],
+  })
+  .withRevision("resolved", { files: { [planPath]: firstPlan } })
+  .withRevision("advanced", { files: { [planPath]: nextPlan } })
+  .please();
 
-    const onBranch = (branch: string, path: string) =>
-      `&revision=${revision}&branch=${encodeURIComponent(branch)}&head=${head}&path=${encodeURIComponent(path)}`;
-    let callsBefore = server.ghCalls().length;
-    for (const branch of ["story/unrecorded", "origin/main"]) {
-      const refused = await read(
-        `&revision=${revision}&branch=${encodeURIComponent(branch)}`,
-      );
-      expect(refused.status).toBe(404);
-      expect(JSON.parse(refused.body)).toEqual({
-        error:
-          "That branch is not recorded by a Taken entry's agent profile at this source revision.",
-      });
+test("reads recorded plans only at heads verified by Git", async () => {
+  const {
+    repository: { origin, revisions },
+    pinned,
+    signal,
+  } = await opened(description, source);
+  const { trunk: revision, resolved: head, advanced: checkedHead } = revisions;
+  if (revision === undefined || head === undefined || checkedHead === undefined)
+    throw new Error(
+      "The fixture must publish trunk and both branch revisions.",
+    );
+  publishBranch(origin, source.ref, revision);
+  publishBranch(origin, branch, head);
+  publishBranch(origin, otherBranch, checkedHead);
+
+  const provider = vi.mocked(runGh);
+  const heads = vi.mocked(execGh);
+  provider.mockImplementation((args) => {
+    const request = parseRequest(args);
+    if (!("repository" in request) || request.repository !== repositoryName) {
+      throw new Error(`Unexpected GitHub repository: ${args.join(" ")}`);
     }
-    const unresolved = await read(onBranch("story/recorded", planPath));
-    expect(unresolved.status).toBe(409);
-    expect(JSON.parse(unresolved.body)).toEqual({
-      error: "That branch head was not resolved by this read boundary.",
+    switch (request.kind) {
+      case "content": {
+        const text = showAt(origin, request.revision, request.path);
+        return Promise.resolve(text ?? "");
+      }
+      case "listing": {
+        const files = listedAt(origin, request.revision, request.path) ?? [];
+        return Promise.resolve(
+          directoryListingAnswer(request.path, files).body,
+        );
+      }
+      default:
+        throw new Error(`Unexpected GitHub read: ${args.join(" ")}`);
+    }
+  });
+  const readers = {
+    pinned,
+    branches: new BranchHeads(),
+    trunks: new SharedVerifiedOriginTrunk({ reuseMs: () => 0 }),
+  };
+  const readPinned = pinned.reader(source, revision, signal);
+  const listPinned = pinned.lister(source, revision, signal);
+  pinned.namedByRef(source, revision);
+  await readPinned(source.backlogPath);
+  pinned.answeredBacklog(source, revision);
+  await readPinned(seedPath);
+  for (const { path } of await listedAgentProfiles(source, listPinned)) {
+    await readPinned(path);
+  }
+  provider.mockClear();
+
+  const read = (params: Record<string, string>) => {
+    const request = parseRequestedRead(new URLSearchParams(params));
+    switch (request.kind) {
+      case "branch-head-at":
+        return performBranchHeadRead(readers, source, request, signal);
+      case "revision-check":
+        return performRevisionCheck(readers, source, request, signal, () =>
+          demandVerifiedTrunk(readers.trunks, pinned, source, signal, {
+            fresh: true,
+          }),
+        );
+      case "file-at":
+        if (request.onBranch !== undefined)
+          return performOnBranch(
+            readers,
+            source,
+            request,
+            request.onBranch,
+            signal,
+          );
+    }
+    throw new Error(`Unexpected read: ${request.kind}`);
+  };
+  const resolve = (branch: string) => read({ revision, branch });
+  const fileAt = (head: string, path = planPath) =>
+    read({ revision, branch, head, path });
+  const check = (watch: string) => read({ since: revision, watch });
+  const expectPlan = async (head: string, text: string) => {
+    await expect(fileAt(head)).resolves.toEqual({
+      kind: "answered",
+      answer: { revision: head, path: planPath, text },
     });
-    expect(server.ghCalls()).toHaveLength(callsBefore);
-
-    const resolved = await read(
-      `&revision=${revision}&branch=${encodeURIComponent("story/recorded")}`,
+    const contents = `repos/${repositoryName}/contents/${planPath}?ref=${head}`;
+    expect(provider).toHaveBeenCalledExactlyOnceWith(
+      ["api", "-H", "Accept: application/vnd.github.raw", contents],
+      signal,
     );
-    expect(resolved.status).toBe(200);
-    expect(JSON.parse(resolved.body)).toEqual({
-      revision,
-      branch: "story/recorded",
-      head,
-    });
-    expect(server.ghCalls().slice(callsBefore)).toEqual([
-      [
-        "api",
-        "--include",
-        `repos/${knownRepository}/git/ref/heads/story/recorded`,
-        "--jq",
-        ".object.sha",
-      ],
-    ]);
+  };
+  const unrecorded = {
+    kind: "refused",
+    status: 404,
+    message:
+      "That branch is not recorded by a Taken entry's agent profile at this source revision.",
+  };
 
-    callsBefore = server.ghCalls().length;
-    const notThePlan = await read(onBranch("story/recorded", seedPath));
-    expect(notThePlan.status).toBe(404);
-    expect(server.ghCalls()).toHaveLength(callsBefore);
+  await expect(resolve(otherBranch)).resolves.toEqual(unrecorded);
+  await expect(resolve("origin/main")).resolves.toEqual(unrecorded);
+  await expect(fileAt(head)).resolves.toEqual({
+    kind: "refused",
+    status: 409,
+    message: "That branch head was not resolved by this read boundary.",
+  });
+  expect(provider).not.toHaveBeenCalled();
 
-    const plan = await read(onBranch("story/recorded", planPath));
-    expect(plan.status).toBe(200);
-    expect(JSON.parse(plan.body)).toEqual({
-      revision: head,
-      path: planPath,
-      text: planText,
-    });
-    expect(server.ghCalls().slice(callsBefore)).toEqual([
-      [
-        "api",
-        "--include",
-        "-H",
-        "Accept: application/vnd.github.raw",
-        `repos/${knownRepository}/contents/.planning/slice-plans/092-branch/PLAN.md?ref=${head}`,
-      ],
-    ]);
+  await expect(resolve(branch)).resolves.toEqual({
+    kind: "answered",
+    answer: { revision, branch, head },
+  });
+  expect(provider).not.toHaveBeenCalled();
+  expect(heads).not.toHaveBeenCalled();
 
-    // A revision check watches only branches recorded at the revision shown,
-    // and a head its one listing finds for one is readable at once.
-    const checkedHead = "c9".repeat(20);
-    server.github.serve(
-      knownRepository,
-      keepingOrigin(
-        (call) =>
-          call.request.kind === "matching-refs"
-            ? Promise.resolve(
-                headsAnswer({
-                  main: revision,
-                  "story/recorded": checkedHead,
-                  "story/unrecorded": "d0".repeat(20),
-                }),
-              )
-            : published(call),
-        published,
-      ),
-    );
-    callsBefore = server.ghCalls().length;
-    const unwatched = await read(
-      `&since=${revision}&watch=${encodeURIComponent("story/unrecorded")}`,
-    );
-    expect(unwatched.status).toBe(404);
-    expect(server.ghCalls()).toHaveLength(callsBefore);
+  await expect(fileAt(head, seedPath)).resolves.toMatchObject({
+    kind: "refused",
+    status: 404,
+  });
+  expect(provider).not.toHaveBeenCalled();
+  await expectPlan(head, firstPlan);
+  provider.mockClear();
 
-    const watched = await read(
-      `&since=${revision}&watch=${encodeURIComponent("story/recorded")}`,
-    );
-    expect(watched.status).toBe(200);
-    expect(JSON.parse(watched.body)).toEqual({
+  publishBranch(origin, branch, checkedHead);
+  await expect(check(otherBranch)).resolves.toEqual(unrecorded);
+  expect(heads).not.toHaveBeenCalled();
+  expect(provider).not.toHaveBeenCalled();
+  await expect(check(branch)).resolves.toMatchObject({
+    kind: "answered",
+    answer: {
       revision,
       changed: false,
-      branches: [{ branch: "story/recorded", head: checkedHead }],
-    });
-    expect(server.ghCalls().slice(callsBefore)).toEqual([
-      ["api", "--include", `repos/${knownRepository}/git/matching-refs/heads/`],
-    ]);
-
-    callsBefore = server.ghCalls().length;
-    const atChecked = await read(
-      `&revision=${revision}&branch=${encodeURIComponent("story/recorded")}&head=${checkedHead}&path=${encodeURIComponent(planPath)}`,
-    );
-    expect(atChecked.status).toBe(200);
-    expect(server.ghCalls().slice(callsBefore)).toEqual([
-      [
-        "api",
-        "--include",
-        "-H",
-        "Accept: application/vnd.github.raw",
-        `repos/${knownRepository}/contents/.planning/slice-plans/092-branch/PLAN.md?ref=${checkedHead}`,
-      ],
-    ]);
+      branches: [{ branch, head: checkedHead }],
+    },
   });
+  await expectPlan(checkedHead, nextPlan);
+  expect(heads).not.toHaveBeenCalled();
 });

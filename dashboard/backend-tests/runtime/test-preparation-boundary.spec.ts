@@ -1,24 +1,18 @@
-// The custom landed-CI boundary server uses the bundle prepared by the backend
-// runner and requests no app build.
-import { startPreparationProofRun } from "../support/preparationProofRun.ts";
-import { dashboardAppArtifactKey } from "../../test-support/support/dashboardBuild.ts";
+// What a server start requests from the run's shared artifacts. A landed-CI
+// case's custom boundary start (../../test-support/support/landedCiHistoryTest.ts)
+// waits for its worker's boundary inputs and starts an unmounted boundary
+// server.
+import { expect, test } from "vitest";
+import { servedArtifacts } from "../../test-support/support/dashboardServerOptions.ts";
 import { serverBundleArtifactKey } from "../../test-support/support/serverBundle.ts";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { removeProofDirectories } from "../../test-support/support/proofRecordRun.ts";
+import { serverInputKeys } from "../../test-support/support/serverInputWorkerFixtures.ts";
 
-test.afterEach(removeProofDirectories);
-
-test("a custom landed-CI boundary start has its bundle prepared and requests no app", async () => {
-  const run = startPreparationProofRun({
-    spec: "custom-boundary.proof.ts",
-    setup: "backendGlobalSetup.ts",
+test("a custom boundary start has its bundle prepared and requests no app", async () => {
+  expect(await serverInputKeys([], "boundary")).toEqual([
+    serverBundleArtifactKey,
+  ]);
+  expect(servedArtifacts("boundary", false)).toEqual({
+    app: false,
+    bundle: true,
   });
-  try {
-    await run.passed();
-
-    expect(run.requestedArtifacts()).not.toContain(dashboardAppArtifactKey);
-    run.expectPreparedBefore(serverBundleArtifactKey, "startServer");
-  } finally {
-    await run.stop();
-  }
 });

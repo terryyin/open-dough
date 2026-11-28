@@ -2,7 +2,7 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { installAuthenticatedReadMiddleware } from "../../server/authenticatedReadMiddleware.ts";
+import { installAuthenticatedReadMiddleware } from "../../server/authenticatedRead.ts";
 import type { BoundaryInstall } from "../../server/localBoundary.ts";
 import {
   endFakeGh,

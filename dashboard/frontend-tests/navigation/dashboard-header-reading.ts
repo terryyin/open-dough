@@ -1,6 +1,6 @@
 import { expect } from "vitest";
 import { page, type Locator } from "vitest/browser";
-import { expectDocumentStill, visibleParts } from "./board-accessibility.ts";
+import { expectDocumentStill } from "./board-accessibility.ts";
 import { fitsViewport } from "./frame-icon-control.ts";
 
 export const banner = page.getByRole("banner");
@@ -18,10 +18,23 @@ export const projectChoices = banner.getByRole("radiogroup", {
   name: "Project",
   exact: true,
 });
-export const compactProject = banner.getByRole("button", {
+export const compactProject = banner.getByRole("combobox", {
   name: "Project",
   exact: true,
 });
+// Whether the banner shows `label` as the chosen project, as a checked tab
+// or as the compact control's value where the tabs no longer fit.
+export function showsChosenProject(label: string) {
+  const tab = projectChoices
+    .getByRole("radio", { name: label, exact: true })
+    .query();
+  const compact = compactProject.query();
+  return (
+    (tab instanceof HTMLInputElement && tab.checked) ||
+    (compact instanceof HTMLSelectElement &&
+      compact.selectedOptions[0]?.label === label)
+  );
+}
 export const settings = banner.getByRole("button", {
   name: "System settings",
   exact: true,
@@ -61,13 +74,6 @@ export async function expectBannerRow(project: Locator) {
   const frame = banner.element().getBoundingClientRect();
   expect(frame.top).toBe(0);
   expect(frame.height).toBeLessThan(innerHeight / 2);
-}
-
-export function bannerStops() {
-  return visibleParts(
-    banner.element(),
-    "button, input, select, textarea, summary, a[href], [tabindex]",
-  );
 }
 
 export function expectOnlyBannerControls() {

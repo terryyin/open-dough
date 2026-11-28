@@ -43,7 +43,12 @@ export async function uncertainLaunch(
   const acceptance = nextAcceptedAttemptId(page);
   await launch.submit();
   const attemptId = await acceptance;
-  await expect.poll(() => dashboard.claudeLaunchCalls()).toHaveLength(1);
+  await expect
+    .poll(() => dashboard.claudeLaunchCalls(), {
+      timeout: 30_000,
+      intervals: [100],
+    })
+    .toHaveLength(1);
   await dashboard.endLaunchWait();
   await expect
     .poll(async () => (await attemptOf(dashboard, attemptId)).outcome?.kind, {

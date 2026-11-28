@@ -1,101 +1,37 @@
-// What every boundary spec here starts: the local boundaries alone, run by
-// Node from the run's bundle of ../../server/boundaryServer.ts, without Vite
-// or an app build, in the
-// project environment the spec names.
-import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
-import path from "node:path";
-import { expect, onTestFinished, test } from "vitest";
-import { startDashboardServer } from "../../test-support/support/dashboardServer.ts";
-import {
-  otherProjectEnvironment,
-  projectConfigurationFile,
-} from "../../test-support/support/projectConfiguration.ts";
-import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import {
-  liveRunner,
-  runnerCommand,
-} from "../../test-support/support/cursorRunnerJourney.ts";
+// The local boundaries' own rules, as every server that mounts them keeps
+// them. The bundled boundary server entry starts and serves under every
+// boundary-mode backend spec, such as
+// ../observation/authenticated-read-diagnostics.spec.ts.
+import type { IncomingMessage, ServerResponse } from "node:http";
+import { expect, test } from "vitest";
+import { boundaryMiddlewareChain } from "../../server/localBoundary.ts";
+import { runnerArguments } from "../../server/hosts/cursor/runnerProcess.ts";
 
-test("a boundary-mode server is the Node entry alone, naming no Vite and serving no page", async () => {
-  const server = await startDashboardServer({
-    mode: "boundary",
-    liveServer: "server program",
-  });
-  onTestFinished(async () => {
-    await server.close();
-  });
-  const bundle = server.serverBundle ?? "";
-  expect(path.basename(bundle)).toMatch(/^\.dough-server-bundle-/);
-  const command = execFileSync(
-    "ps",
-    ["-o", "command=", "-p", String(server.pid)],
-    {
-      encoding: "utf8",
+test("a request no boundary answers is not found, so no page is served", () => {
+  const answered: { status?: number } = {};
+  const response = {
+    writeHead(status: number) {
+      answered.status = status;
+      return this;
     },
-  ).trim();
-  expect(command).toBe(
-    [
-      process.execPath,
-      path.join(bundle, "boundaryServer.mjs"),
-      "--port",
-      new URL(server.baseURL).port,
-      "--strictPort",
-      "--environment",
-      "production",
-    ].join(" "),
+    end() {
+      return this;
+    },
+  };
+  boundaryMiddlewareChain().handle(
+    { method: "GET", url: "/" } as IncomingMessage,
+    response as unknown as ServerResponse,
   );
-  expect(server.output()).not.toMatch(/vite/i);
-  const runner = await liveRunner(server.home);
-  expect(runnerCommand(runner.pid)).toBe(
-    [process.execPath, path.join(bundle, "runnerMain.mjs")].join(" "),
-  );
-  expect(server.outDir).toBeUndefined();
-  expect(
-    (await rawRequest({ url: `${server.baseURL}/`, method: "GET" })).status,
-  ).toBe(404);
+  expect(answered.status).toBe(404);
 });
 
-// The project list each environment answers comes from that environment's own
-// file under the server's HOME, as the dev and preview servers keep theirs.
-test("each project environment answers the project list from its own configuration file", async () => {
-  const listed = async (environment: "development" | "production") => {
-    const server = await startDashboardServer({
-      mode: "boundary",
-      liveServer: "server program",
-      environment,
-      configureDevelopmentProjects: false,
-    });
-    onTestFinished(async () => {
-      await server.close();
-    });
-    const response = await rawRequest({
-      url: `${server.baseURL}/__project-configuration`,
-      headers: { "Sec-Fetch-Site": "same-origin" },
-    });
-    expect(response.status).toBe(200);
-    const file = (named: "development" | "production") =>
-      projectConfigurationFile(server.home, named);
-    expect(existsSync(file(otherProjectEnvironment(environment)))).toBe(false);
-    const kept = JSON.parse(readFileSync(file(environment), "utf8")) as {
-      id: string;
-    }[];
-    return {
-      answered: (JSON.parse(response.body) as { id: string }[]).map(
-        ({ id }) => id,
-      ),
-      kept: kept.map(({ id }) => id),
-    };
-  };
-  const production = await listed("production");
-  expect(production.answered).toEqual([
-    "open-dough",
-    "doughnut",
-    "pygardon",
-    "terry-talks",
+test("Node runs a bundled runner entry as it is and the source entry through its transform", () => {
+  expect(runnerArguments("/bundle/runnerMain.mjs")).toEqual([
+    "/bundle/runnerMain.mjs",
   ]);
-  expect(production.kept).toEqual(production.answered);
-  const development = await listed("development");
-  expect(development.answered).toEqual([]);
-  expect(development.kept).toEqual([]);
+  expect(runnerArguments("/src/runnerMain.ts")).toEqual([
+    "--experimental-transform-types",
+    "--no-warnings",
+    "/src/runnerMain.ts",
+  ]);
 });

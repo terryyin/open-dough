@@ -1,7 +1,6 @@
 // Hold delivery of one real story-review response: the next matching one, whose
 // payload callers inspect, then release in finally and await delivery before
-// proceeding; or a published session's, released and drained between a journey's
-// phases.
+// proceeding; or a story's, released and drained between a journey's phases.
 import type { APIResponse, Page, Route } from "@playwright/test";
 import { storyReviewEndpoint } from "../../src/storyReviewContract.ts";
 import { expect } from "./preparationPage.ts";
@@ -43,27 +42,14 @@ export async function holdNextReviewResponse(
   return { ready, release, delivery };
 }
 
-// Hold the first matching review read while letting other reads through.
+// Hold one story's first review read while letting other reads through.
 // `reached` exposes the real response before it reaches the page.
 // Call `releaseAndDrain` in finally to drain delivery and remove the hold,
 // including when the page has already moved on or never requested the read.
-export function holdPublishedReviewOf(
+export async function holdStoryReviewOf(
   page: Page,
   origin: string,
-  session: string,
-) {
-  return holdReviewOf(page, origin, "published", session);
-}
-
-export function holdStoryReviewOf(page: Page, origin: string, story: string) {
-  return holdReviewOf(page, origin, "identity", story);
-}
-
-async function holdReviewOf(
-  page: Page,
-  origin: string,
-  parameter: string,
-  value: string,
+  story: string,
 ) {
   const reads = `**${storyReviewEndpoint}?**`;
   let reached!: (response: APIResponse) => void;
@@ -80,8 +66,8 @@ async function holdReviewOf(
   });
   let intercepted = false;
   const hold = async (route: Route) => {
-    const read = new URL(route.request().url()).searchParams.get(parameter);
-    if (intercepted || read !== value) {
+    const read = new URL(route.request().url()).searchParams.get("identity");
+    if (intercepted || read !== story) {
       await route.fallback();
       return;
     }

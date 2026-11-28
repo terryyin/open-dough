@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { TokenIndexAnswer } from "../../src/usageTokenIndex.ts";
+import { scaleDevice } from "../../test-support/component-mount/deviceScale.ts";
 import { settingsColourScheme } from "./system-settings-browser.ts";
-import { doubleUsageDeviceScale } from "./system-settings-usage-browser.ts";
 import { mountUsage } from "./system-settings-usage-page.ts";
 
 const million = 1_000_000;
@@ -118,12 +118,11 @@ test("an in-scale median breaks across above-scale observations and all-large me
   );
 });
 
-for (const [name, viewport, zoom] of [
-  ["narrow touch", { width: 420, height: 900 }, false],
-  ["200% zoom", { width: 640, height: 450 }, true],
+for (const [name, viewport, scale] of [
+  ["narrow touch", { width: 420, height: 900 }, 1],
+  ["200% zoom", { width: 640, height: 450 }, 2],
 ] as const) {
   describe(name, () => {
-    if (zoom) beforeEach(doubleUsageDeviceScale);
     test("day control, task actions and true overflow values remain readable without hovering", async () => {
       const answer = makeMe.aTokenIndexAnswer
         .with({ indexes: [million, 65 * million] })
@@ -132,6 +131,7 @@ for (const [name, viewport, zoom] of [
         .withTrend([{ at: day(10), value: 65 * million }])
         .please();
       const usage = await readingUsage(() => answer, viewport);
+      if (scale !== 1) await scaleDevice(scale);
       await usage.chooseDays("7");
       await usage.showsDays("7");
       await usage.chart.showsMedianOverflow(
@@ -143,6 +143,7 @@ for (const [name, viewport, zoom] of [
       await usage.selectPoint(large, "touch");
       await usage.showsFact("Token index", "65,000,000");
       await usage.closeDetail(large);
+      expect(devicePixelRatio).toBe(scale);
     });
   });
 }

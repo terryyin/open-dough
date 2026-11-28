@@ -1,13 +1,11 @@
 // The selected project, last snapshot, latest attempt, and retained focus.
-// Reads happen on opening, on selecting a project,
-// when launch reconciliation asks to read afresh, and when a scheduled
-// revision check (`./revisionCheckSchedule.ts`) finds the selected ref naming
-// another commit; when it finds a story branch the shown progress is read from
-// at another head, only that progress is read again. Each read is carried
-// out by `./requestedRead.ts`. Rate-limit and transient recovery scheduling:
-// `./limitRecovery.ts`. Hide releasing a page-local recovery wait:
-// `./observationRecoveryWait.ts`. What is shown (`shown`) also says whether
-// every detail of it has been read.
+// Reads happen on opening, selecting a project, Refresh, launch
+// reconciliation's fresh ask, and a scheduled revision check
+// (`./revisionCheckSchedule.ts`) finding the selected ref naming another
+// commit, or only moved story-branch progress. Each read is carried out by
+// `./requestedRead.ts`. Rate-limit and transient recovery scheduling:
+// `./limitRecovery.ts`; hide releasing a recovery wait:
+// `./observationRecoveryWait.ts`. `shown` says if every detail was read.
 
 import {
   useCallback,
@@ -23,13 +21,15 @@ import { usePageVisibility } from "./pageVisibility.ts";
 import type { PublishedObservationReadSource } from "./publishedObservationReadSource.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
-import { carryOutRead, type ReadRequest } from "./requestedRead.ts";
+import { carryOutRead, useReadRequest, type RefAsk } from "./requestedRead.ts";
+import type { RevisionConfirmation } from "./revisionCheckRead.ts";
 import { limitsMetSince } from "./readingLimit.ts";
 import { recordSettledOutcomes, useLimitRecovery } from "./limitRecovery.ts";
 import { useTransientRecoverySchedule } from "./transientRecovery.ts";
 import { useObservationRecoveryWait } from "./observationRecoveryWait.ts";
 import { useSnapshotRetrieval } from "./snapshotRetrieval.ts";
 import { shownSnapshotOf } from "./startupReconciliation.ts";
+import { shownAtRevision } from "./publishedWork.ts";
 import { useObservationAttempt } from "./observationAttempt.ts";
 import { useObservedRevisionDelivery } from "./observedRevisionDelivery.ts";
 import {
@@ -39,9 +39,7 @@ import {
   type FocusedStoryCard,
 } from "./storyCardFocus.ts";
 
-// No snapshot shown, so no story branch watched.
 const noBranchHeads: StoryBranchHeads = new Map();
-
 export function usePublishedObservation(
   initialSource: PublishedSource | undefined,
   reads: PublishedObservationReadSource,
@@ -55,6 +53,7 @@ export function usePublishedObservation(
     outcomes,
     show,
     completeDetail,
+    confirm,
     withhold,
     readAgain,
     clearNotice,
@@ -69,12 +68,7 @@ export function usePublishedObservation(
     findUnchanged,
     restart,
   } = useObservationAttempt();
-  // First read on open; later asks come from launch reconciliation, project
-  // selection (`source` below), or a check that names another commit.
-  const [readRequest, setReadRequest] = useState<ReadRequest>({
-    asked: 1,
-    revision: undefined,
-  });
+  const { request, requestSnapshot, requestMovedProgress } = useReadRequest();
   // Whether the latest read, detail included, has finished.
   const [readSettled, setReadSettled] = useState(false);
   const { visibility, visibilityChanges, settleRevealed } = usePageVisibility();
@@ -102,7 +96,7 @@ export function usePublishedObservation(
     const askedAsOf = visibilityChanges();
     letGoOfRead.current = carryOutRead(
       reads,
-      readRequest,
+      request,
       source,
       shownWork.current,
       reading.signal,
@@ -115,8 +109,7 @@ export function usePublishedObservation(
           // recovery keeps shown facts while unanswered detail is asked again.
           const replacing =
             firstMembership &&
-            (shownWork.current === undefined ||
-              shownWork.current.revision !== next.revision);
+            shownAtRevision(shownWork.current, next) === undefined;
           show(next, replacing ? unlistedNotice(held, next) : undefined);
         },
         acceptMembership,
@@ -135,28 +128,28 @@ export function usePublishedObservation(
       },
     );
     return unbind;
-  }, [readRequest, source, schedule]);
+  }, [request, source, schedule]);
 
   // Ref afresh, or the revision a check named. Recovery asks mark the wait
-  // so hide can release that ask alone.
-  const askRead = (revision: string | undefined, forRecovery = false) => {
-    setRecoveryAsk(forRecovery);
+  // so hide can release that ask alone; a fresh ask outwaits a settled check.
+  const askRead = (
+    revision: string | undefined,
+    why?: RefAsk,
+    confirmation?: RevisionConfirmation,
+  ) => {
+    setRecoveryAsk(why === "recovery");
     startReading();
     clearNotice();
     readAgain();
     setReadSettled(false);
-    setReadRequest((last) => ({ asked: last.asked + 1, revision }));
+    requestSnapshot(revision, why === "fresh", confirmation);
   };
 
   // Only moved story-branch progress; the rest of what is shown stays.
   const askMovedProgress = (movedBranches: StoryBranchHeads) => {
     setRecoveryAsk(false);
     setReadSettled(false);
-    setReadRequest((last) => ({
-      asked: last.asked + 1,
-      revision: last.revision,
-      movedBranches,
-    }));
+    requestMovedProgress(movedBranches);
   };
 
   const { work, notice, complete, withheld } = retrieval;
@@ -175,7 +168,7 @@ export function usePublishedObservation(
       readSettled,
       visibility,
       readAfresh: () => {
-        askRead(undefined, true);
+        askRead(undefined, "recovery");
       },
     });
 
@@ -187,9 +180,13 @@ export function usePublishedObservation(
     watchedHeads,
     readSettled: checksMayRun,
     visibility,
-    onChanged: askRead,
+    onChanged: (revision, confirmation) => {
+      askRead(revision, undefined, confirmation);
+    },
     onBranchesMoved: askMovedProgress,
-    onUnchanged: () => {
+    onUnchanged: (confirmation) => {
+      if (confirmation !== undefined && work !== undefined)
+        confirm(work.revision, confirmation);
       findUnchanged();
       settleRevealed();
     },
@@ -209,10 +206,10 @@ export function usePublishedObservation(
   }, [work]);
 
   const reading = attempt.status === "reading";
-  // Launch reconciliation's fresh read; an in-flight read stands for it.
-  // Outstanding recovery or a standing login limit is not bypassed.
-  const readAfresh = () => {
-    if (!reading && !blocksFreshRead) askRead(undefined);
+  // Launch reconciliation's fresh ask, or Refresh; an in-flight read stands
+  // for either.
+  const readAfresh = (by?: "refresh") => {
+    if (!reading && !blocksFreshRead(by)) askRead(undefined, "fresh");
   };
 
   // Replace the observation whole for another project: clear local recovery

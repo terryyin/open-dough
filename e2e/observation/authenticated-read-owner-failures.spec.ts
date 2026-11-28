@@ -9,11 +9,15 @@ import {
 } from "../../Distribution/tests/skills/dough-execute-plan/github-request-owner-refusal-test-fixtures.mjs";
 import { ownerlessRequestRoot } from "../../Distribution/tests/skills/dough-execute-plan/github-request-owner-test-fixtures.mjs";
 import {
-  passPageMsAnswered,
+  passTimeUntilChecked,
   pausePageClock,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
-import { openUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
-import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
+import {
+  expectPublishedRevision,
+  parts,
+} from "../../dashboard/test-support/dashboardPage.ts";
+import { preholdRevisionStreamSlots } from "../../dashboard/test-support/support/revisionStreamSlots.ts";
+import { storyCard } from "../../dashboard/test-support/storyCardControls.ts";
 import { sharedDashboardBuild } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   endFakeGh,
@@ -26,17 +30,31 @@ import {
   knownSourceId,
   startDashboardServer,
 } from "../../dashboard/test-support/support/readDiagnostics.ts";
-import { checkedAt } from "../../dashboard/test-support/support/sharedReads.ts";
 import { describedBacklog } from "../../dashboard/test-support/describedRevisions.ts";
 import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
 import { publishes } from "../../dashboard/test-support/support/fakeGitHub.ts";
 import { routeServedHomesToPublication } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 
-// An empty project's backlog, which the Board opens on wherever it reads
-// without the endpoint.
+// Git supplies Board membership while the reachable story's preparation
+// still needs a pinned REST read through the local request owner.
+const story = makeMe.aBacklogEntry
+  .with({
+    identity: "SEED-021#published-detail",
+    href: "seeds/SEED-021-progress.md#published-detail",
+    title: "Read a published story",
+  })
+  .please();
+const recordPath = ".planning/seeds/SEED-021-progress.md";
 const published = publishes({
-  backlog: describedBacklog(makeMe.aRepository.please()),
+  backlog: describedBacklog(
+    makeMe.aRepository
+      .withRevision("A", {
+        backlog: { queued: [story] },
+      })
+      .please(),
+  ),
+  files: { [recordPath]: "# Published detail" },
 });
 
 for (const [fault, ownerCause, message] of [
@@ -79,40 +97,56 @@ for (const [fault, ownerCause, message] of [
     server.github.serve(defaultRepository, published);
     routeServedHomesToPublication(server.github, defaultRepository);
     try {
-      const response = await checkedAt(server);
-      expect(response.status).toBe(502);
-      expect(response.body).toContain(message);
-      expect(JSON.parse(response.body)).not.toHaveProperty("recovery");
-      const before = await inspect(server);
-      expect(before.failures.length).toBeGreaterThan(0);
-      for (const failure of before.failures) {
-        expect(failure).toMatchObject({
-          cause: "owner-unavailable",
-          ownerCause,
-          category: "revision-check",
-          source: knownSourceId,
-        });
-        expect(failure.status).toBeUndefined();
-      }
-      // The notice is what the page's first failed read leaves on it: the
-      // first revision check after the page opens, or the open itself when
-      // it reads through the endpoint.
+      await preholdRevisionStreamSlots(page);
       await pausePageClock(page);
-      await openUntilRead(page, server.baseURL);
-      await passPageMsAnswered(page, checkIntervalMs);
-      const notice = page.getByText(new RegExp(message)).first();
-      await expect(notice).toBeVisible();
-      await expect(notice).toContainText(
-        "Check the local request-owner endpoint configuration",
+      const detail = page.waitForResponse((response) => {
+        const { searchParams } = new URL(response.url());
+        return (
+          searchParams.get("revision") === published.revision &&
+          searchParams.get("path") === recordPath
+        );
+      });
+      await page.goto(server.baseURL);
+      const response = await detail;
+      const body = await response.text();
+      expect(response.status()).toBe(502);
+      expect(body).toContain(message);
+      const endpointAdvice =
+        "Check the local request-owner endpoint configuration";
+      expect(body).toContain(endpointAdvice);
+      expect(JSON.parse(body)).not.toHaveProperty("recovery");
+
+      await expectPublishedRevision(page, published.revision);
+      const { backlog, problem } = parts(page);
+      const card = storyCard(backlog, story.title);
+      await expect(card).toContainText(
+        "The canonical record could not be read for preparation facts.",
       );
+
       const seen = await inspect(server);
-      expect(
-        seen.failures.every((entry) => entry.ownerCause === ownerCause),
-      ).toBe(true);
+      const contentFailures = seen.failures.filter(
+        ({ category }) => category === "content",
+      );
+      expect(contentFailures).toHaveLength(1);
+      expect(contentFailures[0]).toMatchObject({
+        cause: "owner-unavailable",
+        ownerCause,
+        category: "content",
+        pin: published.revision,
+        source: knownSourceId,
+        dispatched: false,
+      });
+      expect(contentFailures[0]?.status).toBeUndefined();
+      // This notice belongs to the current fallback check, independently
+      // of the pinned detail's generic preparation gap.
+      await passTimeUntilChecked(page, 502);
+      await expect(problem).toContainText(message);
+      await expect(problem).toContainText(endpointAdvice);
       for (const secret of [root, ownerSecret, "gh auth", "gh failed"]) {
-        expect(response.body).not.toContain(secret);
+        expect(body).not.toContain(secret);
         expect(seen.body).not.toContain(secret);
-        expect(await notice.textContent()).not.toContain(secret);
+        await expect(card).not.toContainText(secret);
+        await expect(problem).not.toContainText(secret);
       }
       expect(server.ghCalls()).toEqual([]);
     } finally {
