@@ -265,3 +265,10 @@ observed baseline cases; the one structural change (the defaulted clock
 parameter) sits inside slice 1 with its observed result, and no slice-specific
 concern remains on the observed basis. The one named case-time exception is the
 real-reader wire answer in slice 3.
+
+## Execution complete
+
+Product advice: no change. The three Node specs cover the seven retired
+cases, with the checked production clock seam and the real HTTP witness.
+The existing runner cutover has the prerequisite this story supplies.
+Branch CI for the final implementation still applies.
