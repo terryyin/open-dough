@@ -404,7 +404,7 @@ deletion and failed-probe proof before closing G2.
 ### 10. Report confirmed branch deletion
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Watched branch deleted on origin → a successful probe confirms
 absence → the Board shows the branch is no longer published. A failed probe
@@ -412,6 +412,16 @@ keeps the last confirmed branch state and its time.
 
 Proof: Board cue in `auto-refresh-branches.spec.ts` (deletion) and a
 read-boundary case for the failed probe, both against a real origin.
+
+Accepted proof: the authorized HTTP watch returned a failed response and
+kept the entire prior durable record when origin was unreachable after
+the branch was deleted. Once origin returned, one warm probe confirmed
+the null head with the same trunk and a later durable time. The failed
+attempt also used exactly one Git operation. Both sent zero REST
+requests after authorization. The Chromium journey showed the confirmed
+deletion cue and removed the former progress and timing cues. All three
+focused HTTP cases, the browser journey and Dashboard typecheck passed.
+Only the subject HTTP spec changed.
 
 ## Story obligations
 
@@ -425,7 +435,7 @@ Disposition: proved by slice 8: the [actual HTTP and stream boundary](../../../d
 
 Reported: slice 4 — "The watched branch’s REST listing is still reachable and supplies branches only."
 Story clause: "The Board follows trunk membership and priority, Preparing and Taken assignments, and branch-only plan progress, including the plan's commit time, from verified heads."
-Disposition: interim until slices 9, 10
+Disposition: proved by slice 10: the [real-origin HTTP boundary](../../../dashboard/backend-tests/observation/authenticated-read-verified-branches.spec.ts) preserves the durable branch and time on failure and confirms absence on success. The [Board journey](../../../e2e/observation/auto-refresh-branches.spec.ts) shows branch-only progress, a newly recorded branch, and confirmed deletion, all with the execution checkout absent.
 
 ## Plan review
 

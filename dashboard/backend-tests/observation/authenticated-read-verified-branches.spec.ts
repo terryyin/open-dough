@@ -1,6 +1,5 @@
-// The real branch fetch can race an origin update after its advertisement.
-// Only a verified fetch may replace the Board's durable branch record.
-import { readFileSync } from "node:fs";
+// Verified observations of real branch heads and confirmed deletions.
+import { readFileSync, renameSync } from "node:fs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { boardConfirmation } from "../../server/boardConfirmation.ts";
@@ -94,6 +93,78 @@ test("a watched branch advancing between advertisement and fetch leaves the form
     await server.close();
     await repository.cleanup();
   }
+});
+
+test("a failed probe preserves a deleted branch's last confirmation until origin confirms its absence", async () => {
+  await withStreamOrigin(
+    await streamServer(),
+    async ({ repository, review, operations }, server) => {
+      const { older: head, published: revision } = repository.revisions;
+      const branch = "story/one";
+      publishBranch(repository.origin, branch, head);
+      server.github.serve(everyRepository, sharedReadsPublished(revision));
+      const check = () =>
+        readAt(
+          server,
+          `&since=${revision}&watch=${encodeURIComponent(branch)}&fresh=1`,
+        );
+
+      const first = await check();
+      expect(first.status).toBe(200);
+      const former = await boardConfirmation(review, "main");
+      expect(former).toMatchObject({
+        revision,
+        confirmedAt: expect.any(String),
+        branches: expect.arrayContaining([{ branch, head }]),
+      });
+      expect(JSON.parse(first.body)).toMatchObject({
+        revision,
+        changed: false,
+        confirmedAt: former?.confirmedAt,
+        branches: [{ branch, head }],
+      });
+      const before = operations();
+      const providerCalls = server.github.calls.length;
+
+      publishBranch(repository.origin, branch, undefined);
+      const away = `${repository.origin}-unreachable`;
+      renameSync(repository.origin, away);
+      try {
+        const failed = await check();
+        expect(failed.status).toBe(502);
+        const failure: unknown = JSON.parse(failed.body);
+        expect(failure).toMatchObject({
+          error: expect.stringContaining("published trunk is unavailable"),
+        });
+        expect(failure).not.toHaveProperty("branches");
+        expect(await boardConfirmation(review, "main")).toEqual(former);
+        expect(operations()).toBe(before + 1);
+      } finally {
+        renameSync(away, repository.origin);
+      }
+
+      const recovered = await check();
+      expect(recovered.status).toBe(200);
+      const current = await boardConfirmation(review, "main");
+      expect(current).toMatchObject({
+        revision,
+        confirmedAt: expect.any(String),
+        branches: expect.arrayContaining([{ branch, head: null }]),
+      });
+      expect(String(current?.confirmedAt) > String(former?.confirmedAt)).toBe(
+        true,
+      );
+      expect(JSON.parse(recovered.body)).toMatchObject({
+        revision,
+        changed: false,
+        confirmedAt: current?.confirmedAt,
+        branches: [{ branch, head: null }],
+      });
+      expect(operations()).toBe(before + 2);
+      expect(server.github.calls.slice(providerCalls)).toEqual([]);
+    },
+    sharedReadsFacts(),
+  );
 });
 
 test("a watched stream reports a standing core wait without a REST branch listing", async () => {
