@@ -33,6 +33,8 @@ const work = boardWork(
   ],
   {
     revision,
+    refAskedAt: "2026-10-08T08:00:00.000Z",
+    confirmedAt: "2026-10-08T08:00:01.000Z",
     taken: [
       story("Taken work comes after Backlog", 20),
       story("A second Taken entry", 21),

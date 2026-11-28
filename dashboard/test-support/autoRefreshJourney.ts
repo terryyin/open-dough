@@ -184,6 +184,21 @@ export function expectSteadyPace(passed: number): void {
   expect(passed).toBeLessThanOrEqual(15_000 + pageTimeStepMs);
 }
 
+export async function expectNextProjectCheck(
+  page: Page,
+  source: string,
+  revision: string,
+): Promise<void> {
+  await whileNotingChecks(page, async (askedAfter) => {
+    const checking = page.waitForRequest((request) => isCheck(request.url()));
+    expectSteadyPace(await passTimeUntilChecked(page));
+    const params = new URL((await checking).url()).searchParams;
+    expect(params.get("source")).toBe(source);
+    expect(params.get("since")).toBe(revision);
+    expect(await askedAfter()).toHaveLength(1);
+  });
+}
+
 // Lets a single millisecond of page time pass -- enough for anything the page
 // asked to do at once, never for a scheduled interval -- and waits, with page
 // time standing still, until the revision check that starts is answered.

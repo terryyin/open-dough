@@ -365,6 +365,12 @@ handover, project isolation, owner advice and cooldown, recovery, and six
 launch reconciliation cases. Dashboard typecheck passed. Authorized
 branch watches still use the interim REST listing.
 
+The [hosted proof repair](diagnosis-s8-hosted-consumer-fixtures.md) gives
+the mounted keyboard case an explicit confirmation, checks that verified
+backlog bytes are already pinned, and observes the real selected-project
+HTTP request. Focused replay passed 24 backend cases, eight Chromium
+isolation cases, the mounted keyboard case, and Dashboard typecheck.
+
 ### 9. Follow published story-branch progress
 
 Type: Behavior

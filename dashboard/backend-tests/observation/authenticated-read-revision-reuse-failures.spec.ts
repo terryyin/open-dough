@@ -38,9 +38,14 @@ test.describe("authenticated read reuse failures at a newly named revision (deve
     const succeeding = published.compared.get(`${a}...${b}`);
     published.compared.set(`${a}...${b}`, () => noConnection);
 
-    expect(await asked(() => at(b).backlog())).toEqual([
-      `content ${origin.paths.backlog}@${b}`,
-    ]);
+    expect(
+      await asked(async () => {
+        expect(await at(b).backlog()).toEqual({
+          status: 200,
+          body: { revision: b, backlog: files[origin.paths.backlog] },
+        });
+      }),
+    ).toEqual([]);
     let seed: Answer | undefined;
     expect(
       await asked(async () => {
@@ -73,9 +78,14 @@ test.describe("authenticated read reuse failures at a newly named revision (deve
     const b = await movedTo(published, a, { files }, [between]);
     published.made.delete(between.sha);
 
-    expect(await asked(() => at(b).backlog())).toEqual([
-      `content ${origin.paths.backlog}@${b}`,
-    ]);
+    expect(
+      await asked(async () => {
+        expect(await at(b).backlog()).toEqual({
+          status: 200,
+          body: { revision: b, backlog: files[origin.paths.backlog] },
+        });
+      }),
+    ).toEqual([]);
     let seed: Answer | undefined;
     expect(
       await asked(async () => {
@@ -133,8 +143,7 @@ test.describe("authenticated read reuse failures at a newly named revision (deve
           ),
         )
         .toBe(true);
-      // Membership at B asks nothing more of GitHub while the comparison is
-      // held: the backlog the held read made reachable is B's own.
+      // The verified Git membership at B answers while the comparison is held.
       expect(await reads.backlog()).toEqual({
         status: 200,
         body: { revision: b, backlog: files[origin.paths.backlog] },
@@ -150,11 +159,7 @@ test.describe("authenticated read reuse failures at a newly named revision (deve
       release();
       for (const answer of await answers) expect(answer.status).toBe(200);
     });
-    expect(calls).toEqual([
-      `content ${origin.paths.backlog}@${b}`,
-      `compare ${a}...${b}`,
-      `commit ${named("ce")}`,
-    ]);
+    expect(calls).toEqual([`compare ${a}...${b}`, `commit ${named("ce")}`]);
   });
 });
 

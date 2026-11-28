@@ -25,10 +25,9 @@ import {
 import {
   callsSince,
   contentReads,
-  expectSteadyPace,
+  expectNextProjectCheck,
   openSettledAtA,
   passTimeUntilAsked,
-  passTimeUntilChecked,
   pausePageClock,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
@@ -36,10 +35,7 @@ import {
   doughnutSharedTitle,
 } from "../../dashboard/test-support/doughnutProject.ts";
 import { selectSettledDoughnut } from "../../dashboard/test-support/doughnutJourney.ts";
-import {
-  isCheck,
-  whileNotingChecks,
-} from "../../dashboard/test-support/pageRequestNotes.ts";
+import { isCheck } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
 import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 import {
@@ -88,17 +84,6 @@ test.describe("project read isolation of automatic checks", () => {
     expect(reads.length).toBeGreaterThan(1);
     expect(reads.every((read) => read.endsWith(`?ref=${revision}`))).toBe(true);
   }
-  async function expectOneDoughnutCheck(page: Page, shown: string) {
-    await whileNotingChecks(page, async (askedAfter) => {
-      const checking = page.waitForRequest((request) => isCheck(request.url()));
-      expectSteadyPace(await passTimeUntilChecked(page));
-      const params = new URL((await checking).url()).searchParams;
-      expect(params.get("source")).toBe("doughnut");
-      expect(params.get("since")).toBe(shown);
-      expect(await askedAfter()).toHaveLength(1);
-    });
-  }
-
   test("a deselected project's outstanding revision check is abandoned, its late answer changes nothing, and only the selected project is checked from then on", async ({
     page,
     afterGitHubStops,
@@ -130,7 +115,7 @@ test.describe("project read isolation of automatic checks", () => {
       });
 
       await test.step("the next check is Doughnut's own, at its steady pace, and Open Dough is never asked again", async () => {
-        await expectOneDoughnutCheck(page, shown.revision);
+        await expectNextProjectCheck(page, "doughnut", shown.revision);
         expectOnlyDoughnutAsked(callsSince(page, atSwitch), shown.revision);
         await expectOnlyDoughnut(page, shown);
       });
@@ -194,7 +179,7 @@ test.describe("project read isolation of automatic checks", () => {
     });
 
     await test.step("the next check is Doughnut's own, at its steady pace, and Open Dough is never asked again", async () => {
-      await expectOneDoughnutCheck(page, shown.revision);
+      await expectNextProjectCheck(page, "doughnut", shown.revision);
       expectOnlyDoughnutAsked(callsSince(page, atSwitch), shown.revision);
     });
   });

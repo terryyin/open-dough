@@ -48,7 +48,6 @@ test.describe("authenticated read reuse bounds at a newly named revision (develo
       expect((await asked(() => readEverything(b))).sort()).toEqual(
         [
           `compare ${a}...${b}`,
-          `content ${origin.paths.backlog}@${b}`,
           `content ${origin.paths.seed}@${b}`,
           `content ${origin.paths.otherSeed}@${b}`,
           `content ${origin.paths.plan}@${b}`,
@@ -92,7 +91,7 @@ test.describe("authenticated read reuse bounds at a newly named revision (develo
       `compare ${a}...${b}`,
       `commit ${named("c9")}`,
     ]);
-    expect(calls).toContain(`content ${origin.paths.backlog}@${b}`);
+    expect(calls).not.toContain(`content ${origin.paths.backlog}@${b}`);
     expect(calls).toContain(`content ${origin.paths.plan}@${b}`);
   });
 
@@ -113,7 +112,6 @@ test.describe("authenticated read reuse bounds at a newly named revision (develo
     expect((await asked(() => readEverything(b))).sort()).toEqual(
       [
         `compare ${a}...${b}`,
-        `content ${origin.paths.backlog}@${b}`,
         `content ${origin.paths.seed}@${b}`,
         `content ${origin.paths.otherSeed}@${b}`,
         `content ${origin.paths.plan}@${b}`,
