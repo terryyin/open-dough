@@ -348,7 +348,7 @@ Named cause (2026-11-28, developer-approved A/B in place of the NetLog run):
 ### 4. A deep spec read stays unread after Development and back
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Under full-run load, `intent-reading-place.spec.ts:141` ("the deep
 spec read with Changes only on, out collapsed and Purpose scrolled is shown
@@ -374,6 +374,17 @@ Proof:
   exclusion still covers the ordinary failures from the earlier measured
   window.
 
+Delivered (2026-11-28): the test held the defect. `StoryReviewFileDiff`
+reads the file's diff, then its texts for the omitted context, with
+`.story-review-code` `aria-busy` while that second read runs. The case cleared
+`mounted.reads` before that read finished, so a late or cancelled read
+counted as a re-read. The case now waits for `aria-busy` to be `false`
+first, through the shared `diffContextReading` reader, which the notes spec
+also uses now. Proof: a 300 ms delay on the text read reproduced the CI
+failure at line 166 before the change and passed after it. The file passed
+20 runs in a row under one CPU burner per core (load 5–25). The full runs
+in slice 5 carry the remaining proof that it passes in a whole run.
+
 ### 5. Full frontend runs finish every file
 
 Type: Behavior
@@ -387,8 +398,12 @@ never ran.
 
 Proof:
 
-- Remove the cause slice 3 names. Change the runner, config, spec setup or
-  product code only as that cause requires.
+- Developer decision (2026-11-28): upgrade `vitest`, `@vitest/browser` and
+  `@vitest/browser-playwright` to 5.1.2, for vitest-dev/vitest#11914, with
+  no forced GC. Change nothing else unless the upgrade requires it. If
+  closures remain after the upgrade, fall back to forcing the GC
+  (`VITEST_CHROMIUM_GC_DISK_THRESHOLD_GB` and `VITEST_CHROMIUM_GC_FORCE`) in
+  the frontend runner, and record why.
 - When a focused check can discriminate the cause, add one that fails
   without the repair, in the style of
   `dashboard/frontend-tests/test-harness/history-traversal-guard.spec.ts`.
