@@ -382,6 +382,28 @@ summed, and wall times. Record the cost and the Git, process, or browser
 observation behind any case that still needs substantially more than the
 campaign's roughly 100 ms guide. Name and measure any receiving E2E proof.
 
+Delivery gate:
+
+- At `375e4ffb3` the family selection ran 132 cases at one worker and load
+  23. Five real-Git cases exceeded the 5 s default, and about 15 more took
+  3.5–4.9 s.
+- Each history's one-time Git template build was charged to its first case:
+  about 1.4 s of 7 add/commit/push rounds. Each product read took about
+  0.6 s, or 25 sequential Git spawns. The repair builds each history in its
+  own `beforeAll(prepareRepository)` and splits the seven-read merge-edits
+  own-conflict case in two.
+- After the repair, the selection passed 133 of 133 cases in 93.1 s, at
+  load 11 falling to 10. The slowest case took 2.32 s, nine took 1.5–2.3 s,
+  and the rest took under 1.5 s. The nine slower cases each make several
+  product reads. The legacy runner has zero cases
+  left in this family; the 12 remaining Playwright review specs belong to
+  plan 864.
+- In the failed run, cases took 1.7–2× their low-load time. That projects
+  the slowest case to under 4 s at load 23. A one-worker rerun at load 20 or
+  more is still unobserved.
+- The Board trunk witnesses and the 10 Follow up cases passed in the same
+  selection.
+
 ## Plan review
 
 Eight slices keep one proof loop apiece: published pin and fallback, claim

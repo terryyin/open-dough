@@ -5,7 +5,8 @@
 import { execFileSync } from "node:child_process";
 import { chmodSync, existsSync } from "node:fs";
 import path from "node:path";
-import { expect, test, vi } from "vitest";
+import { beforeAll, expect, test, vi } from "vitest";
+import { prepareRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { configuredFixtureProject } from "../support/fixtureProject.ts";
 import type { RepositoryDescription } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { storyReview } from "../../server/storyReview.ts";
@@ -23,6 +24,15 @@ import {
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
+
+// Each history's template is built before the cases that copy it.
+for (const history of [
+  () => ordinaryStoryBranchCompletedHistory(),
+  () => plainMergeEditCompletedHistory(),
+  () => ownConflictExtraCompletedHistory(),
+  () => nonOwningForeignMergeCompletedHistory("story-branch"),
+])
+  beforeAll(() => prepareRepository(history()));
 
 const subject = { source: "open-dough", identity: queuedIdentity };
 const signal = new AbortController().signal;

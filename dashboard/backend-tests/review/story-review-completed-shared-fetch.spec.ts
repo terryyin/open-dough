@@ -4,11 +4,14 @@
 import { chmod, realpath, rm, writeFile } from "node:fs/promises";
 import { createServer, type ServerResponse } from "node:http";
 import path from "node:path";
-import { expect, onTestFinished, test, vi } from "vitest";
+import { beforeAll, expect, onTestFinished, test, vi } from "vitest";
 import { stubRemoteRequestRecording } from "../support/fixtureHome.ts";
 import { configuredFixtureProject } from "../support/fixtureProject.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import {
+  materializeRepository,
+  prepareRepository,
+} from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { OutstandingReads } from "../../../Distribution/src/skills/dough-execute-plan/scripts/github-request-outstanding.mjs";
 import { runGit } from "../../server/gitRunner.ts";
 import { fetchGitTarget } from "../../server/gitTargetFetch.ts";
@@ -17,6 +20,10 @@ import { ordinaryTrunkModeCompletedHistory } from "../../test-support/support/co
 import { advanceCompletedTrunk } from "../../test-support/support/completedStoryVisibleActions.ts";
 import { homeReviewRepository } from "../../test-support/support/reviewRepositoryFixture.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
+
+// Each history's template is built before the cases that copy it.
+for (const history of [() => ordinaryTrunkModeCompletedHistory()])
+  beforeAll(() => prepareRepository(history()));
 
 // The next prepared transaction of `refs/remotes/origin/main` in the Git
 // directory `common` waits for `release`; `prepared` settles on entry and

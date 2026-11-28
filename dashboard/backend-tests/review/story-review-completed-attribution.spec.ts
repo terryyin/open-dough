@@ -1,7 +1,8 @@
 // A Done review attributes every historical owner's contribution, keeps
 // foreign merges out of it, declares inseparable trunk baselines, and
 // explains an owning octopus merge it cannot attribute.
-import { expect, test } from "vitest";
+import { beforeAll, expect, test } from "vitest";
+import { prepareRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { configuredFixtureProject } from "../support/fixtureProject.ts";
 import type { RepositoryDescription } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { storyReview } from "../../server/storyReview.ts";
@@ -16,6 +17,16 @@ import {
 import { ownOctopusCompletedHistory } from "../../test-support/support/completedOwnMergeHistory.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
+
+// Each history's template is built before the cases that copy it.
+for (const history of [
+  () => takeoverCompletedHistory(),
+  () => unrelatedForeignMergeCompletedHistory(),
+  () => inseparableRewriteCompletedHistory(),
+  () => foreignOctopusCompletedHistory(),
+  () => ownOctopusCompletedHistory(),
+])
+  beforeAll(() => prepareRepository(history()));
 
 const subject = { source: "open-dough", identity: queuedIdentity };
 const signal = new AbortController().signal;

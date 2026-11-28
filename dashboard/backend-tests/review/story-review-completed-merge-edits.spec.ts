@@ -2,7 +2,8 @@
 // declares each inseparable conflict file with its readable trunk base,
 // leaves restored trunk files out, and a non-owning resolution keeps the
 // story comparison in both delivery modes.
-import { expect, test } from "vitest";
+import { beforeAll, expect, test } from "vitest";
+import { prepareRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { configuredFixtureProject } from "../support/fixtureProject.ts";
 import type { RepositoryDescription } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { storyReview } from "../../server/storyReview.ts";
@@ -15,6 +16,15 @@ import {
 import { nonOwningForeignMergeCompletedHistory } from "../../test-support/support/completedForeignMergeHistory.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
+
+// Each history's template is built before the cases that copy it.
+for (const history of [
+  () => completionConflictCompletedHistory(),
+  () => ownConflictExtraCompletedHistory(),
+  () => nonOwningForeignMergeCompletedHistory("story-branch"),
+  () => nonOwningForeignMergeCompletedHistory("trunk"),
+])
+  beforeAll(() => prepareRepository(history()));
 
 const subject = { source: "open-dough", identity: queuedIdentity };
 const signal = new AbortController().signal;
@@ -114,7 +124,7 @@ test("a completion conflict keeps its resolved file mixed and other story files 
   );
 });
 
-test("an integration merge delivers its own edits, keeps its conflict mixed and leaves restored trunk files out", async () => {
+test("an integration merge delivers its own edits and renames, keeps its conflict mixed and leaves restored trunk files out", async () => {
   const story = await doneStory(ownConflictExtraCompletedHistory());
   expect(story.parentsConflict("implementation", "interleaving")).toBe(true);
 
@@ -148,6 +158,13 @@ test("an integration merge delivers its own edits, keeps its conflict mixed and 
   expect(await story.readFile(review, "merge-resolution.txt")).toMatchObject(
     added("integration edit"),
   );
+});
+
+test("an integration merge's renamed file reads from its old path and its conflict only from the mixed baseline", async () => {
+  const story = await doneStory(ownConflictExtraCompletedHistory());
+
+  const review = await story.published();
+
   expect(
     await story.readFile(
       review,

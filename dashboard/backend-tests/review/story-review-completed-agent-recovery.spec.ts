@@ -1,6 +1,7 @@
 // A Done record without an agent recovers its unique published execution
 // claim; missing, shallow or conflicting claim history explains itself.
-import { expect, test } from "vitest";
+import { beforeAll, expect, test } from "vitest";
+import { prepareRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { configuredFixtureProject } from "../support/fixtureProject.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import {
@@ -30,6 +31,18 @@ import { shallowPublishedHistory } from "../../test-support/support/reviewReposi
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
 import { push } from "../../test-support/support/storyReviewTrunkCommits.ts";
+
+// Each history's template is built before the cases that copy it.
+for (const history of [
+  () => returnedCompletedHistory(),
+  () => missingAgentTrunkCompletedHistory(),
+  () => missingAgentStoryBranchCompletedHistory(),
+  () => ordinaryTrunkModeCompletedHistory(),
+  () => returnedThenTakeoverCompletedHistory(),
+  () => unclaimedCompletion(false),
+  () => unclaimedCompletion(true),
+])
+  beforeAll(() => prepareRepository(history()));
 
 const subject = { source: "open-dough", identity: queuedIdentity };
 const signal = new AbortController().signal;

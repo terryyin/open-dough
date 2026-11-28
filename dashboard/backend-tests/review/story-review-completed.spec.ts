@@ -1,7 +1,8 @@
 // A Done review opens its immutable published comparison from the admitted
 // sync, and its exact file reads stay on that sync.
 import { realpathSync, renameSync } from "node:fs";
-import { expect, test } from "vitest";
+import { beforeAll, expect, test } from "vitest";
+import { prepareRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { stubRemoteRequestRecording } from "../support/fixtureHome.ts";
 import { configuredFixtureProject } from "../support/fixtureProject.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
@@ -29,6 +30,10 @@ import {
 } from "../../test-support/support/reviewRepositoryFixture.ts";
 import { queuedIdentity } from "../../test-support/support/startOrigin.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
+
+// Each history's template is built before the cases that copy it.
+for (const [, history] of ordinaryCompletedReviewHistories())
+  beforeAll(() => prepareRepository(history));
 
 const subject = { source: "open-dough", identity: queuedIdentity };
 const signal = new AbortController().signal;
