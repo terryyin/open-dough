@@ -617,7 +617,7 @@
       "fileName": "SEED-413_speed-dashboard-frame-and-navigation-proof.json",
       "identity": "SEED-413#speed-dashboard-frame-and-navigation-proof",
       "completedAt": "2026-11-24T01:52:48.627Z",
-      "blob": "a00effde01ac154598891a777f1ef1c996e973c0"
+      "blob": "6d93d21e8d57701432fe4c31d5566de190844110"
     },
     {
       "fileName": "SEED-413_speed-dashboard-live-session-and-terminal-proof.json",
@@ -1013,7 +1013,7 @@
       "fileName": "SEED-413_mount-system-settings-sections-and-usage-charts.json",
       "identity": "SEED-413#mount-system-settings-sections-and-usage-charts",
       "completedAt": "2026-11-21T05:40:04.045Z",
-      "blob": "27f1a6a2fc5eca521c23470619ea9ab8d0c9efd5"
+      "blob": "feda6affb47010a31296a08eb531e47a4f9c63b2"
     },
     {
       "fileName": "SEED-413_correct-landing-record-writes-and-tests.json",
@@ -1217,7 +1217,7 @@
       "fileName": "SEED-409_return-to-recently-selected-stories.json",
       "identity": "SEED-409#return-to-recently-selected-stories",
       "completedAt": "2026-11-19T08:45:34.948Z",
-      "blob": "6048bbf92a709cd6c3f005eddf62db871f470142"
+      "blob": "a3f624bdfe3a72c6f203d11a0df878cb914f0cc4"
     },
     {
       "fileName": "SEED-353_declare-completed-story-review-histories.json",
