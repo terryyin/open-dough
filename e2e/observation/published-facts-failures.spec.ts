@@ -58,6 +58,7 @@ test.afterEach(({ page }) => {
 
 test("an ordinary canonical failure keeps completed assignments and done stories, with a preparation gap rather than absent facts", async ({
   page,
+  afterGitHubStops,
 }) => {
   const {
     branchCard,
@@ -67,7 +68,7 @@ test("an ordinary canonical failure keeps completed assignments and done stories
     problem,
     release,
     fail,
-  } = await heldFactGroups(page);
+  } = await heldFactGroups(page, afterGitHubStops);
   release("profiles");
   release("done");
   await expectStoryCardAssignments(branchCard, queuedCard);
@@ -102,9 +103,10 @@ test("an ordinary canonical failure keeps completed assignments and done stories
 
 test("an ordinary profile failure keeps preparation and done facts and makes assignments unknown on cards and the roster", async ({
   page,
+  afterGitHubStops,
 }) => {
   const { branchCard, queuedCard, doneCard, problem, release, fail, revision } =
-    await heldFactGroups(page);
+    await heldFactGroups(page, afterGitHubStops);
   release("preparation");
   release("done");
   await expectCanonicalFacts(queuedCard, revision);
@@ -147,9 +149,10 @@ test("an ordinary profile failure keeps preparation and done facts and makes ass
 
 test("an ordinary done-record failure stays in Recently done while preparation, assignments, branch progress, and clocks remain useful", async ({
   page,
+  afterGitHubStops,
 }) => {
   const { branchCard, queuedCard, doneCard, problem, release, fail, revision } =
-    await heldFactGroups(page);
+    await heldFactGroups(page, afterGitHubStops);
   release("preparation");
   release("profiles");
   await expectCanonicalFacts(queuedCard, revision);
@@ -178,9 +181,10 @@ test("an ordinary done-record failure stays in Recently done while preparation, 
 
 test("the existing 30-second core bound keeps assignments and done facts, leaves a standing preparation gap, and the page's recovery closes it without reload", async ({
   page,
+  afterGitHubStops,
 }) => {
   const { branchCard, queuedCard, doneCard, problem, release, revision } =
-    await heldFactGroups(page);
+    await heldFactGroups(page, afterGitHubStops);
   release("profiles");
   release("done");
   await expectStoryCardAssignments(branchCard, queuedCard);

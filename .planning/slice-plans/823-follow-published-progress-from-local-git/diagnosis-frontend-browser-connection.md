@@ -221,4 +221,32 @@ directory. Dashboard typecheck also passed.
 The original hosted failure remains unattributed. Slice 4 resumed with
 its partial work restored after publication of the reproduced repair.
 
+## Recurrence at execution completion
+
+[Run 46098331829, attempt 1](https://github.com/terryyin/open-dough/actions/runs/46098331829/job/140834871152)
+tested `99e48eb358423458e486390b354fb90d942da06c`, which contains the
+HMR guard. Frontend stopped after 295 of 332 files and 905 passing
+cases. Vitest reported `VITEST_BROWSER_CONNECTION_CLOSED` with a pending
+`createTesters` request for `recently-done-sessions-sidebar-touch-mount.spec.ts`.
+The proof-fragment step failed because the browser run did not finish.
+The log contains the RPC close stack but no preceding orchestrator HMR
+disconnect, top-level navigation, browser exit, or socket-direction evidence.
+The previously observed HMR-only mechanism is repaired. This recurrence
+does not establish whether that guard was exercised or what closed the RPC.
+
+The three prior diagnostic rounds remain exhausted at 10.5 active minutes.
+The user's later instruction authorized repairing the reproduced HMR
+trigger. An additional round would correlate the orchestrator's Vite and
+Vitest sockets, top-level navigation, and browser process exit in the same
+hosted run, including whether the HMR guard fires, while keeping the CI
+test command unchanged. No such additional run has been started.
+
+All ten implementation slices and both story obligations are settled on
+the story branch. The accepted execution record is
+`e0e12ad8355cf6a8d15cf3650b0f54d3b34b40a6`. Wrap-up and trunk publication
+await the CI gate. The old separate frontend-connection story and assignment
+were removed from trunk by `818c17745`; no current branch owner was found
+for that repair. The hosted raw log and completion command evidence are
+retained in the execution worktree's Git evidence directory.
+
 Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).

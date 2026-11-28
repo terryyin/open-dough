@@ -423,6 +423,13 @@ deletion cue and removed the former progress and timing cues. All three
 focused HTTP cases, the browser journey and Dashboard typecheck passed.
 Only the subject HTTP spec changed.
 
+The post-delivery [hosted E2E job](https://github.com/terryyin/open-dough/actions/runs/46098331829/job/140834871204)
+exposed one remaining published-facts fixture with a REST-only branch.
+All six branch progress and clock failures reproduced locally. The fixture
+now publishes the branch and its dated plan in the same real Git origin as
+trunk. Its independent fact-release assertions are unchanged. The affected
+and adjacent journeys passed all 19 Chromium cases and Dashboard typecheck.
+
 ## Execution complete
 
 Product advice: keep the current order. Verified trunk and watched-branch

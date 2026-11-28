@@ -53,10 +53,13 @@ async function expectReadingPlace(
   await expectVisibleReadingFocus(page, link);
 }
 
-async function openReadingPlace(page: Page) {
+async function openReadingPlace(
+  page: Page,
+  afterGitHubStops: Parameters<typeof heldFactGroups>[1],
+) {
   await page.setViewportSize({ width: 54 * rem, height: 500 });
   await page.emulateMedia({ reducedMotion: "reduce" });
-  const held = await heldFactGroups(page);
+  const held = await heldFactGroups(page, afterGitHubStops);
   const { trunkCard, doneCard } = held;
   await test.step("the reader pages and actually scrolls to a story while all groups are held", async () => {
     await expect(trunkCard).toContainText("Reading preparation…");
@@ -81,6 +84,7 @@ async function openReadingPlace(page: Page) {
 for (const doneOutcome of ["success", "failure"] as const) {
   test(`arriving facts keep the scrolled inspection and focus, including done ${doneOutcome}`, async ({
     page,
+    afterGitHubStops,
   }) => {
     const errors = watchPageErrors(page);
     const {
@@ -94,7 +98,7 @@ for (const doneOutcome of ["success", "failure"] as const) {
       detail,
       link,
       revision,
-    } = await openReadingPlace(page);
+    } = await openReadingPlace(page, afterGitHubStops);
 
     await test.step("available assignments keep the chosen reading context while preparation and done remain held", async () => {
       release("profiles");
@@ -150,9 +154,13 @@ for (const doneOutcome of ["success", "failure"] as const) {
 
 test("arriving facts respect a reader who scrolls away while the inspected link keeps keyboard focus", async ({
   page,
+  afterGitHubStops,
 }) => {
   const errors = watchPageErrors(page);
-  const { trunkCard, doneCard, release, link } = await openReadingPlace(page);
+  const { trunkCard, doneCard, release, link } = await openReadingPlace(
+    page,
+    afterGitHubStops,
+  );
   // A real wheel movement returns to the top of the Board without changing focus.
   await wheelTo(page, 0);
   await expect(link).toBeFocused();

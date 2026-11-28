@@ -173,9 +173,10 @@ ${renderStorySection(terminalStory, {
 
 test("a detail still unread at the wait bound recovers on its own at the same revision while assignments stay shown", async ({
   page,
+  afterGitHubStops,
 }) => {
   const { branchCard, queuedCard, doneCard, problem, release, revision } =
-    await heldFactGroups(page);
+    await heldFactGroups(page, afterGitHubStops);
   release("profiles");
   release("done");
   await expectStoryCardAssignments(branchCard, queuedCard);
