@@ -37,8 +37,10 @@ Leave the existing paste-chip and full-line composer-draft detectors as they
 are, and treat runner replacement on any source-closure digest change as
 intended current-build proof. That would keep both the unsent continue and
 the later replace risk. Split the report: first submit the continue when
-Cursor wraps it onto the composer arrow line, then ask whether runner identity
-should exclude dashboard modules the runner does not execute.
+Cursor wraps it onto the composer arrow line. The runner-identity story then
+counts modules the runner entry reaches through a value import, including a
+dynamic import, and leaves out modules reached only through a type-only
+import.
 
 ## Story Decomposition
 
@@ -96,47 +98,71 @@ behavior, then passes after the smallest submit-path change. Related
 
 **Identity:** SEED-450#keep-runner-across-unrelated-dashboard-deploys
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/893-keep-runner-across-unrelated-dashboard-deploys/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"7518eebae8e48985e5f0b65e9693dbd115f2615791d8aab30d25cb6b7c10e1a0","plan":"ff5546040c006cbb8b4ca2a59c40c3edea8df59bd324bbe5d57ec82dbd06a119"}}
 ```
 
-**Goal.** A production dashboard redeploy that does not change Cursor-runner
-behavior leaves the accepting runner and its held sessions running, so
-revival continue is not required for those deploys.
+**Goal.** A production dashboard redeploy that does not change code the
+accepting Cursor runner executes leaves that runner and its held sessions
+running, so revival continue is not required. A redeploy that changes
+executed runner code still replaces the runner before the next new Cursor
+work, and last-held revival then runs as it does today.
 
-**Scope to refine.** Dashboard process start already uses start-if-absent and
-does not stop the runner. New Cursor work replaces an answering runner whose
-build digest differs. Recover of one unheld session uses that same
-current-runner keep path, so a digest mismatch on Recover would hang up
-siblings. In source mode that digest currently covers the runner entry and
-every relative module it reaches, including type-only imports: 546 files, 513
-of them outside `dashboard/server/hosts/cursor/`. Decide whether intended
-behavior is violated, then bound which files prove the runner current.
+**Scope.** Source-mode build identity counts the runner entry and every
+module it reaches through a value import, including a dynamic `import()`.
+A module reached only through a type-only import (`import type`,
+`export type`, or a specifier list that is entirely `type`) does not count.
+A module reached by any value path still counts when another import of it
+is type-only. Changing an uncounted file leaves the accepting runner in
+place, and the next new Cursor work reuses it. Changing a counted file
+still replaces the runner before that work answers. Bundled mode stays a
+digest of the bundled file alone. Dashboard process start stays
+start-if-absent and does not stop the runner.
 
-**Starting evidence.** `runnerProcess.ts` leaves an accepting runner across
-dashboard close. `runnerCurrent.ts` replaces on digest mismatch before exec,
-keep, or resume-attach. `computeRunnerBuildId` hashes the source closure.
-Production preview runs the TypeScript entry, so source mode applies. The
-2026-11-28 pause was not this replace: two sibling Cursor sessions on the
-same machine kept running without a continue instruction.
+Out of scope: a digest limited to `dashboard/server/hosts/cursor/`, which
+would miss shared modules the runner executes, including terminal
+attachments and story notes. Stopping replacement when executed runner code
+changes. Claude or Codex runners. The wrapped-continue submit. Helper
+repair, and leaving a runner that does not answer the protocol.
+
+**Key examples.**
+
+- Given an accepting source runner, when a redeploy changes only
+  `dashboard/server/agentLaunches.ts` (reached from runner code such as
+  `recover.ts` by `import type`), the next new Cursor work reuses that
+  runner and held sessions stay up.
+- Given an accepting source runner, when a redeploy changes
+  `dashboard/server/terminalAttachments.ts` (value-imported by
+  `runnerMain.ts`), the next new Cursor work replaces the runner before
+  that work answers, and last-held revival runs as today.
+- Given an accepting source runner, when a redeploy changes
+  `Distribution/src/skills/dough-execute-plan/scripts/ci-mailbox-cli.mjs`
+  (reached by a dynamic import from the value-import closure), the next new
+  Cursor work replaces the runner the same way.
+- Given a bundled runner, changing a source file beside the bundle leaves
+  the identity unchanged, and changing the bundle file changes it.
+- Given `import { type Label, read } from "./shared.ts"`, changing that
+  module changes the identity. Given only `import type`, changing the
+  module leaves the identity unchanged.
 
 ## Ordering and Scope Reduction
 
 Submit the wrapped continue first: it unpauses a Recover or revival that
 still leaves a wrapped draft, including this single-session resume. The
-runner-identity story is a later replace risk and is first in the backlog.
-Drop that second story if the digest is already limited to executed runner
-code.
+runner-identity story follows it, using the value-import digest recorded on
+that story. Stopping after the wrapped continue leaves type-only modules in
+the source closure, so a later dashboard deploy can still replace the runner
+when only one of those modules changed.
 
 ## Open Decisions
 
-Whether a digest of executed runner code, a narrower import graph, or an
-explicit non-replace across dashboard process restarts is the intended
-current-build rule.
+None. The current-build rule is the value-import digest on the
+runner-identity story.
 
 ## When to Surface
 
-A revived Cursor session shows unsent continue text, or dashboard deploys
-restart the runner when Cursor-runner files did not change.
+A revived Cursor session shows unsent continue text, or a dashboard deploy
+replaces the accepting Cursor runner when that redeploy did not change code
+the runner executes.
 
 ## Breadcrumbs
 
