@@ -113,12 +113,11 @@ export function swipe(
     );
   const available =
     direction === "left" ? from.x - room.left : room.right - from.x;
-  stroke(
-    from,
-    (direction === "left" ? -1 : 1) * Math.min(distance, available - 2),
-    0,
-    { cancel },
-  );
+  const dx =
+    (direction === "left" ? -1 : 1) * Math.min(distance, available - 2);
+  // Use browser hit testing and event delivery for swipes that start on a control.
+  if (target !== undefined) return drag(from, dx, 0, { cancel });
+  stroke(from, dx, 0, { cancel });
   return Promise.resolve();
 }
 
