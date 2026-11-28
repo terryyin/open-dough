@@ -208,7 +208,7 @@ and the gap spec is 66. Neither adds a production representation.
 ### 5. Retire the legacy binding specs after the Node proof
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: The pending-binding observations have one owner. The two legacy
 binding specs no longer run.
@@ -219,6 +219,12 @@ Proof: After slice 4's proof, map each assertion in
 `e2e/review/one-shot-landing-recovery.spec.ts`, then delete those two legacy
 files. Rerun the Node spec. Do not delete an observation the Node spec or that
 E2E does not own.
+
+Accepted proof: both legacy files are deleted. The two Node specs selected 2
+tests, strict status passed, about 2.0 s. `slice5-retire.json` names them.
+Lost reply stays in `e2e/review/one-shot-landing-recovery.spec.ts`. No
+production file changed. Refactor pass skipped: this slice only removes the
+legacy specs those Node tests already cover.
 
 ### 6. Capture from a kept launch after its startup attempt expires
 
@@ -365,10 +371,11 @@ execution allowance. Do not resplit the story.
   `d4c967304b080b4dedaac99e4d9d91b134848b69`, then slice 2 as
   `c138a53602d8d84d333826baa7795433f75fa11c`, then slice 3 as
   `876fdddbe263a74ecea1a38a59f6739c1e115a32`, then the binding split as
-  `567ae7298aebefd93d7e4ccea694325fd5164f35`, on
+  `567ae7298aebefd93d7e4ccea694325fd5164f35`, then slice 4 as
+  `45f1c197c89ce0a4fc35b3fe08bbdc5701128963`, on
   `origin/cursor/prove-retained-landing-capture-in-node-vitest`. Suffix base
-  of that plan revision is slice 3, zero reconciliations. That receipt is the
-  next increment's previously published base. Observer
+  of the slice 4 receipt is the plan revision, zero reconciliations. That
+  receipt is the next increment's previously published base. Observer
   `/tmp/dough-ci-501/watch-1ZhItf` reused.
   No unpublished candidate. Publisher `dashboard-territory.local-open-dough`,
   agent `Yua-chan`.
