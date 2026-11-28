@@ -95,7 +95,7 @@ test("a sync after origin returns advances the comparison, records the time and 
   expect(record).not.toHaveProperty("lastFailure");
 });
 
-const deadlineMs = 1500;
+const deadlineMs = 500;
 
 async function syncedStoryWithHangingOrigin() {
   const story = await publishedStory();

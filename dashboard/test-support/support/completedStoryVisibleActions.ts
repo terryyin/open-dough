@@ -19,7 +19,7 @@ import {
 } from "./storyReviewTrunkCommits.ts";
 import { git } from "./storyReviewWorktree.ts";
 
-export function advanceCompletedTrunk(origin: StartOrigin) {
+export function advanceCompletedTrunk(origin: Pick<StartOrigin, "project">) {
   pull(origin.project);
   const advanced = makeMe
     .theWorkspace(origin.project)
@@ -65,7 +65,7 @@ export function keepUnusableCompletedCapture(
 // fast-forwards trunk so the existing done record first appears on trunk's
 // first-parent path at that merge.
 export function laterDeveloperCarriesDoneRecord(
-  origin: StartOrigin,
+  origin: Pick<StartOrigin, "machine" | "origin" | "project">,
   completion: string,
 ) {
   return laterBranchMergesTrunkAndFastForwards(
@@ -75,7 +75,7 @@ export function laterDeveloperCarriesDoneRecord(
 }
 
 function laterBranchMergesTrunkAndFastForwards(
-  origin: StartOrigin,
+  origin: Pick<StartOrigin, "machine" | "origin" | "project">,
   start: string,
 ) {
   const developer = { agent: "Rin", email: "rin@example.org" };

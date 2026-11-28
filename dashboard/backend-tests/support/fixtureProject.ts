@@ -18,7 +18,22 @@ type Materialized<Name extends string> = Awaited<
 
 // The project's execution checkout is the history's integration checkout
 // unless `checkout` names another path under the materialized fixture.
+// Released when the case finishes.
 export async function configuredFixtureProject<Name extends string>(
+  history: RepositoryDescription<Name>,
+  checkout?: (repository: Materialized<Name>) => string,
+) {
+  const { release, ...configured } = await sharedFixtureProject(
+    history,
+    checkout,
+  );
+  onTestFinished(release);
+  return configured;
+}
+
+// The same configured project shared by every case of a file: configure it
+// in `beforeAll` and release it in `afterAll`.
+export async function sharedFixtureProject<Name extends string>(
   history: RepositoryDescription<Name>,
   checkout: (repository: Materialized<Name>) => string = (repository) =>
     repository.integration,
@@ -28,11 +43,11 @@ export async function configuredFixtureProject<Name extends string>(
   mkdirSync(home, { recursive: true });
   stubFixtureHome(home, repository.origin);
   const unmount = mountProjectConfiguration("development");
-  onTestFinished(async () => {
+  const release = async () => {
     unmount();
     vi.unstubAllEnvs();
     await repository.cleanup();
-  });
+  };
   const project = makeMe.aConfiguredProject
     .with({
       id: "open-dough",
@@ -42,5 +57,5 @@ export async function configuredFixtureProject<Name extends string>(
     })
     .please();
   appendConfiguredProject(project);
-  return { repository, home, project };
+  return { repository, home, project, release };
 }

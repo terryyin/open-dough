@@ -12,7 +12,7 @@ stays bound to the launch that published it. Account for the 18 cases in the
 keep actual publisher, Git, receiver, or native behavior at its workflow
 boundary when that interaction is what the case proves. Keep the existing
 capture, completion, and retention rules. Published Review comparisons and
-selection belong to [plan 863](../863-prove-published-review-comparisons-on-vitest/PLAN.md).
+selection belong to [plan 863](https://github.com/terryyin/open-dough/blob/cc7802ace20bd4475751c5e75713d983290607e5/.planning/slice-plans/863-prove-published-review-comparisons-on-vitest/PLAN.md), completed.
 The [runner cutover](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-backend-runner)
 already waits for this family's published disposition.
 
