@@ -7,7 +7,7 @@
 **Identity:** SEED-430#read-board-records-at-published-pins
 
 **Split from:** SEED-430#follow-published-progress-from-local-git
-([plan 823](../823-follow-published-progress-from-local-git/PLAN.md)) on
+([plan 823](https://github.com/terryyin/open-dough/blob/00f50db1827d870ecd899ba2e3cde097f7c38300/.planning/slice-plans/823-follow-published-progress-from-local-git/PLAN.md)) on
 2026-11-27: its former slice 6, slice 5's pin retention, and slice 8. The
 slices below are provisional input for this story's refinement.
 

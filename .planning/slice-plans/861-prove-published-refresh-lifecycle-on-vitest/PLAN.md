@@ -22,7 +22,7 @@ Reconciliation with related work:
   Board Refresh over `SharedVerifiedOriginTrunk` and durable confirmation
   records, keeping automatic observation on the current revision-check and
   revision-stream path.
-- [Plan 823](../823-follow-published-progress-from-local-git/PLAN.md) owns
+- [Plan 823](https://github.com/terryyin/open-dough/blob/00f50db1827d870ecd899ba2e3cde097f7c38300/.planning/slice-plans/823-follow-published-progress-from-local-git/PLAN.md) owns
   moving automatic observation to local Git, and
   [plan 887](../887-read-board-records-at-published-pins/PLAN.md) pinned
   Board reads.
