@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-430_follow-published-progress-from-local-git.json",
+      "identity": "SEED-430#follow-published-progress-from-local-git",
+      "completedAt": "2026-11-28T09:57:06.421Z",
+      "blob": "22855b15a0bd32d4e06536c3b8b92a8a0bbe012e"
+    },
+    {
       "fileName": "SEED-413_machine-observation-via-vitest.json",
       "identity": "SEED-413#machine-observation-via-vitest",
       "completedAt": "2026-11-28T09:53:56.939Z",

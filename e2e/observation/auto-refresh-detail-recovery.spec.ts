@@ -25,15 +25,18 @@ import {
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
   callsSince,
+  checksAskedWhilePassing,
   contentReads,
   expectSteadyPace,
-  headsChecks,
   openSettledAtA,
   passTimeUntilChecked,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import { titlesOfB } from "../../dashboard/test-support/refreshJourney.ts";
 import { notFoundAnswer } from "../../dashboard/test-support/publishedOrigin.ts";
-import { reloadUntilRead } from "../../dashboard/test-support/pageRequestNotes.ts";
+import {
+  reloadUntilRead,
+  whileNotingChecks,
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 
 const claimsStory = "Publish shared backlog claims";
 const claimsRecord = ".planning/seeds/SEED-040-claims.md";
@@ -86,12 +89,13 @@ test("auto refresh recovery: an unavailable detail of B stays labeled, is not re
 
   await test.step("unchanged checks never read the detail again", async () => {
     const from = githubFor(page).calls.length;
-    for (let check = 0; check < 2; check += 1) {
-      expectSteadyPace(await passTimeUntilChecked(page));
-    }
-    const calls = callsSince(page, from);
-    expect(headsChecks(calls)).toHaveLength(2);
-    expect(contentReads(calls)).toEqual([]);
+    await whileNotingChecks(page, async (askedAfter) => {
+      for (let check = 0; check < 2; check += 1) {
+        expectSteadyPace(await passTimeUntilChecked(page));
+        expect(await askedAfter()).toHaveLength(check + 1);
+      }
+    });
+    expect(contentReads(callsSince(page, from))).toEqual([]);
     await expect(claimsCard).toContainText(gap);
   });
 
@@ -169,8 +173,7 @@ test("auto refresh recovery: a detail of B still unread at the wait bound is lab
 
   await test.step("while recovery waits, checks do not run and the gap stays", async () => {
     const from = githubFor(page).calls.length;
-    await page.clock.runFor(14_000);
-    expect(headsChecks(callsSince(page, from))).toHaveLength(0);
+    expect(await checksAskedWhilePassing(page, 14_000)).toBe(0);
     expect(contentReads(callsSince(page, from))).toEqual([]);
     await expect(problem).toContainText(readAtB);
     await expect(claimsCard).toContainText(gap);

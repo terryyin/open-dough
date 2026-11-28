@@ -1,9 +1,9 @@
 // A revision-stream open whose page departs, or whose dashboard boundary
 // closes, while request-owner scope resolution is still pending must ask
-// GitHub nothing for that open and leave no paced observation. Driven
+// origin nothing for that open and leave no paced observation. Driven
 // in-process through the Vite plugin hooks and a plain http.Server (as
 // ./authenticated-read-plugin-hooks.spec.ts) so closeServer() closes the
-// boundary while this process and the fake GitHub keep observing. The
+// boundary while this process and the traced Git origin keep observing. The
 // synthetic `gh` hold is FAKE_GH_AUTH_HOLD on ../../test-support/fixtures/fake-gh.
 
 import { expect, test } from "../../test-support/support/pageTest.ts";
@@ -11,34 +11,24 @@ import { existsSync, unlinkSync, writeFileSync } from "node:fs";
 import http from "node:http";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
-import {
-  everyRepository,
-  type FakeGitHub,
-} from "../../test-support/support/fakeGitHub.ts";
 import { startInProcessAuthenticatedRead } from "../../test-support/support/inProcessAuthenticatedRead.ts";
 import {
   abandonedRequest,
   openEventStream,
 } from "../../test-support/support/rawHttp.ts";
-import { sharedReadsPublished } from "../../test-support/support/sharedReads.ts";
-import { revisionA } from "./revisionCheckBoundary.ts";
+import { streamOrigin } from "./revisionStreamBoundary.ts";
 
 const knownSourceId = "open-dough";
 const paceMs = 80;
 
 type SetupServer = {
   readonly origin: string;
-  readonly github: FakeGitHub;
+  readonly revision: string;
+  readonly operations: () => number;
   readonly holdPath: string;
   readonly closeBoundary: () => void | Promise<void>;
   readonly close: () => Promise<void>;
 };
-
-function matchingRefsSince(github: FakeGitHub, before: number): number {
-  return github.calls
-    .slice(before)
-    .filter(({ request }) => request.kind === "matching-refs").length;
-}
 
 function streamUrl(origin: string, query: string): string {
   return `${origin}/__authenticated-read?source=${knownSourceId}${query}`;
@@ -67,12 +57,13 @@ async function setupDepartureServer(): Promise<SetupServer> {
       };
     },
   });
-  boundary.github.serve(everyRepository, sharedReadsPublished(revisionA));
+  const git = await streamOrigin(path.join(boundary.tempRoot, "home"));
   const holdPath = authHold(boundary.tempRoot);
 
   return {
     origin: boundary.origin,
-    github: boundary.github,
+    revision: git.repository.trunkSha,
+    operations: git.operations,
     holdPath,
     closeBoundary: boundary.closeBoundary,
     async close() {
@@ -80,6 +71,7 @@ async function setupDepartureServer(): Promise<SetupServer> {
         releaseAuth(holdPath);
       } finally {
         await boundary.close();
+        await git.close();
       }
     },
   };
@@ -88,12 +80,11 @@ async function setupDepartureServer(): Promise<SetupServer> {
 test.describe.configure({ mode: "serial" });
 
 test.describe("revision stream setup departure (in-process boundary)", () => {
-  test("a page departing during held setup causes no matching-refs over several paces", async () => {
+  test("a page departing during held setup causes no Git operations over several paces", async () => {
     const server = await setupDepartureServer();
     try {
-      const before = server.github.calls.length;
       const departing = abandonedRequest({
-        url: streamUrl(server.origin, `&at=${revisionA}`),
+        url: streamUrl(server.origin, `&at=${server.revision}`),
         headers: { Origin: server.origin },
       });
       await waitAuthReached(server.holdPath);
@@ -101,7 +92,7 @@ test.describe("revision stream setup departure (in-process boundary)", () => {
       await new Promise((resolve) => setTimeout(resolve, 50));
       releaseAuth(server.holdPath);
       await new Promise((resolve) => setTimeout(resolve, paceMs * 4));
-      expect(matchingRefsSince(server.github, before)).toBe(0);
+      expect(server.operations()).toBe(0);
     } finally {
       await server.close();
     }
@@ -110,13 +101,12 @@ test.describe("revision stream setup departure (in-process boundary)", () => {
   test("a live page keeps shared observations; its close ends them after a departing open under the same hold", async () => {
     const server = await setupDepartureServer();
     try {
-      const before = server.github.calls.length;
       const live = openEventStream({
-        url: streamUrl(server.origin, `&at=${revisionA}`),
+        url: streamUrl(server.origin, `&at=${server.revision}`),
         headers: { Origin: server.origin },
       });
       const departing = abandonedRequest({
-        url: streamUrl(server.origin, `&at=${revisionA}`),
+        url: streamUrl(server.origin, `&at=${server.revision}`),
         headers: { Origin: server.origin },
       });
       await waitAuthReached(server.holdPath);
@@ -124,29 +114,27 @@ test.describe("revision stream setup departure (in-process boundary)", () => {
       await new Promise((resolve) => setTimeout(resolve, 50));
       releaseAuth(server.holdPath);
 
-      expect(await live.nextEvent()).toEqual({
-        revision: revisionA,
+      expect(await live.nextEvent()).toMatchObject({
+        revision: server.revision,
         changed: false,
-        branches: [],
       });
-      expect(await live.nextEvent()).toMatchObject({ revision: revisionA });
-      const whileLive = matchingRefsSince(server.github, before);
-      expect(whileLive).toBeGreaterThan(0);
-
-      const afterLive = server.github.calls.length;
+      expect(await live.nextEvent()).toMatchObject({
+        revision: server.revision,
+      });
+      const whileLive = server.operations();
+      expect(whileLive).toBeGreaterThan(2);
       live.close();
       await new Promise((resolve) => setTimeout(resolve, paceMs * 4));
-      expect(matchingRefsSince(server.github, afterLive)).toBe(0);
+      expect(server.operations()).toBe(whileLive);
     } finally {
       await server.close();
     }
   });
 
-  test("a boundary closed during held setup acquires no matching-refs and ends the response", async () => {
+  test("a boundary closed during held setup acquires no Git operations and ends the response", async () => {
     const server = await setupDepartureServer();
     try {
-      const before = server.github.calls.length;
-      const url = new URL(streamUrl(server.origin, `&at=${revisionA}`));
+      const url = new URL(streamUrl(server.origin, `&at=${server.revision}`));
       // The response's end (or the connection's), however long the pending
       // resolution takes to settle after the boundary closes.
       let responseEnded: () => void = () => {};
@@ -174,7 +162,7 @@ test.describe("revision stream setup departure (in-process boundary)", () => {
       await server.closeBoundary();
       releaseAuth(server.holdPath);
       await new Promise((resolve) => setTimeout(resolve, paceMs * 4));
-      expect(matchingRefsSince(server.github, before)).toBe(0);
+      expect(server.operations()).toBe(0);
       await ended;
     } finally {
       await server.close();
@@ -185,17 +173,18 @@ test.describe("revision stream setup departure (in-process boundary)", () => {
     const server = await setupDepartureServer();
     try {
       const stream = openEventStream({
-        url: streamUrl(server.origin, `&at=${revisionA}`),
+        url: streamUrl(server.origin, `&at=${server.revision}`),
         headers: { Origin: server.origin },
       });
       await waitAuthReached(server.holdPath);
       releaseAuth(server.holdPath);
-      expect(await stream.nextEvent()).toEqual({
-        revision: revisionA,
+      expect(await stream.nextEvent()).toMatchObject({
+        revision: server.revision,
         changed: false,
-        branches: [],
       });
-      expect(await stream.nextEvent()).toMatchObject({ revision: revisionA });
+      expect(await stream.nextEvent()).toMatchObject({
+        revision: server.revision,
+      });
       stream.close();
     } finally {
       await server.close();

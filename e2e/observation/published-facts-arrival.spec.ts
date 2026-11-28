@@ -61,6 +61,7 @@ for (const order of [
 ] as const) {
   test(`published facts accumulate as ${order.join(", then ")} answer`, async ({
     page,
+    afterGitHubStops,
   }) => {
     const errors = watchPageErrors(page);
     const {
@@ -71,7 +72,7 @@ for (const order of [
       problem,
       release,
       revision,
-    } = await heldFactGroups(page);
+    } = await heldFactGroups(page, afterGitHubStops);
     const complete = new Set<FactGroup>();
     await expect(branchCard).toContainText("Reading preparation…");
     await expect(branchCard).toContainText("Reading agent profile…");

@@ -1,7 +1,6 @@
 // The local authenticated read boundary at a revision its configured ref
-// names next (../../server/pinnedTexts.ts): once this dashboard process answered
-// the backlog at revision A, the backlog at the newly named revision B is read
-// there directly, while reads of the records it names ask GitHub to compare A
+// names next (../../server/pinnedTexts.ts): the verified Git check pins the
+// backlog at B directly, while reads of the records it names ask GitHub to compare A
 // with B and what each commit between changed, and a record or listing
 // neither the comparison nor a commit between touched is answered from what
 // is held at A without asking GitHub again; what either touched is read at B.
@@ -38,9 +37,14 @@ test.describe("authenticated read reuse at a newly named revision (development e
     ]);
 
     const reads = at(b);
-    expect(await asked(reads.backlog)).toEqual([
-      `content ${origin.paths.backlog}@${b}`,
-    ]);
+    expect(
+      await asked(async () => {
+        expect(await reads.backlog()).toEqual({
+          status: 200,
+          body: { revision: b, backlog: files[origin.paths.backlog] },
+        });
+      }),
+    ).toEqual([]);
     expect(await asked(() => reads.file(origin.paths.seed))).toEqual([
       `compare ${a}...${b}`,
       `commit ${named("c1")}`,
@@ -80,7 +84,6 @@ test.describe("authenticated read reuse at a newly named revision (development e
         await readEverything(b);
       }),
     ).toEqual([
-      `content ${origin.paths.backlog}@${b}`,
       `compare ${a}...${b}`,
       `commit ${named("c2")}`,
       `content ${origin.paths.seed}@${b}`,
@@ -137,7 +140,6 @@ test.describe("authenticated read reuse at a newly named revision (development e
         `compare ${a}...${b}`,
         `commit ${named("c3")}`,
         `commit ${named("d3")}`,
-        `content ${origin.paths.backlog}@${b}`,
         `content ${origin.paths.plan}@${b}`,
         `listing .planning/done@${b}`,
         `content ${origin.paths.doneCatalog}@${b}`,
@@ -208,7 +210,6 @@ test.describe("authenticated read reuse at a newly named revision (development e
         missing = await at(b).file(origin.paths.otherSeed);
       }),
     ).toEqual([
-      `content ${origin.paths.backlog}@${b}`,
       `compare ${a}...${b}`,
       `commit ${named("c5")}`,
       `content ${origin.paths.otherSeed}@${b}`,
@@ -240,7 +241,6 @@ test.describe("authenticated read reuse at a newly named revision (development e
       `commit ${named("ed")}`,
       `commit ${named("fd")}`,
       `compare ${a}...${c}`,
-      `content ${origin.paths.backlog}@${c}`,
     ]);
   });
 });

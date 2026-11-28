@@ -1,19 +1,15 @@
 // Fallback delivery proves receipt since return through its existing schedule.
 // Real holds and captured requests stay outside the connection page object.
-import {
-  expect,
-  githubFor,
-  test,
-} from "../../dashboard/test-support/dashboardTest.ts";
+import { holdLaterTrunkTransfers } from "../../dashboard/test-support/laterTrunkTransfers.ts";
+import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   expectSettledPage,
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
 import {
-  callsSince,
   checksAskedWhilePassing,
-  headsChecks,
   openSettledAtA,
   passPageMs,
   passTimeUntilAsked,
@@ -30,33 +26,29 @@ import {
   openSecondStreamingAtA,
   openStreamingAtA,
   streamServerEnv,
-  untilMatchingRefsSince,
 } from "../../dashboard/test-support/revisionStreamJourney.ts";
-import { noConnection } from "../../dashboard/test-support/publishedOrigin.ts";
 import { titlesOfA } from "../../dashboard/test-support/refreshJourney.ts";
 import { ConnectionMark } from "./connectionMark.ts";
 
 test("fallback focus waits for an already outstanding response without adding a request", async ({
   page,
   afterGitHubStops,
+  dashboard,
 }) => {
   const requests: string[] = [];
   page.on("request", (request) => {
     if (isCheck(request.url()) || isRevisionStream(request.url()))
       requests.push(request.url());
   });
-  const origin = await openSettledAtA(page, afterGitHubStops);
+  await openSettledAtA(page, afterGitHubStops);
   const mark = new ConnectionMark(page);
   await mark.shows("awaiting");
   await passTimeUntilChecked(page);
   await mark.shows("connected");
-  const release = origin.hold("main");
+  const transfer = holdLaterTrunkTransfers(dashboard.home, defaultRepository);
   try {
-    const before = githubFor(page).calls.length;
     await passTimeUntilAsked(page);
-    await expect
-      .poll(() => headsChecks(callsSince(page, before)).length)
-      .toBe(1);
+    await transfer.untilHeld();
     const asked = [...requests];
     const retrieved = await parts(page).retrievedAt.getAttribute("datetime");
     await mark.focusSettings();
@@ -65,7 +57,7 @@ test("fallback focus waits for an already outstanding response without adding a 
     await passPageMs(page, 1_000);
     await givePageItsTurns(page);
     expect(requests).toEqual(asked);
-    release();
+    transfer.release();
     await mark.shows("connected");
     await mark.keepsFocus();
     await expect(parts(page).retrievedAt).toHaveAttribute(
@@ -75,7 +67,7 @@ test("fallback focus waits for an already outstanding response without adding a 
     expect(requests).toEqual(asked);
     expect(requests.some(isRevisionStream)).toBe(false);
   } finally {
-    release();
+    transfer.release();
   }
 });
 
@@ -125,7 +117,7 @@ test("a failed fallback check is red and its ordinary next success restores gree
   const mark = new ConnectionMark(page);
   await passTimeUntilChecked(page);
   await mark.shows("connected");
-  const restore = origin.answerWith("main", noConnection);
+  const restore = origin.disconnectGit();
   await mark.returnFocus();
   await mark.shows("awaiting");
   await passTimeUntilChecked(page, 502);
@@ -145,6 +137,7 @@ test.describe("stream-slot handover", () => {
   test("a cancelled fallback answer cannot confirm a page waiting for its new stream", async ({
     page,
     afterGitHubStops,
+    dashboard,
   }) => {
     const origin = await openStreamingAtA(page, afterGitHubStops);
     const second = await openSecondStreamingAtA(page, origin.revisions.A);
@@ -166,29 +159,42 @@ test.describe("stream-slot handover", () => {
       const mark = new ConnectionMark(checker);
       await passTimeUntilChecked(checker);
       await mark.shows("connected");
-      const releaseCheck = origin.hold("main");
+      const transfer = holdLaterTrunkTransfers(
+        dashboard.home,
+        defaultRepository,
+      );
       try {
-        const before = githubFor(page).calls.length;
+        const checking = checker.waitForRequest((request) =>
+          isCheck(request.url()),
+        );
         await passTimeUntilAsked(checker);
-        await untilMatchingRefsSince(page, before, 1);
+        const check = await checking;
+        await transfer.untilHeld();
         await mark.returnFocus();
         await mark.shows("awaiting");
         const newStream = checker.waitForRequest((request) =>
           isRevisionStream(request.url()),
         );
+        const cancelled = checker.waitForEvent(
+          "requestfailed",
+          (request) => request === check,
+        );
         await setPageVisibility(page, "hidden");
-        await newStream;
-        const beforeRelease = githubFor(page).calls.length;
-        releaseCheck();
-        // The surviving stream's next listing proves the held shared listing
-        // settled before checking that its cancelled waiter cannot confirm.
-        await untilMatchingRefsSince(page, beforeRelease, 1);
+        await Promise.all([newStream, cancelled]);
+        const checkUrl = new URL(check.url());
+        // A direct boundary request can observe the shared fallback answer
+        // arriving after the browser has cancelled its own wait.
+        const settled = checker.request.get(checkUrl.toString(), {
+          headers: { Origin: checkUrl.origin },
+        });
+        transfer.release();
+        await expect(await settled).toBeOK();
         await givePageItsTurns(checker);
         await mark.shows("awaiting");
         releaseStream();
         await mark.shows("connected");
       } finally {
-        releaseCheck();
+        transfer.release();
       }
     } finally {
       releaseStream();

@@ -1,3 +1,4 @@
+import { holdAuthenticatedReadsWhere } from "../../dashboard/test-support/holdAuthenticatedReads.ts";
 import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
 import {
   passTimeUntilChecked,
@@ -12,10 +13,7 @@ import {
   openDirection,
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import {
-  pathsRead,
-  noConnection,
-} from "../../dashboard/test-support/publishedOrigin.ts";
+import { pathsRead } from "../../dashboard/test-support/publishedOrigin.ts";
 import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
 import { doughnutRepository } from "../../dashboard/test-support/doughnutProject.ts";
@@ -143,13 +141,17 @@ test("same-project refresh retains expanded and collapsed choices through loadin
   await expect(readRevision).toContainText(shortRevision(revisionA));
 
   origin.advanceTo("B");
-  const release = origin.hold(revisionB);
+  const snapshot = await holdAuthenticatedReadsWhere(
+    page,
+    (params) => params.get("revision") === revisionB && params.size === 2,
+    [],
+  );
   expect(await routedTrunk(dashboard.home)).toBe(revisionB);
   await passTimeUntilChecked(page);
   await expect(reading).toBeVisible();
   await expect(body).toBeVisible();
   await expect(body).toHaveText(fullDirection);
-  const restore = origin.answerWith("main", noConnection);
+  const restore = origin.disconnectGit();
   const heldAt = await page.evaluate(() => Date.now());
   const nextCheck = passTimeUntilChecked(page, 502);
   // The next check must let B's held read answer before passing page time;
@@ -158,7 +160,7 @@ test("same-project refresh retains expanded and collapsed choices through loadin
   expect(await page.evaluate(() => Date.now())).toBe(heldAt);
   await expect(reading).toBeVisible();
   await expect(problem).toHaveCount(0);
-  release();
+  snapshot.release();
   await expect(readRevision).toContainText(shortRevision(revisionB));
   await expect(body).toBeVisible();
   await expect(body).toHaveText(nextDirection);
@@ -213,12 +215,16 @@ test("changing projects removes previous direction while reading and starts each
   const { direction, directionText: body, reading, readRevision } = parts(page);
   await openDirection(page);
 
-  const release = doughnut.hold("main");
+  const snapshot = await holdAuthenticatedReadsWhere(
+    page,
+    (params) => params.get("source") === "doughnut" && params.size === 1,
+    [],
+  );
   await chooseProject(page, "Doughnut");
   await expect(reading).toBeVisible();
   await expect(direction).toHaveCount(0);
   await expect(page.getByText(fullDirection)).toHaveCount(0);
-  release();
+  snapshot.release();
   await expect(readRevision).toContainText(shortRevision(doughnutRevision));
   await expect(body).toBeHidden();
   await expectDirectionOpensAcrossRow(page);

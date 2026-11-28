@@ -169,11 +169,10 @@ test("an unavailable Pygardon read shows an actionable, project-specific failure
   });
 
   await test.step("a later failed check keeps only Pygardon's previous snapshot, with the failure reported alongside it", async () => {
-    // `gh` fails in a way this boundary cannot put a category to.
-    pygardonOrigin.answerWith("main", { exitCode: 1, stderr: "gh: failed\n" });
+    pygardonOrigin.disconnectGit();
     await passTimeUntilChecked(page, 502);
     await expect(problem).toContainText(
-      "The local authenticated read failed while reading main of terryyin/pygardon.",
+      "The published trunk is unavailable: Git could not read main of terryyin/pygardon from origin.",
     );
     await expect(problem).toContainText(
       "What is shown is the earlier snapshot, retrieved at",

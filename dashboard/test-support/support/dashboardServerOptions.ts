@@ -42,7 +42,7 @@ export type DashboardServerOptions = FakeClaudeOptions & {
   readonly limitBackoffMs?: number | undefined;
   // Retained-answer budget (`../../server/retainedAnswers.ts`); 64 MiB unset.
   readonly retainedAnswersBytes?: number | undefined;
-  // Listing reuse ms (`../../server/revisionChecks.ts`); omitted/undefined forces 0
+  // Verified Git observation reuse ms; omitted/undefined forces 0
   // so fake-clock paced checks see one listing each; pass `checkReuseMs` for settled sharing.
   readonly revisionCheckReuseMs?: number | undefined;
   // Whether the test controls the clock reuse windows are measured by

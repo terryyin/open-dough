@@ -7,7 +7,7 @@
 **Identity:** SEED-430#share-one-refresh-across-board-and-review
 
 **Split from:** SEED-430#follow-published-progress-from-local-git
-([plan 823](../823-follow-published-progress-from-local-git/PLAN.md)) on
+([plan 823](https://github.com/terryyin/open-dough/blob/00f50db1827d870ecd899ba2e3cde097f7c38300/.planning/slice-plans/823-follow-published-progress-from-local-git/PLAN.md)) on
 2026-11-27: its former slices 2 and 7. The slices below are provisional
 input for this story's refinement.
 

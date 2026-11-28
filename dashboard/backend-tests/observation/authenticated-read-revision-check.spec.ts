@@ -1,118 +1,149 @@
-// The local authenticated read boundary's revision check
-// (../../server/authenticatedRead.ts, ../../server/revisionChecks.ts), tested
-// directly against real HTTP and the synthetic `gh`, not through the
-// browser: asking whether a catalog source's `main` still names the revision
-// shown (`since`), from one listing of every published branch head. The fake
-// GitHub answers a conditional request whose entity tag still matches with
-// `304 Not Modified`, printed and exited the way the real `gh api --include`
-// does (./revisionCheckBoundary.ts). Failures and rate limits:
-// ./authenticated-read-revision-check-failures.spec.ts. Reading the backlog
-// at an already resolved revision:
-// ./authenticated-read-revision-backlog.spec.ts. See
-// ./authenticated-read-boundary.spec.ts for typed pinned file reads and
-// ./authenticated-read-http.spec.ts for HTTP admission.
+// The authenticated HTTP fallback observes real Git, including its sharing
+// with the revision stream and its durable confirmation record.
 
+import { boardConfirmation } from "../../server/boardConfirmation.ts";
 import { expect, test } from "../../test-support/support/pageTest.ts";
-import { commitAnswer } from "../../test-support/originAnswers.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import {
-  checkArgv,
-  listingEtag,
-  revisionA,
-  revisionB,
-  revisionCheckBoundary,
-} from "./revisionCheckBoundary.ts";
+  readUntilClosed,
+  signalFifo,
+} from "../review/verifiedOriginTrunkCase.ts";
+import { controlledStreamServer } from "./controlledRevisionStream.ts";
+import {
+  openStream,
+  settledWithin,
+  streamOrigin,
+  streamServer,
+  streamUrl,
+  withStreamOrigin,
+} from "./revisionStreamBoundary.ts";
 
-test.describe.configure({ mode: "serial" });
+const revisionA = "a1".repeat(20);
 
 test.describe("authenticated read boundary revision check (development environment)", () => {
-  const boundary = revisionCheckBoundary();
-  const { main, check } = boundary;
-
-  test("an unchanged main answers unchanged: first by its commit, then by GitHub's 304", async () => {
-    main.set("terryyin/open-dough", commitAnswer(revisionA));
-    const first = await check("open-dough", revisionA);
-    expect(first.status).toBe(200);
-    expect(first.cacheControl).toBe("no-store");
-    expect(first.body).toEqual({
-      revision: revisionA,
-      changed: false,
-      branches: [],
-    });
-    expect(first.calls).toEqual([checkArgv("terryyin/open-dough")]);
-
-    const second = await check("open-dough", revisionA);
-    expect(second.status).toBe(200);
-    expect(second.body).toEqual({
-      revision: revisionA,
-      changed: false,
-      branches: [],
-    });
-    // Only the conditional listing: GitHub answered 304 and gh exited 1.
-    expect(second.calls).toEqual([
-      checkArgv("terryyin/open-dough", listingEtag(revisionA)),
-    ]);
-  });
-
-  test("a moved main answers changed with the new commit, and later checks are conditional on it", async () => {
-    main.set("terryyin/open-dough", commitAnswer(revisionB));
-    const moved = await check("open-dough", revisionA);
-    expect(moved.status).toBe(200);
-    expect(moved.body).toEqual({
-      revision: revisionB,
-      changed: true,
-      branches: [],
-    });
-    expect(moved.calls).toEqual([
-      checkArgv("terryyin/open-dough", listingEtag(revisionA)),
-    ]);
-
-    const settled = await check("open-dough", revisionB);
-    expect(settled.body).toEqual({
-      revision: revisionB,
-      changed: false,
-      branches: [],
-    });
-    expect(settled.calls).toEqual([
-      checkArgv("terryyin/open-dough", listingEtag(revisionB)),
-    ]);
-  });
-
-  test("one source's entity tag is never sent for another source", async () => {
-    main.set("nerds-odd-e/doughnut", commitAnswer(revisionB));
-    const other = await check("doughnut", revisionA);
-    expect(other.body).toEqual({
-      revision: revisionB,
-      changed: true,
-      branches: [],
-    });
-    expect(other.calls).toEqual([checkArgv("nerds-odd-e/doughnut")]);
-  });
-
-  test("refuses a malformed or mixed revision check before launching gh", async () => {
-    const server = boundary.server();
-    const callsBefore = server.ghCalls().length;
-    for (const query of [
-      `source=open-dough&since=main`,
-      `source=open-dough&since=${revisionA}&revision=${revisionA}`,
-      `source=open-dough&since=${revisionA}&path=${encodeURIComponent(".planning/PRODUCT-BACKLOG.md")}`,
-    ]) {
-      const response = await rawRequest({
-        url: `${server.baseURL}/__authenticated-read?${query}`,
+  test("one verified check answers overlapping streams and HTTP, and fresh HTTP waits for the next check", async () => {
+    const server = await controlledStreamServer();
+    const origin = await streamOrigin(server.home, 1);
+    const held = readUntilClosed(origin.pack.heldFifo);
+    const { older, published } = origin.repository.revisions;
+    const requested = (query: string) =>
+      rawRequest({
+        url: streamUrl(server, query),
         headers: { Origin: server.origin },
       });
-      expect(response.status, query).toBe(400);
+    const ordinary = requested(`&since=${older}`);
+    try {
+      await expect(held).resolves.toBe("held\n");
+      const stream = openStream(server, `&at=${older}`);
+      const second = openStream(server, `&at=${older}`);
+      await Promise.all([stream.headers, second.headers]);
+      const fresh = requested(`&since=${published}&fresh=1`);
+      expect(await settledWithin(fresh, 100)).toEqual({ timedOut: true });
+      expect(origin.operations()).toBe(2);
+      expect(await boardConfirmation(origin.review, "main")).toBeUndefined();
+      await signalFifo(origin.pack.releaseFifo, true);
+
+      const first = await ordinary;
+      expect(first.status).toBe(200);
+      expect(first.headers["cache-control"]).toBe("no-store");
+      const changed: unknown = JSON.parse(first.body);
+      expect(changed).toEqual({
+        revision: published,
+        changed: true,
+        askedAt: expect.any(String),
+        confirmedAt: expect.any(String),
+      });
+      expect(await stream.nextEvent()).toEqual(changed);
+      expect(await second.nextEvent()).toEqual(changed);
+
+      const later = await fresh;
+      expect(later.status).toBe(200);
+      const unchanged = JSON.parse(later.body) as {
+        confirmedAt: string;
+        askedAt: string;
+      };
+      expect(unchanged).toMatchObject({ revision: published, changed: false });
+      const firstCheck = changed as typeof unchanged;
+      expect(Date.parse(unchanged.askedAt)).toBeGreaterThan(
+        Date.parse(firstCheck.askedAt),
+      );
+      expect(Date.parse(unchanged.confirmedAt)).toBeGreaterThan(
+        Date.parse(firstCheck.confirmedAt),
+      );
+      const recorded = await boardConfirmation(origin.review, "main");
+      expect(recorded).toMatchObject({
+        revision: published,
+        confirmedAt: unchanged.confirmedAt,
+      });
+      expect(origin.operations()).toBe(3); // One shared probe/fetch, then a fresh warm probe.
+      expect(server.github.calls).toEqual([]);
+      stream.close();
+      second.close();
+    } finally {
+      await signalFifo(origin.pack.releaseFifo, false);
+      await server.close();
+      await origin.close();
     }
-    const unknown = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=not-a-real-project&since=${revisionA}`,
-      headers: { Origin: server.origin },
+  });
+
+  test("origin and confirmation write failures answer beside the durable record", async () => {
+    await withStreamOrigin(await streamServer(), async (origin, server) => {
+      const revision = origin.repository.trunkSha;
+      const check = () =>
+        rawRequest({
+          url: streamUrl(server, `&since=${revision}&fresh=1`),
+          headers: { Origin: server.origin },
+        });
+      expect((await check()).status).toBe(200);
+      const recorded = await boardConfirmation(origin.review, "main");
+      origin.blockConfirmationWrite();
+      const writeFailure = await check();
+      expect(writeFailure.status).toBe(502);
+      expect(JSON.parse(writeFailure.body)).toMatchObject({
+        error: expect.stringContaining("could not be saved"),
+      });
+      origin.failOriginProbe("unavailable");
+      const unavailable = await check();
+      expect(unavailable.status).toBe(502);
+      expect(JSON.parse(unavailable.body)).toMatchObject({
+        error: expect.stringContaining("published trunk is unavailable"),
+      });
+      origin.failOriginProbe("credentials");
+      const refused = await check();
+      expect(refused.status).toBe(502);
+      expect(JSON.parse(refused.body)).toMatchObject({
+        error: expect.stringContaining("HTTP 401"),
+      });
+      expect(await boardConfirmation(origin.review, "main")).toEqual(recorded);
     });
-    expect(unknown.status).toBe(404);
-    const crossOrigin = await rawRequest({
-      url: `${server.baseURL}/__authenticated-read?source=open-dough&since=${revisionA}`,
-      headers: { Origin: "http://evil.example" },
+  });
+
+  test("refuses invalid revision checks without contacting the origin", async () => {
+    await withStreamOrigin(await streamServer(), async (origin, server) => {
+      const callsBefore = server.ghCalls().length;
+      for (const query of [
+        `source=open-dough&since=main`,
+        `source=open-dough&since=${revisionA}&revision=${revisionA}`,
+        `source=open-dough&since=${revisionA}&path=${encodeURIComponent(".planning/PRODUCT-BACKLOG.md")}`,
+      ]) {
+        const response = await rawRequest({
+          url: `${server.baseURL}/__authenticated-read?${query}`,
+          headers: { Origin: server.origin },
+        });
+        expect(response.status, query).toBe(400);
+      }
+      const unknown = await rawRequest({
+        url: `${server.baseURL}/__authenticated-read?source=not-a-real-project&since=${revisionA}`,
+        headers: { Origin: server.origin },
+      });
+      expect(unknown.status).toBe(404);
+      const crossOrigin = await rawRequest({
+        url: `${server.baseURL}/__authenticated-read?source=open-dough&since=${revisionA}`,
+        headers: { Origin: "http://evil.example" },
+      });
+      expect(crossOrigin.status).toBe(403);
+      expect(origin.operations()).toBe(0);
+      expect(server.ghCalls()).toHaveLength(callsBefore);
     });
-    expect(crossOrigin.status).toBe(403);
-    expect(server.ghCalls()).toHaveLength(callsBefore);
   });
 });

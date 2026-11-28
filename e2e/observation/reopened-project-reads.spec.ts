@@ -110,7 +110,6 @@ test("reopening an unchanged project asks only which commits its ref and story b
   });
   const { A: revisionA, B: revisionB, head: branchHead } = origin.revisions;
   const reopenedAtA = [
-    `branch ${branch}`,
     `content .planning/open-dough.json@${revisionA}`,
     `content ${missingSeedPath}@${revisionA}`,
   ].sort();
@@ -181,7 +180,6 @@ test("reopening an unchanged project asks only which commits its ref and story b
     const asked = askedSince(origin, before);
     expect(asked).toEqual(
       expect.arrayContaining([
-        `branch ${branch}`,
         "compare",
         `commit ${revisionB}`,
         `content ${missingSeedPath}@${revisionB}`,

@@ -25,7 +25,6 @@ import {
   startDashboardServer,
 } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
-  backlogPath,
   doneCatalogPath,
   donePath,
   expectSettledAt,
@@ -78,7 +77,7 @@ test("a commit that changes no planning record is shown without reading the unch
     ]),
   );
 
-  await test.step("the check finds B and the page shows it after its backlog, one comparison, and one commit read, reading no other record, history, or commit time", async () => {
+  await test.step("the check finds B and the page shows it after one comparison and one commit read, reading no other record, history, or commit time", async () => {
     const before = origin.requests.length;
     origin.moveTrunk(origin.published.B, [
       { ...productCodeChange, sha: revisionB },
@@ -99,9 +98,7 @@ test("a commit that changes no planning record is shown without reading the unch
     expect(asked.filter((call) => call.startsWith("commit "))).toEqual([
       `commit ${revisionB}`,
     ]);
-    expect(recordsReadAt(asked, revisionB)).toEqual([
-      `content ${backlogPath}@${revisionB}`,
-    ]);
+    expect(recordsReadAt(asked, revisionB)).toEqual([]);
     // The card keeps its credited human and slice clock without listing the
     // profile's history or asking the plan's last commit time again.
     expect(asked.filter((call) => call.startsWith("commit-list "))).toEqual([]);

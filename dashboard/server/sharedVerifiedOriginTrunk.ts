@@ -12,12 +12,22 @@ import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import { GhFailure } from "./ghFailure.ts";
 import { githubGitCredentials, githubGitOrigin } from "./githubGitTransport.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
-import { revisionCheckReuseMs } from "./revisionChecks.ts";
+import { checkReuseMs } from "../src/revisionCheckSchedule.ts";
 import { SharedObservation, type Demanded } from "./sharedObservation.ts";
 import {
   verifiedOriginTrunk,
   type VerifiedOriginTrunk,
 } from "./verifiedOriginTrunk.ts";
+
+// Zero lets boundary cases require every demand to observe origin.
+function revisionCheckReuseMs(): number {
+  const raw = process.env["DOUGH_REVISION_CHECK_REUSE_MS"];
+  if (raw !== undefined && raw !== "") {
+    const ms = Number(raw);
+    if (Number.isFinite(ms) && ms >= 0) return ms;
+  }
+  return checkReuseMs;
+}
 
 type OriginTrunkKey = readonly [string, string, typeof githubGitCredentials];
 

@@ -16,7 +16,7 @@ and sync status. Actions that need current state require a successful fresh
 check. The
 [Board trunk story](https://github.com/terryyin/open-dough/blob/d71b0c6d6dc3c767a80efc93ac03247f467d7881/.planning/seeds/SEED-430-read-published-project-data-from-local-git.md#open-the-board-from-the-verified-git-trunk)
 establishes the shared observation, and the
-[published-progress](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git),
+[published-progress](https://github.com/terryyin/open-dough/blob/00f50db1827d870ecd899ba2e3cde097f7c38300/.planning/seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git),
 [pinned records](seeds/SEED-430-read-published-project-data-from-local-git.md#read-board-records-at-published-pins), and
 [shared Board and Review refresh](seeds/SEED-430-read-published-project-data-from-local-git.md#share-one-refresh-across-board-and-review)
 stories extend it to branches, records, and Review. The

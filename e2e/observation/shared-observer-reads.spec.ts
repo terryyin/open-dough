@@ -1,10 +1,7 @@
 import type { Page } from "@playwright/test";
+import { holdLaterTrunkTransfers } from "../../dashboard/test-support/laterTrunkTransfers.ts";
 import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
-import {
-  expect,
-  githubFor,
-  test,
-} from "../../dashboard/test-support/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import {
   expectMembership,
@@ -20,10 +17,7 @@ import {
 } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { setPageVisibility } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
-import {
-  backlogPath,
-  defaultRepository as repository,
-} from "../../dashboard/test-support/publishedOrigin.ts";
+import { defaultRepository as repository } from "../../dashboard/test-support/publishedOrigin.ts";
 import { authenticatedReadEndpoint } from "../../dashboard/src/authenticatedReadRules.ts";
 import {
   askedOfOpenDough,
@@ -129,18 +123,16 @@ test("a tab switched to another project before the seed is answered leaves the o
   }
 });
 
-test("revision checks from two tabs share one head listing, which still answers the tab left showing when the other is hidden", async ({
+test("revision checks from two tabs share one Git observation when one tab is hidden", async ({
   page,
   dashboard,
   afterGitHubStops,
 }) => {
-  const opened = await openedTogether(
+  const { other, origin, releaseSeed, releaseGit } = await openedTogether(
     page,
     dashboard.home,
     afterGitHubStops,
-    true,
   );
-  const { other, origin, releaseSeed, releaseListing, releaseGit } = opened;
   await releaseGit();
   const { A, B } = origin.revisions;
   const routedTrunk = () =>
@@ -153,30 +145,32 @@ test("revision checks from two tabs share one head listing, which still answers 
   releaseSeed();
   await expectSettledPage(page, titles);
   await expectSettledPage(other, titles);
-  const github = githubFor(page);
-  const before = github.calls.length;
+  const transfer = holdLaterTrunkTransfers(dashboard.home, repository);
+  origin.advanceTo("B");
+  expect(await routedTrunk()).toBe(B);
   const tabs = [page, other];
   const checks = tabs.map((tab) =>
     tab.waitForRequest((request) => isCheck(request.url())),
   );
-  await passCheckPace(page);
-  await waitingTogether(tabs, checks);
-  const checksAsked = () =>
-    github.calls.slice(before).map(({ request }) => request.kind);
-  await expect.poll(checksAsked).toEqual(["matching-refs"]);
-  origin.advanceTo("B");
-  expect(await routedTrunk()).toBe(B);
-  const answered = page.waitForResponse((response) => isCheck(response.url()));
-  await setPageVisibility(other, "hidden");
-  releaseListing();
-  const response = await answered;
-  expect(response.status()).toBe(200);
-  expect(await response.json()).toMatchObject({ changed: true, revision: B });
-  await expectSettledPage(page, titles);
-  expect(
-    checksAsked().filter((kind) => kind === "matching-refs" || kind === "ref"),
-  ).toEqual(["matching-refs"]);
-  expect(askedOfOpenDough(page)).toContain(`content ${backlogPath}@${B}`);
-  await expect(parts(page).readRevision).toContainText(shortRevision(B));
-  await expect(parts(page).problem).toHaveCount(0);
+  try {
+    await passCheckPace(page);
+    await waitingTogether(tabs, checks);
+    await transfer.untilHeld();
+    expect(transfer.held()).toBe(1);
+    const answered = page.waitForResponse((response) =>
+      isCheck(response.url()),
+    );
+    await setPageVisibility(other, "hidden");
+    transfer.release();
+    const response = await answered;
+    expect(response.status()).toBe(200);
+    expect(await response.json()).toMatchObject({ changed: true, revision: B });
+    await expectSettledPage(page, titles);
+    expect(transfer.held()).toBe(2);
+    expect(restMembershipReads(askedOfOpenDough(page))).toEqual([]);
+    await expect(parts(page).readRevision).toContainText(shortRevision(B));
+    await expect(parts(page).problem).toHaveCount(0);
+  } finally {
+    transfer.release();
+  }
 });

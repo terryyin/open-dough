@@ -11,6 +11,7 @@
 import { useRef, useState } from "react";
 import { ObservationOutcomes } from "./observationOutcomes.ts";
 import type { PublishedWork } from "./publishedWork.ts";
+import type { RevisionConfirmation } from "./revisionCheckRead.ts";
 
 type Retrieval = {
   // The last snapshot read, whole or with its unread detail labeled; a later
@@ -49,6 +50,24 @@ export function useSnapshotRetrieval() {
           ? { ...last, work }
           : { ...noRetrieval, work, notice },
       );
+    },
+    confirm: (
+      revision: string,
+      { askedAt, confirmedAt }: RevisionConfirmation,
+    ) => {
+      setRetrieval((last) => {
+        if (last.work?.revision !== revision) return last;
+        const former = last.work.confirmedAt ?? "";
+        if (
+          confirmedAt < former ||
+          (confirmedAt === former && askedAt <= (last.work.refAskedAt ?? ""))
+        )
+          return last;
+        return {
+          ...last,
+          work: { ...last.work, confirmedAt, refAskedAt: askedAt },
+        };
+      });
     },
     completeDetail: () => {
       setRetrieval((last) => ({ ...last, complete: true }));

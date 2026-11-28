@@ -86,18 +86,18 @@ const history: PathHistories = {
   ],
 };
 
-// A routed trunk with explicitly controlled REST branch and history answers.
+// A routed trunk and story branch with controlled REST detail answers.
 export function published(
   label: string,
-  head: string,
+  branchLabel: string,
   failing: (request: GhRequest) => OriginAnswer | undefined = () => undefined,
 ) {
   const files = filesFor(label);
-  const publication = reusePublication(files, history);
   const branch = `story/${label}`;
-  publication.revisions.set(head, files);
-  publication.branches.set(branch, head);
-  publication.histories?.set(head, history);
+  const publication = reusePublication(files, history, {
+    name: branch,
+    label: branchLabel,
+  });
   return {
     branch,
     publication,

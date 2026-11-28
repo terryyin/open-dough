@@ -25,7 +25,6 @@ import { defaultRepository as repository } from "../../dashboard/test-support/pu
 import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import { renderStorySection } from "../../Distribution/tests/support/published-seed.mjs";
-import { holdingAnswer } from "../../dashboard/test-support/support/heldGitHubAnswer.ts";
 import { holdTrunkTransfer } from "../../dashboard/test-support/heldTrunkTransfer.ts";
 
 export const seedPath = ".planning/seeds/SEED-263-shared.md";
@@ -68,24 +67,14 @@ export async function openedTogether(
   page: Page,
   home: string,
   afterGitHubStops: (cleanup: () => Promise<void>) => void,
-  holdListing = false,
 ) {
   await pausePageClockAt(page, new Date("2026-10-06T09:00:00.000Z"));
-  let releaseListing: () => void = () => undefined;
   const origin = await publishMovingHistory(
     page,
     history,
     "A",
     afterGitHubStops,
     repository,
-    (answer) => {
-      const listing = holdingAnswer(
-        answer,
-        ({ kind }) => holdListing && kind === "matching-refs",
-      );
-      releaseListing = listing.release;
-      return listing.answer;
-    },
   );
   const transfer = holdTrunkTransfer(home, repository);
   const releaseSeed = origin.hold(seedPath);
@@ -103,7 +92,6 @@ export async function openedTogether(
     other,
     origin,
     releaseSeed,
-    releaseListing,
     releaseGit: transfer.release,
     releaseGitIfHeld: transfer.releaseIfHeld,
   };

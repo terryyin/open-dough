@@ -14,7 +14,10 @@ import {
   expectMembership,
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import { passTimeUntilChecked } from "../../dashboard/test-support/autoRefreshJourney.ts";
+import {
+  expectNextProjectCheck,
+  passTimeUntilChecked,
+} from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   doughnutRepository,
   doughnutSharedGoal,
@@ -31,7 +34,6 @@ import {
   expectCurrentRoster,
   factStoryCards,
   expectHeldGroups,
-  expectNextProjectCheck,
   expectNoEarlierAssignments,
   expectNoEarlierFacts,
   expectOnlyProjectAsked,
@@ -108,7 +110,7 @@ test("new membership and fast B assignments replace a complete A's, while B's he
     await expectNoEarlierFacts(page, factsA);
     await expect(link).toBeFocused();
   });
-  await expectNextProjectCheck(page, repository, factsB.revision);
+  await expectNextProjectCheck(page, "open-dough", factsB.revision);
   expectOnlyProjectAsked(page, beforeB, repository, factsB.revision);
   expect(errors).toEqual([]);
 });
@@ -168,7 +170,7 @@ for (const outcome of ["success", "failure"] as const) {
     // Selection aborts the browser requests. Releasing the raw answers lets
     // the fake gh finish; it does not revive a response in the selected page.
     await expectOnlyDoughnut(page, shown, factsA, saved);
-    await expectNextProjectCheck(page, doughnutRepository);
+    await expectNextProjectCheck(page, "doughnut", shown.revision);
     expectOnlyProjectAsked(page, atSwitch, doughnutRepository, shown.revision);
     await expectOnlyDoughnut(page, shown, factsA, saved);
     expect(errors).toEqual([]);
@@ -217,7 +219,7 @@ for (const outcome of ["success", "failure"] as const) {
       await expectPublishedReadState(page, saved);
       await expect(link).toBeFocused();
     });
-    await expectNextProjectCheck(page, repository);
+    await expectNextProjectCheck(page, "open-dough", factsB.revision);
     expectOnlyProjectAsked(page, atReturn, repository, factsB.revision);
     await expectCurrentFacts(page, factsB);
     await expect(link).toBeFocused();
