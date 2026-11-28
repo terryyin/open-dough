@@ -73,7 +73,7 @@ OPEN_DOUGH_DASHBOARD_BACKEND_TIMES="$proof_dir/legacy-times.txt" \
 | Maintained legacy command above with an isolated installed fixture, local bare origin and launch stores | All 18 passed, including rejection before remote acceptance, actual pin retention after GC, recovery after expiry and deletion, implicit branch context, conflict/restart/rejection, later publication and native continuation. Each receiving proof below keeps its independent observations from this baseline. |
 | `caffeinate -s -i npm run test:dashboard:backend -- 'server/(landingRecordPersistence\|landingPinRecovery\|landingRequestAdmission\|launchLandingDecision\|retainedLandingDecision)\.spec\.ts$' 'launches/(retained-landing-after-expiry\|story-bound-landing-capture)\.spec\.ts$' --workers=1` | 40 Node, zero Chromium, no retries, 8.543 s summed and 19.22 s wall. The real handler persisted the pair against a matching origin, refused a lookalike target, restored pins before recording, preserved other writes, and replayed the prepared pair after a real launch settled and its attempt expired. The typed launch start passed story/host/remote handoff. The retained and attempt decisions passed their refusal tables. |
 | `caffeinate -s -i npm run test:e2e -- e2e/review/one-shot-landing-recovery.spec.ts e2e/launches/agent-launch-start-session-landing-context.spec.ts --workers=1` | Both Chromium cases passed first try, 12.333 s and 8.337 s, 31.10 s wall. The former observed the original pair after actual lost push, lost write, retirement and response loss, including a later completion and other launch. The latter observed first input and installed publisher capture from the admitted Start worktree. Neither covers capture arriving before native binding or Story Branch continuation. |
-| `caffeinate -s -i npm run test:e2e -- e2e/review/one-shot-landing-capture.spec.ts e2e/review/one-shot-landing-capture-cli.spec.ts e2e/review/story-branch-landing-context.spec.ts e2e/review/story-branch-landing-capture.spec.ts e2e/review/story-branch-landing-later-publication.spec.ts e2e/review/story-branch-landing-recovery.spec.ts e2e/review/story-branch-retained-landing.spec.ts --workers=1` | Disposable copies changed relative imports and renamed the conflict spec to `story-branch-landing-recovery`. All 12 cases passed first try through installed commands, real Git, and the branch's native continuation (35.926 s summed, 38.08 s wall). Removed all copies. This settles the receiving runner and fixtures for slices 1 and 6–8. |
+| `caffeinate -s -i npm run test:e2e -- e2e/review/one-shot-landing-capture.spec.ts e2e/review/one-shot-landing-capture-cli.spec.ts e2e/review/story-branch-landing-context.spec.ts e2e/review/story-branch-landing-capture.spec.ts e2e/review/story-branch-landing-later-publication.spec.ts e2e/review/story-branch-landing-recovery.spec.ts e2e/review/story-branch-retained-landing.spec.ts --workers=1` | Disposable copies changed relative imports and renamed the conflict spec to `story-branch-landing-recovery`. All 12 cases passed first try through installed commands, real Git, and the branch's native continuation (35.926 s summed, 38.08 s wall). Removed all copies. This settles the receiving runner and fixtures for slices 1 and 8–10. |
 | `caffeinate -s -i node --test --test-concurrency=1 Distribution/tests/skills/dough-execute-plan/{dashboard-landing,history-preserving-landing-expectation,publication-landing-target,resolve-publication-landing-context,execution-increment-managed-delivery-resume}.test.mjs Distribution/tests/skills/dough-land/session-record-publication.test.mjs` | 29 passed in 24.46 s wall. The installed publisher retained before push, resolved the implicit context only on the matching target, cleared it after capture, skipped capture on later publication, and sealed one session record under the accepted launch reference. Retained E2E assertions still own the persisted Dashboard pair and native handoff. |
 | `caffeinate -s -i npm run test:dashboard:backend -- 'launches/retained-landing-after-expiry\.spec\.ts$' --grep 'records and replays' --workers=1` | Omitting `retainLandingSettlement(saved)` in `launchAttemptStore.ts` failed on the missing `landingReporting.settledAt` after normal launch settlement. Restored the call and the same focused case passed through prepare, expiry, record and replay. |
 
@@ -188,7 +188,27 @@ fixture already used by the legacy check. Use `e2e/review/one-shot-landing-recov
 for actual lost reply and stale/newer writers. Keep the pending retry contrast
 in Node because the E2E begins with an already-bound launch.
 
-### 5. Capture from a kept launch after its startup attempt expires
+The Node spec is already written and uncommitted at
+`dashboard/backend-tests/launches/pending-landing-binding.spec.ts` (239 lines).
+Run that spec through the slice clock. Leave both legacy binding specs for
+slice 5. Lost reply stays with `e2e/review/one-shot-landing-recovery.spec.ts`.
+
+### 5. Retire the legacy binding specs after the Node proof
+
+Type: Behavior
+Status: planned
+
+Behavior: The pending-binding observations have one owner. The two legacy
+binding specs no longer run.
+
+Proof: After slice 4's proof, map each assertion in
+`one-shot-landing-capture-binding.spec.ts` and
+`one-shot-landing-recovery-binding.spec.ts` to the Node spec or to
+`e2e/review/one-shot-landing-recovery.spec.ts`, then delete those two legacy
+files. Rerun the Node spec. Do not delete an observation the Node spec or that
+E2E does not own.
+
+### 6. Capture from a kept launch after its startup attempt expires
 
 Type: Behavior
 Status: planned
@@ -207,7 +227,7 @@ receipt across stale `updateRecord` and native-session replacement, with refusal
 of late binding. Keep the expired retry read-only and verify subsequent pruning
 and no recreation. Slice 1 keeps real retirement and slice 4 keeps transport replay.
 
-### 6. Refuse a deleted launch while its pins are being removed
+### 7. Refuse a deleted launch while its pins are being removed
 
 Type: Behavior
 Status: planned
@@ -224,7 +244,7 @@ and after retry, exact other receipt/pins and absent record. Verify stale
 update and bind cannot remove deletion intent or recreate the record. Retire
 the shared admission spec when slices 2 and 3 and these are green.
 
-### 7. Keep the first accepted Story Branch comparison
+### 8. Keep the first accepted Story Branch comparison
 
 Type: Behavior
 Status: planned
@@ -243,9 +263,9 @@ parents and pins, unchanged branch, receipt contrasts, sidecar clear, and no
 completion. Keep the launch message, sidecar bindings and unchanged context
 bytes. The Distribution history-preserving check proves the implicit protocol.
 The E2E keeps the Dashboard pair assertion across later publication. Move the
-capture file intact, including slice 8's reporting retry case.
+capture file intact, including slice 9's reporting retry case.
 
-### 8. Recover a conflicted or unacknowledged Story Branch landing
+### 9. Recover a conflicted or unacknowledged Story Branch landing
 
 Type: Behavior
 Status: planned
@@ -258,11 +278,11 @@ acceptance, the printed retry records that pair without pushing it again.
 Proof: `story-branch-landing-conflict` (3.347, 3.433, 3.641) and unacknowledged
 case of `story-branch-landing-capture` (4.337). Move the conflict spec to
 `e2e/review/story-branch-landing-recovery.spec.ts` and run the capture retry in
-slice 7's E2E file. Preserve the real origin's rejection gate, retained workspace
+slice 8's E2E file. Preserve the real origin's rejection gate, retained workspace
 `HEAD` and branch, receiver restart, superseded preparation history, restored
 comparison and exactly one accepted push for the lost reply.
 
-### 9. Continue the same claimed session after a retained landing
+### 10. Continue the same claimed session after a retained landing
 
 Type: Behavior
 Status: planned
@@ -303,6 +323,21 @@ outside the worktree. Binding, expiry, and deletion stay one proof loop each.
 The installed and E2E moves stay as they were. This split takes the plan to
 nine slices, inside the execution allowance for splitting the slice in progress.
 
+Slice 4 overran at 16.4 active minutes, `storyOverruns` 2. The Node spec was
+written and a local debug run passed both tests. The slice-clock proof was
+not run, and the legacy specs were not deleted. Authoring that spec and
+retiring both legacy files in one active period was the false sizing
+assumption. The spec stays uncommitted for slice 4. Slice 5 retires the legacy
+files after that proof.
+
+Story-boundary reassessment: slices 1–3 already keep the one-shot publication
+on the e2e runner and the prepare and later-pair rules on Node. The remaining
+scope is still this story: prove the written pending-binding spec, retire its
+two legacy specs, then expiry, deletion, and the three Story Branch moves.
+The goal, examples, and sibling order are unchanged. Continue, because this
+overrun is another two-loop slice and the split reaches ten slices, the
+execution allowance. Do not resplit the story.
+
 ## Execution context
 
 - Mode: story-branch. Owned workspace
@@ -316,10 +351,11 @@ nine slices, inside the execution allowance for splitting the slice in progress.
   `dfc699737c5df187855e7941ef4d2e44e8021115`. Slice 1 published
   `f5b38eb90e68703c6633ae2a168262a529dc001d`, then the slice split as
   `d4c967304b080b4dedaac99e4d9d91b134848b69`, then slice 2 as
-  `c138a53602d8d84d333826baa7795433f75fa11c`, on
+  `c138a53602d8d84d333826baa7795433f75fa11c`, then slice 3 as
+  `876fdddbe263a74ecea1a38a59f6739c1e115a32`, on
   `origin/cursor/prove-retained-landing-capture-in-node-vitest`. Suffix base
-  of the slice 2 receipt is the plan revision, zero reconciliations. That
-  receipt is the next increment's previously published base. Observer
+  of the slice 3 receipt is slice 2, zero reconciliations. That receipt is
+  the next increment's previously published base. Observer
   `/tmp/dough-ci-501/watch-1ZhItf` reused.
   No unpublished candidate. Publisher `dashboard-territory.local-open-dough`,
   agent `Yua-chan`.
