@@ -35,6 +35,7 @@ intent introduced or affected by a newly developed story.
 
 ## Backlog list
 
+- [Keep full Dashboard frontend runs connected to their browser](seeds/SEED-413-renovate-dashboard-unit-tests.md#keep-full-frontend-runs-connected) — SEED-413#keep-full-frontend-runs-connected
 - [Read Board records at their published pins](seeds/SEED-430-read-published-project-data-from-local-git.md#read-board-records-at-published-pins) — SEED-430#read-board-records-at-published-pins
 - [Share one project refresh across Board and Review](seeds/SEED-430-read-published-project-data-from-local-git.md#share-one-refresh-across-board-and-review) — SEED-430#share-one-refresh-across-board-and-review
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git
