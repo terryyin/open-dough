@@ -152,6 +152,14 @@ Proof:
   that fails another way follows the failure policy and does not count as a
   capture.
 
+Progress:
+
+- The probe workflow `.github/workflows/probe-frontend-connection.yml`
+  copies the frontend job's anchored steps, ignores `.planning/**` pushes so
+  plan updates launch no probe round, and switches the capture with its
+  workflow-level `PROBE_CAPTURE`. Eight local tests that read workflow files
+  pass with it present; none lists the workflows directory.
+
 ### 3. Full frontend runs finish every file
 
 Type: Behavior
