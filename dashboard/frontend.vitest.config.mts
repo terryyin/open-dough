@@ -1,13 +1,10 @@
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
+import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
 import { brandAssetPlugin } from "./server/brandAssetPlugin.ts";
 import { dashboardBrowserArgs } from "./test-support/support/browserArgs.ts";
 import { frontendGroup } from "./test-support/support/browserTestGroups.mjs";
-import {
-  frontendCaptureVariable,
-  frontendDisconnectCapture,
-} from "./test-support/support/frontendDisconnectCapture.ts";
 import { dashboardSpecFiles } from "./test-support/support/testFiles.mjs";
 import { useDisposableTestHome } from "./test-support/support/runnerConfig.mjs";
 
@@ -21,10 +18,9 @@ const desktopSpecs = [
   "dashboard/frontend-tests/terminals/agent-terminal-touch-select-desktop.spec.ts",
 ];
 
-const capture = frontendDisconnectCapture(process.env[frontendCaptureVariable]);
 export default defineConfig({
   publicDir: fileURLToPath(new URL("./public", import.meta.url)),
-  plugins: [react(), brandAssetPlugin(), ...capture.plugins],
+  plugins: [react(), brandAssetPlugin()],
   test: {
     include: dashboardSpecFiles(import.meta.dirname, [frontendGroup.root]).map(
       (file) => `dashboard/${file}`,
@@ -42,7 +38,7 @@ export default defineConfig({
       enabled: true,
       headless: true,
       viewport: defaultViewport,
-      provider: capture.provider({
+      provider: playwright({
         launchOptions: { args: dashboardBrowserArgs },
         contextOptions: { hasTouch: true, viewport: defaultViewport },
       }),
@@ -53,7 +49,7 @@ export default defineConfig({
           browser: "chromium",
           name: "chromium-desktop",
           include: desktopSpecs,
-          provider: capture.provider({
+          provider: playwright({
             launchOptions: { args: dashboardBrowserArgs },
             contextOptions: { hasTouch: false, viewport: defaultViewport },
           }),
