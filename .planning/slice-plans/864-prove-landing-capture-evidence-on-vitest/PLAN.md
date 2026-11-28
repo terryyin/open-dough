@@ -117,7 +117,7 @@ proof record is what names the selected cases.
 ### 2. Admit a prepare only for the authorized comparison
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A prepare reaches the landing receiver only with this launch's
 reference and its authorized host, origin, story, and Git comparison of the
@@ -132,6 +132,15 @@ the unrun authoring for `parseLandingSubmission`'s extra `repository` field in
 comparison of its workspace HEAD` in `landingPinRecovery.spec.ts`. Run those
 two specs. Leave the record-and-later-pair test for slice 3. Keep the shared
 legacy admission spec until slice 6.
+
+Accepted proof: both restored cases passed with the existing cases in those
+specs, 14 selected, strict status passed, about 5.8 s.
+`slice2-admit.json` names them. The prepare test refuses a non-HEAD commit, a
+tree, an unknown object, an unknown launch reference, and an omitted story,
+then the session and captured checkout still match the pre-call snapshot. The
+wire parser refuses an extra `repository` field. No production file changed.
+Refactor pass skipped: these are this slice's subject specs, both under 250
+lines, and they add no new production representation.
 
 ### 3. Keep the accepted pair when a later comparison arrives
 
@@ -295,10 +304,12 @@ nine slices, inside the execution allowance for splitting the slice in progress.
   target is `origin/main`.
 - Starting revision `4c38141a1b7f5a808d5b793e95d98c827a210055`. Accepted Take
   `dfc699737c5df187855e7941ef4d2e44e8021115`. Slice 1 published
-  `f5b38eb90e68703c6633ae2a168262a529dc001d` on
-  `origin/cursor/prove-retained-landing-capture-in-node-vitest`, suffix base
-  the Take, zero reconciliations. That receipt is the next increment's
-  previously published base. Observer `/tmp/dough-ci-501/watch-1ZhItf` reused.
+  `f5b38eb90e68703c6633ae2a168262a529dc001d`, then the slice split as
+  `d4c967304b080b4dedaac99e4d9d91b134848b69`, on
+  `origin/cursor/prove-retained-landing-capture-in-node-vitest`. Suffix base
+  of that plan revision is slice 1, zero reconciliations. That receipt is the
+  next increment's previously published base. Observer
+  `/tmp/dough-ci-501/watch-1ZhItf` reused.
   No unpublished candidate. Publisher `dashboard-territory.local-open-dough`,
   agent `Yua-chan`.
 - Setup in this checkout: Node 24.21.0 and Bash 5.3.20 from `/opt/homebrew/bin`.
