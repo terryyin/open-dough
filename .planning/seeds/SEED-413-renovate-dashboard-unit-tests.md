@@ -403,50 +403,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Plan.** [Prove GitHub request lifetime and failure evidence in Node Vitest](../slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md)
 
-<a id="published-review-comparisons-via-vitest"></a>
-
-### Prove published Review comparisons in Node Vitest
-
-**Identity:** SEED-413#published-review-comparisons-via-vitest
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/863-prove-published-review-comparisons-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"9bb342127bb9d087d8edd1bd6ff591db199004b3934fa7f4822fea381ef1d698","plan":"646d043d11f149167a84ef6392397e90f1288da3306f1291391d48db96651ff1"}}
-```
-
-**Goal.** Give developers changing published Review comparisons fast,
-discriminating Node Vitest proof that Review shows the selected story or run
-and serves files from the same published comparison.
-
-**Scope.** Preserve completion and attribution, exact file diff and text
-admission, retained run choice, shared Done refresh and offline reads, and the
-local Review marks exercised by this family. Use typed production reads and
-admission, real Git histories and retained records where they supply evidence,
-and focused HTTP and browser checks for their own contracts. Account for the
-19 remaining Playwright specs and the two result-tree specs already replaced in
-the original 21-path inventory, with comparable one-worker before/after timings.
-Landing capture, new Board/Review refresh behavior and backend runner removal
-have their own stories.
-
-**Key examples.**
-
-- After trunk advances or a checkout moves, opening Done Review shows the
-  published completion and its files. Once synced, exact file reads stay on
-  that pair with no origin requests. An offline open reports its sync failure
-  and uses the last readable comparison if available.
-- A merge with story edits and shared conflicts shows the story's edits and
-  the recorded mixed baseline for each affected file. Incomplete claim or
-  merge evidence gives a reason with no partial file list.
-- Selecting a renamed file on an older retained run serves its diff and text
-  using the admitted old and new paths. A foreign story, pair or file is
-  refused. A native-session replacement preserves the run identity. Deletion
-  or expiry selects the next remaining capture or an explicit evidence gap.
-- Two overlapping Done opens share one fetch. A held mutation releases the
-  shared slot after the child closes. An explicit session unreview persists
-  beside a story mark until the next story-wide change.
-
-- **Replacement trace.** [Published Dashboard reads and evidence before the split](https://github.com/terryyin/open-dough/blob/fb8983cb8eb62b38c79fbc293b491128f411bdb2/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest).
-
-**Plan.** [Prove published Review comparisons in Node Vitest](../slice-plans/863-prove-published-review-comparisons-on-vitest/PLAN.md)
-
 <a id="landing-capture-evidence-via-vitest"></a>
 
 ### Prove retained landing capture in Node Vitest
@@ -731,7 +687,7 @@ or removed once its behavior or duplicate is accounted for.
 | 12 observation Playwright paths | [Published read admission in Node Vitest](https://github.com/terryyin/open-dough/blob/ebdf4ebac57a7d7cd41172def1b8089a2d4fd455/.planning/slice-plans/860-prove-published-read-admission-on-vitest/PLAN.md#final-family-measurement) |
 | 15 observation Playwright paths | [Prove published refresh lifecycle in Node Vitest](#published-refresh-lifecycle-via-vitest) |
 | 23 observation Playwright paths | [Authenticated GitHub observation in Node Vitest](https://github.com/terryyin/open-dough/blob/71cc76188db2356fd0f4cd2f064cfd27be95c037/.planning/slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md#local-gate-and-delivery) for ten paths and the delivered cases of two shared paths; [Prove GitHub request lifetime and failure evidence in Node Vitest](#github-request-lifetime-and-evidence-via-vitest) for the other 13 |
-| 21 review Playwright paths | [Prove published Review comparisons in Node Vitest](#published-review-comparisons-via-vitest) |
+| 21 review Playwright paths | [Published Review comparisons in Node Vitest](https://github.com/terryyin/open-dough/blob/cc7802ace20bd4475751c5e75713d983290607e5/.planning/slice-plans/863-prove-published-review-comparisons-on-vitest/PLAN.md#proof-and-local-gate), completed on Node Vitest with three Review journeys retained in E2E |
 | 12 review Playwright paths | [Prove retained landing capture in Node Vitest](#landing-capture-evidence-via-vitest) |
 | 6 intent Playwright paths | [Prove published Intent evidence in Node Vitest](#published-intent-evidence-via-vitest) |
 | 2 observation Playwright paths | [Prove Dashboard machine observations in Node Vitest](#machine-observation-via-vitest) |

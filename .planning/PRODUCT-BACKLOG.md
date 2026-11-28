@@ -31,7 +31,6 @@ intent introduced or affected by a newly developed story.
 - [Prove published refresh lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-refresh-lifecycle-via-vitest) — SEED-413#published-refresh-lifecycle-via-vitest ([plan](slice-plans/861-prove-published-refresh-lifecycle-on-vitest/PLAN.md))
 - [Follow published progress from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git ([plan](slice-plans/823-follow-published-progress-from-local-git/PLAN.md))
 - [Prove GitHub request lifetime and failure evidence in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#github-request-lifetime-and-evidence-via-vitest) — SEED-413#github-request-lifetime-and-evidence-via-vitest ([plan](slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md))
-- [Prove published Review comparisons in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-review-comparisons-via-vitest) — SEED-413#published-review-comparisons-via-vitest ([plan](slice-plans/863-prove-published-review-comparisons-on-vitest/PLAN.md))
 
 ## Backlog list
 
