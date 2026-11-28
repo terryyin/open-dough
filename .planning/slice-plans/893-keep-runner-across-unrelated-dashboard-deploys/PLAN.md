@@ -88,7 +88,7 @@ and 5). A value import, a mixed `import { type Label, read }`, or a dynamic
 runner (examples 2, 3, and 5). A bundled entry → only that file's content
 moves the identity (example 4).
 
-Accepted proof, uncommitted at `dda5d34b3e54efaaf5f08e10b24aa03b9bba6b3e`:
+Accepted proof, at base `dda5d34b3e54efaaf5f08e10b24aa03b9bba6b3e`:
 `caffeinate -s -i npx vitest run --config dashboard/backend.vitest.config.mts dashboard/backend-tests/sessions/cursor-runner-build-proof.spec.ts`
 failed 3 and passed 8 before the walk change (`slice-1-red-spec.log.run.json`,
 exit 1) and passed 11 after it (`slice-1-green-spec.log.run.json`, exit 0).
@@ -100,7 +100,12 @@ passed (`slice-1-lint-2.log.run.json`, exit 0). Reached consumers in
 `cursor-runner-restart-shapes.spec.ts`, and
 `cursor-runner-rejoin.spec.ts` passed 14
 (`slice-1-consumer-specs.log.run.json`, exit 0), including
-`runnerCurrent.ts` calling `currentRunnerBuildId()`.
+`runnerCurrent.ts` calling `currentRunnerBuildId()`. Published in
+`da82421a3fee1f7f9b219c9cca28f2703edbef1a`.
+
+## Execution complete
+
+Product advice: no change. The delivered identity rule matches the story: a type-only module stays out of the source digest, and a value import, a mixed import, a dynamic import, and the bundled file behave as specified. This execution recommends no further product change.
 
 ## Proof map
 
@@ -144,7 +149,7 @@ Disposition: proved by slice 1: `typeOnlyStatement` in `dashboard/server/hosts/c
 - Checkout: `/Users/terryyin/git/open-dough/.worktrees/keep-the-cursor-runner-across-unrelated-dashboar`
 - Branch: `cursor/keep-the-cursor-runner-across-unrelated-dashboar`
 - Remote: `origin`; trunk: `main`
-- Published revision: `dda5d34b3e54efaaf5f08e10b24aa03b9bba6b3e` on `origin/cursor/keep-the-cursor-runner-across-unrelated-dashboar` (Take; base for the first increment)
+- Published revision: `da82421a3fee1f7f9b219c9cca28f2703edbef1a` on `origin/cursor/keep-the-cursor-runner-across-unrelated-dashboar` (slice 1; suffix base `dda5d34b3e54efaaf5f08e10b24aa03b9bba6b3e`)
 - Starting revision: `fd08e4d8ad92d88848675bbc4b6fc4e9bb8bdf3d`
 - CI: GitHub Actions, workflow `ci.yml` (display name `CI`), observed branch `cursor/keep-the-cursor-runner-across-unrelated-dashboar`, observer `/tmp/dough-ci-501/watch-fxDzFY`
 - Slice 1 clock: paused, elapsed 17.7 minutes, overrun true, storyOverruns 1
