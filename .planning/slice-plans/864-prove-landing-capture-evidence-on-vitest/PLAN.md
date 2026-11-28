@@ -169,7 +169,7 @@ spec, it is 250 lines, and it adds no new production representation.
 ### 4. Bind a pending capture to the original native session
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A prepared and accepted pair arrives before native identity. The
 attempt reports pending; binding imports that same pair and accumulated
@@ -188,10 +188,22 @@ fixture already used by the legacy check. Use `e2e/review/one-shot-landing-recov
 for actual lost reply and stale/newer writers. Keep the pending retry contrast
 in Node because the E2E begins with an already-bound launch.
 
-The Node spec is already written and uncommitted at
-`dashboard/backend-tests/launches/pending-landing-binding.spec.ts` (239 lines).
-Run that spec through the slice clock. Leave both legacy binding specs for
+The pending case is
+`dashboard/backend-tests/launches/pending-landing-binding.spec.ts`. The
+older-install case is
+`dashboard/backend-tests/launches/pending-landing-capture-gap.spec.ts`, split
+out so neither file exceeds 250 lines. Leave both legacy binding specs for
 slice 5. Lost reply stays with `e2e/review/one-shot-landing-recovery.spec.ts`.
+
+Accepted proof: those two specs selected 2 node tests, strict status passed,
+about 5.5 s. `slice4-binding.json` names both. The pending test reserves the
+pair through `handleLanding` before `bindRecord`, replays that receipt, then
+records it after binding while a later completion and an older replay leave
+the other launch intact. The older-install test emits "cannot capture a
+landing comparison" and accepts completion with no landing. No production
+file changed. Refactor pass: the formatted binding spec was 264 lines, so the
+older-install case moved to the sibling file. The binding spec is 208 lines
+and the gap spec is 66. Neither adds a production representation.
 
 ### 5. Retire the legacy binding specs after the Node proof
 
@@ -352,10 +364,11 @@ execution allowance. Do not resplit the story.
   `f5b38eb90e68703c6633ae2a168262a529dc001d`, then the slice split as
   `d4c967304b080b4dedaac99e4d9d91b134848b69`, then slice 2 as
   `c138a53602d8d84d333826baa7795433f75fa11c`, then slice 3 as
-  `876fdddbe263a74ecea1a38a59f6739c1e115a32`, on
+  `876fdddbe263a74ecea1a38a59f6739c1e115a32`, then the binding split as
+  `567ae7298aebefd93d7e4ccea694325fd5164f35`, on
   `origin/cursor/prove-retained-landing-capture-in-node-vitest`. Suffix base
-  of the slice 3 receipt is slice 2, zero reconciliations. That receipt is
-  the next increment's previously published base. Observer
+  of that plan revision is slice 3, zero reconciliations. That receipt is the
+  next increment's previously published base. Observer
   `/tmp/dough-ci-501/watch-1ZhItf` reused.
   No unpublished candidate. Publisher `dashboard-territory.local-open-dough`,
   agent `Yua-chan`.
