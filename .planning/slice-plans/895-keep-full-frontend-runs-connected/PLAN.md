@@ -20,6 +20,7 @@ Excluded:
 - Spec content, test selection, the backend group, and the ordinary failing
   cases seen in the measured window.
 - Renderer memory growth, unless the capture shows it causes the closure.
+  Slice 3's A/B showed that it does (2026-11-28).
 
 ## Current decisions
 
@@ -61,7 +62,7 @@ Read at `6baaf31bb` with Vitest 5.1.0, `@vitest/browser` 5.1.0,
 | A second workflow file on the story branch runs beside `ci.yml` and breaks no repository check | Slice 2's probe | `ci.yml` runs on every story-branch push (the runs above). A search of the test sources found readers of `ci.yml` by name and none that list the workflows directory. | Settled at `b9a8173d4`: both workflows ran, and the only failed `ci.yml` job (run `46103818368`) was `dashboard-frontend` with the closure. |
 | The capture does not suppress the closure | Slice 2 | Slice 2 at `b9a8173d4`: two of ten hosted attempts and seven of eight local runs closed with the capture on. | Settled for slice 1's capture. Slice 3 re-observes it for its page-side additions. |
 | The closure reproduces locally at two workers | Slice 2's local baseline and the seed's first example | Seed evidence at `67d52b5fa` and neighbors (2026-11-27): five of eight runs. One four-worker run at `003a5f4d0` finished. | Settled at `b9a8173d4`: seven of eight runs closed (slice 2). Local runs can therefore capture the cause and discriminate slice 5's repair. |
-| What closes the orchestrator socket | Slice 5's repair | Slice 2's nine closures: the orchestrator page unloads gracefully 9–90 ms after the next file's tester connects. There is no Vite message, no earlier HMR loss, no crash or page close, and no committed main-frame navigation. | Open. The named candidates are ruled out. Early probe slice 3 observes the page side. |
+| What closes the orchestrator socket | Slice 5's repair | Slice 2's nine closures: the orchestrator page unloads gracefully 9–90 ms after the next file's tester connects. There is no Vite message, no earlier HMR loss, no crash or page close, and no committed main-frame navigation. | Settled by slice 3: renderer growth reaches Chromium's per-process mapping limit, and forcing the GC per file removes the closures (eight of eight clean). |
 
 ## Outside-in proof
 
@@ -209,7 +210,7 @@ capture, and slice 4 repairs the probe's ordinary failure.
 ### 3. The page-side capture names what begins the orchestrator's unload
 
 Type: Behavior (early probe)
-Status: planned
+Status: done
 
 Behavior: A full frontend run with the capture on ends with a closure → the
 same log also holds, from inside each orchestrator page, what began its
@@ -316,6 +317,33 @@ Remaining proof (NetLog):
 - Stop rule: if NetLog shows no event before the close, or the runs give no
   closure, stop. Record what was captured and return the plan for
   replanning.
+
+Named cause (2026-11-28, developer-approved A/B in place of the NetLog run):
+
+- Public reports match these captures. When one page runs many files,
+  Chromium's renderer reaches a per-process limit and drops every socket of
+  that page with 1001 while its script runs on. The limit is shared-memory
+  mappings: each tester iframe's 304 revalidation of a module leaves a 2 MiB
+  mapping. Reports: SigNoz/components#377, niranjan94/kinako#93,
+  toolboxmd/chromeria#873 and vitest-dev/vitest#11968.
+- Vitest 5.1.0 already carries a forced Chromium GC for this Chromium bug
+  (crbug 530892387). It runs only on Linux and only below 4 GB of free disk.
+  Hosted attempt 2 logged its check 180 times, all `triggered: false`.
+- A/B at `6d4f86ac3`, eight full local runs at two workers, capture on,
+  with `VITEST_CHROMIUM_GC_DISK_THRESHOLD_GB=1000000
+  VITEST_CHROMIUM_GC_FORCE=1`. The GC triggered for every file. All eight runs
+  reported all 332 files with no closure and no failure, in 191–243 s
+  (median about 217 s) at one-minute load 3.7–10.2. The same series without
+  the GC had seven closures in eight runs, at load 4.7–7.3. Its one complete
+  run took 191 s.
+- Upstream fix: vitest-dev/vitest#11914, released in v5.1.1 on 2026-11-17.
+  It lets tester iframes reuse cached modules during `vitest run`, which
+  removes the per-file 304s. The cache stays off for watch mode,
+  `persistentContext`, the `preview` provider, request-interception mocks
+  and `vi.mock` factory shims. The latest release is 5.1.2.
+- Slice 5's repair is therefore inside Vitest. Under slice 5's rule it waits
+  for the developer's choice between upgrading Vitest and forcing the GC
+  (or both).
 
 ### 4. A deep spec read stays unread after Development and back
 
