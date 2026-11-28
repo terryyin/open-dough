@@ -1,11 +1,7 @@
 // A returning developer sees evidence from this return, while delivery keeps
 // its own stream, pacing and snapshot. GitHub holds are independent evidence.
 import { ConnectionMark } from "./connectionMark.ts";
-import {
-  expect,
-  githubFor,
-  test,
-} from "../../dashboard/test-support/dashboardTest.ts";
+import { expect, test } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
   parts,
@@ -17,23 +13,27 @@ import {
   openStreamingAtA,
   setPageVisibility,
   streamServerEnv,
-  untilMatchingRefsSince,
   untilStreamingAt,
   titlesOfA,
   routeFailingRevisionStreams,
 } from "../../dashboard/test-support/revisionStreamJourney.ts";
 import { revisionStreamSilenceMs } from "../../dashboard/src/revisionStreamSchedule.ts";
-import { noConnection } from "../../dashboard/test-support/publishedOrigin.ts";
+import { holdLaterTrunkTransfers } from "../../dashboard/test-support/laterTrunkTransfers.ts";
+import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
 import { serveDoughnut } from "../../dashboard/test-support/doughnutJourney.ts";
 import { doughnutSharedTitle } from "../../dashboard/test-support/doughnutProject.ts";
 import { projectTab } from "../../dashboard/test-support/projectChoice.ts";
 import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
 import { expectEarlierSnapshotKept } from "../../dashboard/test-support/transientRecoveryPage.ts";
 
-test.use({ preholdRevisionStreamSlots: false, extraEnv: streamServerEnv });
+test.use({
+  preholdRevisionStreamSlots: false,
+  extraEnv: { ...streamServerEnv, DOUGH_REVISION_CHECK_REUSE_MS: "0" },
+});
 
 test("focus return keeps the same stream and waits for a new unchanged message", async ({
   page,
+  dashboard,
   afterGitHubStops,
 }) => {
   const opened: string[] = [];
@@ -48,9 +48,10 @@ test("focus return keeps the same stream and waits for a new unchanged message",
   await mark.shows("connected");
   await mark.capture("green");
   await expect(parts(page).notice).toBeEmpty();
-  const release = origin.hold("main");
+  const held = holdLaterTrunkTransfers(dashboard.home, defaultRepository);
+  const release = held.release;
   try {
-    await untilMatchingRefsSince(page, githubFor(page).calls.length, 1);
+    await held.untilHeld();
     const streamsBefore = [...opened];
     const checksBefore = [...checked];
     const requestsBefore = origin.requests.length;
@@ -85,6 +86,7 @@ test("focus return keeps the same stream and waits for a new unchanged message",
 
 test("revealing a released stream stays yellow through opening until its first answer", async ({
   page,
+  dashboard,
   afterGitHubStops,
 }) => {
   const origin = await openStreamingAtA(page, afterGitHubStops);
@@ -93,9 +95,9 @@ test("revealing a released stream stays yellow through opening until its first a
   const retrieved =
     (await parts(page).retrievedAt.getAttribute("datetime")) ?? "";
   await setPageVisibility(page, "hidden");
-  const release = origin.hold("main");
+  const held = holdLaterTrunkTransfers(dashboard.home, defaultRepository);
+  const release = held.release;
   try {
-    const beforeReveal = githubFor(page).calls.length;
     const opened = untilStreamingAt(page, origin.revisions.A);
     const established = page.waitForResponse((response) =>
       isRevisionStream(response.url()),
@@ -105,7 +107,7 @@ test("revealing a released stream stays yellow through opening until its first a
     expect((await established).headers()["content-type"]).toContain(
       "text/event-stream",
     );
-    await untilMatchingRefsSince(page, beforeReveal, 1);
+    await held.untilHeld();
     await mark.shows("awaiting");
     await expect(parts(page).retrievedAt).toHaveAttribute(
       "datetime",
@@ -121,16 +123,18 @@ test("revealing a released stream stays yellow through opening until its first a
 
 test("the existing silence deadline makes the border red and recovery restores green", async ({
   page,
+  dashboard,
   afterGitHubStops,
 }) => {
-  const origin = await openStreamingAtA(page, afterGitHubStops);
+  await openStreamingAtA(page, afterGitHubStops);
   const mark = new ConnectionMark(page);
   await mark.shows("connected");
   const retrieved =
     (await parts(page).retrievedAt.getAttribute("datetime")) ?? "";
-  const release = origin.hold("main");
+  const held = holdLaterTrunkTransfers(dashboard.home, defaultRepository);
+  const release = held.release;
   try {
-    await untilMatchingRefsSince(page, githubFor(page).calls.length, 1);
+    await held.untilHeld();
     await passPageMs(page, revisionStreamSilenceMs + 250);
     await mark.shows("disconnected");
     await mark.capture("red");
@@ -163,20 +167,21 @@ test("failed stream transport is red and its paced recovery confirms only on dat
 
 test("an upstream failure message confirms delivery while keeping its own failure notice", async ({
   page,
+  dashboard,
   afterGitHubStops,
 }) => {
-  const origin = await openStreamingAtA(page, afterGitHubStops);
+  await openStreamingAtA(page, afterGitHubStops);
   const mark = new ConnectionMark(page);
   await mark.shows("connected");
   const retrieved =
     (await parts(page).retrievedAt.getAttribute("datetime")) ?? "";
-  origin.answerWith("main", noConnection);
-  const release = origin.hold("main");
+  const held = holdLaterTrunkTransfers(dashboard.home, defaultRepository);
+  const release = held.release;
   try {
-    await untilMatchingRefsSince(page, githubFor(page).calls.length, 1);
+    await held.untilHeld();
     await mark.returnFocus();
     await mark.shows("awaiting");
-    release();
+    held.fail();
     await expect(parts(page).problem).toContainText(
       "Published work could not be read",
     );
@@ -189,13 +194,15 @@ test("an upstream failure message confirms delivery while keeping its own failur
 
 test("an old project's outstanding answer cannot confirm the newly selected project", async ({
   page,
+  dashboard,
   afterGitHubStops,
 }) => {
-  const origin = await openStreamingAtA(page, afterGitHubStops);
+  await openStreamingAtA(page, afterGitHubStops);
   const mark = new ConnectionMark(page);
   await mark.shows("connected");
-  const releaseOld = origin.hold("main");
-  await untilMatchingRefsSince(page, githubFor(page).calls.length, 1);
+  const heldOld = holdLaterTrunkTransfers(dashboard.home, defaultRepository);
+  const releaseOld = heldOld.release;
+  await heldOld.untilHeld();
   const revision = serveDoughnut(page);
   let releaseNext = () => {};
   const opening = new Promise<void>((resolve) => {

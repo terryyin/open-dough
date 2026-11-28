@@ -21,8 +21,8 @@ import { usePageVisibility } from "./pageVisibility.ts";
 import type { PublishedObservationReadSource } from "./publishedObservationReadSource.ts";
 import type { PublishedSource } from "./publishedSource.ts";
 import type { PublishedWork } from "./publishedWork.ts";
-import { carryOutRead, type ReadRequest } from "./requestedRead.ts";
-import type { RefAsk } from "./requestedRead.ts";
+import { carryOutRead, useReadRequest, type RefAsk } from "./requestedRead.ts";
+import type { RevisionConfirmation } from "./revisionCheckRead.ts";
 import { limitsMetSince } from "./readingLimit.ts";
 import { recordSettledOutcomes, useLimitRecovery } from "./limitRecovery.ts";
 import { useTransientRecoverySchedule } from "./transientRecovery.ts";
@@ -38,9 +38,7 @@ import {
   type FocusedStoryCard,
 } from "./storyCardFocus.ts";
 
-// No snapshot shown, so no story branch watched.
 const noBranchHeads: StoryBranchHeads = new Map();
-
 export function usePublishedObservation(
   initialSource: PublishedSource | undefined,
   reads: PublishedObservationReadSource,
@@ -54,6 +52,7 @@ export function usePublishedObservation(
     outcomes,
     show,
     completeDetail,
+    confirm,
     withhold,
     readAgain,
     clearNotice,
@@ -68,12 +67,7 @@ export function usePublishedObservation(
     findUnchanged,
     restart,
   } = useObservationAttempt();
-  // First read on open; later asks come from launch reconciliation, project
-  // selection (`source` below), Refresh, or a check naming another commit.
-  const [readRequest, setReadRequest] = useState<ReadRequest>({
-    asked: 1,
-    revision: undefined,
-  });
+  const { request, requestSnapshot, requestMovedProgress } = useReadRequest();
   // Whether the latest read, detail included, has finished.
   const [readSettled, setReadSettled] = useState(false);
   const { visibility, visibilityChanges, settleRevealed } = usePageVisibility();
@@ -101,7 +95,7 @@ export function usePublishedObservation(
     const askedAsOf = visibilityChanges();
     letGoOfRead.current = carryOutRead(
       reads,
-      readRequest,
+      request,
       source,
       shownWork.current,
       reading.signal,
@@ -134,29 +128,28 @@ export function usePublishedObservation(
       },
     );
     return unbind;
-  }, [readRequest, source, schedule]);
+  }, [request, source, schedule]);
 
   // Ref afresh, or the revision a check named. Recovery asks mark the wait
   // so hide can release that ask alone; a fresh ask outwaits a settled check.
-  const askRead = (revision: string | undefined, why?: RefAsk) => {
-    const fresh = why === "fresh";
+  const askRead = (
+    revision: string | undefined,
+    why?: RefAsk,
+    confirmation?: RevisionConfirmation,
+  ) => {
     setRecoveryAsk(why === "recovery");
     startReading();
     clearNotice();
     readAgain();
     setReadSettled(false);
-    setReadRequest((last) => ({ asked: last.asked + 1, revision, fresh }));
+    requestSnapshot(revision, why === "fresh", confirmation);
   };
 
   // Only moved story-branch progress; the rest of what is shown stays.
   const askMovedProgress = (movedBranches: StoryBranchHeads) => {
     setRecoveryAsk(false);
     setReadSettled(false);
-    setReadRequest((last) => ({
-      asked: last.asked + 1,
-      revision: last.revision,
-      movedBranches,
-    }));
+    requestMovedProgress(movedBranches);
   };
 
   const { work, notice, complete, withheld } = retrieval;
@@ -187,9 +180,13 @@ export function usePublishedObservation(
     watchedHeads,
     readSettled: checksMayRun,
     visibility,
-    onChanged: askRead,
+    onChanged: (revision, confirmation) => {
+      askRead(revision, undefined, confirmation);
+    },
     onBranchesMoved: askMovedProgress,
-    onUnchanged: () => {
+    onUnchanged: (confirmation) => {
+      if (confirmation !== undefined && work !== undefined)
+        confirm(work.revision, confirmation);
       findUnchanged();
       settleRevealed();
     },

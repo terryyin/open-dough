@@ -169,20 +169,31 @@ test.describe("stream-slot handover", () => {
       const releaseCheck = origin.hold("main");
       try {
         const before = githubFor(page).calls.length;
+        const checking = checker.waitForRequest((request) =>
+          isCheck(request.url()),
+        );
         await passTimeUntilAsked(checker);
+        const check = await checking;
         await untilMatchingRefsSince(page, before, 1);
         await mark.returnFocus();
         await mark.shows("awaiting");
         const newStream = checker.waitForRequest((request) =>
           isRevisionStream(request.url()),
         );
+        const cancelled = checker.waitForEvent(
+          "requestfailed",
+          (request) => request === check,
+        );
         await setPageVisibility(page, "hidden");
-        await newStream;
-        const beforeRelease = githubFor(page).calls.length;
+        await Promise.all([newStream, cancelled]);
+        const checkUrl = new URL(check.url());
+        // A direct boundary request can observe the shared fallback answer
+        // arriving after the browser has cancelled its own wait.
+        const settled = checker.request.get(checkUrl.toString(), {
+          headers: { Origin: checkUrl.origin },
+        });
         releaseCheck();
-        // The surviving stream's next listing proves the held shared listing
-        // settled before checking that its cancelled waiter cannot confirm.
-        await untilMatchingRefsSince(page, beforeRelease, 1);
+        await expect(await settled).toBeOK();
         await givePageItsTurns(checker);
         await mark.shows("awaiting");
         releaseStream();

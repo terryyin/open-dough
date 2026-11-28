@@ -47,6 +47,8 @@ type Answer =
   | {
       readonly revision: string;
       readonly changed: boolean;
+      readonly askedAt?: string;
+      readonly confirmedAt?: string;
       readonly branches?: ReadonlyArray<{
         readonly branch: string;
         readonly head: string | null;

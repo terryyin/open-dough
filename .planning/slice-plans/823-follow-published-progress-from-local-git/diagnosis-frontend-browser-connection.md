@@ -14,8 +14,9 @@ documented in the plan 885 history at `2734e2295`. That observation does
 not identify what closed the connection. Trunk removed the former
 investigation at `818c17745`. No active repair owner has been identified.
 
-The parked slice 4 changes were absent from that CI revision and are
-retained by the repair stash for this checkout.
+The partial slice 4 changes were absent from that CI revision. After the
+temporary capture was removed, the changes were restored uncommitted in
+the execution worktree.
 
 ## Round 1
 
@@ -130,5 +131,94 @@ captured an unexpected socket close, and the original run has no event
 that precedes that close. Repeating those experiments would add no new
 discriminator. The runner failure remains open. The worktree and partial
 slice 4 are retained for its resolution.
+
+## Round 3
+
+The developer asked to continue investigation. The clean story branch
+revision `14cd75c73` passed all CI jobs in
+[run 46026889822](https://github.com/terryyin/open-dough/actions/runs/46026889822).
+The same disconnect then occurred on
+[main at `1e7dd2db0`](https://github.com/terryyin/open-dough/actions/runs/46030063334/job/140611292285)
+after 225 of 333 files, with `dashboard-header-compact.spec.ts` queued,
+at 122.70 seconds. The failed story branch had completed 272 of 332 at
+218.16 seconds. The earlier
+[main occurrence](https://github.com/terryyin/open-dough/actions/runs/45958801316/job/140371568061)
+completed 330 of 331 at 154.61 seconds. The failing and passing jobs
+advertised Ubuntu image `20261122.23.1`. These comparisons establish
+recurrence on trunk across different files and times and leave the event
+that closed the connection unidentified.
+
+Hypothesis: an isolated Vite HMR socket closure can make the live Vitest
+orchestrator reload even though its test RPC socket and Chromium remain
+healthy at the moment of injection. Use the installed Vite, Vitest and
+Playwright versions in a local scratch configuration and existing focused
+specs. Run one control and one forced HMR closure during a pending
+test run. Record the HMR closure, navigation, Vitest RPC closure or
+survival, and browser exit in order. Keep the case selection, worker
+count and timeouts the same. This checks a specific failure mechanism
+and cannot attribute a natural hosted occurrence by itself.
+
+The control passed all five cases. Closing only HMR with a tester
+document pending reproduced `VITEST_BROWSER_CONNECTION_CLOSED` and
+`createTesters`. At injection the Vitest API socket was still open.
+Vite began polling for restart, the orchestrator reloaded, and the
+Vitest server observed the API socket close 29 milliseconds after the
+polling message. Chromium stayed alive until provider teardown and
+exited with code 0. The direct server log establishes the API close.
+The scratch Playwright listener missed it during navigation and its
+fallback marker did not sample socket state.
+
+Next hypothesis: adding `server.ws: false` to the scratch
+configuration prevents the Vite connection from opening while the
+Vitest API still connects and the same cases run. Run this configuration
+once. If possible, run one separate forced Vitest API closure with HMR
+disabled to check that the real failure still fails the runner. This
+would establish a mitigation for the reproduced mechanism only.
+
+The direct `server.ws: false` trial passed all five cases but still
+opened the HMR connection. Vitest 5.1.0 clears that option in its
+`vitest:config:server` hook. One further scratch trial will set it in a
+late `configResolved` hook to test whether Vite can run these cases
+without HMR after Browser Mode config resolution. Reuse the five cases
+and the same connection observations. This is a test of the boundary
+between the two sockets, with no proposed adoption of the hook.
+
+The late override took effect. The orchestrator's API socket opened
+while HMR stayed unopened, but tester initialization timed out at the
+existing 60-second limit and registered no cases. This leaves no
+runnable HMR-disabled configuration in the tested variants. The
+conditional API-loss injection had no runnable baseline and was skipped.
+
+The four focused run records and their detailed chronology are in the
+worktree Git evidence directory under `ci-browser-round3-hmr-*`.
+Round 3 used one worker and the same two existing specs on AC-powered
+macOS, at `14cd75c73` with the partial story edits present. The story
+patch fingerprint matched before and after. The clock recorded 5.2
+active minutes for this round, 10.5 across all three rounds.
+
+Vite HMR loss is now a reproduced cause of the symptom. Whether it
+caused a natural hosted failure remains open. The next evidence needed
+is the top-level HMR close or navigation, Vitest API close, and browser
+process state from the same natural failure. Correlate the top-level
+socket separately from routine tester-iframe closes and keep the
+workflow's suite command intact.
+
+## Repair for the reproduced mechanism
+
+The developer authorized fixing the known trigger and continuing the
+story. Published repair `cfa5f839` narrowly guards the Vite client
+reconnect-reload path on the frontend Vitest orchestrator. It leaves
+both connections available at startup.
+
+The repaired HMR-only injection ran the same five cases after the HMR
+socket closed and the Vitest API stayed open. An API-only injection
+still failed with `VITEST_BROWSER_CONNECTION_CLOSED` during
+`createTesters`. A normal frontend run completed all 332 files with
+954 passing cases and one expected failure. The exact commands and
+results are in `ci-hmr-repair-report.md` in the worktree Git evidence
+directory. Dashboard typecheck also passed.
+
+The original hosted failure remains unattributed. Slice 4 resumed with
+its partial work restored after publication of the reproduced repair.
 
 Follow the [failure policy](../../../Distribution/src/skills/dough-execute-plan/references/failure-policy.md).

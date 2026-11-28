@@ -96,20 +96,8 @@ export class RevisionChecks {
     source: PublishedSource,
     signal: AbortSignal,
   ): Promise<CheckedHeads> {
-    const ownerScope = await this.ownerScope();
-    // An undefined scope shares nothing: each demand uses a unique key.
-    const key = ownerScope === undefined ? [Object.create(null)] : [ownerScope];
     try {
-      const demanded = await this.observationFor(source).demand(
-        key,
-        readWaitLimitMs,
-        signal,
-      );
-      if (demanded.kind === "observed") return demanded.value;
-      if (demanded.kind === "unanswered") {
-        throw new GhFailure({ kind: "timed-out" });
-      }
-      throw signal.reason ?? new GhFailure({ kind: "timed-out" });
+      return await this.listedHeads(source, signal);
     } catch (error) {
       if (
         signal.aborted ||
@@ -133,6 +121,42 @@ export class RevisionChecks {
         heads: undefined,
       };
     }
+  }
+
+  // The interim REST branch watch never resolves or substitutes the trunk.
+  async watchedHeads(source: PublishedSource, signal: AbortSignal) {
+    try {
+      return (await this.listedHeads(source, signal)).heads;
+    } catch (error) {
+      if (
+        signal.aborted ||
+        !(error instanceof GhFailure) ||
+        rateLimitStop(error) !== undefined ||
+        error.reason.kind === "timed-out"
+      ) {
+        throw error;
+      }
+      return undefined;
+    }
+  }
+
+  private async listedHeads(
+    source: PublishedSource,
+    signal: AbortSignal,
+  ): Promise<CheckedHeads> {
+    const ownerScope = await this.ownerScope();
+    // An undefined scope shares nothing: each demand uses a unique key.
+    const key = ownerScope === undefined ? [Object.create(null)] : [ownerScope];
+    const demanded = await this.observationFor(source).demand(
+      key,
+      readWaitLimitMs,
+      signal,
+    );
+    if (demanded.kind === "observed") return demanded.value;
+    if (demanded.kind === "unanswered") {
+      throw new GhFailure({ kind: "timed-out" });
+    }
+    throw signal.reason ?? new GhFailure({ kind: "timed-out" });
   }
 
   private observationFor(

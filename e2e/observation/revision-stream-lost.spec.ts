@@ -16,6 +16,7 @@ import {
 } from "../../dashboard/test-support/dashboardTest.ts";
 import {
   expectMembership,
+  expectPublishedRevision,
   expectSettledPage,
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
@@ -26,19 +27,23 @@ import {
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   isRevisionStream,
-  openStreamingAtA,
   routeFailingRevisionStreams,
   streamServerEnv,
   untilMatchingRefsSince,
   untilStreamingAt,
 } from "../../dashboard/test-support/revisionStreamJourney.ts";
+import { openedSettled } from "../../dashboard/test-support/branchRefreshJourney.ts";
 import {
-  titlesOfA,
-  titlesOfB,
-} from "../../dashboard/test-support/refreshJourney.ts";
+  repository,
+  stories,
+} from "../../dashboard/test-support/branchProgressRecords.ts";
 import { checkIntervalMs } from "../../dashboard/src/revisionCheckSchedule.ts";
 import { revisionStreamSilenceMs } from "../../dashboard/src/revisionStreamSchedule.ts";
-import { rateLimitedAnswer } from "../../dashboard/test-support/publishedOrigin.ts";
+import {
+  noConnection,
+  rateLimitedAnswer,
+  type OriginAnswer,
+} from "../../dashboard/test-support/originAnswers.ts";
 import { test as ownerClockTest } from "../../dashboard/test-support/support/ownerClockTest.ts";
 import { expectEarlierSnapshotKept } from "../../dashboard/test-support/transientRecoveryPage.ts";
 
@@ -60,17 +65,37 @@ ownerClockTest(
     // E3.2 needs a full bound from reopen. The owner holds reads for this span
     // of its own time.
     const retryAfterSeconds = 6;
-    const origin = await openStreamingAtA(page, afterGitHubStops);
-    const { A: revisionA, B: revisionB } = origin.revisions;
+    const { origin } = await openedSettled(page, afterGitHubStops, {
+      advances: [
+        {
+          name: "later",
+          parent: "trunk",
+          facts: { files: { "publication.txt": "Later trunk publication.\n" } },
+        },
+      ],
+      whenOpening: (revision) => untilStreamingAt(page, revision),
+    });
+    const revisionA = origin.at("trunk").revision;
+    const later = origin.at("later");
+    const membership = {
+      taken: stories.map(({ title }) => title),
+      backlog: [],
+    };
     const { problem, retrievedAt } = parts(page);
     const retrievedA = (await retrievedAt.getAttribute("datetime")) ?? "";
-    const restoreMain = origin.answerWith(
-      "main",
-      rateLimitedAnswer(429, {
-        "Retry-After": String(retryAfterSeconds),
-      }),
+    const github = githubFor(page);
+    const limited = rateLimitedAnswer(429, {
+      "Retry-After": String(retryAfterSeconds),
+    });
+    const published = github.serve(
+      repository,
+      async (call): Promise<OriginAnswer> =>
+        call.request.kind === "matching-refs"
+          ? limited
+          : (published?.(call) ?? noConnection),
     );
-    const beforeLimit = githubFor(page).calls.length;
+    expect(published).toBeDefined();
+    const beforeLimit = github.calls.length;
     // Next pace tick delivers the limited answer over the open stream (wall).
     await untilMatchingRefsSince(page, beforeLimit, 1);
     await expect(problem).toContainText(
@@ -81,9 +106,9 @@ ownerClockTest(
     );
     await expect(problem).toContainText("Automatic checks resume then.");
     await expectEarlierSnapshotKept(page, retrievedA);
-    await expectMembership(page, titlesOfA);
+    await expectMembership(page, membership);
 
-    const quietFrom = githubFor(page).calls.length;
+    const quietFrom = github.calls.length;
     const streamOpens: string[] = [];
     page.on("request", (request) => {
       if (isRevisionStream(request.url())) {
@@ -102,13 +127,13 @@ ownerClockTest(
 
     // Fail every reopen so the bound that starts when the wait ends is visible.
     const stopFailing = await routeFailingRevisionStreams(page);
-    restoreMain();
+    if (published !== undefined) github.serve(repository, published);
     // Page time passed up to two seconds before T with the stream still
     // closed and no further listing.
     expect(streamOpens).toEqual([]);
     expect(
-      githubFor(page)
-        .calls.slice(quietFrom)
+      github.calls
+        .slice(quietFrom)
         .filter(({ request }) => request.kind === "matching-refs"),
     ).toEqual([]);
     // Owner time reaches T, and the page clock crosses it; silence arms
@@ -129,10 +154,11 @@ ownerClockTest(
     });
 
     await stopFailing();
-    origin.advanceTo("B");
-    const resumed = untilStreamingAt(page, revisionB);
+    origin.moveTrunk(later);
+    const resumed = untilStreamingAt(page, later.revision);
     await passPageMs(page, checkIntervalMs);
-    await expectSettledPage(page, titlesOfB);
+    await expectPublishedRevision(page, later.revision);
+    await expectSettledPage(page, membership);
     await expect(problem).toHaveCount(0);
     await resumed;
     // The wait was kept by the owner this case started and advanced.

@@ -195,7 +195,7 @@ the backend shard's ordinary concurrency.
 ### 4. Follow trunk through the verified revision stream
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Visible Board at A → origin trunk advances to B → the revision
 stream produces the same verified observation as Refresh, recorded through
@@ -211,6 +211,15 @@ without Refresh, then shows later confirmation at unchanged B. Trace and
 re-prove the affected stream-return, visibility, stopped, lost, and
 setup-departure cases. Preserve credential refusal, unavailable and
 failed-confirmation outcomes.
+
+Accepted proof: two tabs advanced to B without Refresh and later showed
+a new confirmation time with the same revision and retrieval time.
+The real-origin boundary counted one shared cold probe and fetch, a
+warm probe alone, and no new check after the last tab left. The
+independent refactor replay passed 24 backend, 15 mounted frontend,
+and 21 end-to-end cases with Dashboard typecheck. Its measured boundary
+includes held setup, the handover from HTTP, failed confirmation writes,
+credential refusal, and the watched branch's interim REST limit.
 
 ### 5. Move fallback proof to the behavior each case owns
 
@@ -275,6 +284,20 @@ keeps the last confirmed branch state and its time.
 
 Proof: Board cue in `auto-refresh-branches.spec.ts` (deletion) and a
 read-boundary case for the failed probe, both against a real origin.
+
+## Story obligations
+
+### G1. HTTP fallback confirmation
+
+Reported: slice 4 — "The HTTP revision-check route still uses its existing listing and ref fallback and original wire shape."
+Story clause: "Automatic observation (the revision stream and its HTTP fallback) runs the same verified Git check as Refresh and publishes through the same durable confirmation record."
+Disposition: receiving slice 6
+
+### G2. Verified watched-branch progress
+
+Reported: slice 4 — "The watched branch’s REST listing is still reachable and supplies branches only."
+Story clause: "The Board follows trunk membership and priority, Preparing and Taken assignments, and branch-only plan progress, including the plan's commit time, from verified heads."
+Disposition: interim until slices 7, 8
 
 ## Plan review
 

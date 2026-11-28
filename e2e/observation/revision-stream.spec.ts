@@ -16,7 +16,7 @@ import {
   untilPageReadsAnswered,
 } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
-import { backlogPath } from "../../dashboard/test-support/publishedOriginBasics.ts";
+import { boardConfirmedAt } from "../../dashboard/test-support/boardRefreshPage.ts";
 import {
   isRevisionStream,
   openSecondStreamingAtA,
@@ -97,14 +97,19 @@ test("two streaming tabs show the next published Board without Refresh", async (
       expectPublishedRevision(other, origin.revisions.B),
     ]);
   });
-  // The current pinned backlog remains shared until the verified stream owns
-  // the replacement operation-count proof.
-  await test.step("And the tabs share the read of the new backlog", () => {
-    expect(
-      restMembershipAsked(origin.requests).filter(
-        (read) => read === `content ${backlogPath}@${origin.revisions.B}`,
-      ),
-    ).toHaveLength(1);
+  await test.step("And the same revision gets a later confirmation without a REST backlog read", async () => {
+    for (const tab of [page, other]) {
+      const { retrievedAt } = parts(tab);
+      const retrieved = await retrievedAt.getAttribute("datetime");
+      const observedAt = await boardConfirmedAt(tab);
+      await passPageMs(tab, 1_000);
+      await expect
+        .poll(async () => Date.parse(await boardConfirmedAt(tab)))
+        .toBeGreaterThan(Date.parse(observedAt));
+      await expect(retrievedAt).toHaveAttribute("datetime", retrieved ?? "");
+      await expectPublishedRevision(tab, origin.revisions.B);
+    }
+    expect(restMembershipAsked(origin.requests)).toEqual([]);
   });
 });
 

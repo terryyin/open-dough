@@ -37,18 +37,20 @@ function admit(
   source: PublishedSource,
   { askedAt, trunk }: AskedOriginTrunk,
 ): Outcome {
-  if (trunk.kind === "verified") {
-    const { revision, backlog, confirmedAt, unrecorded } = trunk;
-    // This backlog is the revision a later trunk is compared with.
-    pinned.answeredBacklog(source, revision);
-    return answered({
-      revision,
-      backlog,
-      askedAt,
-      confirmedAt,
-      ...(unrecorded ? { unrecorded } : {}),
-    });
-  }
+  const { revision, backlog, confirmedAt, unrecorded } = verifiedTrunk(trunk);
+  // This backlog is the revision a later trunk is compared with.
+  pinned.answeredBacklog(source, revision);
+  return answered({
+    revision,
+    backlog,
+    askedAt,
+    confirmedAt,
+    ...(unrecorded ? { unrecorded } : {}),
+  });
+}
+
+export function verifiedTrunk(trunk: VerifiedOriginTrunk) {
+  if (trunk.kind === "verified") return trunk;
   throw new GhFailure({
     kind: "unavailable",
     part: unavailablePart[trunk.kind],

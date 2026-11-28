@@ -7,7 +7,7 @@ import { performRevisionCheck } from "./performedRevisionCheck.ts";
 import { reportedFailure } from "./readFailureMessage.ts";
 import type { Outcome } from "./readOutcome.ts";
 import type { RevisionStreamAsk } from "./requestedRevisionStream.ts";
-import type { CheckedHeads } from "./revisionChecks.ts";
+import type { AskedOriginTrunk } from "./sharedVerifiedOriginTrunk.ts";
 import {
   endRevisionStream,
   writeRevisionStreamEvent,
@@ -33,6 +33,10 @@ export class RevisionStreamSubscriber {
     controller.signal.addEventListener("abort", this.leave, { once: true });
   }
 
+  get signal(): AbortSignal {
+    return this.controller.signal;
+  }
+
   close(): void {
     this.req.off("close", this.leave);
     this.res.off("close", this.leave);
@@ -50,7 +54,7 @@ export class RevisionStreamSubscriber {
     readers: Parameters<typeof performRevisionCheck>[0],
     source: PublishedSource,
     observationSignal: AbortSignal,
-    listing: CheckedHeads,
+    observation: AskedOriginTrunk,
   ): Promise<void> {
     if (observationSignal.aborted || this.controller.signal.aborted) return;
     try {
@@ -63,7 +67,7 @@ export class RevisionStreamSubscriber {
           watched: this.ask.watched,
         },
         AbortSignal.any([this.controller.signal, observationSignal]),
-        listing,
+        observation,
       );
       this.write(outcome);
     } catch (error) {

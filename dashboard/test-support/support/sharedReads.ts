@@ -68,28 +68,28 @@ const onBranch = (name: string, identity: string, branch: string) =>
     .executing({ name, identity, mode: "story-branch", branch })
     .please();
 
+export const sharedReadsFacts = () => ({
+  backlog: {
+    taken: [
+      story("One", "SEED-shared#one", "seeds/SEED-shared.md#one"),
+      story("Two", "SEED-other#two", "seeds/SEED-other.md#two"),
+    ],
+  },
+  files: {
+    [sharedSeedPath]: sharedSeedText,
+    [otherSeedPath]: otherSeedText,
+  },
+  agentProfiles: [
+    onBranch("Yui", "SEED-shared#one", "story/one"),
+    onBranch("Akiho", "SEED-other#two", "story/two"),
+  ],
+});
+
 // `revision` as every repository's ref and trunk head names it, with the
 // story branches' heads listed beside it.
 export function sharedReadsPublished(revision: string): RepositoryAnswerer {
   const at = describedRevision(
-    makeMe.aRepository
-      .withRevision("shared", {
-        backlog: {
-          taken: [
-            story("One", "SEED-shared#one", "seeds/SEED-shared.md#one"),
-            story("Two", "SEED-other#two", "seeds/SEED-other.md#two"),
-          ],
-        },
-        files: {
-          [sharedSeedPath]: sharedSeedText,
-          [otherSeedPath]: otherSeedText,
-        },
-        agentProfiles: [
-          onBranch("Yui", "SEED-shared#one", "story/one"),
-          onBranch("Akiho", "SEED-other#two", "story/two"),
-        ],
-      })
-      .please(),
+    makeMe.aRepository.withRevision("shared", sharedReadsFacts()).please(),
     revision,
   );
   const published = publishes({

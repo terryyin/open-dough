@@ -1,12 +1,8 @@
-// One source+scope's open revision streams: one listing per pace via
-// `./revisionChecks.ts` / `./sharedObservation.ts`, delivered through
-// `./revisionStreamSubscriber.ts`. Owned by `./revisionStreamObservation.ts`.
+// One source and credential scope's open revision streams. One shared Board
+// trunk observation answers each pace, and subscriptions own their waits.
 
 import type { IncomingMessage, ServerResponse } from "node:http";
-import {
-  readingRefOf,
-  readWaitLimitMs,
-} from "../src/authenticatedReadRules.ts";
+import { readingRefOf } from "../src/authenticatedReadRules.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { checkIntervalMs } from "../src/revisionCheckSchedule.ts";
 import type { BranchHeads } from "./branchHeads.ts";
@@ -14,14 +10,14 @@ import { configuredLimit } from "./configuredLimit.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import { reportedFailure } from "./readFailureMessage.ts";
 import type { Outcome } from "./readOutcome.ts";
-import type { CheckedHeads, RevisionChecks } from "./revisionChecks.ts";
+import type { RevisionChecks } from "./revisionChecks.ts";
 import type { RevisionStreamAsk } from "./requestedRevisionStream.ts";
 import {
   endRevisionStream,
   unansweredRevisionObservation,
 } from "./revisionStreamEvents.ts";
 import { RevisionStreamSubscriber } from "./revisionStreamSubscriber.ts";
-import { SharedObservation } from "./sharedObservation.ts";
+import type { SharedVerifiedOriginTrunk } from "./sharedVerifiedOriginTrunk.ts";
 
 export function revisionStreamPaceMs(): number {
   return configuredLimit("DOUGH_REVISION_STREAM_MS", checkIntervalMs);
@@ -31,24 +27,23 @@ export type RevisionStreamReaders = {
   readonly tracked: Set<AbortController>;
   readonly pinned: PinnedTexts;
   readonly checks: RevisionChecks;
+  readonly trunks: SharedVerifiedOriginTrunk;
   readonly branches: BranchHeads;
 };
 
 export class SourceRevisionStream {
   private readonly subscribers = new Set<RevisionStreamSubscriber>();
-  private readonly shared: SharedObservation<CheckedHeads, readonly [string]>;
-  private readonly listing = new AbortController();
+  private readonly lifetime = new AbortController();
   private paceTimer: ReturnType<typeof setTimeout> | undefined;
   private closed = false;
 
   constructor(
     private readonly readers: RevisionStreamReaders,
     private readonly source: PublishedSource,
-    private readonly scope: string | undefined,
     private readonly onEmpty: () => void,
   ) {
-    readers.tracked.add(this.listing);
-    this.listing.signal.addEventListener(
+    readers.tracked.add(this.lifetime);
+    this.lifetime.signal.addEventListener(
       "abort",
       () => {
         this.close();
@@ -56,10 +51,6 @@ export class SourceRevisionStream {
       {
         once: true,
       },
-    );
-    this.shared = new SharedObservation(
-      () => this.readers.checks.check(this.source, this.listing.signal),
-      () => Math.max(1, revisionStreamPaceMs() - 1),
     );
   }
 
@@ -87,8 +78,8 @@ export class SourceRevisionStream {
     );
     this.subscribers.add(subscriber);
     // Shared demand first; schedule pace only after it settles so a lowered
-    // test pace cannot start a second listing before open answers are observed.
-    void this.answerFromDemand(subscriber).finally(() => {
+    // test pace cannot start a second origin check before open answers are observed.
+    void this.answer([subscriber], subscriber.signal, false).finally(() => {
       if (
         !this.closed &&
         this.subscribers.size > 0 &&
@@ -106,8 +97,8 @@ export class SourceRevisionStream {
       clearTimeout(this.paceTimer);
       this.paceTimer = undefined;
     }
-    if (!this.listing.signal.aborted) this.listing.abort();
-    this.readers.tracked.delete(this.listing);
+    if (!this.lifetime.signal.aborted) this.lifetime.abort();
+    this.readers.tracked.delete(this.lifetime);
     for (const subscriber of this.subscribers) subscriber.close();
     this.subscribers.clear();
     this.onEmpty();
@@ -129,83 +120,44 @@ export class SourceRevisionStream {
 
   private async paceTick(): Promise<void> {
     if (this.closed || this.subscribers.size === 0) return;
-    // One listing per tick, then each open stream learns its own answer from
-    // it — concurrent fresh demands on SharedObservation can each start a
-    // listing when staggered by a microtask.
-    const reading = readingRefOf(this.source);
-    let listing: CheckedHeads | undefined;
-    try {
-      const demanded = await this.shared.demand(
-        [this.scope ?? ""],
-        readWaitLimitMs,
-        this.listing.signal,
-        true,
-      );
-      if (demanded.kind === "departed") {
-        this.schedulePace();
-        return;
-      }
-      if (demanded.kind !== "observed") {
-        for (const subscriber of this.subscribers) {
-          subscriber.write(unansweredRevisionObservation(reading));
-        }
-        this.schedulePace();
-        return;
-      }
-      listing = demanded.value;
-    } catch (error) {
-      if (!this.listing.signal.aborted) {
-        const failed: Outcome = {
-          kind: "failed",
-          ...reportedFailure(error, this.source, reading, undefined),
-        };
-        for (const subscriber of [...this.subscribers]) {
-          subscriber.write(failed);
-        }
-      }
-      this.schedulePace();
-      return;
-    }
-    await Promise.all(
-      [...this.subscribers].map((subscriber) =>
-        subscriber.answer(
-          this.readers,
-          this.source,
-          this.listing.signal,
-          listing,
-        ),
-      ),
-    );
+    await this.answer([...this.subscribers], this.lifetime.signal, true);
     this.schedulePace();
   }
 
-  private async answerFromDemand(
-    subscriber: RevisionStreamSubscriber,
+  private async answer(
+    subscribers: readonly RevisionStreamSubscriber[],
+    signal: AbortSignal,
+    fresh: boolean,
   ): Promise<void> {
     const reading = readingRefOf(this.source);
     try {
-      const demanded = await this.shared.demand(
-        [this.scope ?? ""],
-        readWaitLimitMs,
-        this.listing.signal,
-        false,
+      const demanded = await this.readers.trunks.demand(
+        this.source,
+        this.readers.pinned,
+        signal,
+        { fresh },
       );
-      if (demanded.kind !== "observed") {
-        if (demanded.kind === "departed") return;
-        subscriber.write(unansweredRevisionObservation(reading));
+      if (demanded.kind === "departed") return;
+      if (demanded.kind === "unanswered") {
+        for (const subscriber of subscribers) {
+          subscriber.write(unansweredRevisionObservation(reading));
+        }
         return;
       }
-      await subscriber.answer(
-        this.readers,
-        this.source,
-        this.listing.signal,
-        demanded.value,
+      await Promise.all(
+        subscribers.map((subscriber) =>
+          subscriber.answer(this.readers, this.source, signal, demanded.value),
+        ),
       );
     } catch (error) {
-      subscriber.write({
+      if (signal.aborted) return;
+      const failed: Outcome = {
         kind: "failed",
         ...reportedFailure(error, this.source, reading, undefined),
-      });
+      };
+      for (const subscriber of subscribers) {
+        subscriber.write(failed);
+      }
     }
   }
 }

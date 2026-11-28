@@ -1,127 +1,107 @@
-// The local authenticated read boundary's revision stream
-// (../../server/authenticatedRead.ts, ../../server/revisionStreamObservation.ts),
-// tested directly against real HTTP and the synthetic `gh`, not through the
-// browser: a client opens a stream for a source, a shown revision (`at`, not
-// `since`) and watched branches; the boundary answers at once and then once
-// per lowered pace in today's revision-check shape, sharing one listing
-// across that source's streams. Ordinary revision checks:
-// ./authenticated-read-revision-check.spec.ts and
-// ./authenticated-read-revision-check-failures.spec.ts.
-
+// The authenticated revision stream uses real Git for trunk, while its
+// watched branches still use the REST listing. A controlled pace separates
+// successive origin checks from the requests that share one.
 import { expect, test } from "../../test-support/support/pageTest.ts";
-import {
-  commitAnswer,
-  rateLimitedAnswer,
-} from "../../test-support/originAnswers.ts";
+import { rateLimitedAnswer } from "../../test-support/originAnswers.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
-import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
+import { boardConfirmation } from "../../server/boardConfirmation.ts";
 import {
-  heads,
-  sharedReadsPublished,
-} from "../../test-support/support/sharedReads.ts";
-import {
-  gatewayTimeout,
-  revisionA,
-  revisionB,
-} from "./revisionCheckBoundary.ts";
+  readUntilClosed,
+  signalFifo,
+} from "../review/verifiedOriginTrunkCase.ts";
+import { gatewayTimeout } from "./revisionCheckBoundary.ts";
 import {
   controlledPaceMs,
   controlledStreamServer,
 } from "./controlledRevisionStream.ts";
 import {
-  answeringInstead,
-  matchingRefsSince,
+  failListingAfterProfiles,
   openStream,
   settledWithin,
+  streamOrigin,
   streamServer,
   streamUrl,
-  warmProfiles,
+  withStreamOrigin,
 } from "./revisionStreamBoundary.ts";
+
+const confirmed = (revision: string, changed: boolean) => ({
+  revision,
+  changed,
+  askedAt: expect.any(String),
+  confirmedAt: expect.any(String),
+});
 
 test.describe.configure({ mode: "serial" });
 
 test.describe("authenticated read boundary revision stream (development environment)", () => {
   test("the stream answers text/event-stream, uncacheable, with its first answer at open", async () => {
-    const server = await streamServer();
-    try {
-      server.github.serve(everyRepository, sharedReadsPublished(revisionA));
-      const stream = openStream(server, `&at=${revisionA}`);
+    await withStreamOrigin(await streamServer(), async (origin, server) => {
+      const revision = origin.repository.trunkSha;
+      const stream = openStream(server, `&at=${revision}`);
       const opened = await stream.headers;
       expect(opened.status).toBe(200);
       expect(opened.headers["content-type"]).toMatch(/text\/event-stream/);
       expect(opened.headers["cache-control"]).toBe("no-store");
-      expect(await stream.nextEvent()).toEqual({
-        revision: revisionA,
-        changed: false,
-        branches: [],
-      });
+      expect(await stream.nextEvent()).toEqual(confirmed(revision, false));
       stream.close();
-    } finally {
-      await server.close();
-    }
+    });
   });
 
-  test("two streams of one source at different revisions and watched branches cost one matching-refs per tick, each learning its own answer; after the last closes no further listing is asked", async () => {
+  test("overlapping streams share one verified origin check and departure leaves the other tab live", async () => {
     const server = await controlledStreamServer();
+    const origin = await streamOrigin(server.home, 1);
+    const held = readUntilClosed(origin.pack.heldFifo);
     try {
-      const published = sharedReadsPublished(revisionA);
-      server.github.serve(everyRepository, published);
-      await warmProfiles(server, revisionA);
-      await warmProfiles(server, revisionB);
-      const listings = server.holdListings(published);
+      const revision = origin.repository.trunkSha;
+      const older = origin.repository.revisions.older;
+      const watching = openStream(server, `&at=${revision}`);
+      const moving = openStream(server, `&at=${older}`);
+      const departing = openStream(server, `&at=${older}`);
+      await Promise.all([watching.headers, moving.headers, departing.headers]);
+      await expect(held).resolves.toBe("held\n");
+      await server.disconnect(departing);
+      expect(origin.operations()).toBe(2); // Probe and held fetch.
+      await signalFifo(origin.pack.releaseFifo, true);
 
-      const before = server.github.calls.length;
-      const openingListing = listings.nextArrival();
-      const watching = openStream(
-        server,
-        `&at=${revisionA}&watch=${encodeURIComponent("story/one")}`,
-      );
-      const moved = openStream(
-        server,
-        `&at=${revisionB}&watch=${encodeURIComponent("story/two")}`,
-      );
-      const watchingAnswer = {
-        revision: revisionA,
-        changed: false,
-        branches: [{ branch: "story/one", head: heads["story/one"] }],
-      };
-      const movedAnswer = {
-        revision: revisionA,
+      const first = await watching.nextEvent();
+      expect(first).toEqual(confirmed(revision, false));
+      expect(await moving.nextEvent()).toEqual({
+        ...(first as object),
         changed: true,
-        branches: [{ branch: "story/two", head: heads["story/two"] }],
-      };
-      // Both streams are open before their one listing is released.
-      await Promise.all([watching.headers, moved.headers]);
-      await openingListing;
-      expect(listings.held()).toBe(1);
-      expect(matchingRefsSince(server, before)).toBe(1);
-      listings.releaseOldest();
-      expect(await watching.nextEvent()).toEqual(watchingAnswer);
-      expect(await moved.nextEvent()).toEqual(movedAnswer);
+      });
+      expect(origin.operations()).toBe(2);
+      const recorded = await boardConfirmation(origin.review, "main");
+      expect(first).toMatchObject(recorded ?? { missingConfirmation: true });
 
       await server.waitForPace();
       expect(server.pendingPaces()).toBe(1);
       expect(server.advance(controlledPaceMs - 1)).toBe(0);
-      expect(matchingRefsSince(server, before)).toBe(1);
-      const nextListing = listings.nextArrival();
+      expect(origin.operations()).toBe(2);
       expect(server.advance(1)).toBe(1);
-      await nextListing;
-      expect(listings.held()).toBe(1);
-      expect(matchingRefsSince(server, before)).toBe(2);
-      listings.releaseOldest();
-      expect(await watching.nextEvent()).toEqual(watchingAnswer);
-      expect(await moved.nextEvent()).toEqual(movedAnswer);
+      const later = await watching.nextEvent();
+      expect(later).toEqual(confirmed(revision, false));
+      const laterRecord = await boardConfirmation(origin.review, "main");
+      expect(later).toMatchObject(laterRecord ?? { missingConfirmation: true });
+      expect(Date.parse(laterRecord?.confirmedAt ?? "")).toBeGreaterThan(
+        Date.parse(recorded?.confirmedAt ?? ""),
+      );
+      expect(await moving.nextEvent()).toEqual({
+        ...(later as object),
+        changed: true,
+      });
+      expect(origin.operations()).toBe(3); // Warm check probes only.
 
       await server.waitForPace();
-      expect(server.pendingPaces()).toBe(1);
       await server.disconnect(watching);
       expect(server.pendingPaces()).toBe(1);
-      await server.disconnect(moved);
+      await server.disconnect(moving);
       expect(server.pendingPaces()).toBe(0);
       expect(server.advance(controlledPaceMs * 3)).toBe(0);
-      expect(matchingRefsSince(server, before)).toBe(2);
+      expect(origin.operations()).toBe(3);
     } finally {
+      await signalFifo(origin.pack.releaseFifo, false);
       await server.close();
+      await origin.close();
     }
   });
 
@@ -130,7 +110,7 @@ test.describe("authenticated read boundary revision stream (development environm
     try {
       const callsBefore = server.ghCalls().length;
       const response = await rawRequest({
-        url: streamUrl(server, `&at=${revisionA}`),
+        url: streamUrl(server, `&at=${"a".repeat(40)}`),
         headers: { Origin: "http://evil.example" },
       });
       expect(response.status).toBe(403);
@@ -141,110 +121,126 @@ test.describe("authenticated read boundary revision stream (development environm
   });
 
   test("closing the boundary ends open streams and stops the observation", async () => {
-    const server = await controlledStreamServer();
-    try {
-      server.github.serve(everyRepository, sharedReadsPublished(revisionA));
-      const stream = openStream(server, `&at=${revisionA}`);
-      expect(await stream.nextEvent()).toMatchObject({ revision: revisionA });
-      expect(matchingRefsSince(server, 0)).toBe(1);
-      await server.waitForPace();
-      expect(server.pendingPaces()).toBe(1);
+    await withStreamOrigin(
+      await controlledStreamServer(),
+      async (origin, server) => {
+        const stream = openStream(server, `&at=${origin.repository.trunkSha}`);
+        expect(await stream.nextEvent()).toMatchObject({
+          revision: origin.repository.trunkSha,
+        });
+        expect(origin.operations()).toBe(2);
+        await server.waitForPace();
+        expect(server.pendingPaces()).toBe(1);
 
-      await server.closeBoundary();
-      expect(await stream.ended).toEqual({ kind: "ended", eventCount: 1 });
-      expect((await rawRequest({ url: server.origin })).status).toBe(404);
-      expect(server.pendingPaces()).toBe(0);
-      expect(server.advance(controlledPaceMs * 3)).toBe(0);
-      expect(matchingRefsSince(server, 0)).toBe(1);
-    } finally {
-      await server.close();
-    }
+        await server.closeBoundary();
+        expect(await stream.ended).toEqual({ kind: "ended", eventCount: 1 });
+        expect((await rawRequest({ url: server.origin })).status).toBe(404);
+        expect(server.pendingPaces()).toBe(0);
+        expect(server.advance(controlledPaceMs * 3)).toBe(0);
+        expect(origin.operations()).toBe(2);
+      },
+    );
   });
 
-  test("a 504 listing answers the ref alone without branches", async () => {
-    const server = await streamServer();
-    try {
-      const published = sharedReadsPublished(revisionA);
-      server.github.serve(everyRepository, published);
-      await warmProfiles(server, revisionA);
-      expect(
-        (
-          await rawRequest({
-            url: streamUrl(server, `&since=${revisionA}`),
-            headers: { Origin: server.origin },
-          })
-        ).status,
-      ).toBe(200);
-      server.github.serve(
-        everyRepository,
-        answeringInstead(published, {
-          "matching-refs": gatewayTimeout,
-          ref: commitAnswer(revisionB),
-        }),
-      );
-      const stream = openStream(
-        server,
-        `&at=${revisionA}&watch=${encodeURIComponent("story/one")}`,
-      );
-      expect(await stream.nextEvent()).toEqual({
-        revision: revisionB,
-        changed: true,
+  for (const { title, listing, expected } of [
+    {
+      title: "a failed REST branch listing leaves the verified trunk answer",
+      listing: gatewayTimeout,
+      expected: (published: string) => confirmed(published, true),
+    },
+    {
+      title: "a rate-limited branch listing still reports the directed wait",
+      listing: rateLimitedAnswer(429, { "Retry-After": "120" }),
+      expected: () => ({
+        retryAfterSeconds: 120,
+        error: expect.stringMatching(/limited the rate.*120 seconds/i),
+      }),
+    },
+  ]) {
+    test(title, async () => {
+      await withStreamOrigin(await streamServer(), async (origin, server) => {
+        const { older, published } = origin.repository.revisions;
+        await failListingAfterProfiles(server, older, listing);
+        const before = server.github.calls.length;
+        const stream = openStream(server, `&at=${older}&watch=story%2Fone`);
+        expect(await stream.nextEvent()).toEqual(expected(published));
+        expect(
+          server.github.calls.slice(before).map(({ request }) => request.kind),
+        ).toContain("matching-refs");
+        stream.close();
       });
-      stream.close();
-    } finally {
-      await server.close();
-    }
+    });
+  }
+
+  test("a verified check that cannot record its confirmation reports failure", async () => {
+    await withStreamOrigin(
+      await controlledStreamServer(),
+      async (origin, server) => {
+        const revision = origin.repository.trunkSha;
+        const stream = openStream(server, `&at=${revision}`);
+        expect(await stream.nextEvent()).toMatchObject({
+          revision,
+          changed: false,
+        });
+        const former = await boardConfirmation(origin.review, "main");
+        origin.blockConfirmationWrite();
+        await server.waitForPace();
+        server.advance(controlledPaceMs);
+        expect(await stream.nextEvent()).toMatchObject({
+          error: expect.stringContaining("could not be saved"),
+        });
+        expect(await boardConfirmation(origin.review, "main")).toEqual(former);
+        stream.close();
+      },
+    );
   });
 
-  test("a rate-limited listing answers limited with its wait", async () => {
-    const server = await streamServer();
-    try {
-      const published = sharedReadsPublished(revisionA);
-      server.github.serve(everyRepository, published);
-      await warmProfiles(server, revisionA);
-      server.github.serve(
-        everyRepository,
-        answeringInstead(published, {
-          "matching-refs": rateLimitedAnswer(429, { "Retry-After": "120" }),
-        }),
-      );
-      const stream = openStream(server, `&at=${revisionA}`);
-      const event = (await stream.nextEvent()) as {
-        error: string;
-        retryAfterSeconds: number;
-      };
-      expect(event.retryAfterSeconds).toBe(120);
-      expect(event.error).toMatch(/limited the rate/i);
-      expect(event.error).toMatch(/120 seconds/);
-      stream.close();
-    } finally {
-      await server.close();
-    }
+  test("origin unavailability and explicit credential refusal stay distinct", async () => {
+    await withStreamOrigin(
+      await controlledStreamServer(),
+      async (origin, server) => {
+        const revision = origin.repository.trunkSha;
+        const stream = openStream(server, `&at=${revision}`);
+        expect(await stream.nextEvent()).toMatchObject({
+          revision,
+          changed: false,
+        });
+        origin.failOriginProbe("unavailable");
+        await server.waitForPace();
+        server.advance(controlledPaceMs);
+        expect(await stream.nextEvent()).toMatchObject({
+          error: expect.stringContaining("published trunk is unavailable"),
+        });
+        origin.failOriginProbe("credentials");
+        await server.waitForPace();
+        server.advance(controlledPaceMs);
+        expect(await stream.nextEvent()).toMatchObject({
+          error: expect.stringContaining("HTTP 401"),
+        });
+        stream.close();
+      },
+    );
   });
 
   test("preview-mode with Accept-Encoding: gzip receives the first event promptly", async () => {
-    const server = await streamServer({}, "preview");
-    try {
-      server.github.serve(everyRepository, sharedReadsPublished(revisionA));
-      const stream = openStream(server, `&at=${revisionA}`, {
-        "Accept-Encoding": "gzip",
-      });
-      const opened = await settledWithin(stream.headers, 2_000);
-      expect(opened.timedOut).toBe(false);
-      if (opened.timedOut) return;
-      expect(opened.value.status).toBe(200);
-      const event = await settledWithin(stream.nextEvent(), 2_000);
-      expect(event.timedOut).toBe(false);
-      if (!event.timedOut) {
-        expect(event.value).toEqual({
-          revision: revisionA,
-          changed: false,
-          branches: [],
+    await withStreamOrigin(
+      await streamServer({}, "preview"),
+      async (origin, server) => {
+        const revision = origin.repository.trunkSha;
+        const stream = openStream(server, `&at=${revision}`, {
+          "Accept-Encoding": "gzip",
         });
-      }
-      stream.close();
-    } finally {
-      await server.close();
-    }
+        const opened = await settledWithin(stream.headers, 2_000);
+        expect(opened.timedOut).toBe(false);
+        if (opened.timedOut) return;
+        expect(opened.value.status).toBe(200);
+        const event = await settledWithin(stream.nextEvent(), 2_000);
+        expect(event.timedOut).toBe(false);
+        if (!event.timedOut) {
+          expect(event.value).toEqual(confirmed(revision, false));
+        }
+        stream.close();
+      },
+    );
   });
 });

@@ -1,12 +1,12 @@
 // In-process observation of origin for open revision streams on the local
 // authenticated read boundary (`./authenticatedRead.ts`): while at least one
 // stream is open for a catalog source and request-owner scope, this process
-// settles one branch-head listing per pace (`../src/revisionCheckSchedule.ts`,
+// settles one verified trunk check per pace (`../src/revisionCheckSchedule.ts`,
 // lowered in tests through `./configuredLimit.ts`) through
-// `./revisionChecks.ts`, shared by every stream of that key via
-// `./sharedObservation.ts`, and answers each stream through
+// `./sharedVerifiedOriginTrunk.ts`, shared with the Board open and Refresh,
+// and answers each stream through
 // `./performedRevisionCheck.ts` in today's revision-check shape. One source
-// and scope is `./sourceRevisionStream.ts`. Timers and listing waits are
+// and scope is `./sourceRevisionStream.ts`. Timers and observation waits are
 // registered in the boundary's `tracked` lifetime so closing the boundary
 // ends them; the last stream closing stops the observation. No daemon,
 // database, or cross-process scheduler. A pending open's controller is
@@ -69,14 +69,9 @@ export class RevisionStreamObservation {
         : observationKey(source.id, scope);
     let observation = this.byKey.get(key);
     if (observation === undefined) {
-      observation = new SourceRevisionStream(
-        this.readers,
-        source,
-        scope,
-        () => {
-          this.byKey.delete(key);
-        },
-      );
+      observation = new SourceRevisionStream(this.readers, source, () => {
+        this.byKey.delete(key);
+      });
       this.byKey.set(key, observation);
     }
     res.writeHead(200, {

@@ -19,7 +19,10 @@ import { unrecordedBranch } from "./performedBranchRead.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
 import type { RequestedRead } from "./requestedRead.ts";
-import type { CheckedHeads, RevisionChecks } from "./revisionChecks.ts";
+import type { RevisionChecks } from "./revisionChecks.ts";
+import type { AskedOriginTrunk } from "./sharedVerifiedOriginTrunk.ts";
+import { verifiedTrunk } from "./performedRefRead.ts";
+import { readingRefOf } from "../src/authenticatedReadRules.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 
 type CheckReaders = {
@@ -33,9 +36,8 @@ export async function performRevisionCheck(
   source: PublishedSource,
   { since, watched }: Extract<RequestedRead, { kind: "revision-check" }>,
   signal: AbortSignal,
-  // A listing this process already settled for the same source and scope; a
-  // revision stream tick shares one across every open stream.
-  listing?: CheckedHeads,
+  // Every subscriber to this stream tick receives one verified trunk.
+  observation?: AskedOriginTrunk,
 ): Promise<Outcome> {
   for (const branch of watched) {
     const recorded = await branchRecordedAtRevision(
@@ -49,9 +51,35 @@ export async function performRevisionCheck(
       return unrecordedBranch;
     }
   }
-  const { revision, heads } = listing ?? (await checks.check(source, signal));
-  observeProjectRevision(pinned, source, revision);
-  const checked = { revision, changed: revision !== since };
+  const verified =
+    observation === undefined ? undefined : verifiedTrunk(observation.trunk);
+  if (verified?.unrecorded) {
+    return {
+      kind: "failed",
+      message: `The check of ${readingRefOf(source)} could not be saved.`,
+      retryAfterSeconds: undefined,
+      recovery: undefined,
+    };
+  }
+  // The legacy listing still answers branch watches. Only the verified Git
+  // observation answers the stream's trunk.
+  const legacy =
+    observation === undefined ? await checks.check(source, signal) : undefined;
+  const revision = verified?.revision ?? legacy?.revision;
+  if (revision === undefined)
+    throw new Error("The trunk check has no revision.");
+  if (legacy !== undefined) observeProjectRevision(pinned, source, revision);
+  const checked = {
+    revision,
+    changed: revision !== since,
+    ...(verified !== undefined && observation !== undefined
+      ? { confirmedAt: verified.confirmedAt, askedAt: observation.askedAt }
+      : {}),
+  };
+  const heads =
+    verified !== undefined && watched.length > 0
+      ? await checks.watchedHeads(source, signal)
+      : legacy?.heads;
   if (heads === undefined) {
     return answered(checked);
   }

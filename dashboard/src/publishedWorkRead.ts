@@ -16,6 +16,7 @@ import { ReadProblem } from "./readProblem.ts";
 import { unansweredWithinReadWait, withinReadWait } from "./readWaitBound.ts";
 import { awaitingOwners } from "./assignmentPlacement.ts";
 import { readPublishedDetails } from "./publishedWorkDetails.ts";
+import type { RevisionConfirmation } from "./revisionCheckRead.ts";
 
 // Reads the source's ref afresh, or an already resolved revision. When the
 // wait bound ends after membership, unfinished details become gaps. Humans
@@ -31,6 +32,7 @@ export async function readPublishedWork(
   shown: PublishedWork | undefined,
   reads: PublishedObservationReadSource,
   fresh = false,
+  confirmation?: RevisionConfirmation,
 ): Promise<PublishedWork> {
   return withinReadWait(signal, async (untilEither, bound) => {
     let confirmationFailure: ReadProblem | undefined;
@@ -71,7 +73,8 @@ export async function readPublishedWork(
           unreadable: "Published work could not be read.",
         },
       );
-      const { revision, backlog: markdown, askedAt, confirmedAt } = snapshot;
+      const { revision, backlog: markdown } = snapshot;
+      const { askedAt, confirmedAt } = confirmation ?? snapshot;
       if (snapshot.unrecorded) {
         confirmationFailure = new ReadProblem(
           `The check of ${readingRefOf(source)} could not be saved.`,
