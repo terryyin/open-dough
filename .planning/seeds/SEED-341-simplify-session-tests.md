@@ -103,15 +103,15 @@ homes before work starts.
 
 **Identity:** SEED-341#make-recently-done-setup-and-claude-timeout-proof-reliable
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/886-make-session-test-proof-reliable/PLAN.md","assessment":"not-ready","reasons":["Recover the full local launch-boundary failure result or reproduce delayed fake-Claude readiness in the backend runner to confirm the timeout proof under load."],"basis":{"document":"de9d389d85abafbeb10483dfbd19b1323c5280eada4bdcd44098a72ed83a4ab4","plan":"bd1e79a5f95ecc294c64c41c5bb7edbfa38a589004935fd168feebcb6c4c03b0"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/886-make-session-test-proof-reliable/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"130ba294467c0a8c3dbc3232907d27551223680705b20c654784ef6b52c881d7","plan":"9ba11c3c6a8644194eeb8e7749e2caa547a95a2c7fb67edba033fc915f638ba6"}}
 ```
 
 **Goal.** Dashboard maintainers can locate failures in Recently done setup
 and trust the Claude launch timeout proof under full-suite load.
 
-**Scope.** Name the setup phases of the retained ad hoc selection journey
-and wait for actual fake-Claude readiness in the launch boundary spec.
-Preserve both specs' behavioral coverage. This is a test-only correction
-related to [Simplify the remaining session tests](#simplify-remaining-session-tests).
+**Scope.** The retained ad hoc selection journey and the fake-Claude
+launch boundary timeout case. Preserve both specs' behavioral coverage.
+This is a test-only correction related to
+[Simplify the remaining session tests](#simplify-remaining-session-tests).
 
 **Plan:** [Correct the two Dashboard tests](../slice-plans/886-make-session-test-proof-reliable/PLAN.md)
