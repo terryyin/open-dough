@@ -148,7 +148,7 @@ test("a landed run never synced and opened offline is unavailable and names the 
   );
 });
 
-const deadlineMs = 1500;
+const deadlineMs = 500;
 const originHangs = () =>
   reviewOriginHangs(reviewRepositoryPath(knownSource("open-dough")));
 

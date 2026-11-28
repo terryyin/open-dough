@@ -403,6 +403,17 @@ Delivery gate:
   more is still unobserved.
 - The Board trunk witnesses and the 10 Follow up cases passed in the same
   selection.
+- At `5b8e48655`, on a fresh checkout's first run at load 14, the
+  story-branch case at `story-review-completed.spec.ts:105` reached 5.12 s.
+  Its time came from one open with sync (0.65 s), two file reads (0.7 s)
+  and a reopen with re-read (0.6 s). The repair splits that case into three
+  per mode, each keeping its no-origin-request assertion. The Review
+  deadline cases now name 500 ms rather than 1500 ms. The next cold first
+  run had a slowest case of 1.63 s. The family then passed 137 of 137 cases
+  in 115 s at load 9.4–9.9.
+- Thirteen cases still take 1.5–2.7 s. That cost is the product's own Git
+  work: each open runs 25–100 Git processes in sequence, and each file read
+  recomputes the comparison.
 
 ## Plan review
 

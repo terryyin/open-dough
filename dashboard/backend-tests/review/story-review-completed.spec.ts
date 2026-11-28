@@ -102,7 +102,7 @@ const diffContaining = (text: string) => ({
 });
 
 for (const [mode, history] of ordinaryCompletedReviewHistories())
-  test(`a ${mode} completion keeps its comparison and file diffs through interleaved work and later trunk, reading files without origin requests`, async () => {
+  test(`a ${mode} completion reads its delivered file without origin requests, leaving interleaved work out`, async () => {
     const story = await doneStory(history);
     const review = await story.published();
     expect(review).toMatchObject({ completion: story.completion, agent: yui });
@@ -113,17 +113,36 @@ for (const [mode, history] of ordinaryCompletedReviewHistories())
     const requests = story.recordOriginRequests();
 
     const literal = await story.readFile(review);
-    const shared = await story.readFile(review, "shared.txt");
 
     expect(requests.since()).toEqual([]);
     expect(literal).toMatchObject(
       diffContaining("+delivered on another machine"),
     );
+  });
+
+for (const [mode, history] of ordinaryCompletedReviewHistories())
+  test(`a ${mode} completion reads its shared file's own lines without origin requests`, async () => {
+    const story = await doneStory(history);
+    const review = await story.published();
+    const requests = story.recordOriginRequests();
+
+    const shared = await story.readFile(review, "shared.txt");
+
+    expect(requests.since()).toEqual([]);
     expect(shared).toMatchObject(diffContaining("+story first"));
     if (shared.kind !== "diff") throw new Error("No shared diff");
     expect(shared.printed).not.toContain("+other last");
     expect(shared.printed).not.toContain("-line 11");
+  });
+
+for (const [mode, history] of ordinaryCompletedReviewHistories())
+  test(`a ${mode} completion keeps its comparison and file diff after later trunk`, async () => {
+    const story = await doneStory(history);
+    const review = await story.published();
+    const literal = await story.readFile(review);
+
     advanceCompletedTrunk(story.origin);
+
     expect(await story.open()).toEqual(review);
     expect(await story.readFile(review)).toEqual(literal);
   });
