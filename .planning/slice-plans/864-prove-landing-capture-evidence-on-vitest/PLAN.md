@@ -348,7 +348,7 @@ adds no production representation.
 ### 10. Continue the same claimed session after a retained landing
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A retained unfinished integration publishes the reviewed suffix above
 the published prefix. The claim, plan, workspace and native session remain usable.
@@ -361,6 +361,15 @@ integration, unfinished report, native terminal attach/next commit and manual
 Done. Assert remote prefix, local suffix/head, unchanged claim/profile/plan,
 no second session or stop, and acknowledgment without Git changes. Keep the
 legacy proof until this native journey passes in E2E.
+
+Accepted proof: `story-branch-retained-landing.spec.ts` selected 1 e2e test,
+strict status passed, about 7.1 s. `slice10-retained.json` names it. The
+installed integration keeps the remote prefix and the local suffix. The same
+session commits the next slice, with no second session and no stop. Manual
+Done acknowledges the session and leaves Git and the execution record
+unchanged. Imports are the only text change. No production file changed. The
+spec is 169 lines. The legacy file is deleted after that pass. Refactor
+skipped: the change adds no production representation.
 
 ## Proof and local gate
 
@@ -425,9 +434,10 @@ is not split again. The plan is already at the ten-slice execution allowance.
   `57bf00ea0c0e23aee871fd31135621046af1e9fb`, then slice 6 as
   `b4328d438337d47e3247fa5df31e49e36553709a`, then slice 7 as
   `b7a1e73a22bc8e8dd0f2789863e557e5c06a933b`, then slice 8 as
-  `68ba50850c140e89150027efda14f5fb4f3920a2`, on
+  `68ba50850c140e89150027efda14f5fb4f3920a2`, then slice 9 as
+  `66b8ca21a67608511fc8d34c25948fca422dca07`, on
   `origin/cursor/prove-retained-landing-capture-in-node-vitest`. Suffix base
-  of the slice 8 receipt is slice 7, zero reconciliations. That receipt is
+  of the slice 9 receipt is slice 8, zero reconciliations. That receipt is
   the next increment's previously published base. Observer
   `/tmp/dough-ci-501/watch-1ZhItf` reused.
   No unpublished candidate. Publisher `dashboard-territory.local-open-dough`,

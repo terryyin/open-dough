@@ -1,38 +1,38 @@
 // Real installed start/publication/reporting and dashboard terminal/Done
 // boundaries. Synthetic Claude supplies only native session and follow-up work.
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../Distribution/tests/support/queued-repository.mjs";
 import { existsSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { markDone } from "../../test-support/agentLaunchBoundary.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
+import { markDone } from "../../dashboard/test-support/agentLaunchBoundary.ts";
 import {
   lastAttachEnded,
   openTerminal,
   shows,
-} from "../../test-support/agentTerminalBoundary.ts";
+} from "../../dashboard/test-support/agentTerminalBoundary.ts";
 import {
   quote,
   reportingChild,
-} from "../../test-support/support/completionRecovery.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+} from "../../dashboard/test-support/support/completionRecovery.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   capturedPublicationSchema,
   commit,
   git,
-} from "../../test-support/support/launchLanding.ts";
-import { startBoundary } from "../../test-support/support/launchDashboard.ts";
+} from "../../dashboard/test-support/support/launchLanding.ts";
+import { startBoundary } from "../../dashboard/test-support/support/launchDashboard.ts";
 import {
   executionRecordBytes,
   nativeNextSlice,
-} from "../../test-support/support/retainedStoryLanding.ts";
+} from "../../dashboard/test-support/support/retainedStoryLanding.ts";
 import {
   startOrigin,
   type StartOrigin,
-} from "../../test-support/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   claimedLaunchWithStoryCommit,
   claimedRecord,
-} from "../../test-support/support/storyBranchIntegration.ts";
+} from "../../dashboard/test-support/support/storyBranchIntegration.ts";
 
 const pendingPlan =
   "# Story A plan\n\n## Ordered slices\n\n### 1. Reviewed result\nType: Behavior\nStatus: done\n\n### 2. Release result\nType: Behavior\nStatus: planned\n";
