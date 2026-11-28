@@ -104,6 +104,29 @@ and history (3–5) alone, is complete on its own.
    shows as a removed scope in plain text, **E2E Test** as added, neither with a
    timing delta, and Dashboard Frontend Test keeps its numeric comparison.
 
+<a id="prove-working-tree-origins-hold-no-release"></a>
+
+### Prove working-tree preparation origins hold no released installation
+
+**Identity:** SEED-334#prove-working-tree-origins-hold-no-release
+```json dough-story-state
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/894-prove-working-tree-origins-hold-no-release/PLAN.md"}
+```
+**Plan:** [894](../slice-plans/894-prove-working-tree-origins-hold-no-release/PLAN.md)
+
+#### Goal
+
+A maintainer changing the shared prepared-origin seam learns from the
+maintained tests when a working-tree preparation journey would start from the
+tagged released installation, so the working-tree journeys keep proving this
+run's skills.
+
+#### Scope
+
+Add one maintained observation that a working-tree prepared origin carries the
+working-tree installation and no released one. Product behavior, the tagged
+journey and the seam's design stay as they are.
+
 <a id="keep-one-browser-test-group-roster"></a>
 
 ### Keep one browser test group roster and current placement guidance

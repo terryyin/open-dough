@@ -91,3 +91,4 @@ intent introduced or affected by a newly developed story.
 - [Recover expired session reviews from Git history](seeds/SEED-418-review-published-session-changes.md#recover-expired-session-reviews) — SEED-418#recover-expired-session-reviews
 - [Decide whether claim closure needs its own borrowed-checkout refresh rule](seeds/SEED-423-shrink-the-installed-distribution.md#decide-borrowed-checkout-refresh-rule) — SEED-423#decide-borrowed-checkout-refresh-rule
 - [Change launch records beside a running server under its lock](seeds/SEED-413-renovate-dashboard-unit-tests.md#lock-launch-store-writes-beside-server) — SEED-413#lock-launch-store-writes-beside-server
+- [Prove working-tree preparation origins hold no released installation](seeds/SEED-334-product-wide-end-to-end-tests.md#prove-working-tree-origins-hold-no-release) — SEED-334#prove-working-tree-origins-hold-no-release
