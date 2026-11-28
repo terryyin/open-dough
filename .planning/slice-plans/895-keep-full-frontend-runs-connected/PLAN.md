@@ -515,6 +515,18 @@ the story's code diff holds only the Vitest 5.1.2 upgrade, the guard's
 removal, and the three test-timing repairs from slices 4 and 6. Neither the
 probe nor the capture remains.
 
+## Execution complete
+
+Product advice: no new story. Upgrading Vitest to 5.1.2 removes the closure
+and makes frontend feedback faster: hosted jobs took a median of 150 s,
+against 187–280 s before. That serves the campaign's fast-feedback
+direction. The remaining product follow-up is already recorded in
+SEED-430's seed: its branch drops the `keepVitestOrchestratorOpen` guard and
+its diagnosis record before landing. Process findings (outward research
+before further instrumentation, and a guarded delivery that left an owned
+file out of its commit) were not recorded: `DearDough.md` already holds
+1,001 lines, over its 1,000-line ceiling, so they go to wrap-up.
+
 ## Local gate and delivery
 
 - Run full local frontend runs from a fully awake machine on AC power, per
