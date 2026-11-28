@@ -229,7 +229,7 @@ legacy specs those Node tests already cover.
 ### 6. Capture from a kept launch after its startup attempt expires
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A settled launch has an original prepared pair. After normal attempt
 expiry the kept authority records and replays it. Premature missing or unreadable
@@ -244,6 +244,20 @@ over the actual stored attempts, completion, and refs. Preserve the original
 receipt across stale `updateRecord` and native-session replacement, with refusal
 of late binding. Keep the expired retry read-only and verify subsequent pruning
 and no recreation. Slice 1 keeps real retirement and slice 4 keeps transport replay.
+
+Accepted proof: the refusal spec and the receipt spec selected 2 node tests,
+strict status passed, about 6.7 s. `slice6-expiry.json` names them. Missing,
+unreadable, and unrelated attempt data inside the lifetime refuse and leave
+the records file unchanged. After expiry the same pair records. A stale
+`updateRecord` and a native-session replacement keep that receipt. Late
+`bindRecord` is refused. A wrong source, a changed story identity, and a
+changed workflow refuse. An expired retry leaves the records, attempts, and
+refs unchanged, and pruning does not recreate the record. The existing
+250-line expiry spec was not edited. No production file changed. Formatting
+put the combined spec over 250 lines, so the receipt case is
+`retained-landing-expiry-receipt.spec.ts` (162) and the lifetime case stays
+in `retained-landing-expiry-refusal.spec.ts` (67). Both call
+`settleRetainedLaunch` in `retainedLandingExpiryLaunch.ts` (107).
 
 ### 7. Refuse a deleted launch while its pins are being removed
 
@@ -356,6 +370,10 @@ The goal, examples, and sibling order are unchanged. Continue, because this
 overrun is another two-loop slice and the split reaches ten slices, the
 execution allowance. Do not resplit the story.
 
+Slice 6 overran at 16.6 active minutes, `storyOverruns` 3, after its proof
+had already passed. The spec is complete and under 250 lines, so this slice
+is not split again. The plan is already at the ten-slice execution allowance.
+
 ## Execution context
 
 - Mode: story-branch. Owned workspace
@@ -372,10 +390,11 @@ execution allowance. Do not resplit the story.
   `c138a53602d8d84d333826baa7795433f75fa11c`, then slice 3 as
   `876fdddbe263a74ecea1a38a59f6739c1e115a32`, then the binding split as
   `567ae7298aebefd93d7e4ccea694325fd5164f35`, then slice 4 as
-  `45f1c197c89ce0a4fc35b3fe08bbdc5701128963`, on
+  `45f1c197c89ce0a4fc35b3fe08bbdc5701128963`, then slice 5 as
+  `57bf00ea0c0e23aee871fd31135621046af1e9fb`, on
   `origin/cursor/prove-retained-landing-capture-in-node-vitest`. Suffix base
-  of the slice 4 receipt is the plan revision, zero reconciliations. That
-  receipt is the next increment's previously published base. Observer
+  of the slice 5 receipt is slice 4, zero reconciliations. That receipt is
+  the next increment's previously published base. Observer
   `/tmp/dough-ci-501/watch-1ZhItf` reused.
   No unpublished candidate. Publisher `dashboard-territory.local-open-dough`,
   agent `Yua-chan`.
