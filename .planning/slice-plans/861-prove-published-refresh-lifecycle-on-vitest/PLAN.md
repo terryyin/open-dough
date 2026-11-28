@@ -22,7 +22,7 @@ Reconciliation with related work:
   Board Refresh over `SharedVerifiedOriginTrunk` and durable confirmation
   records, keeping automatic observation on the current revision-check and
   revision-stream path.
-- [Plan 823](../823-follow-published-progress-from-local-git/PLAN.md) owns
+- [Plan 823](https://github.com/terryyin/open-dough/blob/00f50db1827d870ecd899ba2e3cde097f7c38300/.planning/slice-plans/823-follow-published-progress-from-local-git/PLAN.md) owns
   moving automatic observation to local Git, and
   [plan 887](../887-read-board-records-at-published-pins/PLAN.md) pinned
   Board reads.
@@ -447,6 +447,11 @@ process exit, cooldown holdback/resumption, and abort-on-close. Replaces
 `authenticated-read-shared-listing-failures.spec.ts` (3) — 6 cases total.
 Delete `dashboard/backend-tests/observation/listingTimeoutBoundary.ts`.
 
+Held, not published. Trunk deleted `dashboard/server/revisionChecks.ts` in
+`42afce853` (plan 823, pinned trunk `f8951aff`). The six cases were ported
+onto that module and then removed, so this branch does not keep a second
+listing cache. The Chromium specs stay.
+
 ### 10. Stream revision updates over SSE and clean up on departure or close
 
 Type: Behavior
@@ -549,6 +554,18 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
   so the module stays. The four preview-reload helpers stay. CI on `694f6fae`
   failed one dashboard frontend launch case; the next published revision
   `d386e286` passed that job with no change to the spec.
+- Slice 9's clock was left running across a coordinator gap and pause recorded
+  507.3 minutes (`storyOverruns` 6). No slice 9 file was written. That gap is
+  not a failed sizing. The plan stays at ten slices.
+- CI on `4a4c1952` failed the full frontend run with
+  `VITEST_BROWSER_CONNECTION_CLOSED` and one hidden-project end-to-end case.
+  Main already repairs the frontend connection by upgrading Vitest to 5.1.2
+  (`92397b7a5`, SEED-413#keep-full-frontend-runs-connected). This execution
+  does not add another connection repair or diagnosis. The end-to-end case
+  passed locally; its CI page was an authenticated-read failure for
+  `nerds-odd-e/doughnut`, and this story does not add a second fix for that.
+  The same holds for shared listings: trunk removed `revisionChecks.ts`, so
+  slice 9's Node port was not kept.
 
 ## Execution identity
 
@@ -560,7 +577,7 @@ and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
   revision `9379098d55410b514abf36b8fb8e42b0c0931181`.
 - Originating checkout: that same workspace. Integration checkout: none.
 - Target selection: remote `origin`, branch `main`.
-- Published revision `d386e286a128792547703f577f5b6d25a1c09afd` accepted on
+- Published revision `4a4c19527d4a6b38fc4e193e8c6ca00673b0b9d9` accepted on
   `origin/cursor/prove-published-refresh-lifecycle-in-node-vitest`. That SHA is
   the previously published base for the next increment. The Story Branch claim
   `29e8402851ac887b9d4cdd7838b8a20db7bb08f9` remains `pendingCi: unobserved`.
