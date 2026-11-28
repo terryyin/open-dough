@@ -52,6 +52,7 @@ intent introduced or affected by a newly developed story.
 - [Prove published Intent evidence in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-intent-evidence-via-vitest) — SEED-413#published-intent-evidence-via-vitest
 - [Prove Dashboard launch attempts with typed machine state](seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-launch-attempts-with-typed-state) — SEED-413#prove-launch-attempts-with-typed-state
 - [Admit Dashboard launch requests as typed values](seeds/SEED-413-renovate-dashboard-unit-tests.md#admit-launch-requests-as-typed-values) — SEED-413#admit-launch-requests-as-typed-values
+- [Prove the remaining landing capture cases in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#remaining-landing-capture-via-vitest) — SEED-413#remaining-landing-capture-via-vitest
 - [Run the entire Dashboard backend unit suite on Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-backend-runner) — SEED-413#retire-legacy-dashboard-backend-runner
 - [Start Cursor slices from complete Task briefs](seeds/SEED-345-session-token-efficiency.md#start-cursor-slices-from-complete-task-briefs) — SEED-345#start-cursor-slices-from-complete-task-briefs
 - [Retire Cursor exit-file proof wait](seeds/SEED-441-retire-cursor-exit-file-proof-wait.md#retire-cursor-exit-file-proof-wait) — SEED-441#retire-cursor-exit-file-proof-wait

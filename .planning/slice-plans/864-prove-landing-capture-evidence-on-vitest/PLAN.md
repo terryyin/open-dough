@@ -7,14 +7,17 @@
 ## Goal and scope
 
 Give Dashboard developers fast proof that origin's first accepted comparison
-stays bound to the launch that published it. Account for the 18 cases in the
-12 legacy backend specs below. Move Dashboard unit proof to Node Vitest and
+stays bound to the launch that published it. Account for the cases in the ten
+legacy backend specs the delivered slices own. The two remaining specs belong
+to [Prove the remaining landing capture cases in Node Vitest](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#remaining-landing-capture-via-vitest).
+Move Dashboard unit proof to Node Vitest and
 keep actual publisher, Git, receiver, or native behavior at its workflow
 boundary when that interaction is what the case proves. Keep the existing
 capture, completion, and retention rules. Published Review comparisons and
 selection belong to [plan 863](https://github.com/terryyin/open-dough/blob/cc7802ace20bd4475751c5e75713d983290607e5/.planning/slice-plans/863-prove-published-review-comparisons-on-vitest/PLAN.md), completed.
 The [runner cutover](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-backend-runner)
-already waits for this family's published disposition.
+waits for this delivered disposition and, separately, for the successor's two
+specs.
 
 ## Current decisions
 
@@ -381,10 +384,11 @@ as applicable. Apply MakeMe and page-object selection before editing tests.
 Trace changed setup and readers, and verify the owning assertions discriminate
 before deleting the old proof. Run `npm run typecheck:dashboard` for changes to
 Dashboard test or production types. On the final candidate, record a one-worker
-backend proof selection with zero legacy cases from this family. Compare counts,
-wall and total case time, roughly 100 ms per-case guide, retries and the separate
-cost of receiving E2E/installed cases. Name each final owner. Select and run the
-receiving E2E paths through `npm run test:e2e` including after relocation.
+backend proof selection whose only legacy cases from this family are the two
+successor specs. Compare counts, wall and total case time, roughly 100 ms
+per-case guide, retries and the separate cost of receiving E2E/installed cases.
+Name each final owner, including the successor for those two specs. Select and
+run the receiving E2E paths through `npm run test:e2e` including after relocation.
 
 ## Plan review
 
@@ -413,6 +417,15 @@ execution allowance. Do not resplit the story.
 Slice 6 overran at 16.6 active minutes, `storyOverruns` 3, after its proof
 had already passed. The spec is complete and under 250 lines, so this slice
 is not split again. The plan is already at the ten-slice execution allowance.
+
+After slice 10 the developer split the story at this delivered boundary. The
+ten delivered slices stay here. `one-shot-landing-capture-admission.spec.ts`
+and `one-shot-landing-recovery-retention.spec.ts` move to
+[plan 895](../895-prove-remaining-landing-capture-on-vitest/PLAN.md), which is
+awaiting story refinement. Slice mapping: slices 1–10 remain this plan. The
+successor's provisional slices own the installed retry before prepare, the
+installed deleted-session retry, and the installed expiry retry, then delete
+both specs.
 
 ## Execution context
 
