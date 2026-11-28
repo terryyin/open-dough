@@ -338,7 +338,7 @@ without it, Node's parser answers a bare 400 before the boundary's 405.
 ### 8. Share a verified fetch through its Git mutation lifetime
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior. Two concurrent Done opens share one fetch of the same ref.
 Ref readers in sibling worktrees observe one actual mutation of their
@@ -356,6 +356,16 @@ and repository proofs for the shared-fetch lifetime. Replace
 Keep `git-target-fetch.spec.ts` for waiter cancellation, repository
 independence and retry after failure. Preserve Board's separate verified
 trunk proof and the stated ownership boundary with plan 823.
+
+Accepted. `story-review-completed-shared-fetch.spec.ts` now holds the
+shared Done open, with one held ref update and exactly one more fetch, and
+the sibling-worktree mutation. `git-target-fetch-process.spec.ts` moved to
+Vitest unchanged. Five consecutive runs passed at load 9–17. The 3 old
+cases summed 3.2 s and the new ones 2.9–4.7 s, because real fetches and
+child processes set their cost. The Done case no longer goes through HTTP;
+earlier slices' wire cases cover that path. Plan 888 had not landed, so the
+current witnesses stayed. `git-target-fetch-worktrees.spec.ts` and
+`remoteRequestRecordingDashboard.ts` lost their last callers and are gone.
 
 ## Proof and local gate
 

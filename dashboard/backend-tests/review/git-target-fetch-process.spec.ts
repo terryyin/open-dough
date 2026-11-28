@@ -5,7 +5,7 @@ import { createServer, type ServerResponse } from "node:http";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { runGitUntilClosed } from "../../server/gitRunner.ts";
-import { expect, test } from "../../test-support/support/pageTest.ts";
+import { expect, test } from "vitest";
 
 test("an aborted Git mutation settles only after its child actually closes", async () => {
   let entered!: () => void;
