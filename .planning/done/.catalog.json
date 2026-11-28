@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-413_github-request-lifetime-and-evidence-via-vitest.json",
+      "identity": "SEED-413#github-request-lifetime-and-evidence-via-vitest",
+      "completedAt": "2026-11-28T14:19:59.449Z",
+      "blob": "a5595dc2dc75dc980ae5cb0d072c1529703f2d85"
+    },
+    {
       "fileName": "SEED-413_published-refresh-lifecycle-via-vitest.json",
       "identity": "SEED-413#published-refresh-lifecycle-via-vitest",
       "completedAt": "2026-11-28T12:55:31.014Z",

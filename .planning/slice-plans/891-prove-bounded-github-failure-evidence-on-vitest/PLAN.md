@@ -7,7 +7,7 @@
 **Identity:** SEED-413#github-failure-evidence-via-vitest
 
 **Split from:** SEED-413#github-request-lifetime-and-evidence-via-vitest
-([plan 890](../890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md))
+([plan 890](https://github.com/terryyin/open-dough/blob/489d36d1a027b1203366ac5eca2574a6e13bbdf9/.planning/slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md))
 on 2026-11-28, at its delivered slice 5. The slices below are provisional
 input for this story's refinement. They are plan 890's former slices 6–10.
 Old slice readiness does not make this plan executable.
