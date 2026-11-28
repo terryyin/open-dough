@@ -1,5 +1,4 @@
 import { expect, test } from "../../test-support/support/preparationPage.ts";
-import { shallowPublishedHistory } from "../../test-support/support/reviewRepositoryFixture.ts";
 import {
   getReview as get,
   completedStoryQuery as named,
@@ -7,7 +6,6 @@ import {
 } from "../../test-support/support/completedReviewRequests.ts";
 import { keepUnusableCompletedCapture } from "../../test-support/support/completedStoryVisibleActions.ts";
 import {
-  missingAgentStoryBranchCompletedHistory,
   missingAgentTrunkCompletedHistory,
   ordinaryTrunkModeCompletedHistory,
 } from "../../test-support/support/completedStoryHistory.ts";
@@ -15,12 +13,9 @@ import {
   storyReviewEndpoint,
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
-import { git } from "../../test-support/support/storyReviewWorktree.ts";
-import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 test.use({ serverMode: "boundary" });
 
-const agent = agentIdentity("Yui").agent;
 const noPublishedComparison = {
   kind: "unavailable",
   explanation: "No published comparison is available for this story.",
@@ -62,35 +57,12 @@ test.describe("ordinary trunk", () => {
       tree: completion,
     });
   });
-
-  test("missing claim history explains the gap rather than showing a partial comparison", async ({
-    request,
-    dashboard,
-    origin,
-  }) => {
-    shallowPublishedHistory(origin);
-    expect(git(origin.project, "rev-parse", "--is-shallow-repository")).toBe(
-      "true",
-    );
-    const response = await get(
-      request,
-      dashboard,
-      storyReviewEndpoint,
-      completed,
-    );
-    expect(response.status()).toBe(200);
-    expect(await response.json()).toMatchObject({
-      kind: "unavailable",
-      explanation: expect.stringMatching(/claim|history/),
-    });
-    expect(await response.json()).not.toHaveProperty("files");
-  });
 });
 
 test.describe("missing-agent trunk", () => {
   test.use({ originRepository: missingAgentTrunkCompletedHistory() });
 
-  test("a retired workspace preserves a published prior landing and completion recovers its published owner", async ({
+  test("a retired workspace preserves a published prior landing", async ({
     request,
     dashboard,
     origin,
@@ -111,19 +83,6 @@ test.describe("missing-agent trunk", () => {
       tree: completion,
     });
     expect(active.selectedRun).toBe(active.runs?.[0]?.key);
-    const historical = await get(
-      request,
-      dashboard,
-      storyReviewEndpoint,
-      completed,
-    );
-    expect(historical.status()).toBe(200);
-    expect(await historical.json()).toMatchObject({
-      kind: "published",
-      agent,
-    });
-    expect(await historical.json()).not.toHaveProperty("selectedRun");
-    expect(await historical.json()).toHaveProperty("files");
     const absent = { source: "open-dough", identity: "SEED-B#b" };
     const missingComparison = await get(
       request,
@@ -143,24 +102,5 @@ test.describe("missing-agent trunk", () => {
       explanation: expect.stringContaining("No published completion record"),
     });
     expect(await missingRecord.json()).not.toHaveProperty("files");
-  });
-});
-
-test.describe("missing-agent story-branch", () => {
-  test.use({ originRepository: missingAgentStoryBranchCompletedHistory() });
-
-  test("an agentless story-branch completion recovers its unique claim", async ({
-    request,
-    dashboard,
-  }) => {
-    const response = await get(
-      request,
-      dashboard,
-      storyReviewEndpoint,
-      completed,
-    );
-    expect(response.status()).toBe(200);
-    expect(await response.json()).toMatchObject({ kind: "published" });
-    expect(await response.json()).toHaveProperty("files");
   });
 });

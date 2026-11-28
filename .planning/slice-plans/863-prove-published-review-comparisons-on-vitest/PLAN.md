@@ -143,7 +143,7 @@ contract changed, so the E2E journey was not rerun.
 ### 2. Recover a published execution owner and explain missing claim evidence
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior. A historical Done record without an agent recovers a unique
 published execution claim and admits its fixed files. A later claim or
@@ -158,6 +158,15 @@ claim, recovered branch claim and historical-owner assertions in
 missing-capture selection in that same file. Keep `storyPublishedEndpoints`
 as the common claim source for Review and CI. Run affected CI comparison
 readers if that seam changes.
+
+Accepted. `story-review-completed-agent-recovery.spec.ts` now holds 8 Node
+cases and replaces 7 Chromium cases from it and the gaps spec. The old cases
+summed 8.72 s and the new ones 9.08 s, at load 6.2 old and 8.5 new. The new
+spec adds two recovery histories, each with a later claim and preparation,
+and real Git fixture work makes up most of the cost. The production seams
+did not change. `renderAgentProfile` accepts only known agent names. An
+agent-named shallow completion explains a missing "complete claim" rather
+than saying "shallow".
 
 ### 3. Attribute the published story's contribution
 
