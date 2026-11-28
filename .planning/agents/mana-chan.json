@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Mana-chan",
+  "email": "mana-chan@example.org",
+  "identity": "SEED-334#observe-tagged-install-and-read-e2e-proof",
+  "mode": "story-branch",
+  "branch": "claude/observe-a-tagged-installed-workflow-and-read-e2e",
+  "host": "claude"
+}
