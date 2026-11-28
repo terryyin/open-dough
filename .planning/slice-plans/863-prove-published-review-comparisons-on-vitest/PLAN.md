@@ -195,7 +195,7 @@ rejects `-t`, so select by spec path.
 ### 4. Read owning merge edits and explain missing merge trees
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior. A completion or integration merge retains the story's own merge
 edits and identifies inseparable conflict files and their readable bases.
@@ -215,6 +215,14 @@ object only for its distinct case. Replace
 `story-review-completed-merge-side.spec.ts` for the two-parents ownership
 contrast and `e2e/review/story-review-completed-merge-edits.spec.ts` for
 the visible mixed and attributed file rows and their diff.
+
+Accepted. `story-review-completed-merge-{edits,gaps}.spec.ts` hold 11 Node
+cases and replace the four Chromium specs' 11 cases. At one worker the old
+cases summed 39.0 s and the new ones 15.0 s, at load 6.5–13.7 old and about
+9 new. Review merge-tree runs in the bare Review repository. The old driver
+spec configured its driver in the developer checkout, so it never ran. The
+new cases configure it in the Review repository after the first read and
+assert that it ran.
 
 ### 5. Serve only the selected comparison's file or result tree
 
