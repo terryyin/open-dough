@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "sessionId": "f524373b-6978-4c04-867d-949bd3a4a344",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-28T14:29:46.691Z",
+  "story": "SEED-413#github-request-lifetime-and-evidence-via-vitest",
+  "ranges": [
+    {
+      "base": "735c60a52ea2cd88e8746df5e06edfcb1d9f81b2",
+      "candidate": "6935d63e8577bd27942b2ed248355a9c5a9c618a"
+    },
+    {
+      "base": "6935d63e8577bd27942b2ed248355a9c5a9c618a",
+      "candidate": "b9d068eda11119a4a37510e9f09d91d724d9c788"
+    },
+    {
+      "base": "b9d068eda11119a4a37510e9f09d91d724d9c788",
+      "candidate": "221d5527ff33234c838de5af5943c2efd26a3b63"
+    },
+    {
+      "base": "221d5527ff33234c838de5af5943c2efd26a3b63",
+      "candidate": "9512f637b4e8a137a09113c390ab6c4f3b095272"
+    },
+    {
+      "base": "9512f637b4e8a137a09113c390ab6c4f3b095272",
+      "candidate": "2950e48ddd61bfbe9fde0a130028b414651b1a6e"
+    },
+    {
+      "base": "2950e48ddd61bfbe9fde0a130028b414651b1a6e",
+      "candidate": "bc8fc7f1d9724b44085dbf4c95324bf9a0e81404"
+    },
+    {
+      "base": "bc8fc7f1d9724b44085dbf4c95324bf9a0e81404",
+      "candidate": "98f31733eaf295a5d88a5e8184f9b69d284d06f0"
+    },
+    {
+      "base": "98f31733eaf295a5d88a5e8184f9b69d284d06f0",
+      "candidate": "dee41091d25a3d99d1f89e76d5d5632b3f7677f6"
+    },
+    {
+      "base": "dee41091d25a3d99d1f89e76d5d5632b3f7677f6",
+      "candidate": "a6777a85a2d556bb495852d2e1d49b2b533339c4"
+    },
+    {
+      "base": "a6777a85a2d556bb495852d2e1d49b2b533339c4",
+      "candidate": "81a419b133ffef52907f8cf9719a012d1cd0408a"
+    },
+    {
+      "base": "81a419b133ffef52907f8cf9719a012d1cd0408a",
+      "candidate": "3968e1fa31430f4661c5c1ffcfe80b9250ffe6ab"
+    },
+    {
+      "base": "3968e1fa31430f4661c5c1ffcfe80b9250ffe6ab",
+      "candidate": "489d36d1a027b1203366ac5eca2574a6e13bbdf9"
+    },
+    {
+      "base": "489d36d1a027b1203366ac5eca2574a6e13bbdf9",
+      "candidate": "8885e2fb2bf8d81929b22eb6b0dcd55cc437bb57"
+    },
+    {
+      "base": "8885e2fb2bf8d81929b22eb6b0dcd55cc437bb57",
+      "candidate": "74723af434783344157b464ab0ed45cffc192b41"
+    }
+  ]
+}
