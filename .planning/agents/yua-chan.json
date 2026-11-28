@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "agent": "Yua-chan",
+  "email": "yua-chan@example.org",
+  "identity": "SEED-413#landing-capture-evidence-via-vitest",
+  "mode": "story-branch",
+  "branch": "cursor/prove-retained-landing-capture-in-node-vitest",
+  "host": "cursor",
+  "model": "grok-4.7"
+}
