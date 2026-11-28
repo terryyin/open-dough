@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "agent": "Maria-chan",
+  "email": "maria-chan@example.org",
+  "activity": "preparation",
+  "identity": "SEED-413#keep-full-frontend-runs-connected",
+  "host": "claude",
+  "model": "fable"
+}
