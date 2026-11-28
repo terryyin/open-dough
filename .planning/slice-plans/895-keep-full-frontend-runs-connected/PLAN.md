@@ -442,7 +442,7 @@ skip the cache. The capture is deleted, and the frontend config equals
 ### 6. The closure's ineffective guards leave, and hosted runs finish every file
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Vitest 5.1.2 runs the frontend group → the guards added against
 mechanisms the closure never took are gone, and every hosted job reports
@@ -509,6 +509,11 @@ comparison answer reproduced the CI error before the change, and all 12
 specs that use the fixture passed with it after. The three files passed 20
 runs in a row under 16 CPU burners (load about 29). Slice clock: slice 6
 overran at 23.1 active minutes, mostly waiting on the hosted round.
+
+Done (2026-11-28): the probe workflow is deleted. Against `origin/main`,
+the story's code diff holds only the Vitest 5.1.2 upgrade, the guard's
+removal, and the three test-timing repairs from slices 4 and 6. Neither the
+probe nor the capture remains.
 
 ## Local gate and delivery
 
