@@ -236,6 +236,12 @@ cases exceeded the ~100 ms target on this run. Those same real Git cases had
 taken 65 ms, 66 ms and 53 ms earlier on the same host before the separate
 age-case refactor. All runs kept default timeouts.
 
+The execution branch incorporated the frontend CI repair from `main` through
+merge `34bf89399ff58158c8ee735f10a8822068c6ca53`. After installing the updated
+lockfile, all 16 focused cases passed on Vitest 5.1.2 in 921 ms summed and
+2.48 s reported by Vitest. The Git cases took 1–80 ms and the real HTTP GET
+took 253 ms. Dashboard typecheck passed. [Branch CI passed on that merge](https://github.com/terryyin/open-dough/actions/runs/46131858504).
+
 ## Local gate and delivery
 
 - Apply [MakeMe](../../../.agents/skills/dough-makeme/SKILL.md) selection
