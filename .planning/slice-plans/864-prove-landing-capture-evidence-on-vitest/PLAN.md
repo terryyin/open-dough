@@ -12,7 +12,7 @@ stays bound to the launch that published it. Account for the 18 cases in the
 keep actual publisher, Git, receiver, or native behavior at its workflow
 boundary when that interaction is what the case proves. Keep the existing
 capture, completion, and retention rules. Published Review comparisons and
-selection belong to [plan 863](../863-prove-published-review-comparisons-on-vitest/PLAN.md).
+selection belong to [plan 863](https://github.com/terryyin/open-dough/blob/cc7802ace20bd4475751c5e75713d983290607e5/.planning/slice-plans/863-prove-published-review-comparisons-on-vitest/PLAN.md), completed.
 The [runner cutover](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#retire-legacy-dashboard-backend-runner)
 already waits for this family's published disposition.
 
@@ -319,7 +319,7 @@ production file changed. The capture spec stays 250 lines.
 ### 9. Recover a conflicted or unacknowledged Story Branch landing
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Story Branch integration encounters conflict, a newer target or a
 lost push response. A resumed integration keeps the resolved merge and records
@@ -332,6 +332,18 @@ case of `story-branch-landing-capture` (4.337). Move the conflict spec to
 slice 8's E2E file. Preserve the real origin's rejection gate, retained workspace
 `HEAD` and branch, receiver restart, superseded preparation history, restored
 comparison and exactly one accepted push for the lost reply.
+
+Accepted proof: `story-branch-landing-recovery.spec.ts` and the unedited
+reporting retry in `story-branch-landing-capture.spec.ts` selected 4 e2e
+tests, strict status passed, about 14.4 s. `slice9-recovery.json` names them.
+The conflict stops with nothing pushed, then one push records the resolved
+merge. Closing the dashboard keeps that merge checked out, and the restart
+publishes it. A rejected push keeps the superseded preparation, and the
+recorded pair is the resolved merge on the racing tip. The lost reply keeps
+exactly one accepted push, and the printed retry records that pair. Imports
+are the only text change. No production file changed. The recovery spec is
+218 lines. The capture spec stays 250 lines. Refactor skipped: the change
+adds no production representation.
 
 ### 10. Continue the same claimed session after a retained landing
 
@@ -412,9 +424,10 @@ is not split again. The plan is already at the ten-slice execution allowance.
   `45f1c197c89ce0a4fc35b3fe08bbdc5701128963`, then slice 5 as
   `57bf00ea0c0e23aee871fd31135621046af1e9fb`, then slice 6 as
   `b4328d438337d47e3247fa5df31e49e36553709a`, then slice 7 as
-  `b7a1e73a22bc8e8dd0f2789863e557e5c06a933b`, on
+  `b7a1e73a22bc8e8dd0f2789863e557e5c06a933b`, then slice 8 as
+  `68ba50850c140e89150027efda14f5fb4f3920a2`, on
   `origin/cursor/prove-retained-landing-capture-in-node-vitest`. Suffix base
-  of the slice 7 receipt is slice 6, zero reconciliations. That receipt is
+  of the slice 8 receipt is slice 7, zero reconciliations. That receipt is
   the next increment's previously published base. Observer
   `/tmp/dough-ci-501/watch-1ZhItf` reused.
   No unpublished candidate. Publisher `dashboard-territory.local-open-dough`,
