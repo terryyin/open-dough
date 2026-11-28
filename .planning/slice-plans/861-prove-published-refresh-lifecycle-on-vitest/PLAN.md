@@ -591,7 +591,7 @@ beside trunk's `SharedVerifiedOriginTrunk` stream.
   revision `9379098d55410b514abf36b8fb8e42b0c0931181`.
 - Originating checkout: that same workspace. Integration checkout: none.
 - Target selection: remote `origin`, branch `main`.
-- Published revision `e0039bd68fcb86dfd7afc16607806f7b9882d11a` accepted on
+- Published revision `a31a760cd6854b46d1cdb03561eafc76b98dea9c` accepted on
   `origin/cursor/prove-published-refresh-lifecycle-in-node-vitest`. That SHA is
   the previously published base for the next increment. The Story Branch claim
   `29e8402851ac887b9d4cdd7838b8a20db7bb08f9` remains `pendingCi: unobserved`.
@@ -603,3 +603,14 @@ across the 15 legacy specs with direct typed Node Vitest seams, minimal
 in-process HTTP witnesses for genuine wire/SSE/process behaviors, clear
 test-support deletions, and explicit reconciliation with plans 856, 853, 823,
 860, 862 and 890. No slice-specific concern remains on the observed basis.
+
+## Execution complete
+
+Product advice: no change.
+
+Retained answers and cross-revision reuse stay proved in Node. The merge
+with trunk `3cc83ace` drops `revisionChecks.ts` and that Node port, and keeps
+trunk's revision-check spec. Shared listings were removed with trunk. The
+eleven stream cases stay in the Chromium specs trunk still has. Process
+review waits for Intent Coverage because this work removed and replaced
+observation tests.
