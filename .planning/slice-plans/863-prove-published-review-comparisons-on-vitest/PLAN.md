@@ -171,7 +171,7 @@ than saying "shallow".
 ### 3. Attribute the published story's contribution
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior. An attributable completion includes each historical owner's
 contribution after a takeover. Foreign resolutions do not hide owned edits.
@@ -185,6 +185,12 @@ as `story-review-completed-attribution.spec.ts`. Assert ordered exact
 endpoints, listed paths and accepted/refused baselines through
 `reviewedFileDiff`. The slice proves who contributes. Slice 4 proves what
 an attributed merge contributes from its actual and automatic trees.
+
+Accepted. The 5 Chromium cases in `story-review-completed-attribution.spec.ts`
+map one-to-one onto 5 Node cases. At one worker the old cases summed 24.8 s
+and the new ones 8.3 s. Load fell from 17.2 to 9.7 during the comparison.
+`includesTrunkFrom` names the claim revision's tree. The backend runner
+rejects `-t`, so select by spec path.
 
 ### 4. Read owning merge edits and explain missing merge trees
 
