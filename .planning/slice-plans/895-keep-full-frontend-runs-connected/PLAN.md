@@ -79,7 +79,7 @@ Read at `6baaf31bb` with Vitest 5.1.0, `@vitest/browser` 5.1.0,
 ### 1. The capture records what happens around the orchestrator socket
 
 Type: Behavior (early probe)
-Status: planned
+Status: done
 
 Behavior: A frontend run with the capture variable set → one ordered,
 timestamped log holds, for the orchestrator page, its main-frame
@@ -100,6 +100,24 @@ Proof:
 - Run the same spec with the capture off. The config resolves the ordinary
   provider and writes no capture log.
 - `npm run typecheck:dashboard` passes.
+
+Learnings (delivered):
+
+- Capture contract: `OPEN_DOUGH_FRONTEND_CAPTURE=<absolute log path>` turns it
+  on and writes one JSON Lines event per line (`at`, `elapsedMs`, `event`).
+  Vitest's `vitest:browser` debug lines appear only when `DEBUG='vitest:browser*'`
+  is also set before Vitest starts; the config cannot enable that debugger.
+- The normal single-spec order at one worker: browser-open, page-open,
+  main-frame navigated to `/__vitest_test__/`, api-connect orchestrator, two
+  hmr-open, api-connect tester, provider-close, hmr-close 1001 (tester),
+  page-close, api-disconnect tester, hmr-close 1001 (orchestrator),
+  api-disconnect orchestrator, browser-disconnected, chromium-exit 0,
+  provider-closed. Each run has one HMR and one API socket for the
+  orchestrator and one each for the tester frame.
+- The raw TCP close of an API socket reports `hadError: true` even in a
+  normal teardown, so that flag cannot separate a failing closure.
+- No full-reload was sent in the normal run; that event's line is checked by
+  typecheck and by the same send wrapper that filters `connected`.
 
 ### 2. A natural closure is captured with the event that precedes it
 
