@@ -72,7 +72,7 @@ export function disconnectGh(): void {
 
 // How a request names the API host and login this process asks under now,
 // without a secret; undefined while their endpoint cannot be established.
-// Revision checks key their shared listing by this (`./revisionChecks.ts`).
+// Revision streams group subscribers by this scope.
 export function scope(): Promise<string | undefined> {
   return github.scope();
 }

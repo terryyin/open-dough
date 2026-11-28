@@ -130,7 +130,6 @@ test.describe("authenticated read reuse at a newly named revision across dashboa
       `compare ${a}...${b}`,
       `commit ${named("d6")}`,
       `content ${origin.paths.seed}@${b}`,
-      `branch ${project.branch}`,
       `commit-list ${origin.paths.seed}@${b}`,
     ]);
     expect(second.result.answers[1]?.body).toEqual({

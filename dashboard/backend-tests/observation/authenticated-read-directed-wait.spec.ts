@@ -1,15 +1,13 @@
 // The wait GitHub directs when it rate-limits a read, at the local
 // authenticated read boundary (../../server/ghRead.ts): whichever read GitHub
-// refuses -- a content read, a directory listing, a history read, a revision
-// check, or a branch-head resolution -- the answer says GitHub asked to
+// refuses a content read, a directory listing, or a history read. The
+// answer says GitHub asked to
 // wait and carries that wait, whether GitHub directed it with `Retry-After` or
 // with a reset time once nothing remains. An unmarked `403` and a `404` carry
 // no wait. A rate limit that directs nothing waits as the process backs off:
 // ./authenticated-read-backoff.spec.ts. Tested directly against real
 // HTTP and the synthetic `gh` (../../test-support/support/sharedReads.ts publishes the
-// revision). The direction's validation and bound, and the check's and
-// comparison's own refusals:
-// ./authenticated-read-revision-check-failures.spec.ts and
+// revision). Compare the containment refusal coverage in
 // ./authenticated-read-containment.spec.ts.
 
 import { expect, test } from "../../test-support/support/pageTest.ts";
@@ -70,12 +68,6 @@ const readKinds: readonly ReadKind[] = [
     refused: (request) => request.kind === "commit-list",
     reading: (revision) =>
       `the last commit of ${sharedSeedPath} at ${revision}`,
-  },
-  {
-    name: "a branch-head resolution",
-    query: (revision) => `&revision=${revision}&branch=story/one`,
-    refused: (request) => request.kind === "branch",
-    reading: () => `branch story/one of ${repository}`,
   },
 ];
 

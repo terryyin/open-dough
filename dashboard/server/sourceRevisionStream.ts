@@ -10,7 +10,6 @@ import { configuredLimit } from "./configuredLimit.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import { reportedFailure } from "./readFailureMessage.ts";
 import type { Outcome } from "./readOutcome.ts";
-import type { RevisionChecks } from "./revisionChecks.ts";
 import type { RevisionStreamAsk } from "./requestedRevisionStream.ts";
 import {
   endRevisionStream,
@@ -26,7 +25,6 @@ export function revisionStreamPaceMs(): number {
 export type RevisionStreamReaders = {
   readonly tracked: Set<AbortController>;
   readonly pinned: PinnedTexts;
-  readonly checks: RevisionChecks;
   readonly trunks: SharedVerifiedOriginTrunk;
   readonly branches: BranchHeads;
 };

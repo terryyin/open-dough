@@ -70,11 +70,11 @@ test.describe("authenticated read boundary revision check (development environme
       expect(Date.parse(unchanged.confirmedAt)).toBeGreaterThan(
         Date.parse(firstCheck.confirmedAt),
       );
-      expect(unchanged).toMatchObject(
-        (await boardConfirmation(origin.review, "main")) ?? {
-          missingConfirmation: true,
-        },
-      );
+      const recorded = await boardConfirmation(origin.review, "main");
+      expect(recorded).toMatchObject({
+        revision: published,
+        confirmedAt: unchanged.confirmedAt,
+      });
       expect(origin.operations()).toBe(3); // One shared probe/fetch, then a fresh warm probe.
       expect(server.github.calls).toEqual([]);
       stream.close();

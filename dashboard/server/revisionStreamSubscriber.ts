@@ -3,6 +3,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { readingRefOf } from "../src/authenticatedReadRules.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
+import { requireCoreReadsAllowed } from "./ghRead.ts";
 import { performRevisionCheck } from "./performedRevisionCheck.ts";
 import { reportedFailure } from "./readFailureMessage.ts";
 import type { Outcome } from "./readOutcome.ts";
@@ -57,6 +58,7 @@ export class RevisionStreamSubscriber {
     observation: AskedOriginTrunk,
   ): Promise<void> {
     if (observationSignal.aborted || this.controller.signal.aborted) return;
+    const signal = AbortSignal.any([this.controller.signal, observationSignal]);
     try {
       const outcome = await performRevisionCheck(
         readers,
@@ -65,8 +67,12 @@ export class RevisionStreamSubscriber {
           since: this.ask.at,
           watched: this.ask.watched,
         },
-        AbortSignal.any([this.controller.signal, observationSignal]),
-        () => observation,
+        signal,
+        async () => {
+          if (this.ask.watched.length > 0)
+            await requireCoreReadsAllowed(signal);
+          return observation;
+        },
       );
       this.write(outcome);
     } catch (error) {

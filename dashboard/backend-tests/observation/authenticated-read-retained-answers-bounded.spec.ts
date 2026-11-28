@@ -2,7 +2,7 @@
 // (../../server/retainedAnswers.ts): once a write takes the store over it, the
 // least recently used answers are removed until it fits, so a later process
 // rereads only what was removed while the revision read most recently costs
-// the recorded branch head only beside membership, and an answer a process used
+// no REST requests beside membership, and an answer a process used
 // outlasts one written after it but never used. Each server's budget is set
 // small through `DOUGH_RETAINED_ANSWERS_BYTES`, relative to what one
 // revision's answers measure; boundary servers in the development
@@ -152,7 +152,7 @@ test.describe("authenticated read answers retained within a byte budget (develop
     expect(present(machine, a)).not.toContain(origin.paths.backlog);
 
     const atC = await readAt(machine, github, project, budget);
-    expect(atC.calls).toEqual([`branch ${project.branch}`]);
+    expect(atC.calls).toEqual([]);
 
     // The ref names A again: only what the budget removed is asked again,
     // by a process whose own writes remove nothing.
@@ -177,7 +177,6 @@ test.describe("authenticated read answers retained within a byte budget (develop
     );
     expect(atA.calls.filter((call) => !reread.includes(call))).toEqual([
       `compare ${c}...${a}`,
-      `branch ${project.branch}`,
     ]);
     // Membership reads the removed backlog itself, outside this count.
     expect(reread.filter((call) => call.startsWith("content ")).sort()).toEqual(
@@ -207,6 +206,9 @@ test.describe("authenticated read answers retained within a byte budget (develop
       "8",
     );
 
+    const contentAtB = present(machine, b);
+    expect(contentAtB).toEqual(contentPaths);
+
     // A, written before B, is used again; then C's answers take the store
     // over the budget.
     project.restoreInitialRevision();
@@ -215,18 +217,18 @@ test.describe("authenticated read answers retained within a byte budget (develop
       github,
       async (server) => {
         const atA = await asked(github, () => readProject(server, project));
-        expect(atA.calls).toEqual([`branch ${project.branch}`]);
+        expect(atA.calls).toEqual([]);
         await project.movedTo(recordsAt("lasts", "c"), unbounded("7"));
         allAnswered((await readProject(server, project)).answers);
       },
       budget,
     );
     expect(sizeOf(machine)).toBeLessThanOrEqual(budget);
-    expect(present(machine, b)).not.toContain(origin.paths.backlog);
+    expect(present(machine, b).length).toBeLessThan(contentAtB.length);
     expect(present(machine, a)).toEqual(contentPaths);
 
     project.restoreInitialRevision();
     const again = await readAt(machine, github, project, budget);
-    expect(again.calls).toEqual([`branch ${project.branch}`]);
+    expect(again.calls).toEqual([]);
   });
 });

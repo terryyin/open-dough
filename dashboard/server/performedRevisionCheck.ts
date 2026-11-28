@@ -1,13 +1,12 @@
-// Report the shared verified trunk and the interim REST heads for authorized
+// Report the shared verified trunk and branch heads for authorized
 // story-branch watches. Remember reported heads for later pinned plan reads.
 
 import type { BranchHeads } from "./branchHeads.ts";
-import { branchRecordedAtRevision } from "./branchReachability.ts";
+import { takenEntriesByBranch } from "./branchReachability.ts";
 import { unrecordedBranch } from "./performedBranchRead.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
 import type { RequestedRead } from "./requestedRead.ts";
-import type { RevisionChecks } from "./revisionChecks.ts";
 import type {
   AskedOriginTrunk,
   SharedVerifiedOriginTrunk,
@@ -19,7 +18,6 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 
 type CheckReaders = {
   readonly pinned: PinnedTexts;
-  readonly checks: RevisionChecks;
   readonly branches: BranchHeads;
 };
 
@@ -40,26 +38,25 @@ export function performHttpRevisionCheck(
 }
 
 export async function performRevisionCheck(
-  { pinned, checks, branches }: CheckReaders,
+  { pinned, branches }: CheckReaders,
   source: PublishedSource,
   { since, watched }: Pick<RevisionCheckRead, "since" | "watched">,
   signal: AbortSignal,
   observe: () => AskedOriginTrunk | Promise<AskedOriginTrunk>,
 ): Promise<Outcome> {
-  for (const branch of watched) {
-    const recorded = await branchRecordedAtRevision(
+  if (watched.length > 0) {
+    const recorded = await takenEntriesByBranch(
       source,
       since,
-      branch,
       pinned.reader(source, since, signal),
       pinned.lister(source, since, signal),
     );
-    if (!recorded) {
+    if (watched.some((branch) => !recorded.has(branch)))
       return unrecordedBranch;
-    }
   }
   const { askedAt, trunk } = await observe();
-  const { revision, confirmedAt, unrecorded } = verifiedTrunk(trunk);
+  const verified = verifiedTrunk(trunk);
+  const { revision, confirmedAt, unrecorded } = verified;
   if (unrecorded) {
     return {
       kind: "failed",
@@ -74,20 +71,22 @@ export async function performRevisionCheck(
     confirmedAt,
     askedAt,
   };
-  const heads =
-    watched.length > 0 ? await checks.watchedHeads(source, signal) : undefined;
-  if (heads === undefined) {
-    return answered(checked);
-  }
-  return answered({
-    ...checked,
-    branches: watched.map((branch) => {
-      const head = heads.get(branch);
-      if (head !== undefined) {
-        branches.remember(source, branch, head);
-        pinned.heardNamed(source, head);
-      }
-      return { branch, head: head ?? null };
-    }),
+  if (watched.length === 0 || checked.changed) return answered(checked);
+  const heads = new Map(
+    verified.branches?.map(({ branch, head }) => [branch, head]),
+  );
+  const reported = watched.flatMap((branch) => {
+    const head = heads.get(branch);
+    if (head === undefined) return [];
+    if (head !== null) {
+      branches.remember(source, branch, head);
+      pinned.heardNamed(source, head);
+    }
+    return [{ branch, head }];
   });
+  return answered(
+    reported.length === watched.length
+      ? { ...checked, branches: reported }
+      : checked,
+  );
 }

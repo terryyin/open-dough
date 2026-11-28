@@ -20,7 +20,7 @@
 // gh calls: `./ghRead.ts`, `./ghRevision.ts`, and `./ghContents.ts`; path
 // reachability: `./reachablePaths.ts`, `./recordsBesideBacklog.ts`, and
 // `./branchReachability.ts`; pinned-text memo: `./pinnedTexts.ts`; revision
-// checks: `./performedRevisionCheck.ts` and `./revisionChecks.ts`; resolved
+// checks: `./performedRevisionCheck.ts` and `./verifiedOriginTrunk.ts`; resolved
 // branch heads: `./branchHeads.ts`; one request's wait for its `gh`
 // answers: `./trackedGh.ts`; failure wording and any directed wait:
 // `./readFailureMessage.ts`; bounded local failure history:
@@ -40,7 +40,6 @@ import { RefusedRequest, verifyLocalOrigin } from "./localOrigin.ts";
 import { PinnedTexts } from "./pinnedTexts.ts";
 import { RetainedAnswers } from "./retainedAnswers.ts";
 import { RevisionMemo } from "./revisionMemo.ts";
-import { RevisionChecks } from "./revisionChecks.ts";
 import { SharedVerifiedOriginTrunk } from "./sharedVerifiedOriginTrunk.ts";
 import { BranchHeads } from "./branchHeads.ts";
 import { AvatarImages } from "./avatarImages.ts";
@@ -182,7 +181,6 @@ export function installAuthenticatedReadMiddleware(
     tracked,
     // Answers at resolved commits outlive this process; nothing else here does.
     pinned: new PinnedTexts(new RevisionMemo(new RetainedAnswers())),
-    checks: new RevisionChecks({ tracked }),
     trunks: new SharedVerifiedOriginTrunk(),
     branches: new BranchHeads(),
     avatars: new AvatarImages(),

@@ -6,6 +6,8 @@
 // before, asking GitHub about the comparison or commits at most once
 // (./revisionReuseBoundary.ts).
 
+import { commitDeclaredRevision } from "../../../Distribution/tests/support/repository-fixture.mjs";
+import { publishBranch } from "../../test-support/committedOriginRepo.ts";
 import { expect, test } from "../../test-support/support/pageTest.ts";
 import {
   aheadByAnswer,
@@ -130,12 +132,23 @@ test.describe("authenticated read reuse bounds at a newly named revision (develo
     const b = await movedTo(published, a, { files }, [
       madeBy("cc", [modified("src/app.ts")]),
     ]);
-    const [head, movedHead] = [named("dc"), named("ec")];
-    published.revisions.set(head, { [origin.paths.plan]: "# Plan at head\n" });
-    published.revisions.set(movedHead, {
-      [origin.paths.plan]: "# Plan moved\n",
-    });
-    published.branches.set(branch, head);
+    const firstPlan = { [origin.paths.plan]: "# Plan at head\n" };
+    const nextPlan = { [origin.paths.plan]: "# Plan moved\n" };
+    const head = await commitDeclaredRevision(
+      published.origin,
+      { files: firstPlan },
+      undefined,
+      [b],
+    );
+    const movedHead = await commitDeclaredRevision(
+      published.origin,
+      { files: nextPlan },
+      undefined,
+      [head],
+    );
+    published.revisions.set(head, firstPlan);
+    published.revisions.set(movedHead, nextPlan);
+    publishBranch(published.origin, branch, head);
     const onBranch = (
       at: string,
       path = `&path=${encodeURIComponent(origin.paths.plan)}`,
@@ -152,7 +165,7 @@ test.describe("authenticated read reuse bounds at a newly named revision (develo
       text: "# Plan at head\n",
     });
 
-    published.branches.set(branch, movedHead);
+    publishBranch(published.origin, branch, movedHead);
     expect(
       await asked(async () => {
         await read(`&revision=${b}&branch=${encodeURIComponent(branch)}`);
@@ -163,7 +176,6 @@ test.describe("authenticated read reuse bounds at a newly named revision (develo
         );
       }),
     ).toEqual([
-      `branch ${branch}`,
       `content ${origin.paths.plan}@${movedHead}`,
       `commit-list ${origin.paths.plan}@${movedHead}`,
     ]);

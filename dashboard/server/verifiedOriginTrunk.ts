@@ -8,7 +8,7 @@
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { commitIdSchema } from "../src/launchLanding.ts";
 import { GhFailure } from "./ghFailure.ts";
-import { remoteBranchHead } from "./gitTargetFetch.ts";
+import { remoteBranchHeads } from "./gitTargetFetch.ts";
 import {
   defaultGitOutputLimit,
   fetchGitTransport,
@@ -27,7 +27,13 @@ import {
   boardConfirmation,
   recordBoardConfirmation,
   type BoardConfirmation,
+  type ConfirmedBranch,
 } from "./boardConfirmation.ts";
+import {
+  branchRef,
+  formerlyWatched,
+  verifiedBoardBranches,
+} from "./verifiedBoardBranches.ts";
 
 export type VerifiedOriginTrunk =
   | {
@@ -35,6 +41,7 @@ export type VerifiedOriginTrunk =
       readonly revision: string;
       readonly backlog: string;
       readonly confirmedAt: string;
+      readonly branches?: readonly ConfirmedBranch[];
       // The newer confirmation could not be recorded, so the former one
       // answers.
       readonly unrecorded?: true;
@@ -93,28 +100,34 @@ export async function verifiedOriginTrunk(
   const repository = await ensureReviewRepository(source, signal);
   const call = reviewGitCall(repository, signal);
   const check: BoardCheck = { repository, source, pinned, call };
-  const ref = `refs/heads/${source.ref}`;
+  const ref = branchRef(source.ref);
   const boardRef = `refs/open-dough/board/${source.ref}`;
-  let probed: string;
+  const former = await boardConfirmation(repository, source.ref);
+  let advertised: ReadonlyMap<string, string>;
   try {
-    const head = await remoteBranchHead(
+    advertised = await remoteBranchHeads(
       "origin",
-      ref,
+      [...new Set([ref, ...formerlyWatched(former).map(branchRef)])],
       call,
       githubGitCredentials,
     );
-    if (head === undefined) return { kind: "missing-trunk" };
-    probed = head;
   } catch (error) {
     return transportOutcome(error, signal);
   }
-  const former = await boardConfirmation(repository, source.ref);
+  const probed = advertised.get(ref);
+  if (probed === undefined) return { kind: "missing-trunk" };
   // Warm: origin still advertises the recorded revision, whose objects are
   // local, so the backlog is read there without a fetch.
   const warm =
     former?.revision === probed ? await backlogAt(check, probed) : undefined;
   if (warm !== undefined)
-    return confirmed(check, { revision: probed, backlog: warm }, former);
+    return confirmed(
+      check,
+      { revision: probed, backlog: warm },
+      former,
+      advertised,
+      signal,
+    );
   try {
     // Owned through cancellation: the deadline ends Git and its transport.
     await fetchGitTransport(
@@ -140,7 +153,13 @@ export async function verifiedOriginTrunk(
   if (fetched !== probed) return { kind: "rejected" };
   const backlog = await backlogAt(check, probed);
   if (backlog === undefined) return { kind: "unreadable-backlog" };
-  return confirmed(check, { revision: probed, backlog }, former);
+  return confirmed(
+    check,
+    { revision: probed, backlog },
+    former,
+    advertised,
+    signal,
+  );
 }
 
 async function backlogAt(
@@ -167,12 +186,32 @@ async function confirmed(
   check: BoardCheck,
   read: BoardRead,
   former: BoardConfirmation | undefined,
+  advertised: ReadonlyMap<string, string>,
+  signal: AbortSignal,
 ): Promise<VerifiedOriginTrunk> {
+  let branches: readonly ConfirmedBranch[] | undefined;
+  try {
+    branches = await verifiedBoardBranches(
+      check.source,
+      read.revision,
+      read.backlog,
+      former,
+      advertised,
+      check.call,
+    );
+  } catch (error) {
+    // An absent target during fetch after a successful advertisement is a
+    // failed verification. An explicit credential refusal retains its cause.
+    transportOutcome(error, signal);
+    return { kind: "unavailable" };
+  }
+  if (branches === undefined) return { kind: "rejected" };
   const confirmedAt = new Date().toISOString();
   try {
     await recordBoardConfirmation(check.repository, check.source.ref, {
       revision: read.revision,
       confirmedAt,
+      ...(branches.length === 0 ? {} : { branches }),
     });
   } catch (error) {
     const formerBacklog =
@@ -185,19 +224,27 @@ async function confirmed(
         check,
         { revision: former.revision, backlog: formerBacklog },
         former.confirmedAt,
+        former.branches,
       ),
       unrecorded: true,
     };
   }
-  return published(check, read, confirmedAt);
+  return published(check, read, confirmedAt, branches);
 }
 
 function published(
   { source, pinned }: BoardCheck,
   { revision, backlog }: BoardRead,
   confirmedAt: string,
+  branches?: readonly ConfirmedBranch[],
 ) {
   pinned.remember(source, revision, source.backlogPath, backlog);
   observeProjectRevision(pinned, source, revision);
-  return { kind: "verified" as const, revision, backlog, confirmedAt };
+  return {
+    kind: "verified" as const,
+    revision,
+    backlog,
+    confirmedAt,
+    ...(branches === undefined || branches.length === 0 ? {} : { branches }),
+  };
 }

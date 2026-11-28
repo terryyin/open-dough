@@ -29,7 +29,6 @@ import {
   isRevisionStream,
   routeFailingRevisionStreams,
   streamServerEnv,
-  untilMatchingRefsSince,
   untilStreamingAt,
 } from "../../dashboard/test-support/revisionStreamJourney.ts";
 import { openedSettled } from "../../dashboard/test-support/branchRefreshJourney.ts";
@@ -45,6 +44,7 @@ import {
   type OriginAnswer,
 } from "../../dashboard/test-support/originAnswers.ts";
 import { test as ownerClockTest } from "../../dashboard/test-support/support/ownerClockTest.ts";
+import { readUrl } from "../../dashboard/test-support/support/sharedReads.ts";
 import { expectEarlierSnapshotKept } from "../../dashboard/test-support/transientRecoveryPage.ts";
 
 // Added to the environment the case's own `test` gives its dashboard server.
@@ -87,20 +87,28 @@ ownerClockTest(
     const limited = rateLimitedAnswer(429, {
       "Retry-After": String(retryAfterSeconds),
     });
+    const seed = ".planning/seeds/SEED-092-branch.md";
     const published = github.serve(
       repository,
       async (call): Promise<OriginAnswer> =>
-        call.request.kind === "matching-refs"
+        call.request.kind === "commit-list" && call.request.path === seed
           ? limited
           : (published?.(call) ?? noConnection),
     );
     expect(published).toBeDefined();
-    const beforeLimit = github.calls.length;
-    // Next pace tick delivers the limited answer over the open stream (wall).
-    await untilMatchingRefsSince(page, beforeLimit, 1);
-    await expect(problem).toContainText(
-      "GitHub limited the rate of the local GitHub CLI's requests (HTTP 429)",
+    const endpoint = new URL(page.url()).origin;
+    const seedHistory = readUrl(
+      endpoint,
+      `&revision=${revisionA}&path=${encodeURIComponent(seed)}&committed=last`,
     );
+    // Another REST read first puts the core budget on hold. The next
+    // watched stream tick learns that wait without asking REST for heads.
+    const refused = await page.request.get(seedHistory, {
+      headers: { Origin: endpoint },
+    });
+    expect(refused.status()).toBe(502);
+    expect(await refused.json()).toMatchObject({ retryAfterSeconds });
+    await expect(problem).toContainText("Reading resumes in 6 seconds.");
     await expect(problem).toContainText(
       "GitHub limited the rate of the local GitHub CLI's requests, so this page asks GitHub nothing until",
     );
@@ -115,7 +123,7 @@ ownerClockTest(
         streamOpens.push(request.url());
       }
     });
-    // Page time still before T: no check, no stream reopen, no further listing,
+    // Page time still before T: no check, no stream reopen, no REST request,
     // and no lost-freshness while the directed notice stands (G3 / E3.2).
     expect(await checksAskedWhilePassing(page, 1_000)).toBe(0);
     expect(streamOpens).toEqual([]);
@@ -129,13 +137,9 @@ ownerClockTest(
     const stopFailing = await routeFailingRevisionStreams(page);
     if (published !== undefined) github.serve(repository, published);
     // Page time passed up to two seconds before T with the stream still
-    // closed and no further listing.
+    // closed and no further provider request.
     expect(streamOpens).toEqual([]);
-    expect(
-      github.calls
-        .slice(quietFrom)
-        .filter(({ request }) => request.kind === "matching-refs"),
-    ).toEqual([]);
+    expect(github.calls.slice(quietFrom)).toEqual([]);
     // Owner time reaches T, and the page clock crosses it; silence arms
     // immediately before this open. The open reaches the test after the
     // clock step that fires it returns, so the case waits for it; by then

@@ -15,6 +15,7 @@ import type {
   MadeCommit,
   PathHistories,
 } from "./pathHistoryAnswers.ts";
+import { publishBranch } from "./committedOriginRepo.ts";
 import { aheadBy, type Comparison } from "./comparisonAnswers.ts";
 import { defaultRepository } from "./publishedOriginBasics.ts";
 import { answerFrom } from "./revisionReuseAnswers.ts";
@@ -87,21 +88,50 @@ export type ReusePublication = Publication & PublishedOrigin;
 export function reusePublication(
   files: Files,
   history: PathHistories = {},
+  storyBranch?: { readonly name: string; readonly label: string },
 ): ReusePublication {
   const origin = commitPublishedOrigin({
     branch: "main",
     backlog: null,
     files,
   });
-  const { revision } = origin;
+  const { origin: repository, revision } = origin;
+  const revisions = new Map([[revision, files]]);
+  const histories = new Map([[revision, history]]);
+  const branches = new Map<string, string>();
+  if (storyBranch !== undefined) {
+    // Publish an independent, real story-branch pin with the same files.
+    const head = execFileSync(
+      "git",
+      [
+        "-C",
+        repository,
+        "-c",
+        "user.name=Fixture",
+        "-c",
+        "user.email=fixture@example.com",
+        "commit-tree",
+        `${revision}^{tree}`,
+        "-p",
+        revision,
+        "-m",
+        storyBranch.label,
+      ],
+      { encoding: "utf8" },
+    ).trim();
+    publishBranch(repository, storyBranch.name, head);
+    branches.set(storyBranch.name, head);
+    revisions.set(head, files);
+    histories.set(head, history);
+  }
   return {
     ...origin,
     trunk: { revision },
-    revisions: new Map([[revision, files]]),
-    branches: new Map(),
+    revisions,
+    branches,
     compared: new Map(),
     made: new Map(),
-    histories: new Map([[revision, history]]),
+    histories,
   };
 }
 

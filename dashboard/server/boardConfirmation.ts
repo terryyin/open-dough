@@ -9,15 +9,24 @@ import { z } from "zod";
 import { commitIdSchema } from "../src/launchLanding.ts";
 import { replaceDurableJson } from "./durableJsonReplacement.ts";
 
+export type ConfirmedBranch = {
+  readonly branch: string;
+  readonly head: string | null;
+};
+
 export type BoardConfirmation = {
   readonly revision: string;
   readonly confirmedAt: string;
+  readonly branches?: readonly ConfirmedBranch[];
 };
 
 const recordSchema = z.object({
   ref: z.string(),
   revision: commitIdSchema,
   confirmedAt: z.string(),
+  branches: z
+    .array(z.object({ branch: z.string(), head: commitIdSchema.nullable() }))
+    .optional(),
 });
 
 const recordPath = (repository: string) =>
@@ -37,8 +46,12 @@ export async function boardConfirmation(
   }
   const recorded = recordSchema.safeParse(parsed);
   if (!recorded.success || recorded.data.ref !== branch) return undefined;
-  const { revision, confirmedAt } = recorded.data;
-  return { revision, confirmedAt };
+  const { revision, confirmedAt, branches } = recorded.data;
+  return {
+    revision,
+    confirmedAt,
+    ...(branches === undefined ? {} : { branches }),
+  };
 }
 
 // Callers share one check per branch, so one temporary path is enough.

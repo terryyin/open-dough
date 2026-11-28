@@ -1,14 +1,11 @@
 // Helpers for the authenticated read boundary's revision-stream specs
 // (./authenticated-read-revision-stream.spec.ts): a lowered-pace development
 // or preview server, stream URLs, EventSource-shaped opens, settling within a
-// bound, a counted Git origin, and fixed REST answers for branch-watch cases.
+// bound, and a counted Git origin.
 
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import {
-  sharedReadsFacts,
-  sharedReadsPublished,
-} from "../../test-support/support/sharedReads.ts";
+import type { RevisionFacts } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { materializeRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
 import { homeReviewRepository } from "../../test-support/support/reviewRepositoryFixture.ts";
@@ -16,22 +13,13 @@ import {
   heldUploadPack,
   signalFifo,
 } from "../review/verifiedOriginTrunkCase.ts";
-import { expect } from "../../test-support/support/pageTest.ts";
 import {
   sharedDashboardBuild,
   developmentBoundary,
   startDashboardServer,
   type DashboardServer,
 } from "../../test-support/support/dashboardServer.ts";
-import type { OriginAnswer } from "../../test-support/originAnswers.ts";
-import {
-  everyRepository,
-  type FakeGitHub,
-} from "../../test-support/support/fakeGitHub.ts";
-import {
-  openEventStream,
-  rawRequest,
-} from "../../test-support/support/rawHttp.ts";
+import { openEventStream } from "../../test-support/support/rawHttp.ts";
 
 type StreamEndpoint = Pick<DashboardServer, "baseURL" | "origin">;
 
@@ -89,10 +77,11 @@ export function openStream(
 export async function streamOrigin(
   home: string,
   heldFrom = Number.MAX_SAFE_INTEGER,
+  older: RevisionFacts = { backlog: { taken: [] } },
 ) {
   const repository = await materializeRepository(
     makeMe.aRepository
-      .withRevision("older", sharedReadsFacts())
+      .withRevision("older", older)
       .withRevision("published", {
         files: { "publication.txt": "Second commit.\n" },
       })
@@ -127,36 +116,6 @@ export async function streamOrigin(
   };
 }
 
-export async function failListingAfterProfiles(
-  server: StreamEndpoint & { readonly github: FakeGitHub },
-  revision: string,
-  listing: OriginAnswer,
-): Promise<void> {
-  const rest = sharedReadsPublished(revision);
-  server.github.serve(everyRepository, rest);
-  expect(
-    (
-      await rawRequest({
-        url: streamUrl(server, `&revision=${revision}`),
-        headers: { Origin: server.origin },
-      })
-    ).status,
-  ).toBe(200);
-  expect(
-    (
-      await rawRequest({
-        url: streamUrl(server, `&revision=${revision}&agents=profiles`),
-        headers: { Origin: server.origin },
-      })
-    ).status,
-  ).toBe(200);
-  server.github.serve(everyRepository, (call) =>
-    call.request.kind === "matching-refs"
-      ? Promise.resolve(listing)
-      : rest(call),
-  );
-}
-
 export async function withStreamOrigin<
   Server extends {
     readonly home: string;
@@ -168,10 +127,11 @@ export async function withStreamOrigin<
     origin: Awaited<ReturnType<typeof streamOrigin>>,
     server: Server,
   ) => Promise<void>,
+  older?: RevisionFacts,
 ): Promise<void> {
   let origin: Awaited<ReturnType<typeof streamOrigin>> | undefined;
   try {
-    origin = await streamOrigin(server.home);
+    origin = await streamOrigin(server.home, undefined, older);
     await prove(origin, server);
   } finally {
     try {

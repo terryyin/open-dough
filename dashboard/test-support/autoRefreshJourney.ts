@@ -5,7 +5,6 @@
 import { expect, type Page } from "@playwright/test";
 import { githubFor, pausePageClockAt } from "./dashboardTest.ts";
 import { expectOwnersNotRecorded, expectSettledPage } from "./dashboardPage.ts";
-import { headsEtag } from "./originAnswers.ts";
 import { isHeadsCheck } from "./originObservation.ts";
 import {
   publishMovingHistory,
@@ -69,25 +68,6 @@ export async function openSettledAtA(
   // settled starting point for schedule and request-count observations.
   await expectOwnersNotRecorded(page);
   return origin;
-}
-
-// The argv of one check of a repository's `main` (Open Dough's unless
-// another is named), which lists every published branch head: conditional on
-// the entity tag of the listing that named `known` as `main`'s head and
-// `branches` beside it, once there is one.
-export function headsCheckArgv(
-  known?: string,
-  repository = "terryyin/open-dough",
-  branches: Readonly<Record<string, string>> = {},
-): readonly string[] {
-  return [
-    "api",
-    "--include",
-    ...(known === undefined
-      ? []
-      : ["-H", `If-None-Match: ${headsEtag({ ...branches, main: known })}`]),
-    `repos/${repository}/git/matching-refs/heads/`,
-  ];
 }
 
 // Page time passes in steps this small; a check is seen once the step in

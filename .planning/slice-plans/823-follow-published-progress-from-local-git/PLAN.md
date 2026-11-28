@@ -374,7 +374,7 @@ isolation cases, the mounted keyboard case, and Dashboard typecheck.
 ### 9. Follow published story-branch progress
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: Taken story whose branch moves while trunk stays fixed → next
 check → the Board shows the verified branch plan progress and commit time
@@ -387,6 +387,19 @@ with a real origin, same-trunk branch movement, and a branch newly named at
 a new trunk. At the read boundary hold the transport between probe and
 fetch and change the ref or withhold its objects; inspect the observed
 revision, time, and remote operation count.
+
+Accepted proof: with the configured execution checkout absent, the Board
+showed a watched branch's new plan progress and commit time while trunk
+stayed fixed. A new trunk recorded another branch, and the Board showed
+its exact Git-verified head. The real-origin HTTP race held the fetch
+after advertisement, changed the ref, and returned failure with the
+earlier durable head and time intact. A later check recovered. The
+ledger showed four cold operations and two for each moved-branch check.
+Independent review matched current watches to the Board's execution
+claim and profile filename rules, with a reproducing real-origin case.
+Focused backend, browser, retained-answer and type checks all passed.
+The Board's REST branch-head adapter is retired. Slice 10 owns durable
+deletion and failed-probe proof before closing G2.
 
 ### 10. Report confirmed branch deletion
 

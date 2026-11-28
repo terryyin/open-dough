@@ -1,10 +1,6 @@
-// Which commit a name resolves to, for the local authenticated read boundary
-// (`./authenticatedRead.ts`): the commit a catalog source's ref names,
-// and which commit a published story branch's head names, or, for a
-// conditional check, every published branch head at once. How `gh` runs and
-// fails is `./ghRead.ts`.
+// REST ref resolution for readers outside the Board's verified Git check.
 
-import { execGh, GhFailure, isNotFound, runGh } from "./ghRead.ts";
+import { GhFailure, isNotFound, runGh } from "./ghRead.ts";
 import { commitShaPattern } from "../src/authenticatedReadRules.ts";
 
 // Feedback maintenance and follow-up stories resolve a ref before reading
@@ -59,75 +55,4 @@ export async function resolveBranchHeadViaGh(
     }
     throw error;
   }
-}
-
-// The commit each published branch head named, and the entity tag GitHub
-// gave that answer.
-export type HeadsAnswer = {
-  readonly heads: ReadonlyMap<string, string>;
-  readonly etag: string | undefined;
-};
-
-// GitHub's one listing of every published branch head: `refs/heads/` and
-// below, in a single answer.
-function headsEndpoint(repository: string): string {
-  return `repos/${repository}/git/matching-refs/heads/`;
-}
-
-const headRefPrefix = "refs/heads/";
-
-// The branch heads a listing names: each `refs/heads/<branch>` that names a
-// commit. An answer that is not such a listing is not read as one.
-function headsListed(body: string): ReadonlyMap<string, string> {
-  let listed: unknown;
-  try {
-    listed = JSON.parse(body);
-  } catch {
-    throw new GhFailure({ kind: "failed" });
-  }
-  if (!Array.isArray(listed)) {
-    throw new GhFailure({ kind: "failed" });
-  }
-  const heads = new Map<string, string>();
-  for (const each of listed as unknown[]) {
-    const { ref, object } = (each ?? {}) as {
-      ref?: unknown;
-      object?: { sha?: unknown; type?: unknown };
-    };
-    if (
-      typeof ref === "string" &&
-      ref.startsWith(headRefPrefix) &&
-      object?.type === "commit" &&
-      typeof object.sha === "string" &&
-      commitShaPattern.test(object.sha)
-    ) {
-      heads.set(ref.slice(headRefPrefix.length), object.sha);
-    }
-  }
-  return heads;
-}
-
-// Asks GitHub which commit every published branch head names now,
-// conditionally on an earlier answer. GitHub answers `304 Not Modified` when
-// that answer still holds, which `gh api` reports by exiting 1; that status is
-// recognized from GitHub's included status before the exit is ever treated
-// as a failure, and every other non-success fails as `./ghRead.ts` read it.
-export async function checkHeadsViaGh(
-  repository: string,
-  earlier: HeadsAnswer | undefined,
-  signal: AbortSignal,
-): Promise<HeadsAnswer> {
-  const conditional =
-    earlier?.etag === undefined ? [] : ["-H", `If-None-Match: ${earlier.etag}`];
-  const answer = await execGh(
-    ["api", ...conditional, headsEndpoint(repository)],
-    signal,
-  );
-  if (answer.status === 304 && earlier?.etag !== undefined) {
-    return earlier;
-  }
-  if (answer.failure || answer.status !== 200) {
-    throw new GhFailure(answer.failure ?? { kind: "failed" });
-  }
-  return { heads: headsListed(answer.body), etag: answer.headers.get("etag") };
 }

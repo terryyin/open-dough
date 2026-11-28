@@ -1,18 +1,12 @@
 // Shared support for ../../backend-tests/observation/authenticated-read-shared.spec.ts,
 // ../../backend-tests/observation/authenticated-read-shared-waiters.spec.ts,
-// ../../backend-tests/observation/authenticated-read-shared-failures.spec.ts,
-// ../../backend-tests/observation/authenticated-read-shared-listing.spec.ts, and
-// ../../backend-tests/observation/authenticated-read-shared-listing-failures.spec.ts: a published
+// and ../../backend-tests/observation/authenticated-read-shared-failures.spec.ts: a published
 // revision whose backlog names two seeds and two story-branch profiles, the
 // boundary reads a test sends, and how a test sends reads that coincide on
 // one held GitHub answer and observes the questions that reached GitHub.
 
 import assert from "node:assert/strict";
-import {
-  developmentBoundary,
-  startDashboardServer,
-  type DashboardServer,
-} from "./dashboardServer.ts";
+import type { DashboardServer } from "./dashboardServer.ts";
 import {
   everyRepository,
   publishes,
@@ -28,23 +22,6 @@ import {
   describedRevision,
   withBacklogFallback,
 } from "../describedRevisions.ts";
-
-// How long a listing-reuse boundary case keeps a settled listing answerable.
-export const listingReuseWindowMs = 60_000;
-
-// A boundary server whose revision-check listings reuse for that window.
-export function listingReuseServer(
-  overrides: Pick<
-    Parameters<typeof startDashboardServer>[0],
-    "github" | "pathPrefix" | "requestOwnerRoot" | "ghTransport"
-  > = {},
-): Promise<DashboardServer> {
-  return startDashboardServer({
-    ...developmentBoundary,
-    revisionCheckReuseMs: listingReuseWindowMs,
-    ...overrides,
-  });
-}
 
 export const sharedSeedPath = ".planning/seeds/SEED-shared.md";
 export const otherSeedPath = ".planning/seeds/SEED-other.md";

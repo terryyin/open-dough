@@ -21,17 +21,37 @@ export async function remoteBranchHead(
   call: GitCall,
   config: readonly string[] = [],
 ): Promise<string | undefined> {
+  return (await remoteBranchHeads(remote, [ref], call, config)).get(ref);
+}
+
+// One advertisement for a known set of exact refs.
+export async function remoteBranchHeads(
+  remote: string,
+  refs: readonly string[],
+  call: GitCall,
+  config: readonly string[] = [],
+): Promise<ReadonlyMap<string, string>> {
+  if (refs.length === 0) return new Map();
   try {
     // Owned through cancellation: an abort ends Git and its transport.
     const stdout = await readGitTransport(
-      [...config, "ls-remote", "--exit-code", "--refs", "--", remote, ref],
+      [...config, "ls-remote", "--exit-code", "--refs", "--", remote, ...refs],
       call,
     );
-    const exact = stdout
-      .split("\n")
-      .map((line) => line.split("\t"))
-      .find(([, name]) => name === ref);
-    return exact === undefined ? undefined : commitIdSchema.parse(exact[0]);
+    const expected = new Set(refs);
+    const heads = new Map<string, string>();
+    for (const line of stdout.split("\n")) {
+      const [head, ref] = line.split("\t");
+      if (ref !== undefined && expected.has(ref)) {
+        const revision = commitIdSchema.parse(head);
+        if (heads.has(ref) && heads.get(ref) !== revision)
+          throw new Error(
+            "Origin reported different heads for the same branch.",
+          );
+        heads.set(ref, revision);
+      }
+    }
+    return heads;
   } catch (error) {
     if (
       error instanceof GitFailure &&
@@ -39,7 +59,7 @@ export async function remoteBranchHead(
       "code" in error.cause &&
       error.cause.code === 2
     )
-      return undefined;
+      return new Map();
     throw error;
   }
 }

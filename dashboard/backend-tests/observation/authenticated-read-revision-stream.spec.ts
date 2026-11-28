@@ -2,20 +2,17 @@
 // watched branches still use the REST listing. A controlled pace separates
 // successive origin checks from the requests that share one.
 import { expect, test } from "../../test-support/support/pageTest.ts";
-import { rateLimitedAnswer } from "../../test-support/originAnswers.ts";
 import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import { boardConfirmation } from "../../server/boardConfirmation.ts";
 import {
   readUntilClosed,
   signalFifo,
 } from "../review/verifiedOriginTrunkCase.ts";
-import { gatewayTimeout } from "./revisionCheckBoundary.ts";
 import {
   controlledPaceMs,
   controlledStreamServer,
 } from "./controlledRevisionStream.ts";
 import {
-  failListingAfterProfiles,
   openStream,
   settledWithin,
   streamOrigin,
@@ -141,36 +138,6 @@ test.describe("authenticated read boundary revision stream (development environm
       },
     );
   });
-
-  for (const { title, listing, expected } of [
-    {
-      title: "a failed REST branch listing leaves the verified trunk answer",
-      listing: gatewayTimeout,
-      expected: (published: string) => confirmed(published, true),
-    },
-    {
-      title: "a rate-limited branch listing still reports the directed wait",
-      listing: rateLimitedAnswer(429, { "Retry-After": "120" }),
-      expected: () => ({
-        retryAfterSeconds: 120,
-        error: expect.stringMatching(/limited the rate.*120 seconds/i),
-      }),
-    },
-  ]) {
-    test(title, async () => {
-      await withStreamOrigin(await streamServer(), async (origin, server) => {
-        const { older, published } = origin.repository.revisions;
-        await failListingAfterProfiles(server, older, listing);
-        const before = server.github.calls.length;
-        const stream = openStream(server, `&at=${older}&watch=story%2Fone`);
-        expect(await stream.nextEvent()).toEqual(expected(published));
-        expect(
-          server.github.calls.slice(before).map(({ request }) => request.kind),
-        ).toContain("matching-refs");
-        stream.close();
-      });
-    });
-  }
 
   test("a verified check that cannot record its confirmation reports failure", async () => {
     await withStreamOrigin(

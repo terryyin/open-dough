@@ -16,7 +16,6 @@ import { performPinnedFileRead } from "./performedPinnedFileRead.ts";
 import { performVerifiedTrunkRead } from "./performedRefRead.ts";
 import { performHttpRevisionCheck } from "./performedRevisionCheck.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
-import type { RevisionChecks } from "./revisionChecks.ts";
 import type { SharedVerifiedOriginTrunk } from "./sharedVerifiedOriginTrunk.ts";
 import { withTrackedGh } from "./trackedGh.ts";
 import {
@@ -45,7 +44,6 @@ import type { PublishedSource } from "../src/publishedSource.ts";
 export type Boundary = {
   readonly tracked: Set<AbortController>;
   readonly pinned: PinnedTexts;
-  readonly checks: RevisionChecks;
   readonly trunks: SharedVerifiedOriginTrunk;
   readonly branches: BranchHeads;
   readonly avatars: AvatarImages;
@@ -55,7 +53,7 @@ export type Boundary = {
 // failure for this source and what was being read when it failed.
 export async function perform(
   req: IncomingMessage,
-  { tracked, pinned, checks, branches, trunks }: Boundary,
+  { tracked, pinned, branches, trunks }: Boundary,
   source: PublishedSource,
   read: RequestedRead,
 ): Promise<Outcome> {
@@ -90,7 +88,7 @@ export async function perform(
           switch (read.kind) {
             case "revision-check":
               return await performHttpRevisionCheck(
-                { pinned, checks, branches, trunks },
+                { pinned, branches, trunks },
                 source,
                 read,
                 signal,
@@ -165,7 +163,7 @@ export async function perform(
               return await performContainmentRead(source, read, signal);
             case "branch-head-at":
               return await performBranchHeadRead(
-                { pinned, branches },
+                { pinned, branches, trunks },
                 source,
                 read,
                 signal,

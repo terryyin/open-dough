@@ -1,18 +1,8 @@
-// The automatic check follows every published branch: while trunk stays
-// still, one conditional listing of every branch head tells the page when a
-// story branch a Taken profile records has moved, and only that story's
-// progress is read again -- its plan and its commit time at the new head --
-// without Refresh. Other branches moving read nothing; trunk moving reads
-// the whole snapshot as before; an unchanged listing is answered by GitHub's
-// `304`; a completion commit on the recorded branch shows the story awaiting
-// wrap-up; a recorded branch deleted becomes that gap. The fake GitHub only
-// publishes trunk and branch heads that move (../../dashboard/test-support/publishedFiles.ts); the local
-// read boundary, the shared readers, and the page decide everything shown.
-// A recorded branch whose name cannot be used:
-// ./auto-refresh-unusable-branch.spec.ts. Hidden-page and rate-limit
-// behavior: ./auto-refresh-visibility.spec.ts and
-// ./auto-refresh-rate-limit.spec.ts.
+// The Board follows verified branch progress independently of trunk, then
+// recognizes a newly recorded branch and a confirmed deletion.
 
+import { existsSync } from "node:fs";
+import path from "node:path";
 import { makeMe } from "../../Distribution/tests/support/makeMe.mjs";
 import {
   expect,
@@ -27,13 +17,13 @@ import {
   callsSince,
   expectSteadyPace,
   passTimeUntilChecked,
-  headsCheckArgv,
   headsChecks,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
-  branches,
+  beforeProfiles,
   onBranch,
   planPath,
+  profilePath,
   repository,
 } from "../../dashboard/test-support/branchProgressRecords.ts";
 import {
@@ -65,6 +55,9 @@ test("the automatic check follows each recorded story branch, reading only the p
   dashboard,
   afterGitHubStops,
 }) => {
+  expect(
+    existsSync(path.join(dashboard.home, "git", "open-dough", ".git")),
+  ).toBe(false);
   const { origin, progress } = await openedSettled(page, afterGitHubStops, {
     advances: [
       {
@@ -78,7 +71,23 @@ test("the automatic check follows each recorded story branch, reading only the p
         facts: { files: branchPlanChange(completedPlan) },
       },
       { name: "unrelated", parent: "trunk" },
-      { name: "nextTrunk", parent: "trunk" },
+      {
+        name: "nextTrunk",
+        parent: "trunk",
+        facts: {
+          agentProfiles: [
+            makeMe.anAgentProfile
+              .executing({
+                name: "Yui",
+                identity: "SEED-092#before-profiles",
+                mode: "story-branch",
+                branch: "story/newly-recorded",
+              })
+              .please(),
+          ],
+        },
+      },
+      { name: "newBranch", parent: "trunk" },
     ],
   });
   const revision = origin.at("trunk").revision;
@@ -95,9 +104,6 @@ test("the automatic check follows each recorded story branch, reading only the p
     });
   expect(await routed("main")).toBe(revision);
   expect(await routed(example)).toBe(branchHead);
-  const initialHeads = Object.fromEntries(
-    Object.keys(branches).map((branch) => [branch, origin.at(branch).revision]),
-  );
   // The card qualifies its count briefly; the exact branch head is in the
   // story's detail, which stays open as the branch moves.
   await expect(progress).toContainText("From story branch; not in trunk.");
@@ -109,16 +115,12 @@ test("the automatic check follows each recorded story branch, reading only the p
   );
   await expect(progress).toContainText("Current slice started 7 min ago");
 
-  await test.step("while nothing moves, checks read nothing, and a repeated check is answered by GitHub's 304", async () => {
+  await test.step("while nothing moves, checks ask REST for no branch heads or details", async () => {
     const from = githubFor(page).calls.length;
     expectSteadyPace(await passTimeUntilChecked(page));
     expectSteadyPace(await passTimeUntilChecked(page));
     const calls = callsSince(page, from);
-    expect(headsChecks(calls).map(({ argv }) => argv)).toEqual([
-      headsCheckArgv(undefined, repository),
-      // Conditional on the listing still naming every head as shown.
-      headsCheckArgv(revision, repository, initialHeads),
-    ]);
+    expect(headsChecks(calls)).toEqual([]);
     expect(readsBesideChecks(calls)).toEqual([]);
   });
 
@@ -160,8 +162,18 @@ test("the automatic check follows each recorded story branch, reading only the p
     ).toBeVisible();
   });
 
-  await test.step("trunk moving reads the whole snapshot at its new revision, as before", async () => {
-    origin.moveTrunk({ ...origin.at("trunk"), revision: trunkMoved });
+  await test.step("a new trunk updates the snapshot and verifies the branch it first names", async () => {
+    const newHead = origin.at("newBranch");
+    origin.moveBranch("story/newly-recorded", newHead);
+    origin.moveTrunk({
+      ...origin.at("trunk"),
+      revision: trunkMoved,
+      files: {
+        ...origin.at("trunk").files,
+        [profilePath("Yui")]:
+          origin.at("nextTrunk").files[profilePath("Yui")] ?? "",
+      },
+    });
     expect(await routed("main")).toBe(trunkMoved);
     const from = githubFor(page).calls.length;
     expectSteadyPace(await passTimeUntilChecked(page));
@@ -178,7 +190,14 @@ test("the automatic check follows each recorded story branch, reading only the p
     expect(reads).not.toContain(
       `content .planning/PRODUCT-BACKLOG.md@${trunkMoved}`,
     );
-    expect(reads).toContain(`branch ${example}`);
+    expect(reads).not.toContain(`branch ${example}`);
+    expect(reads).not.toContain("branch story/newly-recorded");
+    const newlyRecorded = progressSource(
+      await inspectedDetail(storyCard(taken, beforeProfiles)),
+    );
+    await expect(newlyRecorded).toContainText(
+      `From branch story/newly-recorded at ${shortRevision(newHead.revision)}; not in trunk.`,
+    );
     expect(reads).not.toContain("ref main");
   });
 
