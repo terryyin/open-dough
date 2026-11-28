@@ -171,19 +171,24 @@ one listing per tick. The browser retains the exact single REST backlog
 read at B until the stream's verified check supplies replacement proof.
 The delivery review found no refactor candidate in the test-only change.
 
-Hosted verification stopped at a frontend runner disconnect. See the
-[diagnosis record](diagnosis-frontend-browser-connection.md) for the evidence
-and the bounded attempt to identify its cause.
+Hosted verification stopped at a frontend runner disconnect. Git preserves
+the evidence and bounded experiments. [Diagnosis record](https://github.com/terryyin/open-dough/blob/bd0d18913702d0c10bdb361ee9ca54ee24cb6b13/.planning/slice-plans/823-follow-published-progress-from-local-git/diagnosis-frontend-browser-connection.md)
 
 The developer authorized fixing the reproduced trigger and continuing.
-The frontend Vitest config now suppresses Vite's HMR-disconnect reload
-on the orchestrator page. The two-spec probe passed all five cases
-after forcing HMR loss, and forcing Vitest API loss still failed with
-the expected signature. Dashboard typecheck and a normal full run of
-332 frontend files passed. The
-[hosted frontend job](https://github.com/terryyin/open-dough/actions/runs/46085226701/job/140793121612)
-also passed with this guard. The natural trigger in the original failed
-job remains unattributed.
+The temporary Vite reload guard passed all five cases after forced HMR
+loss, and forcing Vitest API loss still failed with the expected signature.
+Dashboard typecheck and a full 332-file frontend run passed with the guard.
+[Hosted frontend job](https://github.com/terryyin/open-dough/actions/runs/46085226701/job/140793121612)
+
+SEED-413 used this branch's later disconnect as evidence and reproduced
+Chromium renderer growth from repeated module revalidation. The Vitest
+5.1.2 upgrade passed eight full local runs and 30 hosted probe runs. This
+branch adopts the upgrade and trunk's frontend test configuration and
+retires the reload guard and diagnosis file before landing.
+[SEED-413 proof](https://github.com/terryyin/open-dough/blob/f986a7ed9ae97f1dc9374d1c53d5871ce18a4681/.planning/slice-plans/895-keep-full-frontend-runs-connected/PLAN.md)
+[Hosted probe](https://github.com/terryyin/open-dough/actions/runs/46126693419)
+The story branch passed all 331 frontend files and 952 cases with the
+upgrade, and Dashboard typecheck passed.
 
 A separate [hosted backend failure](https://github.com/terryyin/open-dough/actions/runs/46085226701/job/140793121599)
 found a file before the Codex daemon wrote its startup record. The
