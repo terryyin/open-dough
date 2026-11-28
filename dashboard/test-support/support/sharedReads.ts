@@ -1,8 +1,6 @@
 // Shared support for ../../backend-tests/observation/authenticated-read-shared.spec.ts,
 // ../../backend-tests/observation/authenticated-read-shared-waiters.spec.ts,
-// ../../backend-tests/observation/authenticated-read-shared-failures.spec.ts,
-// ../../backend-tests/observation/authenticated-read-shared-listing.spec.ts, and
-// ../../backend-tests/observation/authenticated-read-shared-listing-failures.spec.ts: a published
+// and ../../backend-tests/observation/authenticated-read-shared-failures.spec.ts: a published
 // revision whose backlog names two seeds and two story-branch profiles, the
 // boundary reads a test sends, and how a test sends reads that coincide on
 // one held GitHub answer and observes the questions that reached GitHub.

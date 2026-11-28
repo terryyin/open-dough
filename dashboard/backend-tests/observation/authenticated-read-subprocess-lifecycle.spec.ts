@@ -8,8 +8,8 @@
 // revision-check listing runs under its own tracked controller
 // (../../server/revisionChecks.ts), so a departed requester leaves `gh`
 // alive until the listing settles or the boundary closes; that disconnect
-// ownership is proved here, and close-while-running in
-// ./authenticated-read-shared-listing-failures.spec.ts. The Vite plugin hooks
+// ownership is proved here, and close-while-running in the shutdown
+// describe below. The Vite plugin hooks
 // that own shutdown cleanup are isolated in
 // ./authenticated-read-plugin-hooks.spec.ts.
 //
@@ -123,8 +123,7 @@ test.describe("authenticated read boundary: revision-check listing survives requ
     // The listing keeps its own tracked controller; only boundary close (or
     // settlement) ends it. Give a last-waiter SIGTERM time to have arrived,
     // then require the process still live. Close-while-running is covered in
-    // ./authenticated-read-shared-listing-failures.spec.ts and in the
-    // shutdown describe below.
+    // the shutdown describe below.
     await new Promise<void>((resolve) => {
       setTimeout(resolve, 1_000);
     });

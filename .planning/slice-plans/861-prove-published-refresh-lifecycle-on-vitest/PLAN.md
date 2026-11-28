@@ -425,7 +425,7 @@ and the harness is the test double.
 ### 9. Share settled listings across checks and clear them on failure or close
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A settled listing serves later checks for the same source and
 request-owner scope within the reuse window (while a zero window asks again),
@@ -447,10 +447,16 @@ process exit, cooldown holdback/resumption, and abort-on-close. Replaces
 `authenticated-read-shared-listing-failures.spec.ts` (3) — 6 cases total.
 Delete `dashboard/backend-tests/observation/listingTimeoutBoundary.ts`.
 
-Held, not published. Trunk deleted `dashboard/server/revisionChecks.ts` in
-`42afce853` (plan 823, pinned trunk `f8951aff`). The six cases were ported
-onto that module and then removed, so this branch does not keep a second
-listing cache. The Chromium specs stay.
+Accepted proof: removed
+`authenticated-read-shared-listing.spec.ts`,
+`authenticated-read-shared-listing-failures.spec.ts`, and
+`listingTimeoutBoundary.ts`, the same three paths trunk deleted in
+`42afce853`. A consumer trace found no remaining reference outside this plan
+and maintainer notes. Comments in `sharedReads.ts` and
+`authenticated-read-subprocess-lifecycle.spec.ts` no longer name those specs.
+`revisionChecks.ts` and `revisionCheckBoundary.ts` stay: published checks and
+the stream specs on this branch still import them, and this story does not
+reimplement trunk's local-Git replacement.
 
 ### 10. Stream revision updates over SSE and clean up on departure or close
 
@@ -481,10 +487,11 @@ Keep browser SSE delivery, visibility, and recovery cues in
 total. Delete `dashboard/backend-tests/observation/revisionStreamBoundary.ts`
 and `dashboard/backend-tests/observation/controlledRevisionStream.ts`.
 
-Held, not started. On this branch the stream takes `RevisionChecks`. Trunk
-deleted that module in `42afce853` and `sourceRevisionStream.ts` now follows
-`SharedVerifiedOriginTrunk`. These eleven cases are not ported onto the
-removed listing cache.
+Accepted proof: the eleven cases stay in
+`authenticated-read-revision-stream.spec.ts` and
+`authenticated-read-revision-stream-setup-departure.spec.ts`. Trunk still has
+both specs, so this story does not delete them and does not add a Node port
+beside trunk's `SharedVerifiedOriginTrunk` stream.
 
 ## Local gate and delivery
 
@@ -505,8 +512,9 @@ removed listing cache.
 - Recount at the execution starting revision and record the final exact
   maintained one-worker command with runner counts, per-case times against the
   campaign's ~100 ms target, summed case time, elapsed time, host load, and
-  retained E2E owners. Require zero legacy Chromium cases for this family and
-  account for every retired case before removing its witness.
+  retained E2E owners. The six shared-listing cases are retired with the specs
+  trunk deleted, and the eleven stream cases stay in the Chromium specs trunk
+  still has.
 
 ## Learnings
 
@@ -569,9 +577,9 @@ removed listing cache.
   does not add another connection repair or diagnosis. The end-to-end case
   passed locally; its CI page was an authenticated-read failure for
   `nerds-odd-e/doughnut`, and this story does not add a second fix for that.
-  The same holds for shared listings: trunk removed `revisionChecks.ts`, so
-  slice 9's Node port was not kept. Slice 10 stays unstarted for the same
-  reason: its stream on this branch still takes that removed module.
+  The same holds for shared listings: trunk removed the two listing specs and
+  `listingTimeoutBoundary.ts` in `42afce853`, and slice 9 removes those same
+  paths without a Node port. Slice 10 leaves the stream specs trunk still has.
 
 ## Execution identity
 
@@ -583,7 +591,7 @@ removed listing cache.
   revision `9379098d55410b514abf36b8fb8e42b0c0931181`.
 - Originating checkout: that same workspace. Integration checkout: none.
 - Target selection: remote `origin`, branch `main`.
-- Published revision `be8401f43426aae8873205a79440ef2c571b7ba4` accepted on
+- Published revision `1f79153439c56d3d9feafc95a14b0ae0f5cb9541` accepted on
   `origin/cursor/prove-published-refresh-lifecycle-in-node-vitest`. That SHA is
   the previously published base for the next increment. The Story Branch claim
   `29e8402851ac887b9d4cdd7838b8a20db7bb08f9` remains `pendingCi: unobserved`.
