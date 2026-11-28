@@ -9,8 +9,8 @@ import { renderStorySection } from "../../Distribution/tests/support/published-s
 import { renderEntry } from "../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-document.mjs";
 import {
   callsSince,
+  checksAskedWhilePassing,
   contentReads,
-  headsChecks,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   expect,
@@ -193,8 +193,7 @@ test("a detail still unread at the wait bound recovers on its own at the same re
   const from = githubFor(page).calls.length;
 
   await test.step("unchanged checks do not run while recovery is pending", async () => {
-    await page.clock.runFor(14_000);
-    expect(headsChecks(callsSince(page, from))).toHaveLength(0);
+    expect(await checksAskedWhilePassing(page, 14_000)).toBe(0);
     expect(contentReads(callsSince(page, from))).toEqual([]);
   });
 

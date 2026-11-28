@@ -1,10 +1,6 @@
-// A dashboard nobody can see does not keep asking GitHub about it: while the
-// page is hidden (another tab, a minimized window) no revision check is
-// made, and when it is seen again it asks once, at once, then resumes its
-// steady pace. The page, its local authenticated read boundary, the `gh`
-// invocation, and the interpretation are the production ones, as in
-// ./auto-refresh.spec.ts; the page's clock is paused and advanced by the
-// test, and the document's visibility is set as the browser would set it.
+// A hidden Board stops checking; when seen again it checks immediately and
+// resumes its steady pace. Control page time and visibility, and observe
+// the production HTTP requests, their cancellation, and the visible Board.
 
 import {
   expect,
@@ -29,11 +25,13 @@ import {
   passTimeUntilAsked,
   passTimeUntilChecked,
   queueStory,
-  headsCheckArgv,
-  headsChecks,
   setPageVisibility,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
-import { untilPageRequestsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
+import {
+  isCheck,
+  untilPageRequestsAnswered,
+  whileNotingChecks,
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   focusCanonicalRecord,
   storyCard,
@@ -64,69 +62,71 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
   });
 
   await test.step("seen again, it checks at once, and only once before its steady pace resumes", async () => {
-    const beforeSeen = githubFor(page).calls.length;
-    await setPageVisibility(page, "visible");
-    await checkedAtOnce(page);
-    expectSteadyPace(await passTimeUntilChecked(page));
-    const calls = callsSince(page, beforeSeen);
-    expect(calls.map(({ argv }) => argv)).toEqual([
-      headsCheckArgv(revisionA),
-      headsCheckArgv(revisionA),
-    ]);
+    await whileNotingChecks(page, async (askedAfter) => {
+      await setPageVisibility(page, "visible");
+      await checkedAtOnce(page);
+      expect(await askedAfter()).toHaveLength(1);
+      expectSteadyPace(await passTimeUntilChecked(page));
+      expect(await askedAfter()).toHaveLength(2);
+    });
     await expect(retrievedAt).toHaveAttribute("datetime", retrievedA ?? "");
     await expect(problem).toHaveCount(0);
   });
 
   const queueLink = await focusCanonicalRecord(storyCard(backlog, queueStory));
 
-  await test.step("hiding the page ends its wait on an outstanding check; the listing may settle while hidden, and nothing from that wait is shown", async () => {
+  await test.step("hiding cancels the outstanding HTTP wait and preserves A", async () => {
     const releaseMain = origin.hold("main");
-    origin.advanceTo("B");
-    const beforeHidden = githubFor(page).calls.length;
-    await passTimeUntilAsked(page);
-    // The check has reached GitHub and waits there for its answer.
-    await expect
-      .poll(() => headsChecks(callsSince(page, beforeHidden)).length)
-      .toBe(1);
-    await setPageVisibility(page, "hidden");
-    // Releasing while hidden lets the shared listing settle and refresh the
-    // 304 hint; the page already ended its wait, so it applies nothing.
-    releaseMain();
-    expect(await checksAskedWhilePassing(page, 60_000)).toBe(0);
-    const calls = callsSince(page, beforeHidden);
-    expect(calls.map(({ argv }) => argv)).toEqual([headsCheckArgv(revisionA)]);
-    expect(contentReads(calls)).toEqual([]);
-    await expectMembership(page, titlesOfA);
-    await expect(readRevision).toContainText(shortRevision(revisionA));
-    await expect(retrievedAt).toHaveAttribute("datetime", retrievedA ?? "");
-    await expect(problem).toHaveCount(0);
-    await expect(queueLink).toBeFocused();
+    try {
+      origin.advanceTo("B");
+      const beforeHidden = githubFor(page).calls.length;
+      const checking = page.waitForRequest((request) => isCheck(request.url()));
+      await passTimeUntilAsked(page);
+      const check = await checking;
+      // For now the real endpoint settles its held REST listing after
+      // the browser leaves. Keep the upstream synchronization until cutover.
+      await expect
+        .poll(() =>
+          callsSince(page, beforeHidden).filter(
+            ({ request }) => request.kind === "matching-refs",
+          ),
+        )
+        .toHaveLength(1);
+      const cancelled = page.waitForEvent(
+        "requestfailed",
+        (request) => request === check,
+      );
+      await setPageVisibility(page, "hidden");
+      await cancelled;
+      releaseMain();
+      expect(await checksAskedWhilePassing(page, 60_000)).toBe(0);
+      expect(contentReads(callsSince(page, beforeHidden))).toEqual([]);
+      await expectMembership(page, titlesOfA);
+      await expect(readRevision).toContainText(shortRevision(revisionA));
+      await expect(retrievedAt).toHaveAttribute("datetime", retrievedA ?? "");
+      await expect(problem).toHaveCount(0);
+      await expect(queueLink).toBeFocused();
+    } finally {
+      releaseMain();
+    }
   });
 
-  await test.step("seen again, its one prompt check uses the settled listing's etag, finds what was published meanwhile, and reads exactly that", async () => {
+  await test.step("seen again, one prompt check finds B and reads its pinned records", async () => {
     const beforeSeen = githubFor(page).calls.length;
-    await setPageVisibility(page, "visible");
-    await checkedAtOnce(page);
-    await expectSettledPage(page, titlesOfB);
-    // B's read is whole once its agent profiles are read beside its backlog.
-    await expectOwnersNotRecorded(page);
-    await expectWholeSnapshot(
-      page,
-      { revision: revisionB, titles: titlesOfB },
-      [revisionA],
-    );
-    // What is shown can be whole before B's read has finished; the steady
-    // pace starts from its end, so let it end with page time standing still.
-    await untilPageRequestsAnswered(page);
-    const calls = callsSince(page, beforeSeen);
-    // Past the reuse window the next heads check is conditional on the
-    // listing that settled while hidden (main at B), not on A's earlier hint.
-    expect(headsChecks(calls).map(({ argv }) => argv)).toEqual([
-      headsCheckArgv(revisionB),
-    ]);
-    // The check found B; main was not resolved again.
-    expect(calls.filter(({ request }) => request.kind === "ref")).toEqual([]);
-    const reads = contentReads(calls);
+    await whileNotingChecks(page, async (askedAfter) => {
+      await setPageVisibility(page, "visible");
+      await checkedAtOnce(page);
+      await expectSettledPage(page, titlesOfB);
+      await expectOwnersNotRecorded(page);
+      await expectWholeSnapshot(
+        page,
+        { revision: revisionB, titles: titlesOfB },
+        [revisionA],
+      );
+      await untilPageRequestsAnswered(page);
+      expect(await askedAfter()).toHaveLength(1);
+    });
+    const reads = contentReads(callsSince(page, beforeSeen));
     expect(reads.length).toBeGreaterThan(1);
     expect(reads.every((read) => read.endsWith(`?ref=${revisionB}`))).toBe(
       true,
@@ -139,11 +139,10 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
   });
 
   await test.step("the steady pace resumes from B's read, not another prompt check", async () => {
-    const beforeNext = githubFor(page).calls.length;
-    expectSteadyPace(await passTimeUntilChecked(page));
-    expect(callsSince(page, beforeNext).map(({ argv }) => argv)).toEqual([
-      headsCheckArgv(revisionB),
-    ]);
+    await whileNotingChecks(page, async (askedAfter) => {
+      expectSteadyPace(await passTimeUntilChecked(page));
+      expect(await askedAfter()).toHaveLength(1);
+    });
   });
 });
 
@@ -154,24 +153,24 @@ test("auto refresh: a page seen again while a read is under way checks once that
   const origin = await openSettledAtA(page, afterGitHubStops);
   const { B: revisionB, C: revisionC } = origin.revisions;
   const { readRevision } = parts(page);
-  const releaseB = origin.hold(revisionB);
+  const heldRecord = ".planning/seeds/SEED-021-progress.md";
+  const releaseB = origin.hold(heldRecord);
   origin.advanceTo("B");
   const beforeB = githubFor(page).calls.length;
   await passTimeUntilChecked(page);
   // The check found B, whose read has reached GitHub and waits there.
   await expect
     .poll(() => contentReads(callsSince(page, beforeB)))
-    .toContain(`.planning/PRODUCT-BACKLOG.md?ref=${revisionB}`);
+    .toContain(`${heldRecord}?ref=${revisionB}`);
   await setPageVisibility(page, "hidden");
   origin.advanceTo("C");
   await setPageVisibility(page, "visible");
   releaseB();
   await expectSettledPage(page, titlesOfB);
   await untilPageRequestsAnswered(page);
-  const beforeSeen = githubFor(page).calls.length;
-  await checkedAtOnce(page);
-  await expect(readRevision).toContainText(shortRevision(revisionC));
-  expect(
-    headsChecks(callsSince(page, beforeSeen)).map(({ argv }) => argv),
-  ).toEqual([headsCheckArgv(revisionB)]);
+  await whileNotingChecks(page, async (askedAfter) => {
+    await checkedAtOnce(page);
+    await expect(readRevision).toContainText(shortRevision(revisionC));
+    expect(await askedAfter()).toHaveLength(1);
+  });
 });

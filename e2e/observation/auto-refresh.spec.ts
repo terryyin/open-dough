@@ -1,13 +1,10 @@
 // A visible dashboard keeps its published work fresh by itself: at a steady
 // pace it asks only whether the selected project's `main` still names the
 // shown revision, and reads a new snapshot only when it names another. The
-// page, its local authenticated read boundary, the conditional `gh api`
-// invocation, and the shared interpretation are the production ones; the
-// fake GitHub behind the synthetic `gh` (../../dashboard/test-support/support/fakeGitHub.ts) only
-// publishes commits, answers `304 Not Modified` to an unchanged entity tag
-// as GitHub does, and records every `gh` call. The page's clock is paused
-// and advanced by the test, so "within 30 seconds" is observed in page time.
+// Board uses the real authenticated read boundary and a routed Git origin.
+// The page clock is paused so the cadence is observed in page time.
 
+import { backlogPath } from "../../dashboard/test-support/publishedOriginBasics.ts";
 import { remoteBranchHead } from "../../dashboard/server/gitTargetFetch.ts";
 import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
 import { gitHubRepositoryUrl } from "../../dashboard/test-support/support/fixtureOriginRoute.ts";
@@ -31,8 +28,6 @@ import {
   openSettledAtA,
   passTimeUntilChecked,
   queueStory,
-  headsCheckArgv,
-  headsChecks,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   dashboardStory,
@@ -40,7 +35,10 @@ import {
   titlesOfA,
   titlesOfB,
 } from "../../dashboard/test-support/refreshJourney.ts";
-import { untilPageRequestsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
+import {
+  untilPageRequestsAnswered,
+  whileNotingChecks,
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   canonicalRecord,
   storyCard,
@@ -57,21 +55,17 @@ test("auto refresh: quiet main is only checked, and newly published main appears
   const retrievedA = await retrievedAt.getAttribute("datetime");
   const settledAt = githubFor(page).calls.length;
 
-  await test.step("several quiet checks ask only whether main moved, conditionally after the first", async () => {
-    for (let check = 0; check < 3; check += 1) {
-      // Paced: never sooner than 15 seconds after the last one settled.
-      expectSteadyPace(await passTimeUntilChecked(page));
-    }
-    const checks = callsSince(page, settledAt);
-    expect(checks.map(({ argv }) => argv)).toEqual([
-      headsCheckArgv(),
-      headsCheckArgv(revisionA),
-      headsCheckArgv(revisionA),
-    ]);
-    expect(contentReads(checks)).toEqual([]);
+  await test.step("several quiet checks stay on pace and read no records", async () => {
+    await whileNotingChecks(page, async (askedAfter) => {
+      for (let check = 0; check < 3; check += 1) {
+        expectSteadyPace(await passTimeUntilChecked(page));
+        expect(await askedAfter()).toHaveLength(check + 1);
+      }
+    });
+    expect(contentReads(callsSince(page, settledAt))).toEqual([]);
   });
 
-  await test.step("an unchanged answer, 304 included, leaves the snapshot, its revision, and its retrieval time as they were", async () => {
+  await test.step("an unchanged answer leaves membership, revision and retrieval time as they were", async () => {
     await expectMembership(page, titlesOfA);
     await expect(readRevision).toContainText(shortRevision(revisionA));
     await expect(retrievedAt).toHaveAttribute("datetime", retrievedA ?? "");
@@ -96,8 +90,12 @@ test("auto refresh: quiet main is only checked, and newly published main appears
   origin.advanceTo("B");
 
   await test.step("B is found by the next check, within 30 seconds, and read at exactly B", async () => {
-    expect(await passTimeUntilChecked(page)).toBeLessThanOrEqual(15_250);
-    await expectSettledPage(page, titlesOfB);
+    await whileNotingChecks(page, async (askedAfter) => {
+      expect(await passTimeUntilChecked(page)).toBeLessThanOrEqual(15_250);
+      await expectSettledPage(page, titlesOfB);
+      await untilPageRequestsAnswered(page);
+      expect(await askedAfter()).toHaveLength(1);
+    });
     await expectWholeSnapshot(
       page,
       { revision: revisionB, titles: titlesOfB },
@@ -124,22 +122,17 @@ test("auto refresh: quiet main is only checked, and newly published main appears
     ).toHaveAttribute("href", new RegExp(`/blob/${revisionB}/`));
   });
 
-  await test.step("main was not resolved again: one check, then one B backlog and its records", () => {
+  await test.step("the check leads to reads of B's pinned records", () => {
     const calls = callsSince(page, beforeB);
-    expect(headsChecks(calls).map(({ argv }) => argv)).toEqual([
-      headsCheckArgv(revisionA),
-    ]);
     expect(calls.filter(({ request }) => request.kind === "ref")).toEqual([]);
-    const reads = contentReads(calls);
-    expect(
-      reads.filter((read) => read.startsWith(".planning/PRODUCT-BACKLOG.md")),
-    ).toEqual([`.planning/PRODUCT-BACKLOG.md?ref=${revisionB}`]);
+    const reads = contentReads(calls).filter(
+      (read) => !read.startsWith(`${backlogPath}?`),
+    );
     expect(reads.every((read) => read.endsWith(`?ref=${revisionB}`))).toBe(
       true,
     );
     expect(reads.sort()).toEqual(
       [
-        ".planning/PRODUCT-BACKLOG.md",
         ".planning/open-dough.json",
         ".planning/seeds/SEED-008-sync.md",
         ".planning/seeds/SEED-021-progress.md",
@@ -150,7 +143,7 @@ test("auto refresh: quiet main is only checked, and newly published main appears
   });
 });
 
-test("auto refresh: main moving again while B's backlog is read leaves one snapshot pinned to B, and the next check finds C", async ({
+test("auto refresh: main moving again while B's records are read leaves one snapshot pinned to B, and the next check finds C", async ({
   page,
   afterGitHubStops,
   dashboard,
@@ -172,7 +165,8 @@ test("auto refresh: main moving again while B's backlog is read leaves one snaps
   await inspectDashboardStory(page);
   const beforeB = githubFor(page).calls.length;
   origin.advanceTo("B");
-  const releaseBacklogAtB = origin.hold(revisionB);
+  const heldRecord = ".planning/seeds/SEED-021-progress.md";
+  const releaseRecordAtB = origin.hold(heldRecord);
   expect(
     await remoteBranchHead(
       gitHubRepositoryUrl(defaultRepository),
@@ -188,7 +182,7 @@ test("auto refresh: main moving again while B's backlog is read leaves one snaps
   await passTimeUntilChecked(page);
   await expect
     .poll(() => contentReads(callsSince(page, beforeB)))
-    .toEqual([`.planning/PRODUCT-BACKLOG.md?ref=${revisionB}`]);
+    .toContain(`${heldRecord}?ref=${revisionB}`);
   origin.advanceTo("C");
   expect(
     await remoteBranchHead(
@@ -201,7 +195,7 @@ test("auto refresh: main moving again while B's backlog is read leaves one snaps
       },
     ),
   ).toBe(revisionC);
-  releaseBacklogAtB();
+  releaseRecordAtB();
 
   await test.step("B's membership, detail, and evidence are all B's", async () => {
     await expectSettledPage(page, titlesOfB);

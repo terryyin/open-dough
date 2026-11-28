@@ -295,7 +295,7 @@ Dashboard REST cases, and Dashboard typecheck.
 ### 7. Prepare HTTP fallback cases for the Git cutover
 
 Type: Structure
-Status: planned
+Status: done
 
 Prepare the remaining proof named in slice 5. Ground origin-dependent
 fixtures in the routed bare Git origins. Make scheduler assertions on
@@ -308,6 +308,25 @@ Proof: focused backend and browser selections exercise the same workflow
 observations on the current route. Identify the assertions that must change
 with the HTTP wire's verified confirmation and the remaining Git failure
 substitutes needed at cutover.
+
+Accepted proof: 11 backend and 31 browser cases passed with Dashboard
+typecheck. Cadence, visibility and project switches observe actual HTTP
+requests and cancellation. Cases that hold membership at B now wait for
+its pinned canonical record while real origin advances. Authorized branch
+watches retain proof of REST listing reuse, ETags and waiter departure.
+The owner cases distinguish the reason-rich pinned failure, the card's
+preparation gap and the fallback's visible advice, and prove a killed
+owner's queued read was unasked and recovered through its replacement.
+All changes are to the subject specs and use their existing fixtures and
+request controls.
+
+The cutover now owns origin counts and transfer holds in remaining shared
+check, visibility, project isolation and handover cases. Use the actual
+upload-pack gates in `revisionStreamBoundary.ts` and `heldTrunkTransfer.ts`.
+Retain owner advice when interpreting an unavailable core cooldown query.
+Keep origin disconnection and terminal adapter failures distinct in the
+recovery tests. Check responsive launch reconciliation, recently done
+Review reload and retained-answer tests for old listing aliases.
 
 ### 8. Follow trunk through the verified HTTP fallback
 

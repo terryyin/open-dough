@@ -12,7 +12,6 @@ import { publishMovingHistory } from "../../dashboard/test-support/publishedMovi
 import {
   checksAskedWhilePassing,
   contentReads,
-  headsChecks,
   passTimeUntilChecked,
   setPageVisibility,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
@@ -166,13 +165,9 @@ test("outstanding detail recovery excludes revision checks until it settles", as
   await expect(unreachableCard).toContainText(unreachableGap);
   await expect(problem).toContainText(detailRecovery);
   await untilPageReadsAnswered(page);
-  const askedBeforeChecks = githubFor(page).calls.length;
 
   await test.step("while transient recovery stands, no revision check is asked before the due recovery", async () => {
     expect(await checksAskedWhilePassing(page, 14_000)).toBe(0);
-    expect(headsChecks(githubFor(page).calls.slice(askedBeforeChecks))).toEqual(
-      [],
-    );
     await expect(readRevision).toContainText(shortRevision(published.revision));
     await expect(storyCard(backlog, plannedTitle)).toBeVisible();
   });

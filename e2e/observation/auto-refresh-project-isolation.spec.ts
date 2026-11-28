@@ -4,8 +4,8 @@
 // proves the same one-selected-source rule for membership reads. The page's
 // clock is paused and advanced by the test (../../dashboard/test-support/autoRefreshJourney.ts), so no
 // deselected project's work can time out on its own, and every later check
-// is observed in the `gh` call log behind the page. As there, each held
-// answer is released only after the newly selected project is shown, and
+// is observed at the Board's HTTP boundary. Each held answer is released
+// only after the newly selected project is shown, and
 // "nothing changed" is asserted immediately after the release.
 
 import type { Locator, Page } from "@playwright/test";
@@ -28,15 +28,16 @@ import {
   passTimeUntilAsked,
   passTimeUntilChecked,
   pausePageClock,
-  headsCheckArgv,
-  headsChecks,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
-  doughnutRepository,
   doughnutSharedGoal,
   doughnutSharedTitle,
 } from "../../dashboard/test-support/doughnutProject.ts";
 import { selectSettledDoughnut } from "../../dashboard/test-support/doughnutJourney.ts";
+import {
+  isCheck,
+  whileNotingChecks,
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 import { readsBesideChecks } from "../../dashboard/test-support/originObservation.ts";
 import { publishMovingHistory } from "../../dashboard/test-support/publishedMovingOrigin.ts";
 import {
@@ -78,19 +79,23 @@ test.describe("project read isolation of automatic checks", () => {
         request.kind !== "unknown" &&
         request.repository === "terryyin/open-dough",
     );
-  // Since the switch, GitHub was asked only for Doughnut: detail at its own
-  // revision, and then its own checks -- nothing a
-  // late Open Dough answer could have started.
+  // A late Open Dough answer can start no further REST detail.
   function expectOnlyDoughnutAsked(calls: readonly GhCall[], revision: string) {
     expect(openDoughCalls(calls)).toEqual([]);
-    expect(headsChecks(calls).map(({ argv }) => argv)).toEqual([
-      doughnutCheckArgv,
-    ]);
     const reads = contentReads(calls);
     expect(reads.length).toBeGreaterThan(1);
     expect(reads.every((read) => read.endsWith(`?ref=${revision}`))).toBe(true);
   }
-  const doughnutCheckArgv = headsCheckArgv(undefined, doughnutRepository);
+  async function expectOneDoughnutCheck(page: Page, shown: string) {
+    await whileNotingChecks(page, async (askedAfter) => {
+      const checking = page.waitForRequest((request) => isCheck(request.url()));
+      expectSteadyPace(await passTimeUntilChecked(page));
+      const params = new URL((await checking).url()).searchParams;
+      expect(params.get("source")).toBe("doughnut");
+      expect(params.get("since")).toBe(shown);
+      expect(await askedAfter()).toHaveLength(1);
+    });
+  }
 
   test("a deselected project's outstanding revision check is abandoned, its late answer changes nothing, and only the selected project is checked from then on", async ({
     page,
@@ -101,13 +106,26 @@ test.describe("project read isolation of automatic checks", () => {
     // What the held check would find: Open Dough's main moved on to B.
     openDough.advanceTo("B");
     const beforeCheck = githubFor(page).calls.length;
+    const checking = page.waitForRequest((request) => isCheck(request.url()));
     await passTimeUntilAsked(page);
+    const check = await checking;
+    expect(new URL(check.url()).searchParams.get("source")).toBe("open-dough");
+    // Leave the real provider request held, so changing projects must
+    // cancel the HTTP wait. Slice 8 replaces this REST synchronization.
     await expect
-      .poll(() => headsChecks(callsSince(page, beforeCheck)).length)
-      .toBe(1);
-
+      .poll(() =>
+        callsSince(page, beforeCheck).filter(
+          ({ request }) => request.kind === "matching-refs",
+        ),
+      )
+      .toHaveLength(1);
+    const cancelled = page.waitForEvent(
+      "requestfailed",
+      (request) => request === check,
+    );
     const atSwitch = githubFor(page).calls.length;
     const shown = await selectSettledDoughnut(page);
+    await cancelled;
 
     await test.step("Open Dough's held check answers late, after Doughnut is shown", async () => {
       releaseCheck();
@@ -115,11 +133,7 @@ test.describe("project read isolation of automatic checks", () => {
     });
 
     await test.step("the next check is Doughnut's own, at its steady pace, and Open Dough is never asked again", async () => {
-      const beforeNext = githubFor(page).calls.length;
-      expectSteadyPace(await passTimeUntilChecked(page));
-      expect(callsSince(page, beforeNext).map(({ argv }) => argv)).toEqual([
-        doughnutCheckArgv,
-      ]);
+      await expectOneDoughnutCheck(page, shown.revision);
       expectOnlyDoughnutAsked(callsSince(page, atSwitch), shown.revision);
       await expectOnlyDoughnut(page, shown);
     });
@@ -180,11 +194,7 @@ test.describe("project read isolation of automatic checks", () => {
     });
 
     await test.step("the next check is Doughnut's own, at its steady pace, and Open Dough is never asked again", async () => {
-      const beforeNext = githubFor(page).calls.length;
-      expectSteadyPace(await passTimeUntilChecked(page));
-      expect(callsSince(page, beforeNext).map(({ argv }) => argv)).toEqual([
-        doughnutCheckArgv,
-      ]);
+      await expectOneDoughnutCheck(page, shown.revision);
       expectOnlyDoughnutAsked(callsSince(page, atSwitch), shown.revision);
     });
   });

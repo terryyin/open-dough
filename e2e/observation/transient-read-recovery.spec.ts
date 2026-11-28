@@ -23,17 +23,17 @@ import {
   noConnection,
 } from "../../dashboard/test-support/publishedOrigin.ts";
 import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
-import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
+import {
+  isCheck,
+  untilPageReadsAnswered,
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 import {
   inspectDashboardStory,
   refreshHistory,
   titlesOfA,
 } from "../../dashboard/test-support/refreshJourney.ts";
 import { failedAt } from "../../dashboard/test-support/limitNotice.ts";
-import {
-  headsChecks,
-  passTimeUntilChecked,
-} from "../../dashboard/test-support/autoRefreshJourney.ts";
+import { passTimeUntilChecked } from "../../dashboard/test-support/autoRefreshJourney.ts";
 import {
   expectRecoversAfter,
   noteColdOpens,
@@ -147,6 +147,10 @@ test("a stalled read at the wait bound recovers on its own without a reload", as
   const { A: revisionA } = origin.revisions;
   const transfer = holdTrunkTransfer(dashboard.home, "terryyin/open-dough");
   const opens = noteColdOpens(page, "open-dough");
+  const checks: string[] = [];
+  page.on("request", (request) => {
+    if (isCheck(request.url())) checks.push(request.url());
+  });
   await page.goto("/");
   const { problem, status } = parts(page);
   await expect(status).toHaveText("Reading published work…");
@@ -175,7 +179,7 @@ test("a stalled read at the wait bound recovers on its own without a reload", as
     const remaining = failed + 15_000 - (await page.evaluate(() => Date.now()));
     await page.clock.runFor(Math.max(0, remaining - 1_000));
     expect(opens).toHaveLength(1);
-    expect(headsChecks(githubFor(page).calls)).toEqual([]);
+    expect(checks).toEqual([]);
     await expect(problem).toBeVisible();
   });
 
