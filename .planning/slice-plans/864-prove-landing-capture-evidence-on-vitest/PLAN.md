@@ -374,6 +374,13 @@ unchanged. Imports are the only text change. No production file changed. The
 spec is 169 lines. The legacy file is deleted after that pass. Refactor
 skipped: the change adds no production representation.
 
+## Execution complete
+
+Product advice: no change. The delivered slices keep the accepted comparison
+bound to its launch, on Node for the typed cases and on the end-to-end runner
+for installed Git, receiver, and native journeys. The two legacy specs that
+still own an installed retry are the successor story.
+
 ## Proof and local gate
 
 Follow the [campaign comparison](../../seeds/SEED-413-renovate-dashboard-unit-tests.md#backend-vitest-replacement-coverage),
@@ -389,6 +396,14 @@ successor specs. Compare counts, wall and total case time, roughly 100 ms
 per-case guide, retries and the separate cost of receiving E2E/installed cases.
 Name each final owner, including the successor for those two specs. Select and
 run the receiving E2E paths through `npm run test:e2e` including after relocation.
+
+Accepted family measurement at `9860338f3269ac9f549b7cbdc49ab857f42ff933`:
+the one-worker backend selection of `one-shot-landing`, `story-branch-landing`,
+and `story-branch-retained-landing` selected 2 tests, both strict passed, about
+9.3 s (`gate-family.json`). They are the successor's
+`one-shot-landing-capture-admission.spec.ts` (3.589 s) and
+`one-shot-landing-recovery-retention.spec.ts` (3.919 s). The receiving e2e
+journeys already passed on this product tree in slices 1 and 8–10.
 
 ## Plan review
 
