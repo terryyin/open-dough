@@ -98,7 +98,7 @@ caffeinate -s -i npm run test:dashboard:backend -- \
   --workers=1
 ```
 
-## Ordered slices and outside-in proof
+## Ordered slices
 
 In each slice keep the old assertions reachable until their replacements
 run. Record an owner for each old case, including loops with multiple
@@ -110,7 +110,7 @@ less per slice, with time in commands excluded.
 ### 1. Reopen the published completion from the admitted sync
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior. A Done open names its immutable published comparison in either
 execution mode. Later and interleaved work, a later fast-forward integration,
@@ -129,6 +129,16 @@ request during the file reads. Replace `story-review-completed.spec.ts`,
 case of `story-review-completed-gaps.spec.ts`. Keep
 `e2e/review/story-review-completed.spec.ts` for opening the fixed result
 from a Done card after the checkout moves.
+
+Accepted. `story-review-completed.spec.ts` now holds 10 Node cases over
+`configuredFixtureProject`, replacing 12 Chromium cases. The two offline
+cases are merged, and the competing-dirty-worktree case moved out of the
+gaps spec. At one worker, the 12 old cases summed 30.81 s; after refactor,
+the 10 new cases ran in 9.87 s (load 5.2). The cost of the cases above
+100 ms comes from real Git clones, the Review sync fetch, pushes and
+merges. In Vitest, HOME is the fixture directory itself, so the Review
+repository is at `homeReviewRepository(realpath(fixture))`. No production
+contract changed, so the E2E journey was not rerun.
 
 ### 2. Recover a published execution owner and explain missing claim evidence
 

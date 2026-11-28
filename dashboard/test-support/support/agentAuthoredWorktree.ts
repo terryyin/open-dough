@@ -30,7 +30,7 @@ function identityOf(agent: string) {
 // Another linked worktree of the project on `exec/<slug>` at a commit, which
 // the agent authors as an owned workspace's real authorship configures it.
 export async function agentWorktree(
-  origin: StartOrigin,
+  origin: Pick<StartOrigin, "project">,
   agent: string,
   slug: string,
   at: string,
@@ -52,7 +52,7 @@ export async function agentWorktree(
 // Such a worktree, left at the agent's own claim of a story: its head commits
 // the agent's profile naming the story, which nothing publishes to trunk.
 export async function claimWorktree(
-  origin: StartOrigin,
+  origin: Pick<StartOrigin, "project">,
   agent: string,
   slug: string,
   at: string,

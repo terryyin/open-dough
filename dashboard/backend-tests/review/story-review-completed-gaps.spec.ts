@@ -13,15 +13,9 @@ import {
 } from "../../test-support/support/completedStoryHistory.ts";
 import {
   storyReviewEndpoint,
-  storyReviewFileEndpoint,
   storyReviewSchema,
 } from "../../src/storyReviewContract.ts";
 import { git } from "../../test-support/support/storyReviewWorktree.ts";
-import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import {
-  agentWorktree,
-  claimWorktree,
-} from "../../test-support/support/agentAuthoredWorktree.ts";
 import { agentIdentity } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 test.use({ serverMode: "boundary" });
@@ -34,67 +28,6 @@ const noPublishedComparison = {
 
 test.describe("ordinary trunk", () => {
   test.use({ originRepository: ordinaryTrunkModeCompletedHistory() });
-
-  test("a published completion stays fixed with competing dirty worktrees", async ({
-    request,
-    dashboard,
-    origin,
-  }) => {
-    const completion = origin.revision("completion");
-    const original = storyReviewSchema.parse(
-      await (
-        await get(request, dashboard, storyReviewEndpoint, completed)
-      ).json(),
-    );
-    expect(original.kind).toBe("published");
-    if (original.kind !== "published")
-      throw new Error("No initial published review");
-    const first = await claimWorktree(
-      origin,
-      agent,
-      "ambiguous-a",
-      completion,
-      named.identity,
-    );
-    git(first, "push", "--quiet", "origin", "HEAD:main");
-    const second = await agentWorktree(
-      origin,
-      agent,
-      "ambiguous-b",
-      git(first, "rev-parse", "HEAD"),
-    );
-    makeMe
-      .theWorkspace(first)
-      .writeAt("local-a.txt", "first workspace only\n")
-      .please();
-    makeMe
-      .theWorkspace(second)
-      .writeAt("local-b.txt", "second workspace only\n")
-      .please();
-    const active = await get(request, dashboard, storyReviewEndpoint, named);
-    expect(active.status()).toBe(200);
-    expect(await active.json()).toEqual(noPublishedComparison);
-    const historical = await get(
-      request,
-      dashboard,
-      storyReviewEndpoint,
-      completed,
-    );
-    expect(historical.status()).toBe(200);
-    expect(storyReviewSchema.parse(await historical.json())).toEqual(original);
-    const file = await get(request, dashboard, storyReviewFileEndpoint, {
-      ...named,
-      completion: original.completion,
-      baseline: original.baseline,
-      tree: original.tree,
-      path: "[literal]*.txt",
-    });
-    expect(file.status()).toBe(200);
-    expect(await file.json()).toMatchObject({
-      kind: "diff",
-      printed: expect.stringContaining("+delivered on another machine"),
-    });
-  });
 
   test("a missing capture repository leaves the published completion and exact landing readable", async ({
     request,
