@@ -70,6 +70,9 @@ test("released v0.3.97 installation publishes a Codex preparation started from t
   dashboard,
   origin,
 }) => {
+  // The released origin is created inside this test's limit. A green CI run
+  // finished in 14s; the failing run was still creating that origin at 30s.
+  test.setTimeout(60_000);
   const before =
     await test.step("Given the dashboard follows the queued origin holding the released installation", async () => {
       const revision = await publishOrigin(page, origin);
