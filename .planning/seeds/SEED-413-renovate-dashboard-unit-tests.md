@@ -296,27 +296,26 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 <a id="github-request-lifetime-and-evidence-via-vitest"></a>
 
-### Prove GitHub request lifetime and failure evidence in Node Vitest
+### Prove GitHub request lifetime and shared ownership in Node Vitest
 
 **Identity:** SEED-413#github-request-lifetime-and-evidence-via-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"8b1d24f833ad201939a2294dc686fcfd8474020c6d43cc8ae7e80e2cef251afc","plan":"38a3d3235a6382d8d9f697ac6830ec54de0fc6b8e71e5b13ada5109e437a3a5a"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"172df5a47b50c0c47ea63984ca4c1c6b50d835c53f5f9291ecf6fe54721cddf0","plan":"d01fc1d1b7ab7c2e33c2d7251ae031544ff76a43f3dd9a13e7f1dccc0060a660"}}
 ```
 
 - **Goal.** Give Dashboard and CI maintainers fast Node Vitest feedback that
   authenticated GitHub reads end their owned work when the last owner
-  leaves, share one owner across Dashboards and CI, and leave bounded,
-  safe evidence of failures.
-- **Scope.** Account for the 13 legacy observation paths in plan 890: the
-  late-join and close cases left in `authenticated-read-shared-failures.spec.ts`
-  and `authenticated-read-turns.spec.ts`, and the waiter, subprocess, hook,
-  shared owner, diagnostics, and incident record paths. Preserve actual
-  child-process cleanup, Dashboard and CI owner wiring, local diagnostics,
-  and incident evidence across shutdown and restart. Keep real owner
-  processes, subprocesses, Git, HTTP, and durable files where their behavior
-  supplies the observation. Measure the same maintained one-worker workload
-  for those paths before and after. Failure classification, held and resumed
-  reads, request sharing, and turn timing were delivered by
+  leaves, share one owner across Dashboards and CI, and that a diagnostic
+  read is empty until the request is admitted.
+- **Scope.** Cover the lifetime, shared-owner, and diagnostic-admission
+  proofs delivered in plan 890 slices 1–5. Preserve actual child-process
+  cleanup and Dashboard and CI owner wiring. Keep real owner processes,
+  subprocesses, Git, and HTTP where their behavior supplies the observation.
+  Diagnostic failure records, incident history, restart evidence, and stall
+  folding belong to
+  [bounded GitHub failure evidence](#github-failure-evidence-via-vitest).
+  Failure classification, held and resumed reads, request sharing, and turn
+  timing were delivered by
   [authenticated GitHub observation](https://github.com/terryyin/open-dough/blob/71cc76188db2356fd0f4cd2f064cfd27be95c037/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#authenticated-github-observation-via-vitest).
   Board cold open and refresh routing, session and Review reads, browser
   recovery, login isolation, and runner cutover have separate owners.
@@ -324,16 +323,47 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
   turns. A departing pinned-read waiter leaves a peer's read running. The
   last departure ends that child, while a check's tracked listing can
   outlive the requesting connection. A late waiter keeps its own bound.
-  A failed shared invocation leaves one safe diagnostic per observing
-  Dashboard. An oversized answer leaves an incident record with its source
-  and cause and no secret. After a restart, the same machine retains
-  bounded evidence with the original attribution and distinguishes a clean
-  close from a lost process.
+  A fresh diagnostic read is empty and does no upstream work. An unknown
+  source, a disallowed origin, and a non-GET are refused before any GitHub
+  call, and the production environment mounts that same route.
 - **Replacement trace.** Split at a delivered slice boundary from
   SEED-413#authenticated-github-observation-via-vitest (its slices 4–8 of
   [plan 862](https://github.com/terryyin/open-dough/blob/fa4d5c57608966483d829faae8feba252e6c22c8/.planning/slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md)).
+  On 2026-11-28, split again at delivered slice 5. Failure evidence continues
+  as [bounded GitHub failure evidence](#github-failure-evidence-via-vitest).
 
-**Plan.** [Prove GitHub request lifetime and failure evidence in Node Vitest](../slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md)
+**Plan.** [Prove GitHub request lifetime and shared ownership in Node Vitest](../slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md)
+
+<a id="github-failure-evidence-via-vitest"></a>
+
+### Prove bounded GitHub failure evidence in Node Vitest
+
+**Identity:** SEED-413#github-failure-evidence-via-vitest
+```json dough-story-state
+{"schemaVersion":1,"refinement":"not-refined","approach":"planned","plan":"../slice-plans/891-prove-bounded-github-failure-evidence-on-vitest/PLAN.md","assessment":"not-ready","reasons":["Awaiting story refinement. The provisional slices are not executable."],"basis":{"document":"92b9ed424367fe8952eff61060c1be886194b5b9df858f37da862132ab4d0474","plan":"f2f5ba8ab8c5331c88fb10b2948b4f914d7b0416ee7d2a07337291d43f3f3b8c"}}
+```
+
+- **Goal.** Give Dashboard and CI maintainers fast Node Vitest feedback that
+  authenticated GitHub reads leave bounded, safe evidence of failures.
+- **Scope.** Cover the diagnostic failure record, its bounds, the oversized
+  incident record, evidence after shutdown and restart, and folded stalls.
+  These were plan 890's former slices 6–10. Keep real processes, HTTP, and
+  durable files where their behavior supplies the observation. The 13-path
+  recount and the remaining Chromium retirement for that family belong here.
+  Lifetime, shared ownership, and diagnostic admission were delivered by
+  [GitHub request lifetime and shared ownership](#github-request-lifetime-and-evidence-via-vitest).
+- **Key examples.** A failed shared invocation leaves one safe diagnostic
+  per observing Dashboard. An oversized answer leaves an incident record
+  with its source and cause and no secret. After a restart, the same
+  machine retains bounded evidence with the original attribution and
+  distinguishes a clean close from a lost process.
+- **Replacement trace.** Split at delivered slice 5 from
+  SEED-413#github-request-lifetime-and-evidence-via-vitest
+  ([plan 890](../slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md)).
+
+**Plan.** [Prove bounded GitHub failure evidence in Node Vitest](../slice-plans/891-prove-bounded-github-failure-evidence-on-vitest/PLAN.md)
+This plan is awaiting story refinement and is not ready for execution.
+It is not queued.
 
 <a id="published-review-comparisons-via-vitest"></a>
 
@@ -653,7 +683,7 @@ or removed once its behavior or duplicate is accounted for.
 | Eleven Playwright Intent paths named in the [repeat proof selection](../slice-plans/607-close-landed-ci-repeat-check-gaps/proof-selection.txt) | [Automatic repeat correction](SEED-324-landed-ci-repeat-checks-under-high-load.md#close-landed-ci-repeat-check-gaps), including its failure and load proof |
 | 12 observation Playwright paths | [Published read admission in Node Vitest](https://github.com/terryyin/open-dough/blob/ebdf4ebac57a7d7cd41172def1b8089a2d4fd455/.planning/slice-plans/860-prove-published-read-admission-on-vitest/PLAN.md#final-family-measurement) |
 | 15 observation Playwright paths | [Prove published refresh lifecycle in Node Vitest](#published-refresh-lifecycle-via-vitest) |
-| 23 observation Playwright paths | [Authenticated GitHub observation in Node Vitest](https://github.com/terryyin/open-dough/blob/71cc76188db2356fd0f4cd2f064cfd27be95c037/.planning/slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md#local-gate-and-delivery) for ten paths and the delivered cases of two shared paths; [Prove GitHub request lifetime and failure evidence in Node Vitest](#github-request-lifetime-and-evidence-via-vitest) for the other 13 |
+| 23 observation Playwright paths | [Authenticated GitHub observation in Node Vitest](https://github.com/terryyin/open-dough/blob/71cc76188db2356fd0f4cd2f064cfd27be95c037/.planning/slice-plans/862-prove-authenticated-github-observation-on-vitest/PLAN.md#local-gate-and-delivery) for ten paths and the delivered cases of two shared paths; [Prove GitHub request lifetime and shared ownership in Node Vitest](#github-request-lifetime-and-evidence-via-vitest) for the delivered lifetime, owner, and admission proofs; [Prove bounded GitHub failure evidence in Node Vitest](#github-failure-evidence-via-vitest) for the remaining diagnostic and incident paths of that 13 |
 | 21 review Playwright paths | [Prove published Review comparisons in Node Vitest](#published-review-comparisons-via-vitest) |
 | 12 review Playwright paths | [Prove retained landing capture in Node Vitest](#landing-capture-evidence-via-vitest) |
 | 6 intent Playwright paths | [Prove published Intent evidence in Node Vitest](#published-intent-evidence-via-vitest) |
