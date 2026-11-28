@@ -399,49 +399,6 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Plan.** [Prove published Intent evidence in Node Vitest](../slice-plans/865-prove-published-intent-evidence-on-vitest/PLAN.md)
 
-<a id="machine-observation-via-vitest"></a>
-
-### Prove Dashboard machine observations in Node Vitest
-
-**Identity:** SEED-413#machine-observation-via-vitest
-```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/866-prove-machine-observation-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"67fe40a87eb5df937c1d1bd91524f2dd1c74284b522b54060446fe8e033dcd65","plan":"b5da70b81f134a5007bf63826f128928cc9e0e89043b7db7aee746ebfa553ef4"}}
-```
-
-- **Goal.** Give Dashboard maintainers fast Node Vitest feedback that a
-  checkout's Git identity changes with every Git change its found workspaces
-  depend on, and that the machine host status reports CPU and free disk from
-  their own sources, each unavailable on its own, from one shared sample.
-- **Scope.** Account for the two legacy observation specs in plan 866
-  (`git-files-identity.spec.ts`, 3 cases; `host-status.spec.ts`, 4 cases; 7 in
-  all). Use real Git transitions for checkout identity, with only the trust
-  window's clock controlled so a changed file ages without a one-second wait.
-  Drive `HostStatusObservation` directly with only the platform readers
-  scripted. Keep one small in-process Node HTTP witness for the host status
-  endpoint, where the wire supplies the proof: method refusal, other-site and
-  other-Host refusal, and one answer from the real platform readers. Keep the
-  browser sidebar in `e2e/sessions/sessions-sidebar-host-status.spec.ts`. Add
-  no test-support wrapper.
-- **Key examples.** A checkout on `main` with trunk and one linked worktree
-  keeps its Git identity while nothing changes. After the worktree's author
-  config, its branch, trunk, packed refs, its head switching branches, an added
-  worktree, or a removed worktree folder changes, the identity differs; while a
-  changed file is under a second old, no identity is given, so the caller reads
-  Git afresh. A plain `git status` or a new file in the main checkout keeps it,
-  and a missing or non-Git folder has an identity of its own. The first host
-  sample primes a second CPU snapshot and answers that span; later samples
-  average the trailing minute of snapshots, and after a gap longer than the
-  window the next sample starts afresh. A disk that cannot be read leaves CPU
-  readable, and CPU counters that cannot be read or do not advance leave free
-  bytes readable. Concurrent readers share one sample and a later read inside
-  the reuse window gets the same one; with no demand nothing is sampled, and the
-  next demand samples again. A GET from the page's own origin answers real CPU
-  percent and free bytes with `no-store`; another origin or Host is refused 403
-  and a POST 405.
-- **Replacement trace.** [Published Dashboard reads and evidence before the split](https://github.com/terryyin/open-dough/blob/fb8983cb8eb62b38c79fbc293b491128f411bdb2/.planning/seeds/SEED-413-renovate-dashboard-unit-tests.md#prove-published-dashboard-reads-on-vitest).
-
-**Plan.** [Prove Dashboard machine observations in Node Vitest](../slice-plans/866-prove-machine-observation-on-vitest/PLAN.md)
-
 <a id="prove-launch-attempts-with-typed-state"></a>
 
 ### Prove Dashboard launch attempts with typed machine state
@@ -622,7 +579,7 @@ or removed once its behavior or duplicate is accounted for.
 | 21 review Playwright paths | [Published Review comparisons in Node Vitest](https://github.com/terryyin/open-dough/blob/cc7802ace20bd4475751c5e75713d983290607e5/.planning/slice-plans/863-prove-published-review-comparisons-on-vitest/PLAN.md#proof-and-local-gate), completed on Node Vitest with three Review journeys retained in E2E |
 | 12 review Playwright paths | [Prove retained landing capture in Node Vitest](#landing-capture-evidence-via-vitest) |
 | 6 intent Playwright paths | [Prove published Intent evidence in Node Vitest](#published-intent-evidence-via-vitest) |
-| 2 observation Playwright paths | [Prove Dashboard machine observations in Node Vitest](#machine-observation-via-vitest) |
+| 2 observation Playwright paths | [Dashboard machine observations in Node Vitest](https://github.com/terryyin/open-dough/blob/acf16a47afc535fd6ddc787ee13c116b723a8e72/.planning/slice-plans/866-prove-machine-observation-on-vitest/PLAN.md#final-comparison), completed on Node Vitest with the Sessions sidebar retained in E2E |
 | Five observation harness specs | [Runner cutover](#retire-legacy-dashboard-backend-runner) |
 | 13 configuration specs and nine product-facing runtime specs listed below | [Configuration and serving](https://github.com/terryyin/open-dough/blob/13d7e049249851833514e2eb598eacb022d34fba/.planning/slice-plans/868-prove-dashboard-configuration-and-serving-on-vitest/PLAN.md), completed on Node Vitest |
 | Other 30 runtime specs, which prove test infrastructure, and the speed of all runtime specs | [Prove Dashboard runtime behavior in fast unit cases](https://github.com/terryyin/open-dough/blob/7fdf8e265edfb72ded348f3845080a186f5a39f1/.planning/slice-plans/879-prove-runtime-in-fast-unit-cases/PLAN.md), completed on Node Vitest |
