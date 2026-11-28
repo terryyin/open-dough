@@ -175,7 +175,7 @@ test("the automatic check follows each recorded story branch, reading only the p
       progress.getByRole("img", { name: "7 of 8 slices recorded complete" }),
     ).toBeVisible();
     const reads = readsBesideChecks(callsSince(page, from));
-    expect(reads).toContain(
+    expect(reads).not.toContain(
       `content .planning/PRODUCT-BACKLOG.md@${trunkMoved}`,
     );
     expect(reads).toContain(`branch ${example}`);

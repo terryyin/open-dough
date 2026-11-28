@@ -37,7 +37,6 @@ test.describe.configure({ mode: "serial" });
 const revisionOf = (pair: string) => pair.repeat(20);
 const isSeed = (request: GhRequest) =>
   request.kind === "content" && request.path === sharedSeedPath;
-const isListing = (request: GhRequest) => request.kind === "matching-refs";
 
 const failed = (body: string) => JSON.parse(body) as unknown;
 
@@ -167,15 +166,6 @@ test.describe("authenticated read boundary: a stalled shared read ends at its ow
       read: sharedSeedRead,
       reading: (revision: string) => `${sharedSeedPath} at ${revision}`,
       asked: (revision: string) => `content ${sharedSeedPath}@${revision}`,
-    },
-    {
-      label: "revision check",
-      revision: revisionOf("7e"),
-      held: isListing,
-      warm: (revision: string) => `&since=${revision}`,
-      read: (revision: string) => `&since=${revision}`,
-      reading: () => "main of terryyin/open-dough",
-      asked: () => "matching-refs",
     },
   ];
 

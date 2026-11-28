@@ -104,9 +104,6 @@ export async function readPublishedWork(
             revision,
             retrievedAt,
             ...resolved,
-            // A revision an automatic check named carries no confirmation of
-            // its own; this read of it confirms it.
-            confirmedAt: confirmedAt ?? retrievedAt.toISOString(),
             ...interpretPublishedBacklog(markdown, revision, source),
             done: { status: "loading" },
           });

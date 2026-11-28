@@ -21,6 +21,24 @@ export async function performVerifiedTrunkRead(
   signal: AbortSignal,
   demand: OriginTrunkDemand,
 ): Promise<Outcome> {
+  const observation = await demandVerifiedTrunk(
+    trunks,
+    pinned,
+    source,
+    signal,
+    demand,
+  );
+  return admit(pinned, source, observation);
+}
+
+export async function demandVerifiedTrunk(
+  trunks: SharedVerifiedOriginTrunk,
+  pinned: PinnedTexts,
+  source: PublishedSource,
+  signal: AbortSignal,
+  demand: OriginTrunkDemand,
+): Promise<AskedOriginTrunk> {
+  signal.throwIfAborted();
   const demanded = await trunks.demand(source, pinned, signal, demand);
   if (demanded.kind === "departed") {
     signal.throwIfAborted();
@@ -29,7 +47,7 @@ export async function performVerifiedTrunkRead(
   if (demanded.kind === "unanswered") {
     throw new GhFailure({ kind: "timed-out" });
   }
-  return admit(pinned, source, demanded.value);
+  return demanded.value;
 }
 
 function admit(

@@ -2,6 +2,8 @@
 // resumes its steady pace. Control page time and visibility, and observe
 // the production HTTP requests, their cancellation, and the visible Board.
 
+import { holdLaterTrunkTransfers } from "../../dashboard/test-support/laterTrunkTransfers.ts";
+import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
 import {
   expect,
   githubFor,
@@ -44,6 +46,7 @@ import {
 test("auto refresh: a hidden page makes no checks, and a page seen again checks once at once, then at its steady pace", async ({
   page,
   afterGitHubStops,
+  dashboard,
 }) => {
   const origin = await openSettledAtA(page, afterGitHubStops);
   const { A: revisionA, B: revisionB } = origin.revisions;
@@ -76,29 +79,21 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
   const queueLink = await focusCanonicalRecord(storyCard(backlog, queueStory));
 
   await test.step("hiding cancels the outstanding HTTP wait and preserves A", async () => {
-    const releaseMain = origin.hold("main");
+    const transfer = holdLaterTrunkTransfers(dashboard.home, defaultRepository);
     try {
       origin.advanceTo("B");
       const beforeHidden = githubFor(page).calls.length;
       const checking = page.waitForRequest((request) => isCheck(request.url()));
       await passTimeUntilAsked(page);
       const check = await checking;
-      // For now the real endpoint settles its held REST listing after
-      // the browser leaves. Keep the upstream synchronization until cutover.
-      await expect
-        .poll(() =>
-          callsSince(page, beforeHidden).filter(
-            ({ request }) => request.kind === "matching-refs",
-          ),
-        )
-        .toHaveLength(1);
+      await transfer.untilHeld();
       const cancelled = page.waitForEvent(
         "requestfailed",
         (request) => request === check,
       );
       await setPageVisibility(page, "hidden");
       await cancelled;
-      releaseMain();
+      transfer.release();
       expect(await checksAskedWhilePassing(page, 60_000)).toBe(0);
       expect(contentReads(callsSince(page, beforeHidden))).toEqual([]);
       await expectMembership(page, titlesOfA);
@@ -107,7 +102,7 @@ test("auto refresh: a hidden page makes no checks, and a page seen again checks 
       await expect(problem).toHaveCount(0);
       await expect(queueLink).toBeFocused();
     } finally {
-      releaseMain();
+      transfer.release();
     }
   });
 

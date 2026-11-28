@@ -137,6 +137,14 @@ export async function failListingAfterProfiles(
   expect(
     (
       await rawRequest({
+        url: streamUrl(server, `&revision=${revision}`),
+        headers: { Origin: server.origin },
+      })
+    ).status,
+  ).toBe(200);
+  expect(
+    (
+      await rawRequest({
         url: streamUrl(server, `&revision=${revision}&agents=profiles`),
         headers: { Origin: server.origin },
       })

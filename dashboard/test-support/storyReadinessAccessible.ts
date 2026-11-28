@@ -19,7 +19,6 @@ import {
   shownProjectControl,
 } from "./dashboardPage.ts";
 import { showColumn } from "./boardPage.ts";
-import { noConnection } from "./originAnswers.ts";
 import {
   compactProjectSelectCut,
   expectNoSidewaysScrollAndWholeText,
@@ -175,7 +174,7 @@ export async function expectNarrowZoomKeepsLabelsEvidenceAndFailure(
   await expectNoSidewaysScrollAndWholeText(page, compactProjectSelectCut);
   await legend.getByRole("button", { name: "Close" }).click();
 
-  const restore = origin.answerWith("main", noConnection);
+  const restore = origin.disconnectGit();
   await passTimeUntilChecked(page, 502);
   const { problem } = parts(page);
   await expect(problem).toContainText("Published work could not be read");

@@ -8,13 +8,13 @@ import {
   sharedSeedPath,
   unnamedRevision,
 } from "../../test-support/support/sharedReads.ts";
-import { commitAnswer } from "../../test-support/originAnswers.ts";
+import { rawRequest } from "../../test-support/support/rawHttp.ts";
 import {
-  checkArgv,
-  ownRevisionCheckBoundary,
-  revisionA,
-  revisionB,
-} from "./revisionCheckBoundary.ts";
+  failListingAfterProfiles,
+  streamServer,
+  streamUrl,
+  withStreamOrigin,
+} from "./revisionStreamBoundary.ts";
 import {
   inspect,
   knownSourceId,
@@ -64,29 +64,33 @@ test("oversized gh output names its cause without retry advice, raw output or an
   }
 });
 
-test("an oversized branch listing still falls back to the ref alone without claiming branch-head evidence", async () => {
-  const boundary = await ownRevisionCheckBoundary();
-  const repository = "terryyin/open-dough";
-  try {
-    boundary.listing.set(repository, {
+test("an oversized branch listing keeps the verified trunk without claiming branch heads", async () => {
+  await withStreamOrigin(await streamServer(), async (origin, server) => {
+    const { older, published } = origin.repository.revisions;
+    await failListingAfterProfiles(server, older, {
       status: 200,
       contentType: "application/json",
       body: JSON.stringify([
         {
           ref: `refs/heads/${"x".repeat(pastBound)}`,
-          object: { type: "commit", sha: revisionA },
+          object: { type: "commit", sha: older },
         },
       ]),
     });
-    boundary.main.set(repository, commitAnswer(revisionB));
-    const response = await boundary.check(knownSourceId, revisionA);
+    const before = server.github.calls.length;
+    const response = await rawRequest({
+      url: streamUrl(server, `&since=${older}&watch=story%2Fone`),
+      headers: { Origin: server.origin },
+    });
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ revision: revisionB, changed: true });
-    expect(response.calls).toEqual([
-      checkArgv(repository),
-      ["api", "--include", `repos/${repository}/commits/main`, "--jq", ".sha"],
-    ]);
-  } finally {
-    await boundary.close();
-  }
+    expect(JSON.parse(response.body)).toEqual({
+      revision: published,
+      changed: true,
+      askedAt: expect.any(String),
+      confirmedAt: expect.any(String),
+    });
+    expect(
+      server.github.calls.slice(before).map(({ request }) => request.kind),
+    ).toEqual(["matching-refs"]);
+  });
 });

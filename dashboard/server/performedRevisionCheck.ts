@@ -1,27 +1,19 @@
-// Performs a revision check for the local authenticated read boundary
-// (`./authenticatedRead.ts`), inside `./performedRead.ts`'s tracked `gh`
-// lifetime and failure wording: whether the source's ref still names the
-// revision shown, and which head each watched story branch names now, from
-// one conditional listing of every published branch head
-// (`./revisionChecks.ts`). A branch is watched only when a Taken entry's
-// profile records it at the revision shown (`./branchReachability.ts`); each
-// head found for it is remembered as resolved (`./branchHeads.ts`), so the
-// page may read that branch's plan there without resolving it again. A check
-// whose listing could not say answers the ref alone, naming no branch head.
-// The revision the ref names, and each head found, is noted as named
-// (`./pinnedMemo.ts`), so reads there may reuse what is unchanged since the
-// backlog last answered, and what this machine retained there.
+// Report the shared verified trunk and the interim REST heads for authorized
+// story-branch watches. Remember reported heads for later pinned plan reads.
 
 import type { BranchHeads } from "./branchHeads.ts";
 import { branchRecordedAtRevision } from "./branchReachability.ts";
-import { observeProjectRevision } from "./observedSessionLandings.ts";
 import { unrecordedBranch } from "./performedBranchRead.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import { answered, type Outcome } from "./readOutcome.ts";
 import type { RequestedRead } from "./requestedRead.ts";
 import type { RevisionChecks } from "./revisionChecks.ts";
-import type { AskedOriginTrunk } from "./sharedVerifiedOriginTrunk.ts";
-import { verifiedTrunk } from "./performedRefRead.ts";
+import type {
+  AskedOriginTrunk,
+  SharedVerifiedOriginTrunk,
+} from "./sharedVerifiedOriginTrunk.ts";
+import { demandVerifiedTrunk, verifiedTrunk } from "./performedRefRead.ts";
+import { requireCoreReadsAllowed } from "./ghRead.ts";
 import { readingRefOf } from "../src/authenticatedReadRules.ts";
 import type { PublishedSource } from "../src/publishedSource.ts";
 
@@ -31,13 +23,28 @@ type CheckReaders = {
   readonly branches: BranchHeads;
 };
 
+type RevisionCheckRead = Extract<RequestedRead, { kind: "revision-check" }>;
+
+export function performHttpRevisionCheck(
+  readers: CheckReaders & { readonly trunks: SharedVerifiedOriginTrunk },
+  source: PublishedSource,
+  read: RevisionCheckRead,
+  signal: AbortSignal,
+): Promise<Outcome> {
+  return performRevisionCheck(readers, source, read, signal, async () => {
+    await requireCoreReadsAllowed(signal);
+    return demandVerifiedTrunk(readers.trunks, readers.pinned, source, signal, {
+      fresh: read.fresh,
+    });
+  });
+}
+
 export async function performRevisionCheck(
   { pinned, checks, branches }: CheckReaders,
   source: PublishedSource,
-  { since, watched }: Extract<RequestedRead, { kind: "revision-check" }>,
+  { since, watched }: Pick<RevisionCheckRead, "since" | "watched">,
   signal: AbortSignal,
-  // Every subscriber to this stream tick receives one verified trunk.
-  observation?: AskedOriginTrunk,
+  observe: () => AskedOriginTrunk | Promise<AskedOriginTrunk>,
 ): Promise<Outcome> {
   for (const branch of watched) {
     const recorded = await branchRecordedAtRevision(
@@ -51,9 +58,9 @@ export async function performRevisionCheck(
       return unrecordedBranch;
     }
   }
-  const verified =
-    observation === undefined ? undefined : verifiedTrunk(observation.trunk);
-  if (verified?.unrecorded) {
+  const { askedAt, trunk } = await observe();
+  const { revision, confirmedAt, unrecorded } = verifiedTrunk(trunk);
+  if (unrecorded) {
     return {
       kind: "failed",
       message: `The check of ${readingRefOf(source)} could not be saved.`,
@@ -61,25 +68,14 @@ export async function performRevisionCheck(
       recovery: undefined,
     };
   }
-  // The legacy listing still answers branch watches. Only the verified Git
-  // observation answers the stream's trunk.
-  const legacy =
-    observation === undefined ? await checks.check(source, signal) : undefined;
-  const revision = verified?.revision ?? legacy?.revision;
-  if (revision === undefined)
-    throw new Error("The trunk check has no revision.");
-  if (legacy !== undefined) observeProjectRevision(pinned, source, revision);
   const checked = {
     revision,
     changed: revision !== since,
-    ...(verified !== undefined && observation !== undefined
-      ? { confirmedAt: verified.confirmedAt, askedAt: observation.askedAt }
-      : {}),
+    confirmedAt,
+    askedAt,
   };
   const heads =
-    verified !== undefined && watched.length > 0
-      ? await checks.watchedHeads(source, signal)
-      : legacy?.heads;
+    watched.length > 0 ? await checks.watchedHeads(source, signal) : undefined;
   if (heads === undefined) {
     return answered(checked);
   }

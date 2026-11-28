@@ -141,7 +141,7 @@ test("reads recorded plans only at resolved or watched heads", async ({
   const readPinned = pinned.reader(source, revision, signal);
   const listPinned = pinned.lister(source, revision, signal);
   pinned.namedByRef(source, revision);
-  await readPinned(source.backlogPath);
+  const backlog = await readPinned(source.backlogPath);
   pinned.answeredBacklog(source, revision);
   await readPinned(seedPath);
   for (const { path } of await listedAgentProfiles(source, listPinned)) {
@@ -149,13 +149,17 @@ test("reads recorded plans only at resolved or watched heads", async ({
   }
   provider.mockClear();
 
+  const at = "2026-11-27T00:00:00Z";
   const read = (params: Record<string, string>) => {
     const request = parseRequestedRead(new URLSearchParams(params));
     switch (request.kind) {
       case "branch-head-at":
         return performBranchHeadRead(readers, source, request, signal);
       case "revision-check":
-        return performRevisionCheck(readers, source, request, signal);
+        return performRevisionCheck(readers, source, request, signal, () => ({
+          askedAt: at,
+          trunk: { kind: "verified", revision, backlog, confirmedAt: at },
+        }));
       case "file-at":
         if (request.onBranch !== undefined)
           return performOnBranch(
@@ -230,7 +234,7 @@ test("reads recorded plans only at resolved or watched heads", async ({
     failure: undefined,
     askedAt: "2026-11-27T00:00:00Z",
   });
-  await expect(check(branch)).resolves.toEqual({
+  await expect(check(branch)).resolves.toMatchObject({
     kind: "answered",
     answer: {
       revision,

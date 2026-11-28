@@ -21,7 +21,6 @@ import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
 import {
   answeredTogether,
   askedSince,
-  heads,
   otherSeedPath,
   otherSeedText,
   readAt,
@@ -91,47 +90,6 @@ test.describe("authenticated read boundary: simultaneous reads share one GitHub 
     const later = server.github.calls.length;
     expect((await readAt(server, sharedSeedRead(revision))).status).toBe(200);
     expect(askedSince(server, later)).toEqual([]);
-  });
-
-  test("checks of different revisions and of different watched branches share one head listing, each learning its own answer; a later check asks again past the window", async () => {
-    const revision = revisionOf("5c");
-    const watching = (branch: string) =>
-      `&since=${revision}&watch=${encodeURIComponent(branch)}`;
-    const holding = await servedHolding(
-      server,
-      revision,
-      ({ kind }) => kind === "matching-refs",
-      [watching("story/one"), watching("story/two")],
-    );
-    const { answers, whileHeld } = await answeredTogether(
-      server,
-      holding,
-      [
-        `&since=${revision}`,
-        `&since=${revisionOf("5d")}`,
-        watching("story/one"),
-        watching("story/two"),
-      ],
-      1,
-    );
-    const learned = (changed: boolean, branch?: string) => ({
-      revision,
-      changed,
-      branches: branch === undefined ? [] : [{ branch, head: heads[branch] }],
-    });
-    expect(answers.map(({ body }) => JSON.parse(body) as unknown)).toEqual([
-      learned(false),
-      learned(true),
-      learned(false, "story/one"),
-      learned(false, "story/two"),
-    ]);
-    expect(whileHeld).toEqual(["matching-refs"]);
-    expect(askedSince(server, holding.before)).toEqual(["matching-refs"]);
-
-    // This server's reuse window is zero, so a later check is already past it.
-    const later = server.github.calls.length;
-    expect((await readAt(server, `&since=${revision}`)).status).toBe(200);
-    expect(askedSince(server, later)).toEqual(["matching-refs"]);
   });
 
   test("reads differing in repository, revision, path, or kind are asked separately and answered for their own question", async () => {

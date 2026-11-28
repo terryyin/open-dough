@@ -7,9 +7,8 @@
 import { execGh, GhFailure, isNotFound, runGh } from "./ghRead.ts";
 import { commitShaPattern } from "../src/authenticatedReadRules.ts";
 
-// Which commit a ref alone names, asked for `.sha` alone: what a revision
-// check asks when the branch-head listing fails, and what feedback maintenance
-// and a follow-up story resolve before reading at that commit.
+// Feedback maintenance and follow-up stories resolve a ref before reading
+// files at that commit. The request asks for the SHA alone.
 function refEndpoint(repository: string, ref: string): string {
   return `repos/${repository}/commits/${ref.split("/").map(encodeURIComponent).join("/")}`;
 }

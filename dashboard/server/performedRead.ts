@@ -14,7 +14,7 @@ import {
 } from "./performedBranchRead.ts";
 import { performPinnedFileRead } from "./performedPinnedFileRead.ts";
 import { performVerifiedTrunkRead } from "./performedRefRead.ts";
-import { performRevisionCheck } from "./performedRevisionCheck.ts";
+import { performHttpRevisionCheck } from "./performedRevisionCheck.ts";
 import type { PinnedTexts } from "./pinnedTexts.ts";
 import type { RevisionChecks } from "./revisionChecks.ts";
 import type { SharedVerifiedOriginTrunk } from "./sharedVerifiedOriginTrunk.ts";
@@ -89,8 +89,8 @@ export async function perform(
           };
           switch (read.kind) {
             case "revision-check":
-              return await performRevisionCheck(
-                { pinned, checks, branches },
+              return await performHttpRevisionCheck(
+                { pinned, checks, branches, trunks },
                 source,
                 read,
                 signal,

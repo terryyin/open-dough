@@ -17,10 +17,7 @@ import { abandonedRequest } from "../../test-support/support/rawHttp.ts";
 import { inspect } from "../../test-support/support/readDiagnostics.ts";
 import { heldBackPattern } from "../../test-support/support/heldBackReads.ts";
 import { listingReuseWithOwnerClock } from "../../test-support/support/listingReuseWithOwnerClock.ts";
-import {
-  rateLimitedAnswer,
-  commitAnswer,
-} from "../../test-support/originAnswers.ts";
+import { rateLimitedAnswer } from "../../test-support/originAnswers.ts";
 import {
   askedSince,
   heads,
@@ -33,6 +30,10 @@ import {
 import { RevisionChecks } from "../../server/revisionChecks.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { listingTimeoutBoundary } from "./listingTimeoutBoundary.ts";
+import {
+  failListingAfterProfiles,
+  streamOrigin,
+} from "./revisionStreamBoundary.ts";
 import { gatewayTimeout } from "./revisionCheckBoundary.ts";
 
 test.describe.configure({ mode: "serial" });
@@ -40,38 +41,39 @@ test.describe.configure({ mode: "serial" });
 const revisionOf = (pair: string) => pair.repeat(20);
 
 test("a 504 listing, a timed-out listing, and a rate-limited listing keep nothing; the next check asks again", async () => {
-  const revision = revisionOf("8e");
+  const watch = (revision: string) => `&since=${revision}&watch=story%2Fone`;
   const server = await listingReuseServer();
+  const unavailableOrigin = await streamOrigin(server.home);
   try {
-    server.github.serve(everyRepository, (call) =>
-      Promise.resolve(
-        call.request.kind === "matching-refs"
-          ? gatewayTimeout
-          : commitAnswer(revision),
-      ),
-    );
+    const { older, published } = unavailableOrigin.repository.revisions;
+    await failListingAfterProfiles(server, older, gatewayTimeout);
     const firstAt = server.github.calls.length;
-    const fallenBack = await readAt(server, `&since=${revision}`);
-    expect(fallenBack.status).toBe(200);
-    expect(JSON.parse(fallenBack.body)).toEqual({
-      revision,
-      changed: false,
+    const unavailable = await readAt(server, watch(older));
+    expect(unavailable.status).toBe(200);
+    expect(JSON.parse(unavailable.body)).toEqual({
+      revision: published,
+      changed: true,
+      askedAt: expect.any(String),
+      confirmedAt: expect.any(String),
     });
-    expect(
-      askedSince(server, firstAt).filter((asked) => asked === "matching-refs"),
-    ).toHaveLength(1);
+    expect(askedSince(server, firstAt)).toEqual(["matching-refs"]);
 
-    server.github.serve(everyRepository, sharedReadsPublished(revision));
-    const afterFallback = server.github.calls.length;
-    expect((await readAt(server, `&since=${revision}`)).status).toBe(200);
-    expect(askedSince(server, afterFallback)).toEqual(["matching-refs"]);
+    server.github.serve(everyRepository, sharedReadsPublished(published));
+    const afterUnavailable = server.github.calls.length;
+    expect((await readAt(server, watch(older))).status).toBe(200);
+    expect(askedSince(server, afterUnavailable)).toEqual(["matching-refs"]);
   } finally {
     await server.close();
+    await unavailableOrigin.close();
   }
 
   const timedOut = await listingTimeoutBoundary();
+  const timedOrigin = await streamOrigin(timedOut.home);
   try {
-    const published = sharedReadsPublished(revision);
+    const { older: revision, published: current } =
+      timedOrigin.repository.revisions;
+    await failListingAfterProfiles(timedOut, revision, gatewayTimeout);
+    const published = sharedReadsPublished(current);
     let reportListingArrival: (pid: number | undefined) => void = () =>
       undefined;
     const listingArrived = new Promise<number | undefined>((resolve) => {
@@ -83,7 +85,7 @@ test("a 504 listing, a timed-out listing, and a rate-limited listing keep nothin
       return hangs(call);
     });
     const beforeTimeout = timedOut.github.calls.length;
-    const response = readAt(timedOut, `&since=${revision}`);
+    const response = readAt(timedOut, watch(revision));
     const hungPid = await Promise.race([
       listingArrived,
       response.then(({ status, body }) => {
@@ -119,25 +121,26 @@ test("a 504 listing, a timed-out listing, and a rate-limited listing keep nothin
 
     timedOut.github.serve(everyRepository, published);
     const afterTimeout = timedOut.github.calls.length;
-    expect((await readAt(timedOut, `&since=${revision}`)).status).toBe(200);
+    expect((await readAt(timedOut, watch(revision))).status).toBe(200);
     expect(askedSince(timedOut, afterTimeout)).toEqual(["matching-refs"]);
   } finally {
     await timedOut.close();
+    await timedOrigin.close();
   }
 
   const clocked = await listingReuseWithOwnerClock();
   const limited = clocked.server;
+  const limitedOrigin = await streamOrigin(limited.home);
   try {
+    const { older: revision, published } = limitedOrigin.repository.revisions;
     const waitSeconds = 1;
-    limited.github.serve(everyRepository, (call) =>
-      Promise.resolve(
-        call.request.kind === "matching-refs"
-          ? rateLimitedAnswer(429, { "Retry-After": String(waitSeconds) })
-          : commitAnswer(revision),
-      ),
+    await failListingAfterProfiles(
+      limited,
+      revision,
+      rateLimitedAnswer(429, { "Retry-After": String(waitSeconds) }),
     );
     const beforeLimit = limited.github.calls.length;
-    const refused = await readAt(limited, `&since=${revision}`);
+    const refused = await readAt(limited, watch(revision));
     expect(refused.status).toBe(502);
     expect(JSON.parse(refused.body)).toMatchObject({
       error: expect.stringMatching(/GitHub limited the rate.*\(HTTP 429\)/),
@@ -146,9 +149,9 @@ test("a 504 listing, a timed-out listing, and a rate-limited listing keep nothin
     expect(askedSince(limited, beforeLimit)).toEqual(["matching-refs"]);
     expect(clocked.standingOwnerPid()).toBe(clocked.ownerPid);
 
-    limited.github.serve(everyRepository, sharedReadsPublished(revision));
+    limited.github.serve(everyRepository, sharedReadsPublished(published));
     const afterLimit = limited.github.calls.length;
-    const heldBack = await readAt(limited, `&since=${revision}`);
+    const heldBack = await readAt(limited, watch(revision));
     expect(heldBack.status).toBe(502);
     expect(JSON.parse(heldBack.body)).toMatchObject({
       error: expect.stringMatching(heldBackPattern),
@@ -158,27 +161,40 @@ test("a 504 listing, a timed-out listing, and a rate-limited listing keep nothin
     expect(clocked.standingOwnerPid()).toBe(clocked.ownerPid);
 
     clocked.advanceOwnerClock(waitSeconds * 1_000 + 1);
-    expect((await readAt(limited, `&since=${revision}`)).status).toBe(200);
+    expect((await readAt(limited, watch(revision))).status).toBe(200);
     expect(askedSince(limited, afterLimit)).toEqual(["matching-refs"]);
     expect(clocked.standingOwnerPid()).toBe(clocked.ownerPid);
   } finally {
     await clocked.close();
+    await limitedOrigin.close();
   }
 });
 
 test("closing the boundary aborts a running listing", async () => {
   const server = await listingReuseServer({ ghTransport: "cli" });
-  server.github.serve(everyRepository, hangs);
-  const url = `${server.baseURL}/__authenticated-read?source=open-dough&since=${revisionOf("8f")}`;
-  abandonedRequest({ url, headers: { Origin: server.origin } });
-  await refusedMarker(server);
-  await expect
-    .poll(() => server.github.calls.length, { timeout: 5_000 })
-    .toBeGreaterThanOrEqual(1);
-  const ghPid = server.ghPid();
-  expect(processAlive(ghPid)).toBe(true);
-  await server.close();
-  expect(processRunning(ghPid)).toBe(false);
+  const origin = await streamOrigin(server.home);
+  try {
+    const { older, published } = origin.repository.revisions;
+    await failListingAfterProfiles(server, older, gatewayTimeout);
+    const answer = sharedReadsPublished(published);
+    server.github.serve(everyRepository, (call) =>
+      call.request.kind === "matching-refs" ? hangs(call) : answer(call),
+    );
+    const priorCalls = server.github.calls.length;
+    const url = `${server.baseURL}/__authenticated-read?source=open-dough&since=${older}&watch=story%2Fone`;
+    abandonedRequest({ url, headers: { Origin: server.origin } });
+    await refusedMarker(server);
+    await expect
+      .poll(() => askedSince(server, priorCalls), { timeout: 5_000 })
+      .toEqual(["matching-refs"]);
+    const ghPid = server.ghPid();
+    expect(processAlive(ghPid)).toBe(true);
+    await server.close();
+    expect(processRunning(ghPid)).toBe(false);
+  } finally {
+    await server.close();
+    await origin.close();
+  }
 });
 
 test("a settled listing under one scope does not answer a check under another scope", async () => {
@@ -209,11 +225,17 @@ test("a settled listing under one scope does not answer a check under another sc
     })
     .please();
   const open = () => new AbortController().signal;
-  expect((await checks.check(source, open())).revision).toBe(revision);
+  expect((await checks.watchedHeads(source, open()))?.get("main")).toBe(
+    revision,
+  );
   expect(listings).toBe(1);
-  expect((await checks.check(source, open())).revision).toBe(revision);
+  expect((await checks.watchedHeads(source, open()))?.get("main")).toBe(
+    revision,
+  );
   expect(listings).toBe(1);
   currentScope = "login-b";
-  expect((await checks.check(source, open())).revision).toBe(revision);
+  expect((await checks.watchedHeads(source, open()))?.get("main")).toBe(
+    revision,
+  );
   expect(listings).toBe(2);
 });

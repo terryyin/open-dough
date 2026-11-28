@@ -111,7 +111,7 @@ test("a recorded branch whose name cannot be used is that card's gap, is never r
       `The recorded branch ${unusable} has a name this dashboard cannot use`,
     );
     const reads = readsBesideChecks(callsSince(page, from));
-    expect(reads).toContain(
+    expect(reads).not.toContain(
       `content .planning/PRODUCT-BACKLOG.md@${trunkMoved}`,
     );
     expect(reads).not.toContain(`branch ${unusable}`);

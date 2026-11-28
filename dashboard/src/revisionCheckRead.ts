@@ -46,8 +46,8 @@ const streamErrorAnswer = z.object({
 // Whether the source's ref still names the revision shown, or which commit it
 // names now. While it does, the check also says which head each watched story
 // branch names now, undefined when it is no longer published; it names none
-// when the boundary could not list branch heads this time. Nothing of the
-// backlog or its records is read.
+// when the boundary could not list branch heads this time. The reply carries
+// the time and revision of the verified observation.
 export type RevisionConfirmation = {
   readonly askedAt: string;
   readonly confirmedAt: string;

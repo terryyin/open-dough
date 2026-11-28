@@ -18,10 +18,7 @@ import {
   expectWholeSnapshot,
   parts,
 } from "../../dashboard/test-support/dashboardPage.ts";
-import {
-  detailContentPaths,
-  noConnection,
-} from "../../dashboard/test-support/publishedOrigin.ts";
+import { detailContentPaths } from "../../dashboard/test-support/publishedOrigin.ts";
 import { restMembershipAsked } from "../../dashboard/test-support/originObservation.ts";
 import {
   isCheck,
@@ -118,13 +115,7 @@ test("a lost connection is recovered on its own at the next check", async ({
   await pausePageClockAt(page, opened);
   const origin = await publishMovingHistory(page, rawA, "A", afterGitHubStops);
   const { A: revisionA } = origin.revisions;
-  const reconnect = await openThenFailCheck(
-    page,
-    origin,
-    titlesOfA,
-    noConnection,
-    "The local GitHub CLI could not reach GitHub while reading main of terryyin/open-dough.",
-  );
+  const reconnect = await openThenFailCheck(page, origin, titlesOfA);
   reconnect();
   await passTimeUntilChecked(page);
   await untilPageReadsAnswered(page);

@@ -62,12 +62,11 @@ export class RevisionStreamSubscriber {
         readers,
         source,
         {
-          kind: "revision-check",
           since: this.ask.at,
           watched: this.ask.watched,
         },
         AbortSignal.any([this.controller.signal, observationSignal]),
-        observation,
+        () => observation,
       );
       this.write(outcome);
     } catch (error) {

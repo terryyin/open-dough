@@ -1,13 +1,6 @@
-// Revision-only checks for the local authenticated read boundary
-// (`./authenticatedRead.ts`): which commit a catalog source's ref, and every
-// other published branch head, names now, asked of GitHub in one conditional
-// listing (`./ghRevision.ts`) so unchanged heads cost a `304 Not Modified`
-// rather than a fresh answer. When that listing fails for any reason but a
-// rate limit, a read held back by one, or a timeout -- it is one unpaginated
-// answer, which a repository with thousands of branches may exceed or GitHub
-// may give up on -- that check asks only which commit the ref names, and
-// says nothing of branch heads.
-//
+// The interim conditional REST listing of published heads for authorized
+// branch watches. The trunk always comes from verified Git.
+
 // One process shares a settled listing across pages of the same source and
 // request-owner scope for a short reuse window (the same window host status
 // uses), joining an outstanding listing otherwise, through
@@ -17,11 +10,7 @@
 import type { PublishedSource } from "../src/publishedSource.ts";
 import { readWaitLimitMs } from "../src/authenticatedReadRules.ts";
 import { checkReuseMs } from "../src/revisionCheckSchedule.ts";
-import {
-  checkHeadsViaGh,
-  resolveRevisionViaGh,
-  type HeadsAnswer,
-} from "./ghRevision.ts";
+import { checkHeadsViaGh, type HeadsAnswer } from "./ghRevision.ts";
 import { GhFailure, rateLimitStop, scope } from "./ghRead.ts";
 import { traceRevisionObservation } from "./revisionObservationTrace.ts";
 import { SharedObservation } from "./sharedObservation.ts";
@@ -90,37 +79,6 @@ export class RevisionChecks {
     this.reuseMs = reuseMs;
     this.ownerScope = ownerScope;
     this.listHeads = listHeads;
-  }
-
-  async check(
-    source: PublishedSource,
-    signal: AbortSignal,
-  ): Promise<CheckedHeads> {
-    try {
-      return await this.listedHeads(source, signal);
-    } catch (error) {
-      if (
-        signal.aborted ||
-        !(error instanceof GhFailure) ||
-        rateLimitStop(error) !== undefined ||
-        // A listing shared with an earlier request may reach its own bound
-        // first: this request is answered as timed out too.
-        error.reason.kind === "timed-out"
-      ) {
-        throw error;
-      }
-      // The earlier answer stays the hint, so watching branch heads resumes
-      // with the next listing that succeeds. A failed listing keeps no
-      // settled observation, so the next check asks GitHub again.
-      return {
-        revision: await resolveRevisionViaGh(
-          source.repository,
-          source.ref,
-          signal,
-        ),
-        heads: undefined,
-      };
-    }
   }
 
   // The interim REST branch watch never resolves or substitutes the trunk.

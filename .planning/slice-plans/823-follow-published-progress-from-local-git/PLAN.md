@@ -320,6 +320,13 @@ owner's queued read was unasked and recovered through its replacement.
 All changes are to the subject specs and use their existing fixtures and
 request controls.
 
+In [hosted CI](https://github.com/terryyin/open-dough/actions/runs/46092446207/job/140816231341),
+two checkout connections to GitHub timed out before the third succeeded.
+That used just over five minutes of the eight-minute job. The outer bound
+cancelled the browser shard after 2:49 of testing. All other jobs passed.
+The local proof above remains accepted, with full hosted coverage pending
+on the next increment.
+
 The cutover now owns origin counts and transfer holds in remaining shared
 check, visibility, project isolation and handover cases. Use the actual
 upload-pack gates in `revisionStreamBoundary.ts` and `heldTrunkTransfer.ts`.
@@ -331,7 +338,7 @@ Review reload and retained-answer tests for old listing aliases.
 ### 8. Follow trunk through the verified HTTP fallback
 
 Type: Behavior
-Status: planned
+Status: done
 
 The fallback observes changed and unchanged trunk through the same
 verified check and durable time as the stream and Refresh. It retains the
@@ -346,6 +353,17 @@ eligible check within its wait bound. A browser with stream delivery
 unavailable shows B without Refresh and shows the later time at unchanged
 B. Re-prove remaining affected confirmation, check-return, visibility,
 project isolation, held read and recovery cases at their owning boundaries.
+
+Accepted proof: one cold probe and fetch served the HTTP fallback and two
+overlapping streams. A queued fresh HTTP request answered with a later
+warm probe and the durable confirmation record. The final HTTP boundary
+cases also prove rejection before Git or REST and preservation of the
+record through unavailable origin, credential refusal and a failed write.
+The Board showed B without Refresh, then advanced only its confirmation
+time at unchanged B. The migrated checks also passed for visibility,
+handover, project isolation, owner advice and cooldown, recovery, and six
+launch reconciliation cases. Dashboard typecheck passed. Authorized
+branch watches still use the interim REST listing.
 
 ### 9. Follow published story-branch progress
 
@@ -382,7 +400,7 @@ read-boundary case for the failed probe, both against a real origin.
 
 Reported: slice 4 — "The HTTP revision-check route still uses its existing listing and ref fallback and original wire shape."
 Story clause: "Automatic observation (the revision stream and its HTTP fallback) runs the same verified Git check as Refresh and publishes through the same durable confirmation record."
-Disposition: receiving slice 8
+Disposition: proved by slice 8: the [actual HTTP and stream boundary](../../../dashboard/backend-tests/observation/authenticated-read-revision-check.spec.ts) agrees with the durable record and counts shared Git operations; the [fallback Board journey](../../../e2e/observation/auto-refresh.spec.ts) shows the changed revision and holds retrieval time steady at the next unchanged check.
 
 ### G2. Verified watched-branch progress
 

@@ -8,6 +8,8 @@
 // only after the newly selected project is shown, and
 // "nothing changed" is asserted immediately after the release.
 
+import { holdLaterTrunkTransfers } from "../../dashboard/test-support/laterTrunkTransfers.ts";
+import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
 import type { Locator, Page } from "@playwright/test";
 import {
   expect,
@@ -100,43 +102,41 @@ test.describe("project read isolation of automatic checks", () => {
   test("a deselected project's outstanding revision check is abandoned, its late answer changes nothing, and only the selected project is checked from then on", async ({
     page,
     afterGitHubStops,
+    dashboard,
   }) => {
     const openDough = await openSettledAtA(page, afterGitHubStops);
-    const releaseCheck = openDough.hold("main");
-    // What the held check would find: Open Dough's main moved on to B.
-    openDough.advanceTo("B");
-    const beforeCheck = githubFor(page).calls.length;
-    const checking = page.waitForRequest((request) => isCheck(request.url()));
-    await passTimeUntilAsked(page);
-    const check = await checking;
-    expect(new URL(check.url()).searchParams.get("source")).toBe("open-dough");
-    // Leave the real provider request held, so changing projects must
-    // cancel the HTTP wait. Slice 8 replaces this REST synchronization.
-    await expect
-      .poll(() =>
-        callsSince(page, beforeCheck).filter(
-          ({ request }) => request.kind === "matching-refs",
-        ),
-      )
-      .toHaveLength(1);
-    const cancelled = page.waitForEvent(
-      "requestfailed",
-      (request) => request === check,
-    );
-    const atSwitch = githubFor(page).calls.length;
-    const shown = await selectSettledDoughnut(page);
-    await cancelled;
+    const transfer = holdLaterTrunkTransfers(dashboard.home, defaultRepository);
+    try {
+      // What the held check would find: Open Dough's main moved on to B.
+      openDough.advanceTo("B");
+      const checking = page.waitForRequest((request) => isCheck(request.url()));
+      await passTimeUntilAsked(page);
+      const check = await checking;
+      expect(new URL(check.url()).searchParams.get("source")).toBe(
+        "open-dough",
+      );
+      await transfer.untilHeld();
+      const cancelled = page.waitForEvent(
+        "requestfailed",
+        (request) => request === check,
+      );
+      const atSwitch = githubFor(page).calls.length;
+      const shown = await selectSettledDoughnut(page);
+      await cancelled;
 
-    await test.step("Open Dough's held check answers late, after Doughnut is shown", async () => {
-      releaseCheck();
-      await expectOnlyDoughnut(page, shown);
-    });
+      await test.step("Open Dough's held check answers late, after Doughnut is shown", async () => {
+        transfer.release();
+        await expectOnlyDoughnut(page, shown);
+      });
 
-    await test.step("the next check is Doughnut's own, at its steady pace, and Open Dough is never asked again", async () => {
-      await expectOneDoughnutCheck(page, shown.revision);
-      expectOnlyDoughnutAsked(callsSince(page, atSwitch), shown.revision);
-      await expectOnlyDoughnut(page, shown);
-    });
+      await test.step("the next check is Doughnut's own, at its steady pace, and Open Dough is never asked again", async () => {
+        await expectOneDoughnutCheck(page, shown.revision);
+        expectOnlyDoughnutAsked(callsSince(page, atSwitch), shown.revision);
+        await expectOnlyDoughnut(page, shown);
+      });
+    } finally {
+      transfer.release();
+    }
   });
 
   test("a deselected project's late detail read never lands in the newly selected project's view or schedule", async ({

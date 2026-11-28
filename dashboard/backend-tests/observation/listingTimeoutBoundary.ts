@@ -1,5 +1,6 @@
 // Drive the HTTP waiter's bound and then the dashboard listing's own bound
 // while the request owner and synthetic gh use their real process timers.
+import path from "node:path";
 import { installAuthenticatedReadMiddleware } from "../../server/authenticatedRead.ts";
 import { readWaitLimitMs } from "../../src/authenticatedReadRules.ts";
 import { controlRequestTimers } from "../../test-support/support/controlledRequestTimers.ts";
@@ -41,6 +42,7 @@ export async function listingTimeoutBoundary() {
     baseURL: boundary.origin,
     origin: boundary.origin,
     github: boundary.github,
+    home: path.join(boundary.tempRoot, "home"),
     ghPid: () => readPid(boundary.gh.pidPath),
     expireWaiter: () => clock.advance(waiterBoundMs),
     expireListing: () => clock.advance(readWaitLimitMs - waiterBoundMs),

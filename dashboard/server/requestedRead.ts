@@ -54,6 +54,7 @@ export type RequestedRead =
   | {
       readonly kind: "revision-check";
       readonly since: string;
+      readonly fresh: boolean;
       // Story branches recorded at `since` whose heads the check also reports.
       readonly watched: readonly string[];
     }
@@ -214,7 +215,12 @@ export function parseRequestedRead(
     const watched = parseWatchedBranches(watch, "revision check");
     return "kind" in watched
       ? watched
-      : { kind: "revision-check", since, watched };
+      : {
+          kind: "revision-check",
+          since,
+          watched,
+          fresh: params.get("fresh") === "1",
+        };
   }
   if (revision === null) {
     return path === null && committed === null

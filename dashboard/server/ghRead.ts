@@ -97,6 +97,15 @@ export function requestOwnerScope(): Promise<string | undefined> {
   return github.scope();
 }
 
+// Learn a standing owner cooldown without dispatching a REST request.
+export async function requireCoreReadsAllowed(
+  signal: AbortSignal,
+): Promise<void> {
+  const cooldown = await github.coreCooldown(signal);
+  if (cooldown.kind === "held-back") throw new GhFailure(cooldown);
+  if (cooldown.kind === "unavailable") throw new GhFailure(cooldown.failure);
+}
+
 // One `gh` answer's body.
 export async function runGh(
   args: readonly string[],

@@ -130,6 +130,37 @@ test("sequential watches reuse one branch listing and check its ETag once reuse 
       expect(listings[0]?.argv).toContain(
         `If-None-Match: ${headsEtag({ main: revision, ...heads })}`,
       );
+
+      const other = (query: string) => ({ source: "doughnut", query });
+      routeOriginThroughServedHomes(
+        zeroWindow.github,
+        origin.origin,
+        "nerds-odd-e/doughnut",
+      );
+      expect(
+        (await readAt(zeroWindow, other(`&revision=${revision}`))).status,
+      ).toBe(200);
+      expect(
+        (
+          await readAt(
+            zeroWindow,
+            other(`&revision=${revision}&agents=profiles`),
+          )
+        ).status,
+      ).toBe(200);
+      const otherAt = zeroWindow.github.calls.length;
+      expect((await readAt(zeroWindow, other(watch(revision)))).status).toBe(
+        200,
+      );
+      expect(
+        listingsSince(zeroWindow, otherAt).map(({ argv }) => argv),
+      ).toEqual([
+        [
+          "api",
+          "--include",
+          "repos/nerds-odd-e/doughnut/git/matching-refs/heads/",
+        ],
+      ]);
     } finally {
       await zeroWindow.close();
     }

@@ -37,7 +37,6 @@ import {
   withheldTitle,
 } from "../../dashboard/test-support/limitedReadingRecords.ts";
 import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
-import { httpErrorAnswer } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   inspectDashboardStory,
   refreshHistory,
@@ -228,13 +227,7 @@ test("an ordinary transient failure does not hold back another project's reads",
     afterGitHubStops,
     doughnutRepository,
   );
-  await openThenFailCheck(
-    page,
-    openDough,
-    titlesOfA,
-    httpErrorAnswer(503),
-    "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-  );
+  await openThenFailCheck(page, openDough, titlesOfA);
 
   await projectTab(page, "Doughnut").check();
   await expectSettledPage(page, {

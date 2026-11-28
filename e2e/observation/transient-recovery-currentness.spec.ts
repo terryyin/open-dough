@@ -44,7 +44,6 @@ import {
 } from "../../dashboard/test-support/limitedReadingJourney.ts";
 import { untilPageReadsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
 import { noConnection } from "../../dashboard/test-support/originAnswers.ts";
-import { httpErrorAnswer } from "../../dashboard/test-support/publishedOrigin.ts";
 import {
   dashboardStory,
   refreshHistory,
@@ -83,13 +82,7 @@ test("recovery discovering a new revision replaces the snapshot with current fac
       { cwd: dashboard.home, env: { HOME: dashboard.home }, maxBuffer: 4096 },
     );
   expect(await routedTrunk()).toBe(revisionA);
-  const restoreMain = await openThenFailCheck(
-    page,
-    origin,
-    titlesOfA,
-    httpErrorAnswer(503),
-    "GitHub answered HTTP 503 to the local GitHub CLI while reading main of terryyin/open-dough.",
-  );
+  const restoreMain = await openThenFailCheck(page, origin, titlesOfA);
   restoreMain();
   origin.advanceTo("B");
   expect(await routedTrunk()).toBe(revisionB);

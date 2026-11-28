@@ -23,7 +23,10 @@ import {
   openSettledAtA,
   passTimeUntilAsked,
 } from "../../dashboard/test-support/autoRefreshJourney.ts";
-import { untilPageRequestsAnswered } from "../../dashboard/test-support/pageRequestNotes.ts";
+import {
+  isCheck,
+  untilPageRequestsAnswered,
+} from "../../dashboard/test-support/pageRequestNotes.ts";
 import { holdLaterTrunkTransfers } from "../../dashboard/test-support/laterTrunkTransfers.ts";
 import { defaultRepository } from "../../dashboard/test-support/publishedOriginBasics.ts";
 import {
@@ -130,8 +133,26 @@ test("an automatic check that named B before Refresh published C cannot replace 
     await test.step("Given the Board at A and an automatic check held after it found origin at B", async () => {
       const origin = await openSettledAtA(page, afterGitHubStops);
       origin.advanceTo("B");
-      const releaseCheck = origin.hold("main");
+      let releaseCheck = () => {};
+      const hold = new Promise<void>((resolve) => {
+        releaseCheck = resolve;
+      });
+      let reportFetch = () => {};
+      const fetched = new Promise<void>((resolve) => {
+        reportFetch = resolve;
+      });
+      await page.route(
+        (url) => isCheck(url.toString()),
+        async (route) => {
+          const response = await route.fetch();
+          reportFetch();
+          await hold;
+          await route.fulfill({ response });
+        },
+        { times: 1 },
+      );
       await passTimeUntilAsked(page);
+      await fetched;
       return { origin, releaseCheck };
     });
   const refreshedAt =
