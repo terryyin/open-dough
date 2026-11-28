@@ -150,6 +150,20 @@ developer's direction (2026-11-28) the observation moves to the production
 dashboard's Project Intent after integration on `main`, before retirement;
 a miss there becomes a correction.
 
+## Execution complete
+
+Product advice: the work fits the near-future direction of making a story's
+intent and proof readable in Intent, and the tagged journey completes SEED-334's
+installed workflow. The released v0.3.97 preparation command still works with
+the current dashboard; keep the pin until a diagnosed incompatibility needs a
+newer tag. The journey adds a GitHub tag fetch to every CI E2E run.
+- Carry the refactor candidates (shared preparation-assignment reader;
+  `startRefinementInCodex` in the inline Codex launch specs) into
+  SEED-300#express-launch-test-intent-through-page-objects (plan 586).
+- Give SEED-334#keep-one-browser-test-group-roster (plan 617) the learning
+  that an unlisted e2e spec lands in remainder shard 6.
+- Other queue priorities: no change.
+
 ## Verification and delivery gates
 
 - Before test edits run installed `test-entry-rules.mjs` on exact paths and
