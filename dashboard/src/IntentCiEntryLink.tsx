@@ -1,5 +1,6 @@
 // CI entry names open their configured location in this Intent page's
-// browser. Unmatched historical entries remain readable without a dead link.
+// browser, named by its configured label when it has one. Unmatched
+// historical entries remain readable without a dead link.
 import {
   createContext,
   useContext,
@@ -56,12 +57,16 @@ export function IntentCiEntryNavigation({
   );
 }
 
+// A read location's configured label names its entry; its path stays shown
+// beside it as the entry's identity.
 export function IntentCiEntryLink({ path }: { readonly path: string }) {
   const navigation = useContext(EntryNavigation);
-  const name = <ScopePath path={path} />;
-  if (!navigation?.locations?.some((location) => location.path === path))
-    return name;
-  return (
+  const location = navigation?.locations?.find(
+    (candidate) => candidate.path === path,
+  );
+  const shownPath = <ScopePath path={path} />;
+  if (navigation === undefined || location === undefined) return shownPath;
+  const open = (
     <button
       type="button"
       className="intent-open-link"
@@ -69,7 +74,13 @@ export function IntentCiEntryLink({ path }: { readonly path: string }) {
         navigation.open(path);
       }}
     >
-      {name}
+      {location.label ?? shownPath}
     </button>
+  );
+  if (location.label === undefined) return open;
+  return (
+    <>
+      {open} {shownPath}
+    </>
   );
 }

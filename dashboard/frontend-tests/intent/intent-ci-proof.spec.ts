@@ -92,6 +92,28 @@ test("a failed run shows Failed while its Proof is held, then Proof of that run'
     .toHaveAttribute("aria-pressed", "true");
 });
 
+test("an entry a location labels shows that label, opens the location, and keeps its path shown", async () => {
+  await mountFailedAttemptProof(
+    proofOfJudgedRun([
+      makeMe.aCiProofEntry.at("e2e").counting(3, "case").please(),
+      makeMe.aCiProofEntry.at("tests").counting(5, "file").please(),
+    ]),
+  );
+  const proof = intentCiProof();
+  const labelled = proof.table.getByRole("button", {
+    name: "E2E Test",
+    exact: true,
+  });
+
+  await expect.element(labelled).toBeVisible();
+  await expect
+    .element(proof.table.getByRole("rowheader", { name: "E2E Test e2e" }))
+    .toBeVisible();
+  await expect.element(proof.entryButton("tests")).toBeVisible();
+  await userEvent.click(labelled);
+  await showsAttemptSummary("e2e");
+});
+
 test("a missing part is shown as a gap and its counts are not counted", async () => {
   const evidence = makeMe.aCiProofEvidence
     .inUnit("case")

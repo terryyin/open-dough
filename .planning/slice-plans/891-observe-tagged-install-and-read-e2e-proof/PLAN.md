@@ -104,7 +104,7 @@ one shared reader of the preparation assignment (6 files) and
 
 ### 2. Name CI entries by their configured label
 Type: Behavior
-Status: planned
+Status: done
 Proof: Dashboard Frontend Test (Vitest + embedded Chromium) cases on Project
 Intent CI Proof and a Done story's CI comparison: `e2e` labelled
 **E2E Test** opens its location with its path still shown as context; a
@@ -118,6 +118,13 @@ existing `intent-ci-*` frontend specs.
 Behavior: a developer reads CI Proof or a story's CI comparison → each entry a
 read location labels shows that label, opens that location, and keeps its path
 reachable; an unmatched historical path stays plain text.
+
+Accepted proof (2026-11-28): `intent-ci-proof.spec.ts` (labelled `e2e` and
+unlabelled `tests`) and `intent-ci-comparison-entry-labels.spec.tsx` (the
+migration comparison, cues `added`/`removed`, frontend `+30 s`) pass with all
+`intent-ci-*` and `intent-summary-ci-proof-*` frontend specs (101 tests) and
+the traced `e2e/intent/intent-ci-proof-adapter` and `-reasons` journeys. No
+other view renders a location label; `IntentCiEntryLink` alone names entries.
 
 ### 3. Open registering helpers from Proof and Purpose
 Type: Behavior
