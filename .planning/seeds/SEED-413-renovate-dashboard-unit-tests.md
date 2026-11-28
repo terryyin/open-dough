@@ -239,7 +239,7 @@ launch flavors as MakeMe steps (completed; recoverable at `47af39ca6:.planning/s
 
 **Identity:** SEED-413#github-request-lifetime-and-evidence-via-vitest
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6128c16c4ca032d0699abf5d307574fa5c608935a4dee17d50461283d39f35da","plan":"2f3ca1e1b5b0d076b448b31fa8e3645bb9c1ef3abbf7511985b790fa8152015f"}}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md","assessment":"ready","reasons":[],"basis":{"document":"6128c16c4ca032d0699abf5d307574fa5c608935a4dee17d50461283d39f35da","plan":"76b2c245f7c222af6b0e3a78f48b40b5f57f5fb23319b2f959171a3c5b7a0c09"}}
 ```
 
 - **Goal.** Give Dashboard and CI maintainers fast Node Vitest feedback that

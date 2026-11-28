@@ -442,7 +442,9 @@ slice.
   `e2e/stories/direction-disclosure.spec.ts:219`. The Near-future direction
   region stayed present after choosing Doughnut. The same product code
   passed CI at `2950e48ddd61bfbe9fde0a130028b414651b1a6e`. This story does
-  not change that spec or the direction UI. The failure is not repaired.
+  not change that spec or the direction UI. Trunk `39fbba2cd` holds that
+  read with `holdAuthenticatedReadsWhere`. Merge `81a419b13` took that
+  change, and CI run `46142465927` on that SHA passed.
 - CI: GitHub Actions, workflow `ci.yml` (display name `CI`, id `351271804`),
   repo `terryyin/open-dough`, branch
   `cursor/prove-github-request-lifetime-and-failure-eviden`.
@@ -461,4 +463,19 @@ slice.
   whole 13-path family before the lifetime slices.   The first attempt's
   unproven specs were removed. Slice 6's third overrun left no spec.
   Diagnosis `direction-disclosure-count` round 1 paused at 38 active
-  minutes with no new observation. The e2e failure is not repaired.
+  minutes with no new observation. Later rounds named the removal condition
+  and did not reproduce the CI signature locally. The repair is trunk's
+  hold, published in `81a419b13`.
+
+## Execution complete
+
+Product advice: no change.
+
+The narrowed story is delivered: a shared pinned read stays for the waiter
+that remains, ends at its own bound, and is released when the boundary
+closes; two Dashboards and CI share one owner; a diagnostic read stays empty
+until the request is admitted. Failure evidence is already
+SEED-413#github-failure-evidence-via-vitest and is not queued. Trunk removed
+the GitHub revision-check listing, and those cases left with it. Process
+review matched existing findings ODF-398 and ODF-538. DearDough.md is at its
+1,000-line ceiling, so no new occurrence row was written.
