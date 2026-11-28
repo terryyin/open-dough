@@ -227,7 +227,7 @@ assert that it ran.
 ### 5. Serve only the selected comparison's file or result tree
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior. A named Done or landed comparison admits only its project,
 story, endpoints and listed paths. A rename uses both literal paths.
@@ -252,6 +252,23 @@ pair's literal diff/text, while the result reader covers the whole named
 tree and its Intent settings. Reuse the production result reader and Git
 adapter. Run the named Intent journey and affected file Follow up readers
 if sharing or admission changes.
+
+Accepted. `story-review-file-{admission,request}.spec.ts` replace the three
+Chromium specs, whose 4 cases summed 6.13 s. The 4 replacement cases sum
+to 1.29 s. Added cases in `story-review-published-{taken,landing}.spec.ts`
+cover:
+
+- the old Taken head's tree;
+- the retired landing's text and result;
+- that result's 404 for a foreign story, where the Done form gives 409.
+
+The page's `reviewedFileQuery` builds the file URLs. The foreign `Origin`
+403 and 405 go through `admitted`. `readStoryReviewResult` is exported for
+the typed result read. `sharedFixtureProject` holds a project shared
+across cases, and `configuredFixtureProject` now delegates to it. All 28
+consumer specs passed: 102 cases at load 10. Sharing and admission are
+unchanged, so the Intent journey and the Follow up readers were reused.
+Some cases exceeded 5 s at an external load of 37–41 and passed at 16–19.
 
 ### 6. Keep the chosen landing through replacement, deletion and expiry
 

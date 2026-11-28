@@ -1,7 +1,7 @@
 // Which revision a story result reads: the named comparison's own tree only.
 // Admitting the comparison itself (an older Taken head, a Done completion
 // after main advances, a retained landing) is ./story-review-published-taken.spec.ts,
-// ./story-review-file-text-admission.spec.ts and the landed review specs.
+// ./story-review-file-admission.spec.ts and the landed review specs.
 import { expect, test } from "vitest";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
 import { storyReviewResultRequest } from "../../server/storyReviewResultRequest.ts";

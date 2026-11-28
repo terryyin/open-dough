@@ -4,7 +4,11 @@ import { expect, test } from "vitest";
 import { stubRemoteRequestRecording } from "../support/fixtureHome.ts";
 import { configuredFixtureProject } from "../support/fixtureProject.ts";
 import { makeMe } from "../../../Distribution/tests/support/makeMe.mjs";
-import { reviewedFileDiff } from "../../server/storyReviewFileResponse.ts";
+import {
+  reviewedFileDiff,
+  reviewedFileText,
+} from "../../server/storyReviewFileResponse.ts";
+import { readStoryReviewResult } from "../../server/storyReviewResultRead.ts";
 import { reviewRepositoryPath } from "../../server/reviewRepository.ts";
 import { knownSource } from "../../server/sessionAdmission.ts";
 import { storyReview } from "../../server/storyReview.ts";
@@ -190,4 +194,37 @@ test("a landed run never synced and opened while origin hangs is unavailable and
   expect("explanation" in answer && answer.explanation).toContain(
     timedOutSync(deadlineMs),
   );
+});
+
+test("a retired landing's admitted pair reads its text and result only for its own story", async () => {
+  const { base, accepted, subject, review } = await retiredLandedRun();
+  const signal = new AbortController().signal;
+  await expect(storyReview(review, signal)).resolves.toMatchObject({
+    kind: "landed",
+  });
+  const read = { subject, reference, baseline: base, tree: accepted };
+  await expect(
+    reviewedFileText({ read: { ...read, path: literal } }, signal),
+  ).resolves.toEqual({ kind: "text", baseline: null, tree: "accepted file\n" });
+  await expect(
+    reviewedFileText({ read: { ...read, path: "later.txt" } }, signal),
+  ).rejects.toMatchObject({ status: 409 });
+  const result = { subject, reference, tree: accepted };
+  await expect(
+    readStoryReviewResult({ ...result, path: literal }, signal),
+  ).resolves.toEqual({
+    kind: "text",
+    revision: accepted,
+    path: literal,
+    text: "accepted file\n",
+  });
+  await expect(
+    readStoryReviewResult(
+      { ...result, subject: { ...subject, identity: "SEED-B#b" } },
+      signal,
+    ),
+  ).rejects.toMatchObject({
+    status: 404,
+    message: expect.stringContaining("This story has no landed run") as unknown,
+  });
 });
