@@ -8,49 +8,28 @@ scope: story
 
 # SEED-334 — Product-wide end-to-end tests
 
-<a id="observe-tagged-install-and-read-e2e-proof"></a>
+<a id="prove-working-tree-origins-hold-no-release"></a>
 
-### Observe a tagged installed workflow and read E2E proof in Intent
+### Prove working-tree preparation origins hold no released installation
 
-**Identity:** SEED-334#observe-tagged-install-and-read-e2e-proof
+**Identity:** SEED-334#prove-working-tree-origins-hold-no-release
 ```json dough-story-state
-{"schemaVersion":1,"refinement":"not-refined","approach":"unselected"}
+{"schemaVersion":1,"refinement":"refined","approach":"planned","plan":"../slice-plans/894-prove-working-tree-origins-hold-no-release/PLAN.md"}
 ```
+**Plan:** [894](../slice-plans/894-prove-working-tree-origins-hold-no-release/PLAN.md)
 
-- **For / why.** A developer sees a representative workflow run released
-  Open Dough commands in an installed project, and reads **E2E Test** proof in
-  Intent under its own name without false continuity from the retired
-  `dashboard/tests` evidence.
-- **Evaluation.** An isolated project with Open Dough installed from published
-  `v0.3.97` (tag, resolved revision and installed version recorded) starts
-  story preparation from the dashboard under `npm run test:e2e`, and the
-  installed command publishes the assignment to its bare origin; a missing or
-  unverifiable pinned release fails clearly without branch fallback. Each E2E
-  journey names its real integrations and simulated boundaries. Project
-  Intent, Purpose, Proof, story CI comparison and history name the **E2E
-  Test** entry, open registering-helper sources, keep old `dashboard/tests`
-  evidence readable at its revision, and show absent or changed scopes
-  without fabricated numeric comparisons or dead links.
-- **Inputs.** Scope 3, 4, 7 and 8 and Key examples 1 and 5 of
-  SEED-334#run-and-observe-product-wide-end-to-end-tests, and plan slices 5
-  and 6 with their premises and the accepted tagged prerequisite proof in its
-  preparation assessment, recoverable at commit
-  `d21a0ebc5ee0426f9898d10725c9e7765f49bc8e` from
-  `.planning/seeds/SEED-334-product-wide-end-to-end-tests.md` and
-  `.planning/slice-plans/608-product-wide-end-to-end-tests/PLAN.md`.
-- **Boundary.** No new release, native agent acceptance or speed work. Keep
-  only the representative tagged-install workflow in `e2e/` (`@playwright/test`);
-  prove single-service Intent, history, and absent/changed-scope reading rules
-  in plain Node Vitest on strongly typed backend handlers and plain Vitest +
-  embedded headless Chromium on narrow owning Intent UI components, adding no
-  wrappers to `test-support` ([Architectural North Star](../NORTH-STAR.md)).
-  The [Intent reading contract](../../Distribution/src/skills/dough-post-change-refactor/references/refactor-checks.md#design-production-code-for-testability)
-  should let the unit test suite render a changed scope from its typed proof
-  data without arranging an installed workflow or agent launch.
-- **Value / learning.** Completes the product-wide E2E goal's installed and
-  Intent-reading promises on the runners SEED-334 delivered.
-- **Safe stopping point.** The tagged journey alone, or the Intent naming and
-  history alone, is complete on its own.
+#### Goal
+
+A maintainer changing the shared prepared-origin seam learns from the
+maintained tests when a working-tree preparation journey would start from the
+tagged released installation, so the working-tree journeys keep proving this
+run's skills.
+
+#### Scope
+
+Add one maintained observation that a working-tree prepared origin carries the
+working-tree installation and no released one. Product behavior, the tagged
+journey and the seam's design stay as they are.
 
 <a id="keep-one-browser-test-group-roster"></a>
 

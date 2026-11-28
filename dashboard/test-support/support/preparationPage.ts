@@ -15,13 +15,17 @@ import {
   startOrigin,
   type StartOriginFixtures,
 } from "./startOrigin.ts";
+import type { ReleasedInstallation } from "./taggedInstallation.ts";
 export { expect } from "../dashboardTest.ts";
 export const test = base.extend<
   StartOriginFixtures & {
     preparationHost: "claude" | "codex";
+    // A released installation instead of this run's working-tree skills.
+    preparationRelease: ReleasedInstallation | undefined;
   }
 >({
   preparationHost: ["claude", { option: true }],
+  preparationRelease: [undefined, { option: true }],
   originRepository: queuedOriginRepository,
   origin: preparationOrigin(startOrigin),
   codexProtocol: async ({ origin, preparationHost }, use) => {

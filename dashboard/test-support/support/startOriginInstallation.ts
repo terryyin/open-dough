@@ -1,6 +1,7 @@
-// The installation layer of a prepared start origin: `.gitignore` and this
-// run's working-tree skills, joined to a repository description's first
-// commit, and the project developer who commits each revision.
+// The installation layer of a prepared start origin: `.gitignore` and either
+// this run's working-tree skills or one released installation's files, joined
+// to a repository description's first commit, and the project developer who
+// commits each revision.
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
@@ -9,6 +10,7 @@ import type {
   RepositoryDescription,
 } from "../../../Distribution/tests/support/repositoryTestData.mjs";
 import { installedSkillPath } from "../../server/launchHosts.ts";
+import type { InstalledFiles } from "./taggedInstallation.ts";
 
 export const nativeStartLayouts = ["claude", "codex"] as const;
 export type StartOriginLayout = (typeof nativeStartLayouts)[number] | "catalog";
@@ -34,16 +36,13 @@ function sourceFiles(directory: string): string[] {
   );
 }
 
-// The harness layer: `.gitignore` and the installed skills, read from source
-// now, join the description's first commit instead of a commit of their own.
-// The project's developer commits each revision that names no committer, as
-// the execution checkout itself would.
-export function withInstallation(
-  repository: StartRepository,
+// This run's working-tree skills under `source`, read now and installed for
+// the layout's hosts.
+export function workingTreeInstallation(
   layout: StartOriginLayout,
   source: string,
-): StartRepository {
-  const files: Record<string, string> = { ".gitignore": ".worktrees/\n" };
+): InstalledFiles {
+  const files: Record<string, string> = {};
   const executables: string[] = [];
   const project = { path: "", shown: "" };
   const hosts = layout === "catalog" ? nativeStartLayouts : [layout];
@@ -63,13 +62,24 @@ export function withInstallation(
       }
     }
   }
+  return { files, executables };
+}
+
+// The harness layer: `.gitignore` and the installation's files join the
+// description's first commit instead of a commit of their own. The project's
+// developer commits each revision that names no committer, as the execution
+// checkout itself would.
+export function joinInstallation(
+  repository: StartRepository,
+  { files, executables }: InstalledFiles,
+): StartRepository {
   const [first, ...later] = repository.revisions;
   return {
     revisions: [
       {
         committer: dashboardDeveloper,
         ...first,
-        files: { ...files, ...first.files },
+        files: { ".gitignore": ".worktrees/\n", ...files, ...first.files },
         executables: [...executables, ...(first.executables ?? [])],
       },
       ...later.map((revision) => ({
@@ -78,4 +88,12 @@ export function withInstallation(
       })),
     ],
   };
+}
+
+export function withInstallation(
+  repository: StartRepository,
+  layout: StartOriginLayout,
+  source: string,
+): StartRepository {
+  return joinInstallation(repository, workingTreeInstallation(layout, source));
 }

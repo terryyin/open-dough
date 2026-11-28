@@ -1,25 +1,90 @@
-import { expect } from "vitest";
-import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import type { ComparedStory } from "../../../Distribution/tests/support/comparedStoryTestData.mjs";
+import type { CiProofSubject } from "../../src/ciProof.ts";
 import type { IntentReadSource } from "../../src/intentReadSource.ts";
 import type { ReviewSource } from "../../src/reviewSource.ts";
-import { boardReading } from "../navigation/board-reading-page.ts";
 import { mountIntentCiPage } from "./intent-ci-page-mount.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
-import { scopeReadsOf } from "./intent-ci-scope-page.tsx";
+import { mountCiScope, scopeReadsOf } from "./intent-ci-scope-page.tsx";
 import { unconfiguredIntentReads } from "./intent-ci-status-fixtures.ts";
 
 const title = "Story A";
 
+type SummaryComparisonOptions = {
+  readonly holdComparisonUntil?: Promise<void>;
+  readonly fileDiff?: ReviewSource["fileDiff"];
+  readonly completion?: string;
+  readonly readLocations?: IntentReadSource["readLocations"];
+  // The page's story selection, Files tree and review diff. Summary and file
+  // Proof cases mount the comparison that owns them.
+  readonly onPage?: boolean;
+};
+
+// The proof each endpoint's build asks for, matched on the run and revision.
+function proofAnswer(story: ComparedStory) {
+  return (subject: CiProofSubject) => {
+    const slots = [
+      story.answer.baseline,
+      story.answer.provisional ?? story.answer.branch,
+      story.answer.landed,
+    ];
+    const slot = slots.findIndex(
+      (candidate) =>
+        candidate.kind === "build" &&
+        candidate.runId === subject.runId &&
+        candidate.revision === subject.revision,
+    );
+    const proof = story.proofs?.[slot];
+    if (proof === undefined)
+      throw new Error(`No proof arranged for run ${subject.runId}`);
+    return proof;
+  };
+}
+
+function needsPage(options: SummaryComparisonOptions) {
+  return (
+    options.onPage === true ||
+    options.holdComparisonUntil !== undefined ||
+    options.fileDiff !== undefined ||
+    options.readLocations !== undefined ||
+    options.completion !== undefined
+  );
+}
+
 export async function openSummaryComparison(
   story: ComparedStory,
-  options: {
-    readonly holdComparisonUntil?: Promise<void>;
-    readonly fileDiff?: ReviewSource["fileDiff"];
-    readonly completion?: string;
-    readonly readLocations?: IntentReadSource["readLocations"];
-  } = {},
+  options: SummaryComparisonOptions = {},
+) {
+  if (story.scope === undefined) throw new Error("Arrange the compared scope");
+  const scope = scopeReadsOf(story);
+  scope.answers.proof = proofAnswer(story);
+  if (!needsPage(options)) {
+    await mountCiScope(story, scope.source);
+    return {
+      selectStory: () =>
+        Promise.reject(
+          new Error("This summary is mounted without page story selection."),
+        ),
+      comparisonReads: scope.asked.comparisons,
+      proofReads: scope.asked.proofs,
+    };
+  }
+  const { holdComparisonUntil } = options;
+  if (holdComparisonUntil !== undefined) {
+    const answerComparison = scope.answers.comparison;
+    scope.answers.comparison = async (identity) => {
+      const answer = answerComparison(identity);
+      await holdComparisonUntil;
+      return answer;
+    };
+  }
+  return openSummaryOnPage(story, options, scope);
+}
+
+async function openSummaryOnPage(
+  story: ComparedStory,
+  options: SummaryComparisonOptions,
+  scope: ReturnType<typeof scopeReadsOf>,
 ) {
   if (story.scope === undefined) throw new Error("Arrange the compared scope");
   const { locations, changed } = story.scope;
@@ -56,35 +121,9 @@ export async function openSummaryComparison(
         .please(),
     ])
     .please();
-  const scope = scopeReadsOf(story);
-  const { holdComparisonUntil } = options;
-  if (holdComparisonUntil !== undefined) {
-    const answerComparison = scope.answers.comparison;
-    scope.answers.comparison = async (identity) => {
-      const answer = answerComparison(identity);
-      await holdComparisonUntil;
-      return answer;
-    };
-  }
-  scope.answers.proof = (subject) => {
-    const slots = [
-      story.answer.baseline,
-      story.answer.provisional ?? story.answer.branch,
-      story.answer.landed,
-    ];
-    const slot = slots.findIndex(
-      (candidate) =>
-        candidate.kind === "build" &&
-        candidate.runId === subject.runId &&
-        candidate.revision === subject.revision,
-    );
-    const proof = story.proofs?.[slot];
-    if (proof === undefined)
-      throw new Error(`No proof arranged for run ${subject.runId}`);
-    return proof;
-  };
   const mounted = await mountIntentCiPage({
-    initialPerspective: "development",
+    initialPerspective: "intent",
+    selected: story.identity,
     work: taken
       ? story.work
       : makeMe.aPublishedWork.with({ ...story.work, done }).please(),
@@ -125,25 +164,6 @@ export async function openSummaryComparison(
       done: doneReads,
     },
   });
-  const column = taken ? "Taken" : "Recently done";
-  const heading = boardReading
-    .column(column)
-    .getByRole("article", { name: title, exact: true })
-    .getByRole("heading", { name: title, exact: true });
-  await expect.element(heading).toBeVisible();
-  if (!boardReading.inReadingRoom(heading.element())) {
-    const paging = boardReading.control(column);
-    await expect.element(paging).toBeVisible();
-    (paging.element() as HTMLElement).click();
-    await expect
-      .poll(() => boardReading.inReadingRoom(heading.element()))
-      .toBe(true);
-  }
-  (heading.element() as HTMLElement).click();
-  await mounted.showIntent();
-  await expect
-    .element(page.getByRole("main", { name: "Intent", exact: true }))
-    .toHaveAttribute("data-selected-story", story.identity);
   await intentStoryCompare().listRevision();
   return {
     selectStory: (identity: string) => mounted.selectStory(identity),

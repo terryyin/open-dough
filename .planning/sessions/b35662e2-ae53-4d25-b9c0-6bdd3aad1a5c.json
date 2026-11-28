@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "sessionId": "b35662e2-ae53-4d25-b9c0-6bdd3aad1a5c",
+  "workflow": "dough-execute-plan",
+  "closedAt": "2026-11-28T09:28:43.943Z",
+  "story": "SEED-413#keep-full-frontend-runs-connected",
+  "ranges": [
+    {
+      "base": "b02769df71bdf42ce0084ef7f7e20028c35c279e",
+      "candidate": "8f4298792803af926ac3bf6c8aa17c95df996f48"
+    },
+    {
+      "base": "8f4298792803af926ac3bf6c8aa17c95df996f48",
+      "candidate": "b9a8173d4627bac6fab74f883f7bc04258b19dd3"
+    },
+    {
+      "base": "b9a8173d4627bac6fab74f883f7bc04258b19dd3",
+      "candidate": "7d10dd32e263e3e770d4d8ce582d504c2c50347c"
+    },
+    {
+      "base": "7d10dd32e263e3e770d4d8ce582d504c2c50347c",
+      "candidate": "9248fad65ed933928fca169c25a53a7bd8fa8bf9"
+    },
+    {
+      "base": "9248fad65ed933928fca169c25a53a7bd8fa8bf9",
+      "candidate": "5bf4f3bbd1bb37d7ea9e5003fbc271654d0b65a4"
+    },
+    {
+      "base": "5bf4f3bbd1bb37d7ea9e5003fbc271654d0b65a4",
+      "candidate": "6d4f86ac374a2d42faefef1ef122f738e58e6dcc"
+    },
+    {
+      "base": "6d4f86ac374a2d42faefef1ef122f738e58e6dcc",
+      "candidate": "174dc9d752c6bdccddb5f34b7e9d3e88a41f4889"
+    },
+    {
+      "base": "174dc9d752c6bdccddb5f34b7e9d3e88a41f4889",
+      "candidate": "02aa7fcc1334f1d7a431dc570f1fa4e9a1232f93"
+    },
+    {
+      "base": "02aa7fcc1334f1d7a431dc570f1fa4e9a1232f93",
+      "candidate": "92397b7a5c9691b097f33adf2db83832b27c08e4"
+    },
+    {
+      "base": "92397b7a5c9691b097f33adf2db83832b27c08e4",
+      "candidate": "b8cc6000dca579749091660a81302cbf05790bfe"
+    },
+    {
+      "base": "b8cc6000dca579749091660a81302cbf05790bfe",
+      "candidate": "1c81f7e7d12048e51ff0c7733abdbcee2a5aa5de"
+    },
+    {
+      "base": "1c81f7e7d12048e51ff0c7733abdbcee2a5aa5de",
+      "candidate": "413aa6c5bedac1026e7d5bd731d4db7dd15727d7"
+    },
+    {
+      "base": "413aa6c5bedac1026e7d5bd731d4db7dd15727d7",
+      "candidate": "7265f19266f70e7cedea16fcd22ee99289d75e32"
+    },
+    {
+      "base": "7265f19266f70e7cedea16fcd22ee99289d75e32",
+      "candidate": "f986a7ed9ae97f1dc9374d1c53d5871ce18a4681"
+    },
+    {
+      "base": "f986a7ed9ae97f1dc9374d1c53d5871ce18a4681",
+      "candidate": "e6fc4c1d797cbc8e8e9391dfa5ea25d74d803a8b"
+    }
+  ]
+}

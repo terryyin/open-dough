@@ -10,6 +10,7 @@ import {
   reviewedFileText,
 } from "../../server/storyReviewFileResponse.ts";
 import { storyReview } from "../../server/storyReview.ts";
+import { readStoryReviewResult } from "../../server/storyReviewResultRead.ts";
 import { stubRemoteRequestRecording } from "../support/fixtureHome.ts";
 import { trunkModeStory } from "../../test-support/support/storyReviewTrunkMode.ts";
 import { prepareRepository } from "../../../Distribution/tests/support/repository-fixture.mjs";
@@ -91,6 +92,20 @@ test("a named published branch pair admits its literal file after origin advance
   await expect(
     reviewedFileText({ read: { ...read, baseline: review.tree } }, signal),
   ).rejects.toMatchObject({ status: 409 });
+  const result = { subject, publishedHead: firstHead, tree: review.tree };
+  await expect(readStoryReviewResult(result, signal)).resolves.toMatchObject({
+    kind: "inventory",
+    revision: firstHead,
+    paths: expect.arrayContaining([path]) as unknown,
+  });
+  await expect(
+    readStoryReviewResult({ ...result, path }, signal),
+  ).resolves.toEqual({
+    kind: "text",
+    revision: firstHead,
+    path,
+    text: "first published text\n",
+  });
 });
 
 test("locally readable unpublished commits cannot name a published file comparison", async () => {

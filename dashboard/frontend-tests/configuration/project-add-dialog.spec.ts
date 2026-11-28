@@ -54,15 +54,14 @@ test("origin mismatch stays linked to the path, retains both inputs and saves no
   expect(replies.setHidden).not.toHaveBeenCalled();
 });
 
-test("Cancel and Escape save nothing, return focus and keep project arrows inside the modal", async () => {
+test("Cancel and Escape save nothing and return focus", async () => {
   const original = openDough();
-  const alternate = makeMe.aPublishedSource.pygardon.please();
   const replies = projectReplies();
   const select = vi.fn<(source: PublishedSource | undefined) => void>();
   const settings = await mountProjectsSettings(
     replies,
     original,
-    [original, alternate],
+    [original],
     select,
   );
 
@@ -70,10 +69,6 @@ test("Cancel and Escape save nothing, return focus and keep project arrows insid
   for (const dismiss of [settings.escape, settings.cancel]) {
     await settings.openAdd();
     await settings.fillDraft(githubUrl, localPath);
-    await settings.focusCancel();
-    await settings.projectArrow("Right");
-    await settings.projectArrow("Left");
-    expect(select).not.toHaveBeenCalled();
     await dismiss();
     await settings.showsClosedAdd();
     await settings.showsFocusedOpener();
@@ -82,6 +77,5 @@ test("Cancel and Escape save nothing, return focus and keep project arrows insid
 
   expect(replies.remove).not.toHaveBeenCalled();
   expect(replies.setHidden).not.toHaveBeenCalled();
-  await settings.projectArrow("Right");
-  expect(select.mock.calls).toEqual([[alternate]]);
+  expect(select).not.toHaveBeenCalled();
 });

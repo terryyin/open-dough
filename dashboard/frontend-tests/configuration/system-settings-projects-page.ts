@@ -1,7 +1,6 @@
 import { createElement, useState } from "react";
 import { expect, vi } from "vitest";
 import { page, userEvent, type Locator } from "vitest/browser";
-import { useProjectKeyboardNavigation } from "../../src/projectKeyboardNavigation.ts";
 import { ProjectsOnPage } from "../../src/projectList.tsx";
 import { ProjectsSettings } from "../../src/ProjectsSettings.tsx";
 import type { ProjectSettingsSource } from "../../src/projectSettingsSource.ts";
@@ -31,23 +30,6 @@ export function projectReplies() {
   };
 }
 
-function ProjectSettingsWithKeyboard({
-  source,
-  selected,
-  select,
-}: {
-  readonly source: ProjectSettingsSource;
-  readonly selected: PublishedSource | undefined;
-  readonly select: ProjectSelection;
-}) {
-  useProjectKeyboardNavigation({ source: selected, selectProject: select });
-  return createElement(ProjectsSettings, {
-    source,
-    selectedId: selected?.id,
-    onSelect: select,
-  });
-}
-
 function ProjectSettingsMount({
   source,
   projects,
@@ -71,10 +53,10 @@ function ProjectSettingsMount({
     createElement(ProjectsOnPage, {
       projects: configured,
       replaceProjects,
-      children: createElement(ProjectSettingsWithKeyboard, {
+      children: createElement(ProjectsSettings, {
         source,
-        selected: active,
-        select,
+        selectedId: active?.id,
+        onSelect: select,
       }),
     }),
   );
@@ -162,14 +144,7 @@ export async function mountProjectsSettings(
     },
     readRefusal: () => readSettingText(refusal),
     cancel: () => userEvent.click(cancel),
-    async focusCancel() {
-      await expect.element(cancel).toBeEnabled();
-      (cancel.element() as HTMLElement).focus();
-      await expect.element(cancel).toHaveFocus();
-    },
     escape: () => userEvent.keyboard("{Escape}"),
-    projectArrow: (direction: "Left" | "Right") =>
-      userEvent.keyboard(`{Arrow${direction}}`),
     showsProject: (label: string) =>
       expect.element(projectHeading(label)).toBeVisible(),
     showsNoProject: (label: string) =>

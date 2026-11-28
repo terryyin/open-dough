@@ -1,5 +1,6 @@
 import { expect } from "vitest";
-import { userEvent, type Locator } from "vitest/browser";
+import { type Locator } from "vitest/browser";
+import { press } from "./intent-summary-proof-page.ts";
 import { relativeOf } from "./intent-ci-comparison-page.ts";
 import { comparisonIn } from "./intent-ci-scope-page.tsx";
 import { ciReadingText } from "./intent-attempt-proof-page.ts";
@@ -31,7 +32,7 @@ export async function expectTimingMark(
 
 export async function togglePercent(region: Locator, on: boolean) {
   const checkbox = comparisonIn(region).showPercent;
-  await userEvent.click(checkbox);
+  press(checkbox);
   if (on) {
     await expect.element(checkbox).toBeChecked();
   } else {

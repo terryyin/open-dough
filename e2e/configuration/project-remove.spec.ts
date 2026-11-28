@@ -99,15 +99,6 @@ test("removing a configured project retains its checkout and records, hides sess
     const dialog = removeDialog(page, "Sample App");
     await expect(dialog).toContainText("Nothing on disk or on GitHub changes.");
     await expect(dialog.getByRole("button", { name: "Cancel" })).toBeFocused();
-    await page.keyboard.press("ArrowLeft");
-    await page.keyboard.press("ArrowRight");
-    await expect(
-      page.getByRole("radio", {
-        name: "Sample App",
-        exact: true,
-        includeHidden: true,
-      }),
-    ).toBeChecked();
     await page.keyboard.press("Tab");
     await expect(
       dialog.getByRole("button", { name: "Remove", exact: true }),

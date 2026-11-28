@@ -1,24 +1,10 @@
 import { useLayoutEffect, useRef } from "react";
-import { CompactSelect } from "./CompactSelect.tsx";
 import type { PublishedSource } from "./publishedSource.ts";
 import { useVisibleProjects } from "./projectList.tsx";
 import "./project-select.css";
 
-// Shared with page-wide project arrow navigation so native radios and the
-// shortcut recognize the same control group.
-export const projectRadioName = "project";
-
-// Compact project control shown when the tabs do not fit (`banner.css`);
-// page-wide arrow cycling focuses this when it is the shown project control.
-export const projectCompactSelectClass = "project-title-select";
-
-// Which project this dashboard observes, chosen from the configured list.
-// Selecting one is the only effect this control has: what happens when the
-// selection changes belongs to the caller, not here. The tab-shaped radios
-// stay on one line beside the other banner controls; whenever that line has
-// no room for all of them, the compact button takes their place and opens a
-// listbox so touch and keyboard (including Escape) share one accessible
-// pattern. The selected control is also the banner's project name.
+// Tab-shaped radios show the visible projects when they fit on the banner.
+// A compact select shows the same choices at narrower widths.
 export function ProjectSelect({
   source,
   onSelect,
@@ -41,7 +27,7 @@ export function ProjectSelect({
             <label key={option.id} className="project-choice">
               <input
                 type="radio"
-                name={projectRadioName}
+                name="project"
                 value={option.id}
                 checked={source.id === option.id}
                 onChange={() => {
@@ -53,7 +39,23 @@ export function ProjectSelect({
           ))}
         </div>
       </div>
-      <ProjectCompactSelect source={source} onSelect={onSelect} />
+      <select
+        className="project-title-select"
+        aria-label="Project"
+        value={source.id}
+        onChange={(event) => {
+          const option = projects.find(
+            ({ id }) => id === event.currentTarget.value,
+          );
+          if (option !== undefined) onSelect(option);
+        }}
+      >
+        {projects.map(({ id, label }) => (
+          <option key={id} value={id}>
+            {label}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
@@ -86,30 +88,4 @@ function useTabsFit() {
     };
   }, []);
   return { slot, tabs };
-}
-
-// The project catalog offered through the shared compact select; the root
-// and button classes and the project ID stay what banner styles and page-wide
-// arrows read.
-function ProjectCompactSelect({
-  source,
-  onSelect,
-}: {
-  readonly source: PublishedSource;
-  readonly onSelect: (next: PublishedSource) => void;
-}) {
-  const projects = useVisibleProjects();
-  return (
-    <CompactSelect
-      name="Project"
-      options={projects}
-      value={source.id}
-      current={source.label}
-      onCommit={onSelect}
-      rootClassName={projectCompactSelectClass}
-      buttonClassName="project-title-select-button"
-      listClassName="project-title-select-list"
-      buttonData={{ "data-project-id": source.id }}
-    />
-  );
 }

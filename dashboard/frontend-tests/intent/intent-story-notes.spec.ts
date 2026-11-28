@@ -194,14 +194,7 @@ test("Notes from Intent keeps the selected file's reading and returns focus", as
   await expect
     .element(purpose.getByLabelText("New line 120", { exact: true }))
     .toBeVisible();
-  await expect
-    .poll(() =>
-      purpose
-        .element()
-        .querySelector(".story-review-code")
-        ?.getAttribute("aria-busy"),
-    )
-    .toBe("false");
+  await expect.poll(story.diffContextReading).toBe("false");
   const browser = intentBrowser();
   const offset = await browser.scrollHalfway();
   expect(offset).toBeGreaterThan(0);

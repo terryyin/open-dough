@@ -1,5 +1,4 @@
 import { expect, test } from "vitest";
-import { userEvent } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { comparisonIn } from "./intent-ci-scope-page.tsx";
 import { openSummaryComparison } from "./intent-summary-comparison-fixture.ts";
@@ -8,6 +7,7 @@ import {
   expectSortedBy,
   expectUnsortedRows,
   openSummary,
+  press,
   scopeTable,
   sortButton,
 } from "./intent-summary-proof-page.ts";
@@ -62,7 +62,7 @@ async function showsSignedSort(column: "Branch" | "Landed") {
   const { summary, table } = await openTimedSummary();
   const comparison = comparisonIn(summary);
   const button = sortButton(table, column);
-  await userEvent.click(button);
+  press(button);
   await expectSortedBy(table, column, "ascending", [
     "renamed.spec.ts",
     "folder/",
@@ -82,7 +82,7 @@ async function showsSignedSort(column: "Branch" | "Landed") {
     comparison.cell(entry, "renamed.spec.ts", column),
     "−20.0 s−7%",
   );
-  await userEvent.click(button);
+  press(button);
   await expectSortedBy(table, column, "descending", [
     "root.spec.ts",
     "folder/",
@@ -103,7 +103,7 @@ test("Summary Landed sorts its displayed quantity with gaps last in both directi
 test("Summary Baseline sorts its displayed quantity with gaps last in both directions", async () => {
   const { table } = await openTimedSummary();
   const baseline = sortButton(table, "Baseline");
-  await userEvent.click(baseline);
+  press(baseline);
   await expectSortedBy(table, "Baseline", "ascending", [
     "folder/",
     "renamed.spec.ts",
@@ -111,7 +111,7 @@ test("Summary Baseline sorts its displayed quantity with gaps last in both direc
     "added.spec.ts",
     "gone.spec.ts",
   ]);
-  await userEvent.click(baseline);
+  press(baseline);
   await expectSortedBy(table, "Baseline", "descending", [
     "root.spec.ts",
     "renamed.spec.ts",

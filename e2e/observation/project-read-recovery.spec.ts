@@ -122,9 +122,8 @@ test("an unavailable Pygardon read shows an actionable, project-specific failure
 
   await pausePageClock(page);
   await page.goto("/");
-  const { project, direction, problem, readRevision } = parts(page);
+  const { direction, problem, readRevision } = parts(page);
   const pygardon = projectTab(page, "Pygardon");
-  const selectedProject = project.getByRole("radio", { checked: true });
   await expectMembership(page, { taken: [], backlog: [openDoughTitle] });
 
   await test.step("selecting Pygardon while its origin is unavailable shows a recoverable failure and no snapshot", async () => {
@@ -137,11 +136,8 @@ test("an unavailable Pygardon read shows an actionable, project-specific failure
     );
   });
 
-  await test.step("the selector stays enabled and keyboard-operable, and another project remains fully readable", async () => {
-    await expect(selectedProject).toBeEnabled();
-    await selectedProject.focus();
-    await expect(selectedProject).toBeFocused();
-    await page.keyboard.press("ArrowLeft");
+  await test.step("another project remains selectable and fully readable", async () => {
+    await projectTab(page, "Doughnut").check();
     await expectMembership(page, { taken: [], backlog: [doughnutTitle] });
     await expect(readRevision).toContainText(
       shortRevision(doughnut.revisions.published),

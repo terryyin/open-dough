@@ -1,6 +1,6 @@
 // Summary retains the chosen sort while each story supplies a different table.
 import { expect, test } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page } from "vitest/browser";
 import { makeMe } from "../../../Distribution/tests/support/pageMakeMe.mjs";
 import { developmentCard } from "./intent-ci-development-card-page.ts";
 import { intentStoryCompare } from "./intent-story-compare-page.ts";
@@ -17,6 +17,7 @@ import {
   expectSortedBy,
   expectUnsortedRows,
   openSummary,
+  press,
   scopeTable,
   sortButton,
 } from "./intent-summary-proof-page.ts";
@@ -44,16 +45,12 @@ async function selectFromDevelopment(
   title: string,
   previous: string,
 ) {
-  await userEvent.click(
-    page.getByRole("radio", { name: "Development", exact: true }),
-  );
+  press(page.getByRole("radio", { name: "Development", exact: true }));
   const card = developmentCard(title);
   await card.toggle();
   await card.isSelected(true);
   await developmentCard(previous).isSelected(false);
-  await userEvent.click(
-    page.getByRole("radio", { name: "Intent", exact: true }),
-  );
+  press(page.getByRole("radio", { name: "Intent", exact: true }));
   await expect
     .element(page.getByRole("main", { name: "Intent", exact: true }))
     .toHaveAttribute("data-selected-story", identity);
@@ -107,11 +104,11 @@ test("Summary keeps its sort through drilling and story selection, falling back 
   const summary = await openSummary(entry);
   const table = scopeTable(summary, entry);
   const landed = sortButton(table, "Landed");
-  await userEvent.click(landed);
+  press(landed);
   await expect
     .element(table.getByRole("columnheader", { name: "Landed", exact: true }))
     .toHaveAttribute("aria-sort", "ascending");
-  await userEvent.click(landed);
+  press(landed);
   await expectSortedBy(table, "Landed", "descending", landedDescending);
 
   await openComparedFolder(summary, folder);
@@ -148,7 +145,7 @@ test("Summary keeps its sort through drilling and story selection, falling back 
   await returnToDone();
   await expectSortedBy(table, "Landed", "descending", landedDescending);
   await selectQueued();
-  await userEvent.click(sortButton(table, "Test execution time"));
+  press(sortButton(table, "Test execution time"));
   await expectSortedBy(
     table,
     "Test execution time",

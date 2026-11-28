@@ -7,8 +7,7 @@
 // those controls; a held key acts once. An optional `when` leaves the chord
 // alone (Command+Enter outside terminal input). What they leave alone: a key
 // pressed inside an open dialog, as the launch dialog or the badge legend,
-// which keeps its own keyboard. Project arrow navigation
-// (`./projectKeyboardNavigation.ts`) shares that. Machine settings suspends
+// which keeps its own keyboard. Machine settings suspends
 // these dashboard shortcuts even when blank-space clicks leave the keyboard
 // on the body outside its controls.
 

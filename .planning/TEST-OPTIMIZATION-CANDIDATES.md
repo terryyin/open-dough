@@ -97,11 +97,15 @@
   configured page composes them: the Recent stories scope, the page-kept
   reading place across Development and Whole project, and selection.
 - **Alternatives tried:** removing the Board detour on selection, in-page
-  activation and the 5 ms poll interval (kept). Untried: mounting the
-  story-only cases (no Whole project or perspective switch) on
-  `intent-story-perspective.tsx`'s `mountStoryIntent`, which renders
-  `IntentPerspective` without the frame; and profiling the story view's
-  first render with a trace to find avoidable render work.
+  activation and the 5 ms poll interval (kept). The summary-comparison
+  family (2026-11-27) now mounts `mountCiScope` unless the case needs page
+  story selection, the Files drawer, or a review diff, and activates sort
+  and Show % in-page; most of those cases then ran under 100 ms locally at
+  `--workers=1`. That does not measure `intent-story-intent-only.spec.ts`.
+  Untried: mounting the story-only cases (no Whole project or perspective
+  switch) on `intent-story-perspective.tsx`'s `mountStoryIntent`, which
+  renders `IntentPerspective` without the frame; and profiling the story
+  view's first render with a trace to find avoidable render work.
 - **Decision or evidence needed:** a focused comparison of the story-only
   cases on `mountStoryIntent` against the frame mount at comparable load, and
   a render profile showing whether the remaining cost is in test-only

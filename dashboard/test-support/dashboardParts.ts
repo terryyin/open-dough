@@ -17,7 +17,6 @@ export function parts(page: Page) {
       name: "Project",
       exact: true,
     }),
-    projectCompactList: banner.getByRole("listbox", { name: "Project" }),
     project: page.getByRole("radiogroup", { name: "Project" }),
     // The banner's Development and Intent choices of the selected project.
     perspective: page.getByRole("radiogroup", { name: "Perspective" }),

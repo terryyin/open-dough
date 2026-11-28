@@ -1,9 +1,8 @@
 // The browser's Back, Forward and reload follow the developer's project and
 // perspective choices, and System settings returns to the page it was opened
 // from, even after a reload. Open Dough and Doughnut publish catalog stories
-// that neither configures Intent locations for. Keyboard choice, focus within
-// the frame and each perspective's content belong to the mounted
-// development-intent-frame specs in Dashboard Frontend Test.
+// that neither configures Intent locations for. The mounted
+// development-intent-frame specs cover each perspective's content.
 
 import { catalogPublications } from "../../dashboard/test-support/catalogProjectRecords.ts";
 import {
@@ -20,7 +19,7 @@ import {
   doughnutProject,
   expectCatalogStories,
   openDoughProject,
-} from "../../dashboard/test-support/projectKeyboardNavigationJourney.ts";
+} from "../../dashboard/test-support/projectCatalogJourney.ts";
 import { publishCommittedFiles } from "../../dashboard/test-support/committedFiles.ts";
 import { sidePanelPages } from "../../dashboard/test-support/sidePanelPages.ts";
 import {

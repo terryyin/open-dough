@@ -125,12 +125,6 @@ test("opening a hidden project's session from the Sessions sidebar attaches its 
   ).toHaveCount(0);
   await expect(taken).not.toContainText(sessionTitle);
 
-  await settings(page).focus();
-  await page.keyboard.press("ArrowRight");
-  await expectProjectChoice(page, "Terry Talks");
-  await page.keyboard.press("ArrowLeft");
-  await expectProjectChoice(page, "Pygardon");
-
   await page.setViewportSize({ width: 1000, height: 720 });
   await expectCompactProjectSelect(page, "Pygardon", visibleWithoutDoughnut);
   await page.setViewportSize({ width: 1600, height: 720 });

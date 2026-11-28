@@ -26,6 +26,7 @@ import {
   expectObservedBuildFraming,
 } from "./intent-summary-comparison-page.ts";
 import { expectEvidenceLabels } from "./intent-summary-evidence-page.ts";
+import { press } from "./intent-summary-proof-page.ts";
 
 const diffLines = new Map([
   [modifiedFile, "changed"],
@@ -59,7 +60,7 @@ async function openSelectedFileProof(story: ComparedStory) {
   held.resolve(undefined);
 
   const file = view.file(`Modified ${modifiedFile}`);
-  await file.click();
+  press(file);
   const intent = page.getByRole("main", { name: "Intent", exact: true });
   const purpose = intent.getByRole("region", { name: "Purpose", exact: true });
   const proof = intent.getByRole("region", { name: "Proof", exact: true });
@@ -83,7 +84,7 @@ async function openSelectedFileProof(story: ComparedStory) {
     .toEqual([1, 2, 3]);
   const originalAttempts = proofReads.map(({ subject }) => subject);
 
-  await proofTab.click();
+  press(proofTab);
   await expect.element(proofTab).toHaveAttribute("aria-selected", "true");
   await expectEvidenceLabels(comparisonLabels(proof, story.identity), [
     "Baseline No build aaaaaaa",
@@ -111,10 +112,10 @@ async function showsAddedFile({
   proofTab,
   purposeTab,
 }: Awaited<ReturnType<typeof openSelectedFileProof>>) {
-  await view.file(`Added ${addedFile}`).click();
+  press(view.file(`Added ${addedFile}`));
   await expect.element(proofTab).toHaveAttribute("aria-selected", "true");
   await expectFileComparisonRow(proof, addedFile, addedFileRow);
-  await purposeTab.click();
+  press(purposeTab);
   await expect.poll(view.diffName).toBe(`Added ${addedFile}`);
 }
 
@@ -150,16 +151,16 @@ test("a selected done story's changed test file shows Purpose as the diff and Pr
     .element(view.viewTab("Intent coverage"))
     .toHaveAttribute("aria-selected", "true");
   await expect.element(file).toHaveAttribute("aria-pressed", "false");
-  await file.click();
+  press(file);
   await expect.element(proofTab).toHaveAttribute("aria-selected", "true");
   await expect.element(proof).toBeVisible();
 
   await showsAddedFile(reading);
-  await view.file(`Renamed tests/old.sh → ${renamedFile}`).click();
-  await proofTab.click();
+  press(view.file(`Renamed tests/old.sh → ${renamedFile}`));
+  press(proofTab);
   await expectFileComparisonRow(proof, renamedFile, renamedFileRow);
   expectNoFileTimingMarks(proof);
-  await purposeTab.click();
+  press(purposeTab);
   expect(proofReads.map(({ subject }) => subject)).toEqual(originalAttempts);
 });
 
@@ -176,12 +177,12 @@ test("a selected done story's changed test file shows Purpose as the diff and Pr
     reading;
 
   await showsAddedFile(reading);
-  await view.file(`Modified ${mergeEditedFile}`).click();
+  press(view.file(`Modified ${mergeEditedFile}`));
   await expect.poll(view.diffName).toBe(`Modified ${mergeEditedFile}`);
   await expect.poll(view.diffCode).toContain("merge edit");
   expect(view.diffCode()).not.toContain("changed");
-  await proofTab.click();
+  press(proofTab);
   await expectFileComparisonRow(proof, mergeEditedFile, mergeEditedFileRow);
-  await purposeTab.click();
+  press(purposeTab);
   expect(proofReads.map(({ subject }) => subject)).toEqual(originalAttempts);
 });

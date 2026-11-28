@@ -1,6 +1,6 @@
 import { expect } from "vitest";
 import { page, type Locator } from "vitest/browser";
-import { expectDocumentStill, visibleParts } from "./board-accessibility.ts";
+import { expectDocumentStill } from "./board-accessibility.ts";
 import { fitsViewport } from "./frame-icon-control.ts";
 
 export const banner = page.getByRole("banner");
@@ -28,9 +28,11 @@ export function showsChosenProject(label: string) {
   const tab = projectChoices
     .getByRole("radio", { name: label, exact: true })
     .query();
+  const compact = compactProject.query();
   return (
     (tab instanceof HTMLInputElement && tab.checked) ||
-    compactProject.query()?.textContent.trim() === label
+    (compact instanceof HTMLSelectElement &&
+      compact.selectedOptions[0]?.label === label)
   );
 }
 export const settings = banner.getByRole("button", {
@@ -72,13 +74,6 @@ export async function expectBannerRow(project: Locator) {
   const frame = banner.element().getBoundingClientRect();
   expect(frame.top).toBe(0);
   expect(frame.height).toBeLessThan(innerHeight / 2);
-}
-
-export function bannerStops() {
-  return visibleParts(
-    banner.element(),
-    "button, input, select, textarea, summary, a[href], [tabindex]",
-  );
 }
 
 export function expectOnlyBannerControls() {
