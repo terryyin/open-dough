@@ -70,7 +70,7 @@ AC, load 7–11).
 
 ### 1. Observe a complete tagged installed preparation workflow
 Type: Behavior
-Status: planned
+Status: done
 Proof: `caffeinate -s -i env -u NO_COLOR -u FORCE_COLOR -u GIT_ALTERNATE_OBJECT_DIRECTORIES npm run test:e2e -- launches/released-installation-preparation.spec.ts --workers=1`
 passes with the provenance attachment; a focused Dashboard Backend Test
 (Node Vitest) on the tag source shows a missing tag in a local bare origin
@@ -95,7 +95,10 @@ Accepted local proof (2026-11-28): `released-installation-preparation.spec.ts`
 `agent-launch-*` cases to 5 s waits at load ~47 from the implementer's own
 concurrent runs; those 4 files passed 14/14 alone, so the hosted run is the
 verdict. The spec matches no listed shard pattern, so its hosted proof is the
-E2E shard that selects it rather than shard 1. Refactor follow-up candidates:
+E2E shard that selects it rather than shard 1. Hosted proof: CI run
+46091584691 attempt 1 on `2a64fe65` succeeded; E2E shard 6/6 ran
+`launches/released-installation-preparation.spec.ts` (10.2 s, `e2e-times-6`)
+through the depth-1 tag fetch, and all `launches/agent-*` shard 1 cases passed. Refactor follow-up candidates:
 one shared reader of the preparation assignment (6 files) and
 `startRefinementInCodex` in the existing Codex preparation specs.
 
