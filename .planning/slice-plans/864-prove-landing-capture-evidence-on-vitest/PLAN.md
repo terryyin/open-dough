@@ -114,30 +114,40 @@ search for their names finds only this plan. Later slices 6–8 can reuse the
 same import prefix. The quiet e2e reporter prints nothing on a pass, so a
 proof record is what names the selected cases.
 
-### 2. Admit only the authorized prepared comparison
+### 2. Admit a prepare only for the authorized comparison
 
 Type: Behavior
 Status: planned
 
-Behavior: A prepare or record reaches the landing receiver. It requires the
-launch reference and authorized host, origin, story and Git comparison. It
-rejects a caller-selected repository and invalid commit objects. A record
-requires preparation and remote acceptance. Conflicting replay keeps the
-record, preparations, refs and checkout intact.
+Behavior: A prepare reaches the landing receiver only with this launch's
+reference and its authorized host, origin, story, and Git comparison of the
+workspace HEAD. It rejects a caller-selected repository, a candidate that is
+not HEAD, a non-commit object, an unknown object, an unknown launch reference,
+and an omitted story. The record, preparations, refs, and checkout stay as
+they were.
 
-Proof: Admission part of `one-shot-landing-capture-admission` (3.232) and the
-preparation refusal from `story-branch-landing-capture` (slice 6). Reuse
-`landingRequestAdmission`, `launchLandingDecision`, `retainedLandingDecision`,
-`landingPinRecovery` and `story-bound-landing-capture`. Extend the typed
-handler's real Git contrast for candidate not at `HEAD`, non-commit object,
-unknown reference, omitted required story and unaccepted comparison where
-existing assertions lack that contrast. Exercise a well-formed distinct
-post-acceptance pair rather than relying on the old malformed changed replay
-to establish immutability. Use the wire parser for the extra `repository`
-field and match the legacy persistence/ref non-effects. Keep the shared legacy
-admission/deletion case until slice 5 owns the remaining deletion proof.
+Proof: Admission part of `one-shot-landing-capture-admission` (3.232). Restore
+the unrun authoring for `parseLandingSubmission`'s extra `repository` field in
+`landingRequestAdmission.spec.ts` and for `a prepare admits only this launch's
+comparison of its workspace HEAD` in `landingPinRecovery.spec.ts`. Run those
+two specs. Leave the record-and-later-pair test for slice 3. Keep the shared
+legacy admission spec until slice 6.
 
-### 3. Bind a pending capture to the original native session
+### 3. Keep the accepted pair when a later comparison arrives
+
+Type: Behavior
+Status: planned
+
+Behavior: A record requires the prepared comparison and remote acceptance.
+After that pair is retained, a well-formed distinct pair for the same launch
+leaves the record, preparations, refs, and checkout intact.
+
+Proof: Restore the unrun test `recording waits for acceptance, then a distinct
+pair leaves that landing unchanged` in `landingPinRecovery.spec.ts`. It records
+only after the real push, then refuses a later real commit as a second pair.
+Run that spec. Do not use the old malformed changed replay as this proof.
+
+### 4. Bind a pending capture to the original native session
 
 Type: Behavior
 Status: planned
@@ -159,7 +169,7 @@ fixture already used by the legacy check. Use `e2e/review/one-shot-landing-recov
 for actual lost reply and stale/newer writers. Keep the pending retry contrast
 in Node because the E2E begins with an already-bound launch.
 
-### 4. Capture from a kept launch after its startup attempt expires
+### 5. Capture from a kept launch after its startup attempt expires
 
 Type: Behavior
 Status: planned
@@ -176,9 +186,9 @@ changed workflow, and real record pruning. Use settlement and `handleLanding`
 over the actual stored attempts, completion, and refs. Preserve the original
 receipt across stale `updateRecord` and native-session replacement, with refusal
 of late binding. Keep the expired retry read-only and verify subsequent pruning
-and no recreation. Slice 1 keeps real retirement and slice 3 keeps transport replay.
+and no recreation. Slice 1 keeps real retirement and slice 4 keeps transport replay.
 
-### 5. Refuse a deleted launch while its pins are being removed
+### 6. Refuse a deleted launch while its pins are being removed
 
 Type: Behavior
 Status: planned
@@ -193,9 +203,9 @@ with real refs and machine records, expire the original attempt, induce the
 real ref-update failure on the original repository, and check refusal before
 and after retry, exact other receipt/pins and absent record. Verify stale
 update and bind cannot remove deletion intent or recreate the record. Retire
-the shared admission spec when slice 2's contrasts and these are green.
+the shared admission spec when slices 2 and 3 and these are green.
 
-### 6. Keep the first accepted Story Branch comparison
+### 7. Keep the first accepted Story Branch comparison
 
 Type: Behavior
 Status: planned
@@ -214,9 +224,9 @@ parents and pins, unchanged branch, receipt contrasts, sidecar clear, and no
 completion. Keep the launch message, sidecar bindings and unchanged context
 bytes. The Distribution history-preserving check proves the implicit protocol.
 The E2E keeps the Dashboard pair assertion across later publication. Move the
-capture file intact, including slice 7's reporting retry case.
+capture file intact, including slice 8's reporting retry case.
 
-### 7. Recover a conflicted or unacknowledged Story Branch landing
+### 8. Recover a conflicted or unacknowledged Story Branch landing
 
 Type: Behavior
 Status: planned
@@ -229,11 +239,11 @@ acceptance, the printed retry records that pair without pushing it again.
 Proof: `story-branch-landing-conflict` (3.347, 3.433, 3.641) and unacknowledged
 case of `story-branch-landing-capture` (4.337). Move the conflict spec to
 `e2e/review/story-branch-landing-recovery.spec.ts` and run the capture retry in
-slice 6's E2E file. Preserve the real origin's rejection gate, retained workspace
+slice 7's E2E file. Preserve the real origin's rejection gate, retained workspace
 `HEAD` and branch, receiver restart, superseded preparation history, restored
 comparison and exactly one accepted push for the lost reply.
 
-### 8. Continue the same claimed session after a retained landing
+### 9. Continue the same claimed session after a retained landing
 
 Type: Behavior
 Status: planned
@@ -267,12 +277,12 @@ receiving E2E paths through `npm run test:e2e` including after relocation.
 
 ## Plan review
 
-Slice-plan refinement was unnecessary after separating admission, binding,
-expiry and deletion into distinct typed proof loops. Those four fit the
-15-active-minute bounds by composing or extending the existing focused tests.
-The other four fit by moving the already replayed installed and E2E cases with
-their fixtures. No slice-specific concern remained after the baseline, typed
-discrimination and receiving-runner checks.
+Slice 2 overran at 16.9 active minutes with no proof run. Writing the prepare
+refusals and the later-pair immutability test in one slice was the false
+sizing assumption. Those are now slices 2 and 3. The unrun authoring is parked
+outside the worktree. Binding, expiry, and deletion stay one proof loop each.
+The installed and E2E moves stay as they were. This split takes the plan to
+nine slices, inside the execution allowance for splitting the slice in progress.
 
 ## Execution context
 
@@ -284,9 +294,13 @@ discrimination and receiving-runner checks.
   `origin/cursor/prove-retained-landing-capture-in-node-vitest`; integration
   target is `origin/main`.
 - Starting revision `4c38141a1b7f5a808d5b793e95d98c827a210055`. Accepted Take
-  `dfc699737c5df187855e7941ef4d2e44e8021115` on that execution branch. Publisher
-  `dashboard-territory.local-open-dough`, agent `Yua-chan`. That SHA is the
-  next increment's previously published base. No unpublished candidate.
+  `dfc699737c5df187855e7941ef4d2e44e8021115`. Slice 1 published
+  `f5b38eb90e68703c6633ae2a168262a529dc001d` on
+  `origin/cursor/prove-retained-landing-capture-in-node-vitest`, suffix base
+  the Take, zero reconciliations. That receipt is the next increment's
+  previously published base. Observer `/tmp/dough-ci-501/watch-1ZhItf` reused.
+  No unpublished candidate. Publisher `dashboard-territory.local-open-dough`,
+  agent `Yua-chan`.
 - Setup in this checkout: Node 24.21.0 and Bash 5.3.20 from `/opt/homebrew/bin`.
   `node scripts/setup-native.mjs npm`, `browser`, and `check` passed
   (Chromium 158.0.8127.18). `npm run --silent typecheck:dashboard` passed.
@@ -309,3 +323,8 @@ discrimination and receiving-runner checks.
   Later trunk publications take none.
 - Replanning keeps existing planning authority. No `--replan` or `--no-replan`.
   Slice 1 has no story-obligation entries.
+- Slice 2 overran at 16.9 active minutes, `storyOverruns` 1, with no proof.
+  Its unrun spec diff is parked at
+  `/Users/terryyin/git/open-dough/.git/worktrees/prove-retained-landing-capture-in-node-vitest/open-dough/evidence/slice2-unrun.patch`.
+  The worktree specs were restored. Slice 2 now proves only prepare admission.
+  Slice 3 proves the accepted pair against a later comparison.
