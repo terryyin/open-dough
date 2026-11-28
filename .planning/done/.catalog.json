@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-334_observe-tagged-install-and-read-e2e-proof.json",
+      "identity": "SEED-334#observe-tagged-install-and-read-e2e-proof",
+      "completedAt": "2026-11-28T02:37:12.929Z",
+      "blob": "cfda31d7c559c5ef87c2c1a4d6ccda6a65270a76"
+    },
+    {
       "fileName": "SEED-413_published-review-comparisons-via-vitest.json",
       "identity": "SEED-413#published-review-comparisons-via-vitest",
       "completedAt": "2026-11-28T02:22:04.119Z",

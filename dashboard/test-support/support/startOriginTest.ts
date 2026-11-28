@@ -24,12 +24,15 @@ export const test = base.extend<StartOriginFixtures>({
   },
 });
 
-// Publishes the origin's main as the page's committed stories, following it.
+// Publishes the origin's main as the page's committed stories, following it,
+// and answers the revision published.
 export async function publishOrigin(page: Page, origin: StartOrigin) {
+  const revision = (await origin.originGit("rev-parse", "main")).trim();
   await publishCommittedOrigin(page, {
     repoDir: origin.origin,
-    revision: (await origin.originGit("rev-parse", "main")).trim(),
+    revision,
     repository: "terryyin/open-dough",
     follows: true,
   });
+  return revision;
 }

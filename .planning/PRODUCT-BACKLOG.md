@@ -33,7 +33,6 @@ intent introduced or affected by a newly developed story.
 - [Prove GitHub request lifetime and failure evidence in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#github-request-lifetime-and-evidence-via-vitest) — SEED-413#github-request-lifetime-and-evidence-via-vitest ([plan](slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md))
 - [Prove retained landing capture in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#landing-capture-evidence-via-vitest) — SEED-413#landing-capture-evidence-via-vitest ([plan](slice-plans/864-prove-landing-capture-evidence-on-vitest/PLAN.md))
 - [Prove Dashboard machine observations in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#machine-observation-via-vitest) — SEED-413#machine-observation-via-vitest ([plan](slice-plans/866-prove-machine-observation-on-vitest/PLAN.md))
-- [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof ([plan](slice-plans/891-observe-tagged-install-and-read-e2e-proof/PLAN.md))
 - [Submit a wrapped revived Cursor continuation](seeds/SEED-450-keep-cursor-sessions-through-runner-restart.md#submit-wrapped-revived-cursor-continuation) — SEED-450#submit-wrapped-revived-cursor-continuation
 
 ## Backlog list
@@ -94,3 +93,4 @@ intent introduced or affected by a newly developed story.
 - [Recover expired session reviews from Git history](seeds/SEED-418-review-published-session-changes.md#recover-expired-session-reviews) — SEED-418#recover-expired-session-reviews
 - [Decide whether claim closure needs its own borrowed-checkout refresh rule](seeds/SEED-423-shrink-the-installed-distribution.md#decide-borrowed-checkout-refresh-rule) — SEED-423#decide-borrowed-checkout-refresh-rule
 - [Change launch records beside a running server under its lock](seeds/SEED-413-renovate-dashboard-unit-tests.md#lock-launch-store-writes-beside-server) — SEED-413#lock-launch-store-writes-beside-server
+- [Prove working-tree preparation origins hold no released installation](seeds/SEED-334-product-wide-end-to-end-tests.md#prove-working-tree-origins-hold-no-release) — SEED-334#prove-working-tree-origins-hold-no-release

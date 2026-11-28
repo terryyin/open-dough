@@ -31,6 +31,11 @@ What is substituted, and only at the product's external boundaries:
 These hold for every workflow here; a spec's header names any boundary it
 adds or replaces, such as a held answer, an injected fault or a second server.
 
+Released Open Dough has one journey here,
+`launches/released-installation-preparation.spec.ts`: the queued project's
+origin holds the complete installation pinned tag `v0.3.97`'s own installer
+writes, and a dashboard Codex preparation start runs its installed command.
+
 ## Placement
 
 A workflow goes in `<feature>/<workflow>.spec.ts` under the feature folder
