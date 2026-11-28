@@ -312,7 +312,7 @@ full-history clone. Plan 864 keeps the native capture path.
 ### 7. Persist review marks by project, story and session
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior. An explicit session unreview persists beneath a covering story
 mark until the next story-wide change clears it. Malformed or foreign
@@ -327,6 +327,13 @@ status and cache header through the existing boundary on loopback in
 Node. Replace `story-review-state-admission.spec.ts`. Keep the displayed
 mark and restart proof in
 `e2e/stories/recently-done-review-state-persistence.spec.ts`.
+
+Accepted. `story-review-state-admission.spec.ts` now holds 4 Node cases.
+Raw loopback HTTP reaches `installProjectConfigurationMiddleware` in
+production mode, over a private HOME's real machine JSON store. The 4
+Chromium cases summed 22.4 s and the new ones 0.12 s, at load 25–32.
+Production code did not change. The raw DELETE needs a `Content-Length`;
+without it, Node's parser answers a bare 400 before the boundary's 405.
 
 ### 8. Share a verified fetch through its Git mutation lifetime
 
