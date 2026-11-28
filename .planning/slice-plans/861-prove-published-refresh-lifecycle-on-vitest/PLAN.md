@@ -461,7 +461,7 @@ reimplement trunk's local-Git replacement.
 ### 10. Stream revision updates over SSE and clean up on departure or close
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A revision stream responds `200`, `text/event-stream`, `no-store`
 with an immediate first event; two streams for one source at different
@@ -591,7 +591,7 @@ beside trunk's `SharedVerifiedOriginTrunk` stream.
   revision `9379098d55410b514abf36b8fb8e42b0c0931181`.
 - Originating checkout: that same workspace. Integration checkout: none.
 - Target selection: remote `origin`, branch `main`.
-- Published revision `1f79153439c56d3d9feafc95a14b0ae0f5cb9541` accepted on
+- Published revision `e0039bd68fcb86dfd7afc16607806f7b9882d11a` accepted on
   `origin/cursor/prove-published-refresh-lifecycle-in-node-vitest`. That SHA is
   the previously published base for the next increment. The Story Branch claim
   `29e8402851ac887b9d4cdd7838b8a20db7bb08f9` remains `pendingCi: unobserved`.
