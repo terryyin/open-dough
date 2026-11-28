@@ -34,7 +34,6 @@ intent introduced or affected by a newly developed story.
 - [Prove published Review comparisons in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-review-comparisons-via-vitest) — SEED-413#published-review-comparisons-via-vitest ([plan](slice-plans/863-prove-published-review-comparisons-on-vitest/PLAN.md))
 - [Prove retained landing capture in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#landing-capture-evidence-via-vitest) — SEED-413#landing-capture-evidence-via-vitest ([plan](slice-plans/864-prove-landing-capture-evidence-on-vitest/PLAN.md))
 - [Prove Dashboard machine observations in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#machine-observation-via-vitest) — SEED-413#machine-observation-via-vitest ([plan](slice-plans/866-prove-machine-observation-on-vitest/PLAN.md))
-- [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof ([plan](slice-plans/891-observe-tagged-install-and-read-e2e-proof/PLAN.md))
 
 ## Backlog list
 

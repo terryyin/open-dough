@@ -6,8 +6,8 @@
 ## Source and provenance
 
 Dough Intent Coverage at SEED-334#observe-tagged-install-and-read-e2e-proof's
-completed revision `fda707f32f03b027d91fdfd04dbe5f3ceb3ea667` (plan 891,
-recoverable from that story's before-cleanup commit) reported **Confirmed
+completed revision `fda707f32f03b027d91fdfd04dbe5f3ceb3ea667` (plan 891 at
+`a2bb00d21f1db0f364c437d0e4b33d15d88d0ef0:.planning/slice-plans/891-observe-tagged-install-and-read-e2e-proof/PLAN.md`) reported **Confirmed
 missing test path** for the promise "tagged and working-tree prepared origins
 never share a cache identity".
 

@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "records": [
     {
+      "fileName": "SEED-334_observe-tagged-install-and-read-e2e-proof.json",
+      "identity": "SEED-334#observe-tagged-install-and-read-e2e-proof",
+      "completedAt": "2026-11-28T02:37:12.929Z",
+      "blob": "cfda31d7c559c5ef87c2c1a4d6ccda6a65270a76"
+    },
+    {
       "fileName": "SEED-413_fast-runtime-unit-case-cleanup.json",
       "identity": "SEED-413#fast-runtime-unit-case-cleanup",
       "completedAt": "2026-11-27T16:00:17.326Z",
@@ -3546,24 +3552,6 @@
       "identity": "SEED-168#story-branch-publication-with-first-landing",
       "completedAt": "2026-10-29T03:31:09.315Z",
       "blob": "1a38d35916416c94bbce064a84e875a2018e9476"
-    },
-    {
-      "fileName": "SEED-166_handle-stale-worktree-bundles.json",
-      "identity": "SEED-166#handle-stale-worktree-bundles",
-      "completedAt": "2026-10-29T01:38:15.722Z",
-      "blob": "0a823253e9755914625a3daea0ad156d2d79ee36"
-    },
-    {
-      "fileName": "SEED-164_dashboard-ci-time.json",
-      "identity": "SEED-164#dashboard-ci-time",
-      "completedAt": "2026-10-29T01:16:35.248Z",
-      "blob": "5b23653f243910c7e3c22cfe29b63764919201da"
-    },
-    {
-      "fileName": "SEED-165_keep-cursor-effort-visible.json",
-      "identity": "SEED-165#keep-cursor-effort-visible",
-      "completedAt": "2026-10-28T23:56:59.362Z",
-      "blob": "6c7d9d997b0c430bea0846636ff963def149799e"
     }
   ],
   "unreadable": []
