@@ -1,30 +1,30 @@
 // A claimed Story Branch Mode launch has one landing
-// (../../server/launchLandingReservation.ts). Once its trunk integration is
+// (../../dashboard/server/launchLandingReservation.ts). Once its trunk integration is
 // recorded (first publish may omit --landing-context when an open expectation
 // supplies the prepared path), a later trunk publication of the same launch,
 // such as a repair, is made without the landing context as the launch's
-// instruction directs (../../server/reportingInstruction.ts): trunk accepts it
+// instruction directs (../../dashboard/server/reportingInstruction.ts): trunk accepts it
 // and the launch record keeps the first pair. The same publication with the
 // context is refused before its push. Raw HTTP against the real installed start
-// and a real bare origin (../../test-support/support/startOrigin.ts) with the synthetic `claude`.
+// and a real bare origin (../../dashboard/test-support/support/startOrigin.ts) with the synthetic `claude`.
 
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
+import { queuedReadyRepository } from "../../Distribution/tests/support/queued-repository.mjs";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
 import {
   capturedPublicationSchema,
   git,
-} from "../../test-support/support/launchLanding.ts";
-import { startBoundary } from "../../test-support/support/launchDashboard.ts";
+} from "../../dashboard/test-support/support/launchLanding.ts";
+import { startBoundary } from "../../dashboard/test-support/support/launchDashboard.ts";
 import {
   startOrigin,
   type StartOrigin,
-} from "../../test-support/support/startOrigin.ts";
+} from "../../dashboard/test-support/support/startOrigin.ts";
 import {
   claimedLaunchWithStoryCommit,
   claimedRecord,
-} from "../../test-support/support/storyBranchIntegration.ts";
-import { openFirstLandingExpectation } from "../../../Distribution/src/skills/dough-execute-plan/scripts/first-landing-expectation.mjs";
+} from "../../dashboard/test-support/support/storyBranchIntegration.ts";
+import { openFirstLandingExpectation } from "../../Distribution/src/skills/dough-execute-plan/scripts/first-landing-expectation.mjs";
 
 let origin: StartOrigin;
 let server: DashboardServer;

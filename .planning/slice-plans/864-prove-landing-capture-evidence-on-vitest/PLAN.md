@@ -290,7 +290,7 @@ file changed. The new spec is 175 lines.
 ### 8. Keep the first accepted Story Branch comparison
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A claimed launch carries its context into the first authorized trunk
 integration. The fetched trunk tip and actual merge or fast-forward form its
@@ -307,6 +307,14 @@ completion. Keep the launch message, sidecar bindings and unchanged context
 bytes. The Distribution history-preserving check proves the implicit protocol.
 The E2E keeps the Dashboard pair assertion across later publication. Move the
 capture file intact, including slice 9's reporting retry case.
+
+Accepted proof: the three moved specs selected 5 e2e tests, strict status
+passed, about 19.7 s. `slice8-story-branch.json` names them. The context case
+keeps the instruction and authority and records the fetched trunk tip without
+an explicit landing-context flag. Capture records the merge and the
+fast-forward, and keeps the reporting retry inside that file. A later trunk
+publication leaves the first pair. Imports are the only text change. No
+production file changed. The capture spec stays 250 lines.
 
 ### 9. Recover a conflicted or unacknowledged Story Branch landing
 
@@ -403,9 +411,10 @@ is not split again. The plan is already at the ten-slice execution allowance.
   `567ae7298aebefd93d7e4ccea694325fd5164f35`, then slice 4 as
   `45f1c197c89ce0a4fc35b3fe08bbdc5701128963`, then slice 5 as
   `57bf00ea0c0e23aee871fd31135621046af1e9fb`, then slice 6 as
-  `b4328d438337d47e3247fa5df31e49e36553709a`, on
+  `b4328d438337d47e3247fa5df31e49e36553709a`, then slice 7 as
+  `b7a1e73a22bc8e8dd0f2789863e557e5c06a933b`, on
   `origin/cursor/prove-retained-landing-capture-in-node-vitest`. Suffix base
-  of the slice 6 receipt is slice 5, zero reconciliations. That receipt is
+  of the slice 7 receipt is slice 6, zero reconciliations. That receipt is
   the next increment's previously published base. Observer
   `/tmp/dough-ci-501/watch-1ZhItf` reused.
   No unpublished candidate. Publisher `dashboard-territory.local-open-dough`,

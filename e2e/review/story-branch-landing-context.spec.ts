@@ -1,32 +1,32 @@
 // A claimed Story Branch Mode execution launch carries the landing capture a
-// one-shot launch does (../../server/completionReporting.ts), over raw HTTP
+// one-shot launch does (../../dashboard/server/completionReporting.ts), over raw HTTP
 // against the real installed `execution-start.mjs` and a real bare origin
-// (../../test-support/support/startOrigin.ts) with the synthetic `claude`: the kept record
+// (../../dashboard/test-support/support/startOrigin.ts) with the synthetic `claude`: the kept record
 // names the landing context, the attempt holds the capture authority, and the
 // instruction's reporting block tells the session where to supply it.
 
-import { queuedReadyRepository } from "../../../Distribution/tests/support/queued-repository.mjs";
+import { queuedReadyRepository } from "../../Distribution/tests/support/queued-repository.mjs";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { expect, test } from "../../test-support/support/pageTest.ts";
-import { keptAttempts } from "../../test-support/acceptedAttempts.ts";
-import type { DashboardServer } from "../../test-support/support/dashboardServer.ts";
-import { git } from "../../test-support/support/launchLanding.ts";
+import { expect, test } from "../../dashboard/test-support/support/pageTest.ts";
+import { keptAttempts } from "../../dashboard/test-support/acceptedAttempts.ts";
+import type { DashboardServer } from "../../dashboard/test-support/support/dashboardServer.ts";
+import { git } from "../../dashboard/test-support/support/launchLanding.ts";
 import {
   slug,
   startBoundary,
-} from "../../test-support/support/launchDashboard.ts";
-import { expectReportingBlock } from "../../test-support/support/reportingInputAssertions.ts";
+} from "../../dashboard/test-support/support/launchDashboard.ts";
+import { expectReportingBlock } from "../../dashboard/test-support/support/reportingInputAssertions.ts";
 import {
   queuedIdentity,
   startOrigin,
   type StartOrigin,
-} from "../../test-support/support/startOrigin.ts";
-import { claimedStoryBranchLaunch } from "../../test-support/support/storyBranchIntegration.ts";
+} from "../../dashboard/test-support/support/startOrigin.ts";
+import { claimedStoryBranchLaunch } from "../../dashboard/test-support/support/storyBranchIntegration.ts";
 import {
   firstLandingExpectationPath,
   openFirstLandingExpectation,
-} from "../../../Distribution/src/skills/dough-execute-plan/scripts/first-landing-expectation.mjs";
+} from "../../Distribution/src/skills/dough-execute-plan/scripts/first-landing-expectation.mjs";
 
 test.describe("a claimed Story Branch Mode execution launch", () => {
   let origin: StartOrigin;
