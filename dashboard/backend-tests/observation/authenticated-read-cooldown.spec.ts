@@ -14,6 +14,7 @@
 // resumes once a wait ends: ./authenticated-read-resumption.spec.ts.
 
 import { expect, test } from "../../test-support/support/pageTest.ts";
+import { backlogPath } from "../../test-support/publishedOriginBasics.ts";
 import {
   developmentBoundary,
   startDashboardServer,
@@ -49,7 +50,6 @@ import {
 import { agentSettingsPath } from "../../../Distribution/src/skills/dough-product-backlog/scripts/product-backlog-agent-profile.mjs";
 
 const revision = "c3".repeat(20);
-const scheduledCheck = `&since=${revision}`;
 const otherSeedRead = `&revision=${revision}&path=${encodeURIComponent(otherSeedPath)}`;
 const profilesRead = `&revision=${revision}&agents=profiles`;
 const isContent = (request: GhRequest, path: string) =>
@@ -66,7 +66,7 @@ test.describe("authenticated read boundary: a directed rate limit holds back eve
     await server.close();
   });
 
-  test("after GitHub directs a long wait, every kind of read of either project is answered at once as held back, with the same resume time, and nothing reaches GitHub", async () => {
+  test("after GitHub directs a long wait, REST reads of either project are answered at once as held back, with the same resume time, and nothing reaches GitHub", async () => {
     servedRefusing(server, revision, (request) =>
       isContent(request, sharedSeedPath)
         ? rateLimitedAnswer(429, { "Retry-After": "600" })
@@ -79,8 +79,6 @@ test.describe("authenticated read boundary: a directed rate limit holds back eve
     const accepted = "a1".repeat(20);
     const readsOf = (source: string) =>
       [
-        scheduledCheck,
-        `${scheduledCheck}&watch=story/one`,
         `&revision=${"d4".repeat(20)}`,
         otherSeedRead,
         `${sharedSeedRead(revision)}&committed=last`,
@@ -99,9 +97,6 @@ test.describe("authenticated read boundary: a directed rate limit holds back eve
         `${read.source} ${read.query}`,
       );
     }
-    expect((await timedRead(server, scheduledCheck)).body.error).toMatch(
-      /^GitHub limited the rate of the local GitHub CLI's requests, so main of terryyin\/open-dough was not asked of GitHub\. Reading resumes in \d+ seconds\.$/,
-    );
     expect(askedSince(server, before)).toEqual([]);
   });
 
@@ -109,6 +104,7 @@ test.describe("authenticated read boundary: a directed rate limit holds back eve
     const published = sharedReadsPublished(revision);
     server.github.serve(everyRepository, published);
     expect((await readAt(server, `&revision=${revision}`)).status).toBe(200);
+    const otherRevision = "d4".repeat(20);
     const isHeld = (request: GhRequest) =>
       isContent(request, sharedSeedPath) ||
       isContent(request, otherSeedPath) ||
@@ -123,18 +119,14 @@ test.describe("authenticated read boundary: a directed rate limit holds back eve
       if (request.kind === "commit-list") {
         return Promise.resolve(rateLimitedAnswer(403, { "Retry-After": "60" }));
       }
-      if (request.kind === "matching-refs") {
+      if (isContent(request, backlogPath)) {
         return Promise.resolve(
           rateLimitedAnswer(429, { "Retry-After": "300" }),
         );
       }
       return published(call);
     }, isHeld);
-    const listing = holdingAnswer(
-      held.answer,
-      ({ kind }) => kind === "matching-refs",
-    );
-    server.github.serve(everyRepository, listing.answer);
+    server.github.serve(everyRepository, held.answer);
     const before = server.github.calls.length;
     const atGitHub = [
       timedRead(server, sharedSeedRead(revision)),
@@ -145,12 +137,7 @@ test.describe("authenticated read boundary: a directed rate limit holds back eve
       .poll(() => askedSince(server, before).length, { timeout: 5_000 })
       .toBe(3);
 
-    const scheduled = timedRead(server, scheduledCheck);
-    await expect
-      .poll(() => askedSince(server, before).slice(3))
-      .toEqual(["matching-refs"]);
-    listing.release();
-    const third = await scheduled;
+    const third = await timedRead(server, `&revision=${otherRevision}`);
     expect(third.body).toMatchObject({ retryAfterSeconds: 300 });
     expectHeldBack(
       await timedRead(server, profilesRead),
@@ -178,7 +165,7 @@ test.describe("authenticated read boundary: a directed rate limit holds back eve
       `content ${otherSeedPath}@${revision}`,
       `content ${sharedSeedPath}@${revision}`,
     ]);
-    expect(asked.slice(3)).toEqual(["matching-refs"]);
+    expect(asked.slice(3)).toEqual([`content ${backlogPath}@${otherRevision}`]);
   });
 
   test("once the directed time has passed, what was held back is asked and answered, and the held-back setting file was never answered as missing", async () => {

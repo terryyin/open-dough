@@ -44,7 +44,7 @@ import {
 import {
   askedSince,
   readAt,
-  revisionCheck,
+  otherSeedPath,
   sharedReadsPublished,
   sharedSeedPath,
   sharedSeedRead,
@@ -117,7 +117,10 @@ test.describe("authenticated read boundary: adding a project while a directed ra
           project: { repository: addedRepository, ref: addedBranch },
         });
 
-        const read = await timedRead(server, revisionCheck);
+        const read = await timedRead(
+          server,
+          `&revision=${revision}&path=${encodeURIComponent(otherSeedPath)}`,
+        );
         expect(read.status).toBe(502);
         expect(read.body.error).toMatch(heldBackPattern);
         expect(

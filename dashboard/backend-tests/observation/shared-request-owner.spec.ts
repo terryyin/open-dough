@@ -16,11 +16,7 @@ import {
 } from "../../test-support/support/heldGitHubAnswer.ts";
 import { inspect } from "../../test-support/support/readDiagnostics.ts";
 import { abandonedRequest } from "../../test-support/support/rawHttp.ts";
-import {
-  askedSince,
-  readAt,
-  revisionCheck,
-} from "../../test-support/support/sharedReads.ts";
+import { askedSince, readAt } from "../../test-support/support/sharedReads.ts";
 import {
   dashboardsOnOneOwner,
   isWorkflowRead,
@@ -132,14 +128,19 @@ test("two dashboards and the CI engine have eight requests at GitHub between the
 
 test("a rate limit one dashboard meets holds back the other dashboard and the CI engine with nothing asked", async () => {
   const revision = revisionOf("9b");
+  const published = withWorkflow(publishedAt(revision));
+  machine.serve(published);
+  expect((await readAt(machine.first, `&revision=${revision}`)).status).toBe(
+    200,
+  );
   machine.serve(
     answeringFirst(
-      withWorkflow(publishedAt(revision)),
-      (request) => request.kind === "matching-refs",
+      published,
+      isSeed,
       rateLimitedAnswer(429, { "Retry-After": "600" }),
     ),
   );
-  const refused = await timedRead(machine.first, revisionCheck);
+  const refused = await timedRead(machine.first, seedAt(revision, 0));
   expect(refused.body).toMatchObject({ retryAfterSeconds: 600 });
   const before = machine.github.calls.length;
 

@@ -17,6 +17,7 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "../../test-support/support/dashboardServer.ts";
+import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
 import {
   answeredTogether,
   askedSince,
@@ -25,6 +26,7 @@ import {
   otherSeedText,
   readAt,
   servedHolding,
+  sharedReadsPublished,
   sharedSeedPath,
   sharedSeedRead,
   sharedSeedText,
@@ -135,40 +137,47 @@ test.describe("authenticated read boundary: simultaneous reads share one GitHub 
   test("reads differing in repository, revision, path, or kind are asked separately and answered for their own question", async () => {
     const revision = revisionOf("5e");
     const otherRevision = revisionOf("5f");
-    const check = `&since=${revision}`;
+    const backlog = `&revision=${revision}`;
+    server.github.serve(everyRepository, sharedReadsPublished(revision));
+    const otherBacklog = await readAt(server, {
+      source: "pygardon",
+      query: backlog,
+    });
+    expect(otherBacklog.status).toBe(200);
     const holding = await servedHolding(server, revision, () => true, [
-      `&revision=${revision}`,
+      backlog,
+      `&revision=${otherRevision}`,
     ]);
     const { answers } = await answeredTogether(
       server,
       holding,
       [
-        check,
-        { source: "pygardon", query: check },
-        `&revision=${otherRevision}`,
+        { source: "pygardon", query: sharedSeedRead(revision) },
+        sharedSeedRead(otherRevision),
         sharedSeedRead(revision),
         `&revision=${revision}&path=${encodeURIComponent(otherSeedPath)}`,
         `${sharedSeedRead(revision)}&committed=last`,
       ],
-      6,
+      5,
     );
-    expect(statuses(answers)).toEqual([200, 200, 200, 200, 200, 200]);
+    expect(statuses(answers)).toEqual([200, 200, 200, 200, 200]);
     const bodies = answers.map(({ body }) => JSON.parse(body) as unknown);
-    for (const check of bodies.slice(0, 2)) {
-      expect(check).toEqual({ revision, changed: false, branches: [] });
-    }
-    expect(bodies[2]).toMatchObject({ revision: otherRevision });
-    expect(bodies[3]).toMatchObject({ text: sharedSeedText });
-    expect(bodies[4]).toMatchObject({ text: otherSeedText });
-    expect(bodies[5]).toMatchObject({
+    expect(bodies[0]).toMatchObject({ revision, text: sharedSeedText });
+    expect(bodies[1]).toMatchObject({
+      revision: otherRevision,
+      text: sharedSeedText,
+    });
+    expect(bodies[2]).toMatchObject({ revision, text: sharedSeedText });
+    expect(bodies[3]).toMatchObject({ revision, text: otherSeedText });
+    expect(bodies[4]).toMatchObject({
       committedAt: "2026-10-01T08:00:00.000Z",
     });
     const ours = (asked: string) => `terryyin/open-dough ${asked}`;
-    expect(askedSince(server, holding.before, true).sort()).toEqual(
+    const asked = askedSince(server, holding.before, true);
+    expect(asked.sort()).toEqual(
       [
-        ours("matching-refs"),
-        "terryyin/pygardon matching-refs",
-        ours(`content .planning/PRODUCT-BACKLOG.md@${otherRevision}`),
+        `terryyin/pygardon content ${sharedSeedPath}@${revision}`,
+        ours(`content ${sharedSeedPath}@${otherRevision}`),
         ours(`content ${sharedSeedPath}@${revision}`),
         ours(`content ${otherSeedPath}@${revision}`),
         ours(`commit-list ${sharedSeedPath}@${revision}`),

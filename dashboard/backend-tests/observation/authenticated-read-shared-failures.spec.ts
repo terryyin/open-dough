@@ -95,27 +95,27 @@ test.describe("authenticated read boundary: a refused shared read fails every wa
     ]);
   });
 
-  test("two checks waiting on a listing GitHub rate-limits both report the wait it directed, and the next check after it asks again", async () => {
+  test("two readers of the same history both get the wait GitHub directed, and the next reader after it asks again", async () => {
     const revision = revisionOf("7b");
-    const since = (checked: string) => `&since=${checked}`;
+    const history = `${sharedSeedRead(revision)}&committed=last`;
+    const askedHistory = `commit-list ${sharedSeedPath}@${revision}`;
     const holding = await servedHolding(
       server,
       revision,
-      isListing,
-      [since(revision)],
+      (request) => request.kind === "commit-list",
+      [`&revision=${revision}`],
       rateLimitedAnswer(429, { "Retry-After": "2" }),
     );
     const { answers, whileHeld } = await answeredTogether(
       server,
       holding,
-      [since(revision), since(revisionOf("7c"))],
+      [history, history],
       1,
     );
     const answeredAt = Date.now();
-    expect(whileHeld).toEqual(["matching-refs"]);
+    expect(whileHeld).toEqual([askedHistory]);
     const waited = {
-      error:
-        "GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading main of terryyin/open-dough. GitHub asked to wait 2 seconds before asking again.",
+      error: `GitHub limited the rate of the local GitHub CLI's requests (HTTP 429) while reading the last commit of ${sharedSeedPath} at ${revision}. GitHub asked to wait 2 seconds before asking again.`,
       retryAfterSeconds: 2,
     };
     expect(answers.map(({ status }) => status)).toEqual([502, 502]);
@@ -124,12 +124,15 @@ test.describe("authenticated read boundary: a refused shared read fails every wa
     // GitHub's wait holds back every read of this server until it has passed
     // (./authenticated-read-cooldown.spec.ts).
     await untilReported(answeredAt, waited.retryAfterSeconds);
-    const next = await readAt(server, since(revision));
+    const next = await readAt(server, history);
     expect(next.status).toBe(200);
-    expect(JSON.parse(next.body)).toMatchObject({ revision, changed: false });
+    expect(JSON.parse(next.body)).toMatchObject({
+      revision,
+      committedAt: "2026-10-01T08:00:00.000Z",
+    });
     expect(askedSince(server, holding.before)).toEqual([
-      "matching-refs",
-      "matching-refs",
+      askedHistory,
+      askedHistory,
     ]);
   });
 });

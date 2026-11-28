@@ -28,7 +28,6 @@ import {
 } from "../../test-support/originAnswers.ts";
 import {
   readAt,
-  revisionCheck,
   sharedReadsPublished,
   sharedSeedPath,
   sharedSeedRead,
@@ -71,12 +70,6 @@ const readKinds: readonly ReadKind[] = [
     refused: (request) => request.kind === "commit-list",
     reading: (revision) =>
       `the last commit of ${sharedSeedPath} at ${revision}`,
-  },
-  {
-    name: "a revision check",
-    query: () => revisionCheck,
-    refused: (request) => request.kind === "matching-refs",
-    reading: () => `main of ${repository}`,
   },
   {
     name: "a branch-head resolution",

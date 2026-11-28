@@ -224,7 +224,7 @@ credential refusal, and the watched branch's interim REST limit.
 ### 5. Move fallback proof to the behavior each case owns
 
 Type: Structure
-Status: planned
+Status: done
 
 Before the HTTP cutover, locate the cases that count or intercept the
 REST listing. Keep delivery cadence, transport loss, project isolation and
@@ -236,6 +236,32 @@ provider observation until slice 6. Leave the product paths unchanged.
 Proof: the touched HTTP and browser cases pass with their intended
 behavior on the existing routes. Trace the retained provider controls
 and name the ones slice 6 must replace.
+
+Accepted proof: 42 backend cases passed with REST-only sharing, queue turns,
+failure wording, cooldown and diagnostics exercised through pinned detail or
+branch reads. Five Chromium cases passed for standing-limit recovery and
+Board-known limits, with Dashboard typecheck. The test-only change uses
+existing request and page controls. Its direct setup keeps the different
+pin, path and wait expected by each case visible.
+
+Cutover evidence: an independent pinned REST read can set a core cooldown
+before the Board learns of it. The HTTP fallback currently learns it from
+the local owner's held-back reply to the listing. `readingLimit.ts` holds
+the later, Board-known wait used by both schedulers. Preserve both behaviors
+without dispatching a REST listing for trunk. The request owner's scoped
+`KeptAdmissions.refusal` is where the machine wait is decided; the current
+connection can ask only for an actual operation, so it exposes no status
+query. The three migrated browser cases distinguish this machine-only wait
+from the two Board-known detail cases.
+
+The remaining REST controls are in the revision-check, HTTP, branch watch,
+shared listing, subprocess-lifecycle and retained-answer backend cases.
+Move origin failures, holds and counts to Git where they prove origin
+behavior. Keep listing-specific proof at the interim branch-watch route.
+Browser cadence, visibility, project isolation, handover and recovery cases
+need their REST origin controls replaced at the owning boundary. The browser
+owner-refusal and owner-replacement cases need the relevant REST owner
+failure to remain observable through a request the owner still serves.
 
 ### 6. Follow trunk through the verified HTTP fallback
 

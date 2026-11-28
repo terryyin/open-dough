@@ -19,17 +19,28 @@ import {
   httpErrorAnswer,
   noConnection,
 } from "../../test-support/originAnswers.ts";
-import { checkedAt } from "../../test-support/support/sharedReads.ts";
+import {
+  pinnedAt,
+  readAt,
+  sharedReadsPublished,
+  sharedSeedPath,
+  unnamedRevision,
+} from "../../test-support/support/sharedReads.ts";
 
 test.describe.configure({ mode: "serial" });
 
 const knownRepository = "terryyin/open-dough";
+const reading = `${sharedSeedPath} at ${unnamedRevision}`;
 
 test.describe("authenticated read transient eligibility (development environment)", () => {
   let server: DashboardServer;
 
   test.beforeAll(async () => {
     server = await startDashboardServer(developmentBoundary);
+    server.github.serve(everyRepository, sharedReadsPublished(unnamedRevision));
+    expect((await readAt(server, `&revision=${unnamedRevision}`)).status).toBe(
+      200,
+    );
   });
 
   test.afterAll(async () => {
@@ -41,10 +52,10 @@ test.describe("authenticated read transient eligibility (development environment
       server.github.serve(everyRepository, () =>
         Promise.resolve(httpErrorAnswer(status)),
       );
-      const response = await checkedAt(server);
+      const response = await pinnedAt(server);
       expect(response.status).toBe(502);
       expect(JSON.parse(response.body)).toEqual({
-        error: `GitHub answered HTTP ${String(status)} to the local GitHub CLI while reading main of ${knownRepository}.`,
+        error: `GitHub answered HTTP ${String(status)} to the local GitHub CLI while reading ${reading}.`,
         recovery: "transient",
       });
     });
@@ -52,10 +63,10 @@ test.describe("authenticated read transient eligibility (development environment
 
   test("marks a lost GitHub connection as transient recovery", async () => {
     server.github.serve(everyRepository, () => Promise.resolve(noConnection));
-    const response = await checkedAt(server);
+    const response = await pinnedAt(server);
     expect(response.status).toBe(502);
     expect(JSON.parse(response.body)).toEqual({
-      error: `The local GitHub CLI could not reach GitHub while reading main of ${knownRepository}.`,
+      error: `The local GitHub CLI could not reach GitHub while reading ${reading}.`,
       recovery: "transient",
     });
   });
@@ -69,10 +80,10 @@ test.describe("authenticated read transient eligibility (development environment
       server.github.serve(everyRepository, () =>
         Promise.resolve(httpErrorAnswer(status)),
       );
-      const response = await checkedAt(server);
+      const response = await pinnedAt(server);
       expect(response.status).toBe(502);
       expect(JSON.parse(response.body)).toEqual({
-        error: `GitHub answered HTTP ${String(status)} to the local GitHub CLI while reading main of ${knownRepository}. Check that \`gh auth status\` succeeds and that this login can read ${knownRepository}, then reload the page.`,
+        error: `GitHub answered HTTP ${String(status)} to the local GitHub CLI while reading ${reading}. Check that \`gh auth status\` succeeds and that this login can read ${knownRepository}, then reload the page.`,
       });
     });
   }
@@ -82,10 +93,10 @@ test.describe("authenticated read transient eligibility (development environment
       everyRepository,
       failsWith("gh: unexplained failure\n"),
     );
-    const response = await checkedAt(server);
+    const response = await pinnedAt(server);
     expect(response.status).toBe(502);
     expect(JSON.parse(response.body)).toEqual({
-      error: `The local authenticated read failed while reading main of ${knownRepository}. Check that \`gh auth status\` succeeds and that this login can read ${knownRepository}, then reload the page.`,
+      error: `The local authenticated read failed while reading ${reading}. Check that \`gh auth status\` succeeds and that this login can read ${knownRepository}, then reload the page.`,
     });
   });
 });

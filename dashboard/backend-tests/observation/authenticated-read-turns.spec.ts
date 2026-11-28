@@ -20,8 +20,8 @@ import {
   startDashboardServer,
   type DashboardServer,
 } from "../../test-support/support/dashboardServer.ts";
+import { backlogPath } from "../../test-support/publishedOriginBasics.ts";
 import { everyRepository } from "../../test-support/support/fakeGitHub.ts";
-import type { GhRequest } from "../../test-support/support/ghRequest.ts";
 import { heldInTurn } from "../../test-support/support/heldGitHubAnswer.ts";
 import { processRunning } from "../../test-support/support/processGroup.ts";
 import { abandonedRequest } from "../../test-support/support/rawHttp.ts";
@@ -43,7 +43,6 @@ import {
   turns,
   underWay,
 } from "../../test-support/support/turnReads.ts";
-import { gatewayTimeout } from "./revisionCheckBoundary.ts";
 
 test.describe.configure({ mode: "serial" });
 
@@ -135,49 +134,42 @@ test("a request still waiting its turn at its bound is answered as timed out, an
   await onServerOfItsOwn(
     async (server) => {
       const revision = revisionOf("8c");
-      const nextRevision = revisionOf("8d");
-      const isHeld = (request: GhRequest) =>
-        request.kind === "matching-refs" || isSeed(request);
-      const published = publishedAt(nextRevision);
+      const waitingRevision = revisionOf("8d");
+      const published = publishedAt(revision);
       server.github.serve(everyRepository, published);
       expect((await readAt(server, `&revision=${revision}`)).status).toBe(200);
       const held = heldInTurn(
-        (call) =>
-          call.request.kind === "matching-refs"
-            ? Promise.resolve(gatewayTimeout)
-            : published(call),
-        isHeld,
+        published,
+        (request) =>
+          isSeed(request) ||
+          (request.kind === "content" && request.path === backlogPath),
       );
       server.github.serve(everyRepository, held.answer);
       const before = server.github.calls.length;
-
-      // The scheduled listing fails after the pinned requests take the
-      // remaining turns. The last pinned request gets the listing's turn
-      // before the configured-ref fallback can ask GitHub.
-      let settled = false;
-      const checking = readAt(server, `&since=${revision}`).finally(() => {
-        settled = true;
-      });
+      const occupying = seedPaths.slice(0, turns);
+      const waitingPath = seedPaths[turns];
+      if (waitingPath === undefined) throw new Error("no waiting seed");
+      // The first request is still reading the backlog for its own pin when
+      // the other reads occupy and queue for the remaining turns. When its
+      // backlog arrives, the queued read gets that turn before its seed can.
+      const waiting = readAt(server, seedRead(waitingRevision, waitingPath));
       await arrived(server, before, 1);
-      const taking = seedPaths
-        .slice(0, turns)
-        .map((path) => readAt(server, seedRead(revision, path)));
+      const taking = occupying.map((path) =>
+        readAt(server, seedRead(revision, path)),
+      );
       await arrived(server, before, turns);
       await refusedMarker(server);
       held.releaseOldest();
       await arrived(server, before, turns + 1);
-      expect(settled).toBe(false);
 
-      const answer = await checking;
+      const answer = await waiting;
       expect(answer.status).toBe(502);
       expect(answer.body).toContain(
         "The local GitHub CLI did not answer within 6 seconds",
       );
-      const [listing, ...details] = askedSince(server, before);
-      expect(listing).toBe("matching-refs");
-      expect(details.sort()).toEqual(
-        asked(revision, seedPaths.slice(0, turns)).sort(),
-      );
+      const [backlog, ...details] = askedSince(server, before);
+      expect(backlog).toBe(`content ${backlogPath}@${waitingRevision}`);
+      expect(details.sort()).toEqual(asked(revision, occupying).sort());
       held.releaseAll();
       await Promise.all(taking);
     },
