@@ -26,7 +26,7 @@ Excluded:
 - **Story Branch Mode.** The hosted probe needs a workflow that runs only on
   the story branch. No slice acts from trunk.
 - **A natural closure attributes the cause.** A forced reproduction can show
-  a mechanism. Slice 3 starts only from an event captured before a natural
+  a mechanism. Slice 5 starts only from an event captured before a natural
   closure. The seed records why: two mechanisms were reproduced and guarded,
   and the closure continued.
 - **Capture and probe are temporary.** The capture is gated by an
@@ -56,23 +56,24 @@ Read at `6baaf31bb` with Vitest 5.1.0, `@vitest/browser` 5.1.0,
 | --- | --- | --- | --- |
 | The run stops because the orchestrator's Vitest socket closes, not because the heartbeat ends it | Slice 1's capture target | Job `140834871152` (run `46098331829`, `99e48eb35`, 2026-11-28): the error comes from the WebSocket `close` handler at `@vitest/browser/dist/index.js:3101` through `Socket.socketOnClose`, with no heartbeat message. The installed source at that line rejects the orchestrator RPC's pending `createTesters`. | Settled. The TCP socket closed under a live server. |
 | The closure occurs often enough in hosted jobs to capture | Slice 2's probe size | `gh run list --workflow ci.yml --limit 120` and each failed `dashboard-frontend` job log, read 2026-11-28: 13 closures in 85 completed runs between 2026-11-27 12:14 and 2026-11-28 02:37 UTC. | Settled at about 15%. Thirty jobs miss it with a chance under 1%. |
-| The HMR reload guard does not stop the natural closure | Slice 3's starting point and slice 4 | Same job `140834871152`: `295 passed (332)` on `99e48eb35`, whose config contains `keepVitestOrchestratorOpen`. | Settled. |
+| The HMR reload guard does not stop the natural closure | Slice 5's starting point and slice 6 | Same job `140834871152`: `295 passed (332)` on `99e48eb35`, whose config contains `keepVitestOrchestratorOpen`. | Settled. |
 | An earlier capture instrument is recoverable | Slice 1 | `git show 4bf8e5f05^:dashboard/test-support/support/frontendDisconnectCapture.ts` returns its 249 lines. It observes provider lifecycle, orchestrator navigations, page close or crash, and Chromium exit. | Settled. It records no Vite server events, which slice 1 adds. |
-| A second workflow file on the story branch runs beside `ci.yml` and breaks no repository check | Slice 2's probe | `ci.yml` runs on every story-branch push (the runs above). A search of the test sources found readers of `ci.yml` by name and none that list the workflows directory. | Open in part. The search is presence. Slice 2's first push observes both workflows on one revision, and a red check there stops the slice. |
-| The capture does not suppress the closure | Slice 2 | One instrumented hosted job passed on 2026-11-27 (run `46026014984`). One job cannot show a rate. | Open. Bounded by slice 2's stop rule. |
-| The closure reproduces locally at two workers | Slice 2's local baseline and the seed's first example | Seed evidence at `67d52b5fa` and neighbors (2026-11-27): five of eight runs. One four-worker run at `003a5f4d0` finished. | Open for the execution revision. Slice 2 re-observes it. Slice 3's local proof discriminates only if this baseline shows closures. |
-| What closes the orchestrator socket | Slice 3's repair | Not yet observed. Candidates include a top-level navigation or reload of the orchestrator page, a Vite full-reload message, a closed HMR socket, and a page crash. | Open. Bounded by early probe slices 1 and 2. |
+| A second workflow file on the story branch runs beside `ci.yml` and breaks no repository check | Slice 2's probe | `ci.yml` runs on every story-branch push (the runs above). A search of the test sources found readers of `ci.yml` by name and none that list the workflows directory. | Settled at `b9a8173d4`: both workflows ran, and the only failed `ci.yml` job (run `46103818368`) was `dashboard-frontend` with the closure. |
+| The capture does not suppress the closure | Slice 2 | Slice 2 at `b9a8173d4`: two of ten hosted attempts and seven of eight local runs closed with the capture on. | Settled for slice 1's capture. Slice 3 re-observes it for its page-side additions. |
+| The closure reproduces locally at two workers | Slice 2's local baseline and the seed's first example | Seed evidence at `67d52b5fa` and neighbors (2026-11-27): five of eight runs. One four-worker run at `003a5f4d0` finished. | Settled at `b9a8173d4`: seven of eight runs closed (slice 2). Local runs can therefore capture the cause and discriminate slice 5's repair. |
+| What closes the orchestrator socket | Slice 5's repair | Slice 2's nine closures: the orchestrator page unloads gracefully 9–90 ms after the next file's tester connects. There is no Vite message, no earlier HMR loss, no crash or page close, and no committed main-frame navigation. | Open. The named candidates are ruled out. Early probe slice 3 observes the page side. |
 
 ## Outside-in proof
 
 | Promise (seed Key example) | Owner | Observation |
 | --- | --- | --- |
-| Eight consecutive full local runs each start and report every file | Slice 3 | Eight timed local runs at two workers with load averages, against slice 2's local baseline |
-| Thirty consecutive hosted jobs on the repaired revision each report every file | Slice 3 | One probe round of thirty jobs with the capture off |
-| A failing file is reported while every other file still runs | Slice 3 | Scratch failing assertion, reverted |
-| A real connection drop fails the run and names the unstarted file | Slice 3 | Scratch renderer kill, reverted |
-| Worker counts and wall time preserved | Slice 3 | The same local and hosted runs, with unchanged worker settings, against slice 2's durations |
-| The HMR reload guard stays only when the cause needs it | Slice 4 | The captured chronology and, on removal, the config without the guard |
+| Eight consecutive full local runs each start and report every file | Slice 5 | Eight timed local runs at two workers with load averages, against slice 2's local baseline |
+| Thirty consecutive hosted jobs on the repaired revision each report every file | Slice 5 | One probe round of thirty jobs with the capture off |
+| A failing file is reported while every other file still runs | Slice 5 | Scratch failing assertion, reverted |
+| A real connection drop fails the run and names the unstarted file | Slice 5 | Scratch renderer kill, reverted |
+| Worker counts and wall time preserved | Slice 5 | The same local and hosted runs, with unchanged worker settings, against slice 2's durations |
+| The HMR reload guard stays only when the cause needs it | Slice 6 | The captured chronology and, on removal, the config without the guard |
+| The probe's ordinary failure is repaired, per the failure policy | Slice 4 | A reproduction that fails for the right reason, then repeated runs of the file under load and slice 5's full runs |
 
 ## Ordered slices
 
@@ -119,15 +120,17 @@ Learnings (delivered):
 - No full-reload was sent in the normal run; that event's line is checked by
   typecheck and by the same send wrapper that filters `connected`.
 
-### 2. A natural closure is captured with the event that precedes it
+### 2. Probe rounds and local baselines record the closure's chronology
 
 Type: Behavior (early probe)
-Status: planned
+Status: done
 
 Behavior: Full frontend runs with the capture on, on hosted runners and
-locally → at least one run ends with `VITEST_BROWSER_CONNECTION_CLOSED`, and
-its capture log shows the first event before the orchestrator socket closed.
-The plan records the named cause.
+locally → runs end with `VITEST_BROWSER_CONNECTION_CLOSED`, and their capture
+logs record the server-side events before the orchestrator socket closed,
+with hosted and local timing baselines. Refined 2026-11-28: this slice was
+planned to name the cause. Its stop rule applied, and naming the cause moved
+to slice 3.
 
 Proof:
 
@@ -147,7 +150,7 @@ Proof:
   the decisive log excerpt. Record the durations of the completed probe
   jobs as the hosted timing baseline.
 - Stop rule: if thirty hosted jobs and eight local runs give no closure, or
-  a captured closure shows no preceding event, stop. Slice 3 does not start.
+  a captured closure shows no preceding event, stop. The repair does not start.
   Record what was captured and return the plan for replanning. A probe job
   that fails another way follows the failure policy and does not count as a
   capture.
@@ -193,13 +196,77 @@ Captured closures (2026-11-28, `b9a8173d4`, capture on):
   `intent-code-browse-java`, `intent-story-outside-locations`,
   `intent-story-result-browser`).
 
-Stop (2026-11-28): the stop rule applies. Closures were captured, but the
-event before each one is an ordinary tester start, and the capture cannot
-see what begins the orchestrator document's graceful unload. Slice 3 does
-not start. The plan returns for replanning. The capture and probe stay on
-the branch until replanning decides their next use.
+Outcome (2026-11-28): the stop rule applied. Closures were captured, but the
+event before each one is an ordinary tester start, and the server-side
+capture cannot see what begins the orchestrator document's graceful unload.
+The developer approved the replan the same day: slice 3 adds page-side
+capture, and slice 4 repairs the probe's ordinary failure.
 
-### 3. Full frontend runs finish every file
+### 3. The page-side capture names what begins the orchestrator's unload
+
+Type: Behavior (early probe)
+Status: planned
+
+Behavior: A full frontend run with the capture on ends with a closure → the
+same log also holds, from inside each orchestrator page, what began its
+unload. Navigation requests come with their reason and URL path. The log
+also holds when the frame starts loading and its lifecycle events,
+`beforeunload` and `pagehide`, the orchestrator's console messages, and each
+WebSocket `close()` call made by page script with its call stack. Without the
+capture variable the run is unchanged.
+
+Proof:
+
+- Extend slice 1's capture. Open a CDP session on each orchestrator page
+  (`Page.frameRequestedNavigation`, `Page.frameStartedNavigating` or
+  `frameStartedLoading`, `Page.lifecycleEvent`, `Network.webSocketClosed`,
+  `Inspector.detached`, `Inspector.targetCrashed`). Add an init script that
+  reports `beforeunload`, `pagehide` and `WebSocket.prototype.close` callers
+  through a binding. Log paths without query strings and no payloads.
+- Run one spec with one worker and the capture on. The log shows the
+  page-side events in teardown order, and no close stack outside teardown.
+- Run up to eight full local runs at two workers with the capture on, under
+  the local gate below. Stop at the first closure whose page-side events name
+  what began the unload: a navigation request with its reason, a page-script
+  `close()` with its stack, or a detach or crash. Record the run, the
+  revision, the decisive excerpt and the named cause in this plan.
+- Only if the local runs give no closure, push once with the probe on.
+  Cancel the round at the first named cause.
+- Stop rule: if a captured closure shows no page-side event before the
+  unload, or eight local runs and one hosted round give no closure, stop.
+  Slice 5 does not start. Record what was captured and return the plan for
+  replanning.
+
+### 4. A deep spec read stays unread after Development and back
+
+Type: Behavior
+Status: planned
+
+Behavior: Under full-run load, `intent-reading-place.spec.ts:141` ("the deep
+spec read with Changes only on, out collapsed and Purpose scrolled is shown
+the same after Development and back") → returning from Development shows the
+same read without reading the story again. The case fails only when a real
+re-read happens.
+
+Proof:
+
+- Evidence: probe attempts 2 and 8 (run `46103818435`) failed at line 166,
+  `expect(mounted.reads).toEqual([])`, with the received value
+  `["story text dashboard/tests/boundary/deep/long.spec.ts"]`.
+- Diagnose the cause in [rounds](../../../.claude/skills/dough-execute-plan/references/diagnosis-rounds.md)
+  as needed. Reproduce it with a minimal observation that fails for that
+  reason, for example the file repeated under parallel load or a determinate
+  timing trigger.
+- Repair the cause in the product or the test, whichever holds the defect.
+  Rerunning is not a repair.
+- The file passes repeatedly under the same load that reproduced it, and it
+  passes in slice 5's full local and hosted runs.
+- Developer decision, 2026-11-28: this repair belongs to this plan, under the
+  failure policy's rule for any failure a probe job shows. The seed's
+  exclusion still covers the ordinary failures from the earlier measured
+  window.
+
+### 5. Full frontend runs finish every file
 
 Type: Behavior
 Status: planned
@@ -212,7 +279,7 @@ never ran.
 
 Proof:
 
-- Remove the cause slice 2 names. Change the runner, config, spec setup or
+- Remove the cause slice 3 names. Change the runner, config, spec setup or
   product code only as that cause requires.
 - When a focused check can discriminate the cause, add one that fails
   without the repair, in the style of
@@ -231,22 +298,22 @@ Proof:
 - Delete the probe workflow. `git diff origin/main --stat` then shows
   neither the workflow nor the capture.
 - If the cause lies inside Vitest or Vite and needs an upgrade or a
-  workaround, return the plan for replanning with slice 2's evidence before
-  changing anything.
+  workaround, return the plan for replanning with slices 2 and 3's evidence
+  before changing anything.
 
-### 4. The HMR reload guard stays only when the cause needs it
+### 6. The HMR reload guard stays only when the cause needs it
 
 Type: Behavior
 Status: planned
 
-Behavior: `keepVitestOrchestratorOpen` is on trunk and slice 2 has named
+Behavior: `keepVitestOrchestratorOpen` is on trunk and slice 3 has named
 the cause → the guard stays when the captured natural closure passes
 through Vite's disconnect reload, and is removed otherwise. Full runs still
 finish every file.
 
 Proof:
 
-- Read slice 2's chronology for an HMR close followed by an orchestrator
+- Read slices 2 and 3's chronology for an HMR close followed by an orchestrator
   reload. Record the decision and its evidence in this plan.
 - On removal, delete the plugin and its imports from
   `dashboard/frontend.vitest.config.mts`. `npm run typecheck:dashboard`
@@ -266,7 +333,7 @@ Proof:
   [choose expensive proof before launch](../../../.agents/skills/dough-story-refinement/references/executable-proof.md#choose-expensive-proof-before-launch).
   Record host load and competing worktree runs. One full local suite runs
   at a time across worktrees, so a series may queue.
-- If slice 3 changes shared runner code (`groupVitest.mjs` or
+- If slice 5 changes shared runner code (`groupVitest.mjs` or
   `dashboard-group-run.mjs`), the backend group shares that path. Run its
   full local suite once before landing.
 - Keep the default test timeout. A changed test follows
@@ -278,18 +345,25 @@ North Star:
 The repair keeps the frontend group on Vitest Browser Mode and adds no
 Playwright test runner.
 [Make production code directly testable instead of growing test support](../../NORTH-STAR.md#make-production-code-directly-testable-instead-of-growing-test-support)
-also applies. The capture is temporary and leaves with the story, slice 4
+also applies. The capture is temporary and leaves with the story, slice 6
 removes a guard that the evidence does not support, and the repair adds no
 test-support wrapper.
 
 ## Plan review
 
-Refinement was not needed. The four slices each have one outcome and one
-proof loop. Slices 1 and 2 are early probes, and slice 3 depends on the
-cause that slice 2 names.
+Refined 2026-11-28 after slice 2's stop, with the developer's approval. The
+plan now has six slices: two done or delivering early probes (1 and 2), one
+further early probe (3), one independent repair (4), the closure repair (5)
+and the guard decision (6). Each has one outcome and one proof loop.
 
-This review found no slice-specific concern beyond the open premises above.
-Early probe slices 1 and 2 bound each of them, with a stop rule that
-returns the plan for replanning. Slice 3's approach and size follow from
-the named cause, under
-[slice sizing](../../../.agents/skills/dough-story-decomposition/references/problem-decomposition.md#size-and-escalate-slices).
+- Slice 3 narrows to what the server side cannot see, and it reuses slice
+  1's gate and slice 2's local closure rate (seven of eight). It captures
+  locally first, keeping the hosted round as the fallback. Its stop rule
+  returns the plan again if the page side shows nothing.
+- Slice 4 is independent of the closure. It comes before slice 5 so that
+  slice 5's runs judge the closure repair without this case's noise, and so
+  that slice 5's full runs also prove slice 4.
+- Slice 5's approach and size still follow from the cause slice 3 names,
+  under
+  [slice sizing](../../../.agents/skills/dough-story-decomposition/references/problem-decomposition.md#size-and-escalate-slices).
+- Readiness: ready for continued execution, within the existing Take.
