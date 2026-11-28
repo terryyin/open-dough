@@ -64,8 +64,8 @@ behavior until the plan that moves them.
 
 | Consuming operation | Observation | Remainder |
 | --- | --- | --- |
-| Git advertisement, exact fetch, and local object check | In an isolated bare origin on Apple Git 2.50.1, `ls-remote --refs origin refs/heads/main refs/heads/story/watched` reported both heads. Advancing the branch after the probe caused the exact fetch to land the newer head. After deletion a successful probe returned trunk alone while the old tracking ref and object remained. The object was still readable after removing the tracking ref in that run. An unreachable origin and loopback HTTP 401, 403, 404, and 503 all exited 128. | The transport and failure classification are settled in the seed's transport evidence. Slices 4–5 here exercise the race and deletion through the Dashboard; plan 887 owns retention of admitted pins. |
-| Board's live progress and recovery cues | At `1c0272d6f`, `caffeinate -s -i npm run test:e2e -- auto-refresh-branches.spec.ts auto-refresh-recovery.spec.ts --workers=1 --reporter=line` passed 3 cases. The REST fixture advanced branch progress with trunk fixed and displayed the branch deletion cue. The Board preserved the last good snapshot during a failed check and recovered. | These cases establish current UI meanings. Slices 3–5 replace the provider fixture with the real-origin Board fixtures at the changed boundary and count Git operations against a real origin. |
+| Git advertisement, exact fetch, and local object check | In an isolated bare origin on Apple Git 2.50.1, `ls-remote --refs origin refs/heads/main refs/heads/story/watched` reported both heads. Advancing the branch after the probe caused the exact fetch to land the newer head. After deletion a successful probe returned trunk alone while the old tracking ref and object remained. The object was still readable after removing the tracking ref in that run. An unreachable origin and loopback HTTP 401, 403, 404, and 503 all exited 128. | The transport and failure classification are settled in the seed's transport evidence. Slices 9–10 exercise the race and deletion through the Dashboard; plan 887 owns retention of admitted pins. |
+| Board's live progress and recovery cues | At `1c0272d6f`, `caffeinate -s -i npm run test:e2e -- auto-refresh-branches.spec.ts auto-refresh-recovery.spec.ts --workers=1 --reporter=line` passed 3 cases. The REST fixture advanced branch progress with trunk fixed and displayed the branch deletion cue. The Board preserved the last good snapshot during a failed check and recovered. | These cases establish current UI meanings. The cutover slices replace REST provider controls with real-origin Board fixtures and count Git operations at origin. |
 | Board check request count | Plan 853 slice 4 (2026-11-27, Apple Git against a local-file bare origin, load ~19): a cold Board check reached origin twice (`ls-remote` probe, fetch into `refs/open-dough/board/<branch>`), about 150 ms (69 ms probe + 80 ms fetch); a warm check whose confirmation record matched the advertised head reached it once (probe only, 39–67 ms). | Counting baseline for "one advertised check per covered demand"; local-file transport, not GitHub HTTPS, so timings are indicative only. |
 
 These observations are baseline proof. The slices below own discrimination
@@ -202,7 +202,7 @@ stream produces the same verified observation as Refresh, recorded through
 the confirmation record. While origin stays unchanged, only the time
 advances. Leaving one stream releases its wait while another tab still
 receives the verified observation. Keep the existing HTTP fallback in
-place until slice 6.
+place until slice 8.
 
 Proof: the [revision stream boundary](../../../dashboard/backend-tests/observation/authenticated-read-revision-stream.spec.ts)
 against a real origin counts project checks for overlapping subscribers
@@ -231,11 +231,11 @@ REST listing. Keep delivery cadence, transport loss, project isolation and
 recovery at the boundary that exhibits them. Prove REST-only limits,
 cooldown, sharing and request turns through the detail or branch reads
 that still use REST. A case about the origin check itself keeps its
-provider observation until slice 6. Leave the product paths unchanged.
+provider observation until cutover. Leave the product paths unchanged.
 
 Proof: the touched HTTP and browser cases pass with their intended
 behavior on the existing routes. Trace the retained provider controls
-and name the ones slice 6 must replace.
+and name the ones the HTTP cutover must replace.
 
 Accepted proof: 42 backend cases passed with REST-only sharing, queue turns,
 failure wording, cooldown and diagnostics exercised through pinned detail or
@@ -263,7 +263,53 @@ need their REST origin controls replaced at the owning boundary. The browser
 owner-refusal and owner-replacement cases need the relevant REST owner
 failure to remain observable through a request the owner still serves.
 
-### 6. Follow trunk through the verified HTTP fallback
+### 6. Read the shared request owner's standing core cooldown locally
+
+Type: Structure
+Status: done
+
+The current HTTP cutover crosses two independent boundaries. First make the
+machine's existing core cooldown observable through the authenticated local
+owner. Reuse its checked scope, refusal and retry time without reserving a
+GitHub turn, dispatching a provider request, or introducing another clock
+or record. Keep current Dashboard delivery and ordinary owner commands
+unchanged. Existing owner protocol peers can still exchange their current
+read and rerun operations. The caller distinguishes an unsupported query
+or unavailable owner from a confirmed wait and from an observed clear state.
+
+Proof: through an actual owner connection, a pinned core request establishes
+a wait and another consumer reads its remaining time without an upstream
+call. When it expires the query reports clear. A search-only limit does not
+hold the core query. Keep the real request owner's admission and replacement
+checks and exercise compatibility with a peer lacking the new operation.
+
+Accepted proof: a second authenticated consumer observed three seconds
+remaining after advancing the isolated owner's clock, then clear at the
+original deadline. The hold file and provider request ledger showed no
+write or dispatch from the query. Separate cases proved that a search wait
+does not affect core and that scope and request shape are checked. An older
+protocol 2 peer answered an ordinary read after reporting the query as
+unsupported. Independent review passed 42 Distribution cases, nine
+Dashboard REST cases, and Dashboard typecheck.
+
+### 7. Prepare HTTP fallback cases for the Git cutover
+
+Type: Structure
+Status: planned
+
+Prepare the remaining proof named in slice 5. Ground origin-dependent
+fixtures in the routed bare Git origins. Make scheduler assertions on
+cadence, fallback delivery and project isolation independent of REST
+listing details. Keep provider-specific listing proof on watched branches
+where the route still uses REST, and exercise request-owner refusal and
+replacement through a real pinned detail. Keep the product unchanged.
+
+Proof: focused backend and browser selections exercise the same workflow
+observations on the current route. Identify the assertions that must change
+with the HTTP wire's verified confirmation and the remaining Git failure
+substitutes needed at cutover.
+
+### 8. Follow trunk through the verified HTTP fallback
 
 Type: Behavior
 Status: planned
@@ -282,7 +328,7 @@ unavailable shows B without Refresh and shows the later time at unchanged
 B. Re-prove remaining affected confirmation, check-return, visibility,
 project isolation, held read and recovery cases at their owning boundaries.
 
-### 7. Follow published story-branch progress
+### 9. Follow published story-branch progress
 
 Type: Behavior
 Status: planned
@@ -299,7 +345,7 @@ a new trunk. At the read boundary hold the transport between probe and
 fetch and change the ref or withhold its objects; inspect the observed
 revision, time, and remote operation count.
 
-### 8. Report confirmed branch deletion
+### 10. Report confirmed branch deletion
 
 Type: Behavior
 Status: planned
@@ -317,13 +363,13 @@ read-boundary case for the failed probe, both against a real origin.
 
 Reported: slice 4 — "The HTTP revision-check route still uses its existing listing and ref fallback and original wire shape."
 Story clause: "Automatic observation (the revision stream and its HTTP fallback) runs the same verified Git check as Refresh and publishes through the same durable confirmation record."
-Disposition: receiving slice 6
+Disposition: receiving slice 8
 
 ### G2. Verified watched-branch progress
 
 Reported: slice 4 — "The watched branch’s REST listing is still reachable and supplies branches only."
 Story clause: "The Board follows trunk membership and priority, Preparing and Taken assignments, and branch-only plan progress, including the plan's commit time, from verified heads."
-Disposition: interim until slices 7, 8
+Disposition: interim until slices 9, 10
 
 ## Plan review
 
@@ -339,10 +385,14 @@ slice 3 named. Both delivery paths use `performRevisionCheck`.
 The Board's automatic recovery, limit and return journeys also control
 that path. A single cutover would invalidate their setup alongside
 changing the product. Prepare and switch each delivery path in turn.
-Original slices 4 and 5 are now 7 and 8. The goal and examples are
-unchanged. Before either cutover, account for the affected proof from
-the preceding Structure slice and reassess the remaining work against
-the active-time limit.
+The original branch progress and deletion slices are now 9 and 10.
+Execution of the HTTP cutover exposed two independent gates within the
+current slice. The local owner does not expose its already-held core wait,
+which the old revision listing implicitly asks it to enforce. The remaining
+HTTP and browser proof also needs preparation at the affected boundaries.
+The split gives both gates and the actual HTTP cutover separate proof loops.
+This keeps the same behavior and examples and uses the ten-slice limit
+for subdividing the current slice during execution.
 
 ## Local gate
 
