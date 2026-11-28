@@ -273,7 +273,7 @@ Some cases exceeded 5 s at an external load of 37–41 and passed at 16–19.
 ### 6. Keep the chosen landing through replacement, deletion and expiry
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior. A captured comparison is keyed to a launch even when its native
 session is replaced. Retention and deletion advance the preferred choice
@@ -293,6 +293,21 @@ read the preferred and explicit choices. Replace
 assertions in `story-review-completed-gaps.spec.ts`. Keep
 `e2e/review/story-review-one-shot-choice-refresh.spec.ts` for the visible
 selection through refresh after deletion, expiry and replacement.
+
+Accepted. The cases now live in three places:
+
+- `story-review-stored-runs.spec.ts` holds the identity, replacement,
+  deletion and retention cases (3 Node cases, each 100 ms or less) over the
+  real launch record store. It includes the exact 30-day boundary.
+- `story-review-historical-choice.spec.ts` gains the missing-repository
+  case and a 4-variant capture rejection over shallow published history.
+- The new `story-review-prior-landing.spec.ts` holds the prior landing.
+
+At one worker, the 9 Chromium cases from four specs summed 21.9 s. The new
+cases summed 5.0 s, at load 12–14 old and 11 new. The gaps spec,
+`reviewRunStore.ts` and `ordinaryTrunkModeCompletionOntoTip` lost their
+last callers and are gone. MakeMe now declares the capture over a
+full-history clone. Plan 864 keeps the native capture path.
 
 ### 7. Persist review marks by project, story and session
 
