@@ -432,3 +432,15 @@ caffeinate -s -i npm run test:e2e -- \
   e2e/review/story-review-completed.spec.ts \
   e2e/review/story-review-completed-merge-edits.spec.ts --workers=1
 ```
+
+## Execution complete
+
+Product advice: No product change. This family's Review comparisons, file
+and result admission, retained choice, marks and shared fetch now run on
+Node Vitest. Their production seams are unchanged apart from exporting
+`readStoryReviewResult`. Plan 888's successor should replace the
+shared-fetch spec's spy on `OutstandingReads.prototype.waitFor` with its new
+coalescing boundary. Hosted `dashboard-frontend` failed on `8eeec7d33` with
+`VITEST_BROWSER_CONNECTION_CLOSED`. That closure hit four other branches on
+2026-11-27 and 28, and its owning story was dropped that day. It needs a
+developer decision.
