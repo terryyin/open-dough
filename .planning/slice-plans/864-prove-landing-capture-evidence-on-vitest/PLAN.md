@@ -82,7 +82,7 @@ OPEN_DOUGH_DASHBOARD_BACKEND_TIMES="$proof_dir/legacy-times.txt" \
 ### 1. Retain the first one-shot comparison through installed publication
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: The installed publisher has a launch context for a refinement or
 execution and a candidate. Deliver and resume keep the prepared pair and
@@ -99,6 +99,20 @@ workflow admissions, before-push retained submission, checkout and original
 start receipt, separate completion, pins, exact diff and replay. Reuse the
 existing installed launch support. The existing recovery E2E owns real write
 and response loss, and the typed `landingPinRecovery` owns repair-before-record.
+
+Accepted proof, before delivery marks this slice done: the two specs moved to
+`e2e/review/` with only the `../../dashboard/` import prefix used by
+`e2e/review/one-shot-landing-recovery.spec.ts`. The legacy copies were removed.
+`OPEN_DOUGH_E2E_PROOF_RECORD` at
+`open-dough/evidence/slice1-e2e-selection.json` selected 3 chromium cases and
+recorded `strictStatus: passed` in 14.3 s: the CLI `--landing-context` case,
+and refinement and execution retirement/GC. Assertions in those specs observe
+the prepared pair, the receipt after worktree removal, `cat-file` after
+`gc --prune=now`, and absent completion and observer. No production file
+changed. Refactor pass skipped: these are the slice's subject specs, and a
+search for their names finds only this plan. Later slices 6–8 can reuse the
+same import prefix. The quiet e2e reporter prints nothing on a pass, so a
+proof record is what names the selected cases.
 
 ### 2. Admit only the authorized prepared comparison
 
@@ -259,3 +273,39 @@ expiry and deletion into distinct typed proof loops. Those four fit the
 The other four fit by moving the already replayed installed and E2E cases with
 their fixtures. No slice-specific concern remained after the baseline, typed
 discrimination and receiving-runner checks.
+
+## Execution context
+
+- Mode: story-branch. Owned workspace
+  `/Users/terryyin/git/open-dough/.worktrees/prove-retained-landing-capture-in-node-vitest`,
+  branch `cursor/prove-retained-landing-capture-in-node-vitest`, created for
+  this identity. Integration checkout `/Users/terryyin/git/open-dough` on
+  `main`. Remote `origin`. Ordinary increments publish to
+  `origin/cursor/prove-retained-landing-capture-in-node-vitest`; integration
+  target is `origin/main`.
+- Starting revision `4c38141a1b7f5a808d5b793e95d98c827a210055`. Accepted Take
+  `dfc699737c5df187855e7941ef4d2e44e8021115` on that execution branch. Publisher
+  `dashboard-territory.local-open-dough`, agent `Yua-chan`. That SHA is the
+  next increment's previously published base. No unpublished candidate.
+- Setup in this checkout: Node 24.21.0 and Bash 5.3.20 from `/opt/homebrew/bin`.
+  `node scripts/setup-native.mjs npm`, `browser`, and `check` passed
+  (Chromium 158.0.8127.18). `npm run --silent typecheck:dashboard` passed.
+  Lockfile unchanged.
+- CI: GitHub Actions `terryyin/open-dough`, workflow `ci.yml` (id 351271804,
+  display name CI, active), integrated-state completion check `ci.yml` on
+  `push`. Observer `/tmp/dough-ci-501/watch-1ZhItf` uses
+  `.agents/skills/dough-execute-plan`. The Take published before this observer
+  was armed, so that claim is `pendingCi: unobserved` and is not registered here.
+- Slice 1 proof decision: macOS on AC, 48 GiB, load about 9.3/7.6/6.7, with
+  little free memory and other worktrees already running one-worker backend
+  and E2E suites. Run this slice's receiving E2E at `--workers=1` under
+  `caffeinate -s -i`. Recheck competing Open Dough test processes before
+  launch. Treat a resource failure as a reason to reconsider, not to retry
+  immediately. Expect several minutes, including a cold dashboard build. The
+  settled disposable 12-case replay was 38 s wall; the recovery E2E pair was
+  31 s wall.
+- The publication that first lands this launch on trunk takes landing context
+  `/Users/terryyin/.open-dough/dashboard/reporting/369db0bd-7bb0-4738-bb9d-e92b252f003a/landing-context.json`.
+  Later trunk publications take none.
+- Replanning keeps existing planning authority. No `--replan` or `--no-replan`.
+  Slice 1 has no story-obligation entries.
