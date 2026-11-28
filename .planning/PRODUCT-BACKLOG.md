@@ -31,6 +31,7 @@ intent introduced or affected by a newly developed story.
 - [Prove published refresh lifecycle in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-refresh-lifecycle-via-vitest) — SEED-413#published-refresh-lifecycle-via-vitest ([plan](slice-plans/861-prove-published-refresh-lifecycle-on-vitest/PLAN.md))
 - [Follow published progress from local Git](seeds/SEED-430-read-published-project-data-from-local-git.md#follow-published-progress-from-local-git) — SEED-430#follow-published-progress-from-local-git ([plan](slice-plans/823-follow-published-progress-from-local-git/PLAN.md))
 - [Prove GitHub request lifetime and failure evidence in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#github-request-lifetime-and-evidence-via-vitest) — SEED-413#github-request-lifetime-and-evidence-via-vitest ([plan](slice-plans/890-prove-github-request-lifetime-and-evidence-on-vitest/PLAN.md))
+- [Prove published Review comparisons in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-review-comparisons-via-vitest) — SEED-413#published-review-comparisons-via-vitest ([plan](slice-plans/863-prove-published-review-comparisons-on-vitest/PLAN.md))
 
 ## Backlog list
 
@@ -39,7 +40,6 @@ intent introduced or affected by a newly developed story.
 - [Browse published Intent and attribution from local Git](seeds/SEED-434-browse-published-intent-from-local-git.md#browse-published-intent-from-local-git) — SEED-434#browse-published-intent-from-local-git
 - [Read published Git inputs to CI from local Git](seeds/SEED-435-read-published-ci-inputs-from-local-git.md#read-published-ci-inputs-from-local-git) — SEED-435#read-published-ci-inputs-from-local-git
 - [Check the feedback maintenance watch list from local Git](seeds/SEED-436-check-feedback-maintenance-from-local-git.md#check-feedback-maintenance-from-local-git) — SEED-436#check-feedback-maintenance-from-local-git
-- [Prove published Review comparisons in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#published-review-comparisons-via-vitest) — SEED-413#published-review-comparisons-via-vitest
 - [Prove retained landing capture in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#landing-capture-evidence-via-vitest) — SEED-413#landing-capture-evidence-via-vitest
 - [Prove Dashboard machine observations in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#machine-observation-via-vitest) — SEED-413#machine-observation-via-vitest
 - [Observe a tagged installed workflow and read E2E proof in Intent](seeds/SEED-334-product-wide-end-to-end-tests.md#observe-tagged-install-and-read-e2e-proof) — SEED-334#observe-tagged-install-and-read-e2e-proof
