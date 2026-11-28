@@ -145,7 +145,7 @@ lines, and they add no new production representation.
 ### 3. Keep the accepted pair when a later comparison arrives
 
 Type: Behavior
-Status: planned
+Status: done
 
 Behavior: A record requires the prepared comparison and remote acceptance.
 After that pair is retained, a well-formed distinct pair for the same launch
@@ -155,6 +155,16 @@ Proof: Restore the unrun test `recording waits for acceptance, then a distinct
 pair leaves that landing unchanged` in `landingPinRecovery.spec.ts`. It records
 only after the real push, then refuses a later real commit as a second pair.
 Run that spec. Do not use the old malformed changed replay as this proof.
+
+Accepted proof: `landingPinRecovery.spec.ts` selected 4 node tests, strict
+status passed, about 2.1 s. `slice3-later-pair.json` names the restored case.
+Record before the real push returns 409 and leaves the session, preparations,
+and checkout unchanged. After `git push` of `HEAD:refs/heads/main`, the same
+submission resolves to the prepared receipt with state `recorded`. A later
+real commit, submitted as a distinct pair, is refused for both prepare and
+record, and the session and checkout still match the post-record snapshots.
+No production file changed. Refactor pass skipped: this is the slice's subject
+spec, it is 250 lines, and it adds no new production representation.
 
 ### 4. Bind a pending capture to the original native session
 
@@ -305,10 +315,11 @@ nine slices, inside the execution allowance for splitting the slice in progress.
 - Starting revision `4c38141a1b7f5a808d5b793e95d98c827a210055`. Accepted Take
   `dfc699737c5df187855e7941ef4d2e44e8021115`. Slice 1 published
   `f5b38eb90e68703c6633ae2a168262a529dc001d`, then the slice split as
-  `d4c967304b080b4dedaac99e4d9d91b134848b69`, on
+  `d4c967304b080b4dedaac99e4d9d91b134848b69`, then slice 2 as
+  `c138a53602d8d84d333826baa7795433f75fa11c`, on
   `origin/cursor/prove-retained-landing-capture-in-node-vitest`. Suffix base
-  of that plan revision is slice 1, zero reconciliations. That receipt is the
-  next increment's previously published base. Observer
+  of the slice 2 receipt is the plan revision, zero reconciliations. That
+  receipt is the next increment's previously published base. Observer
   `/tmp/dough-ci-501/watch-1ZhItf` reused.
   No unpublished candidate. Publisher `dashboard-territory.local-open-dough`,
   agent `Yua-chan`.

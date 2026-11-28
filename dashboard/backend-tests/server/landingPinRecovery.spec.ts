@@ -191,3 +191,60 @@ test("a prepare admits only this launch's comparison of its workspace HEAD", asy
   expect(await keptSession(source, record.session)).toEqual(beforeRecord);
   expect(await captured(workspace)).toEqual(before);
 });
+
+test("recording waits for acceptance, then a distinct pair leaves that landing unchanged", async () => {
+  const {
+    branch,
+    workspace,
+    record,
+    reference,
+    base,
+    revision,
+    submission,
+    prepared,
+    performWork,
+  } = await preparedLanding();
+  const preparedCapture = await captured(workspace);
+  const preparedRecord = clone(await keptSession(source, record.session));
+  await expect(
+    handleLanding(submission, dashboardOrigin, "record"),
+  ).rejects.toMatchObject({
+    status: 409,
+    message:
+      "The authorized remote target has not confirmed this commit comparison.",
+  });
+  expect(await keptSession(source, record.session)).toEqual(preparedRecord);
+  expect(preparedRecord?.landing).toBeUndefined();
+  expect(preparedRecord?.landingReporting?.preparations).toEqual([
+    expect.objectContaining({ base, revision }),
+  ]);
+  expect(await captured(workspace)).toEqual(preparedCapture);
+
+  await git(workspace, "push", "--quiet", "origin", "HEAD:refs/heads/main");
+  await expect(
+    handleLanding(submission, dashboardOrigin, "record"),
+  ).resolves.toEqual({ ...prepared, state: "recorded" });
+  const { later } = await performWork(
+    (at) => makeMe.aCheckoutWork.committing("later", { at: at(15) }),
+    { in: branch },
+  );
+  await git(workspace, "merge-base", "--is-ancestor", base, later);
+  const intact = await captured(workspace);
+  const accepted = clone(await keptSession(source, record.session));
+  expect(intact.head).toBe(later);
+  expect(accepted?.landing).toMatchObject({ base, revision });
+  const distinct = makeMe.aLandingSubmission
+    .forLaunch({ reference, identity: declaredStory })
+    .inDelivery("55555555-5555-4555-8555-555555555555")
+    .comparing({ base, revision: later })
+    .please();
+  for (const operation of ["prepare", "record"] as const)
+    await expect(
+      handleLanding(distinct, dashboardOrigin, operation),
+    ).rejects.toMatchObject({
+      status: 409,
+      message: "This launch already retained a different landing comparison.",
+    });
+  expect(await keptSession(source, record.session)).toEqual(accepted);
+  expect(await captured(workspace)).toEqual(intact);
+});
