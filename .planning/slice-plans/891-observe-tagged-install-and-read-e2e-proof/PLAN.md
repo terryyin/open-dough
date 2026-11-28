@@ -128,7 +128,7 @@ other view renders a location label; `IntentCiEntryLink` alone names entries.
 
 ### 3. Open registering helpers from Proof and Purpose
 Type: Behavior
-Status: planned
+Status: done
 Proof: installed `test-entry-rules.mjs` on both helper paths reports the `e2e`
 location; a headless Playwright observation of this checkout's dashboard
 Project Intent (worktree Chromium) selects
@@ -144,6 +144,11 @@ the `e2e` conventions; spec discovery (`testFiles.mjs`) and CI shard globs do
 not read the include list, and `playwright test --list` shows no `Cases.ts`.
 The dashboard reads Intent from the published repository, so the Project
 Intent observation runs on the published revision with its CI proof.
+An isolated dev dashboard on this branch (and on `main`) timed out on every
+published read while the production dashboard read normally, so on the
+developer's direction (2026-11-28) the observation moves to the production
+dashboard's Project Intent after integration on `main`, before retirement;
+a miss there becomes a correction.
 
 ## Verification and delivery gates
 
