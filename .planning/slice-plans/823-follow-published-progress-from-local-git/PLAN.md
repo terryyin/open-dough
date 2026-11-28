@@ -423,6 +423,14 @@ deletion cue and removed the former progress and timing cues. All three
 focused HTTP cases, the browser journey and Dashboard typecheck passed.
 Only the subject HTTP spec changed.
 
+## Execution complete
+
+Product advice: keep the current order. Verified trunk and watched-branch
+observations now give the pinned-record and shared Review stories their
+required input. Those stories still own their existing scopes and the
+shared-refresh North Star still applies. No new product correction came
+from reviewing the delivered behavior and its proof.
+
 ## Story obligations
 
 ### G1. HTTP fallback confirmation
