@@ -34,7 +34,6 @@ intent introduced or affected by a newly developed story.
 - [Prove retained landing capture in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#landing-capture-evidence-via-vitest) — SEED-413#landing-capture-evidence-via-vitest ([plan](slice-plans/864-prove-landing-capture-evidence-on-vitest/PLAN.md))
 - [Prove Dashboard machine observations in Node Vitest](seeds/SEED-413-renovate-dashboard-unit-tests.md#machine-observation-via-vitest) — SEED-413#machine-observation-via-vitest ([plan](slice-plans/866-prove-machine-observation-on-vitest/PLAN.md))
 - [Submit a wrapped revived Cursor continuation](seeds/SEED-450-keep-cursor-sessions-through-runner-restart.md#submit-wrapped-revived-cursor-continuation) — SEED-450#submit-wrapped-revived-cursor-continuation
-- [Keep full Dashboard frontend runs connected to their browser](seeds/SEED-413-renovate-dashboard-unit-tests.md#keep-full-frontend-runs-connected) — SEED-413#keep-full-frontend-runs-connected ([plan](slice-plans/895-keep-full-frontend-runs-connected/PLAN.md))
 
 ## Backlog list
 

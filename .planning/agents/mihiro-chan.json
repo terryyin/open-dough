@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "agent": "Mihiro-chan",
-  "email": "mihiro-chan@example.org",
-  "identity": "SEED-413#keep-full-frontend-runs-connected",
-  "mode": "story-branch",
-  "branch": "claude/keep-full-dashboard-frontend-runs-connected-to-t",
-  "host": "claude"
-}
